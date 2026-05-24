@@ -32,7 +32,7 @@ class AuthController extends Controller
 
     private function sendOtp(User $user): void
     {
-        $otp = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+        $otp = '123456'; // Hardcoded for Render testing
         $user->update([
             'otp_code'       => $otp,
             'otp_expires_at' => now()->addMinutes(10),
@@ -178,7 +178,7 @@ HTML;
         // Also check if there's already a pending registration for this email
         // (allow re-register to update the pending data)
 
-        $otp = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+        $otp = '123456'; // Hardcoded for Render testing
 
         // Store pending registration in cache (NOT in the database)
         // Expires in 15 minutes
@@ -266,7 +266,7 @@ HTML;
         }
 
         // Generate new OTP
-        $otp = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+        $otp = '123456'; // Hardcoded for Render testing
         $pending['otp'] = $otp;
         Cache::put($cacheKey, $pending, now()->addMinutes(15));
 
