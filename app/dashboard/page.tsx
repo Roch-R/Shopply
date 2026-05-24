@@ -1252,6 +1252,17 @@ export default function DashboardPage() {
           font-size: 8px;
         }
 
+        .category-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+          gap: 12px;
+        }
+        .variant-form-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr 1fr;
+          gap: 20px;
+        }
+
         .content{flex:1;min-width:0}
 
         .profile-header{background:linear-gradient(135deg,#fff,#f8fafc);border-radius:20px;padding:32px;
@@ -1501,6 +1512,8 @@ export default function DashboardPage() {
           .order-search-container{flex-direction:column !important;align-items:stretch !important;gap:12px !important;padding:16px !important}
           .order-search{width:100% !important}
           .order-search input{width:100% !important}
+          .category-grid{grid-template-columns:repeat(2, 1fr) !important;gap:8px !important}
+          .variant-form-grid{grid-template-columns:1fr !important;gap:16px !important}
         }
         
         /* Desktop defaults for Settings page */
@@ -2434,7 +2447,7 @@ export default function DashboardPage() {
                 <form onSubmit={editingItem ? handleUpdateItem : handleAddItem}>
                   <div className="form-group">
                     <label className="form-label" style={{ marginBottom: 16 }}>Product Category</label>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 12 }}>
+                    <div className="category-grid">
                       {[
                         { val: "General", label: "Gadgets", icon: <IconBox /> },
                         { val: "Electronics", label: "Tech", icon: <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" ry="2" /><line x1="8" y1="21" x2="16" y2="21" /><line x1="12" y1="17" x2="12" y2="21" /></svg> },
@@ -2822,7 +2835,7 @@ export default function DashboardPage() {
                       flexDirection: 'column',
                       gap: 20
                     }}>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 20 }}>
+                      <div className="variant-form-grid">
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                           <label className="form-label" style={{ fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 0 }}>Variant Color Name</label>
                           <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
