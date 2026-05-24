@@ -1,0 +1,103 @@
+
+"use client";
+import Link from "next/link";
+
+export default function CareersPage() {
+  return (
+    <>
+      <style suppressHydrationWarning>{`
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@700;800&display=swap');
+        *{box-sizing:border-box;margin:0;padding:0}
+        body{background:#f5f7ff;font-family:'Inter',sans-serif;}
+        .page{min-height:100vh;background:linear-gradient(160deg,#f0f4ff 0%,#faf5ff 45%,#f0f9ff 100%);position:relative;overflow-x:hidden;padding-bottom:100px}
+        .nav{position:sticky;top:0;z-index:100;padding:0 48px;height:68px;display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.75);backdrop-filter:blur(20px);border-bottom:1px solid rgba(124,58,237,.08);box-shadow:0 1px 20px rgba(0,0,0,.04)}
+        .nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+        .nav-logo-text{font-size:17px;font-weight:700;color:#0f172a;letter-spacing:-.3px}
+        .nav-right{display:flex;align-items:center;gap:24px}
+        .nav-link{font-size:13px;font-weight:500;color:#64748b;text-decoration:none;padding:6px 12px;border-radius:8px;transition:all .2s}
+        .nav-link:hover{color:#7c3aed;background:rgba(124,58,237,.06)}
+        .container{max-width:1000px;margin:80px auto;padding:0 48px;}
+        .header-section{text-align:center;margin-bottom:60px;}
+        h1{font-family:'Playfair Display',serif;font-size:52px;font-weight:800;color:#0f172a;margin-bottom:20px;letter-spacing:-1px}
+        .subtitle{font-size:18px;color:#64748b;line-height:1.6;max-width:600px;margin:0 auto;}
+        
+        /* Premium Cards */
+        .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:24px;}
+        .card{background:#fff;border-radius:20px;padding:32px;box-shadow:0 10px 40px rgba(0,0,0,.03);border:1px solid #f1f5f9;transition:all .3s;}
+        .card:hover{transform:translateY(-5px);box-shadow:0 20px 40px rgba(124,58,237,.08);border-color:rgba(124,58,237,.2)}
+        .card-icon{width:48px;height:48px;border-radius:12px;background:rgba(124,58,237,.1);color:#7c3aed;display:flex;align-items:center;justify-content:center;margin-bottom:20px;font-size:24px;}
+        .card h3{font-size:18px;font-weight:700;color:#0f172a;margin-bottom:12px;}
+        .card p{font-size:14px;color:#64748b;line-height:1.6;}
+      `}</style>
+      <div className="page">
+        <nav className="nav">
+          <Link href="/dashboard" className="nav-logo">
+            <svg width="32" height="32" viewBox="0 0 200 260" xmlns="http://www.w3.org/2000/svg">
+              <rect x="8" y="68" width="184" height="176" rx="24" fill="none" stroke="url(#ng)" strokeWidth="14" />
+              <path d="M56 70 Q56 18 100 18 Q144 18 144 70" fill="none" stroke="url(#ng)" strokeWidth="14" strokeLinecap="round" />
+              <circle cx="68" cy="70" r="7" fill="#7c3aed" />
+              <circle cx="132" cy="70" r="7" fill="#7c3aed" />
+              <path d="M24 192 Q36 150 70 145 Q104 140 110 170 Q116 198 150 192 Q170 187 176 162" fill="none" stroke="#FFD166" strokeWidth="13" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M161 145 L176 162 L157 175" fill="none" stroke="#FFD166" strokeWidth="13" strokeLinecap="round" strokeLinejoin="round" />
+              <defs><linearGradient id="ng" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#7c3aed" /><stop offset="100%" stopColor="#2563eb" />
+              </linearGradient></defs>
+            </svg>
+            <span className="nav-logo-text">Shopply</span>
+          </Link>
+          <div className="nav-right">
+            <Link href="/about" className="nav-link">About</Link>
+            <Link href="/shop" className="nav-link">Marketplace</Link>
+            <Link href="/dashboard" className="nav-link">Dashboard</Link>
+          </div>
+        </nav>
+        
+        <div className="container">
+
+          <div className="header-section">
+            <span style={{color:'#7c3aed',fontWeight:700,fontSize:'13px',letterSpacing:'1px',textTransform:'uppercase',marginBottom:'16px',display:'block'}}>Join the team</span>
+            <h1>Help us build the future of commerce</h1>
+            <p className="subtitle">We're always looking for talented individuals who are passionate about empowering creators and independent businesses.</p>
+          </div>
+          <div style={{textAlign:'left'}}>
+            <div style={{background:'#fff',borderRadius:'24px',border:'1px solid #e2e8f0',overflow:'hidden',marginBottom:'40px',boxShadow:'0 10px 40px rgba(0,0,0,.03)'}}>
+              <div style={{padding:'24px 32px',background:'#f8fafc',borderBottom:'1px solid #e2e8f0',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                <h3 style={{margin:0,fontSize:'18px',color:'#0f172a'}}>Engineering</h3>
+                <span style={{background:'#e0e7ff',color:'#4f46e5',padding:'4px 12px',borderRadius:'100px',fontSize:'12px',fontWeight:600}}>2 Openings</span>
+              </div>
+              <div style={{padding:'24px 32px',borderBottom:'1px solid #f1f5f9',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                <div>
+                  <h4 style={{fontSize:'16px',fontWeight:700,color:'#0f172a',marginBottom:'4px'}}>Senior Frontend Engineer</h4>
+                  <p style={{fontSize:'14px',color:'#64748b',margin:0}}>Remote (US/Canada) • Full-time</p>
+                </div>
+                <button style={{padding:'8px 20px',background:'#0f172a',color:'#fff',borderRadius:'8px',fontWeight:600,border:'none',cursor:'pointer'}}>Apply</button>
+              </div>
+              <div style={{padding:'24px 32px',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                <div>
+                  <h4 style={{fontSize:'16px',fontWeight:700,color:'#0f172a',marginBottom:'4px'}}>Backend Engineer (Node.js)</h4>
+                  <p style={{fontSize:'14px',color:'#64748b',margin:0}}>San Francisco, CA • Full-time</p>
+                </div>
+                <button style={{padding:'8px 20px',background:'#0f172a',color:'#fff',borderRadius:'8px',fontWeight:600,border:'none',cursor:'pointer'}}>Apply</button>
+              </div>
+            </div>
+            
+            <div style={{background:'#fff',borderRadius:'24px',border:'1px solid #e2e8f0',overflow:'hidden',boxShadow:'0 10px 40px rgba(0,0,0,.03)'}}>
+              <div style={{padding:'24px 32px',background:'#f8fafc',borderBottom:'1px solid #e2e8f0',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                <h3 style={{margin:0,fontSize:'18px',color:'#0f172a'}}>Marketing</h3>
+                <span style={{background:'#e0e7ff',color:'#4f46e5',padding:'4px 12px',borderRadius:'100px',fontSize:'12px',fontWeight:600}}>1 Opening</span>
+              </div>
+              <div style={{padding:'24px 32px',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                <div>
+                  <h4 style={{fontSize:'16px',fontWeight:700,color:'#0f172a',marginBottom:'4px'}}>Product Marketing Manager</h4>
+                  <p style={{fontSize:'14px',color:'#64748b',margin:0}}>Remote (Global) • Full-time</p>
+                </div>
+                <button style={{padding:'8px 20px',background:'#0f172a',color:'#fff',borderRadius:'8px',fontWeight:600,border:'none',cursor:'pointer'}}>Apply</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </>
+  );
+}

@@ -1,9 +1,9 @@
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://192.168.160.98:8888/api";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
 
 export interface AuthUser {
   id: number;
   name: string;
-  email: string;
+  username: string;
   email_verified_at: string | null;
   created_at: string;
   updated_at: string;
@@ -14,6 +14,9 @@ interface ApiResponse<T = unknown> {
   message?: string;
   token?: string;
   user?: T;
+  requires_verify?: boolean;
+  otp?: string;
+  pending_email?: string;
 }
 
 function getToken(): string | null {
@@ -36,6 +39,7 @@ export function getStoredUser(): AuthUser | null {
 export function clearAuth() {
   localStorage.removeItem("token");
   localStorage.removeItem("user");
+  localStorage.removeItem("pending_email");
 }
 
 async function request<T>(
@@ -53,6 +57,15 @@ async function request<T>(
     },
   });
   const data = await res.json();
+
+  // Handle requires_verify on BOTH error (403 login) and success (201 register)
+  if (data.requires_verify) {
+    if (data.token) localStorage.setItem("token", data.token);
+    if (data.user) localStorage.setItem("user", JSON.stringify(data.user));
+    if (data.pending_email) localStorage.setItem("pending_email", data.pending_email);
+    throw new Error("requires_verify");
+  }
+
   if (!res.ok) {
     const firstError =
       data?.message ||
@@ -65,7 +78,7 @@ async function request<T>(
 
 export async function apiRegister(payload: {
   name: string;
-  email: string;
+  username: string;
   password: string;
 }) {
   return request<AuthUser>("/register", {
@@ -75,7 +88,7 @@ export async function apiRegister(payload: {
 }
 
 export async function apiLogin(payload: {
-  email: string;
+  username: string;
   password: string;
 }) {
   return request<AuthUser>("/login", {
@@ -92,3 +105,15 @@ export async function apiLogout(): Promise<void> {
   await request("/logout", { method: "POST" });
   clearAuth();
 }
+
+export async function apiGoogleAuth(payload: {
+  code?: string | null;
+  simulated_email?: string | null;
+  simulated_name?: string | null;
+  simulated_avatar?: string | null;
+}) {
+  return request<AuthUser>("/auth/google/callback", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
