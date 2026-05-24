@@ -351,9 +351,9 @@ HTML;
         $avatar = null;
 
         if ($request->filled('code')) {
-            $clientId = env('GOOGLE_CLIENT_ID');
-            $clientSecret = env('GOOGLE_CLIENT_SECRET');
-            $redirectUri = env('GOOGLE_REDIRECT_URI', $request->header('origin') . '/auth/google/callback');
+            $clientId = config('services.google.client_id');
+            $clientSecret = config('services.google.client_secret');
+            $redirectUri = config('services.google.redirect_uri') ?: ($request->header('origin') . '/auth/google/callback');
 
             if (!$clientId || !$clientSecret) {
                 return response()->json(['message' => 'Google OAuth credentials are not configured on the backend.'], 500);
