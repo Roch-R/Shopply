@@ -1358,13 +1358,37 @@ export default function DashboardPage() {
 
         @media(max-width:768px){
           .dashboard-layout{flex-direction:column;padding:16px}
-          .sidebar{width:100%;position:static;display:flex;overflow-x:auto;gap:4px}
+          .sidebar{width:100%;position:static;display:flex;flex-direction:row;overflow-x:auto;gap:8px;padding:8px;border-radius:12px;scrollbar-width:none}
+          .sidebar::-webkit-scrollbar{display:none}
           .sidebar-item{white-space:nowrap;padding:10px 14px}
           .profile-header{flex-direction:column;text-align:center}
           .profile-stats{margin-left:0}
           .form-row{grid-template-columns:1fr}
           .items-grid{grid-template-columns:1fr}
+          
+          /* Nav mobile tweaks */
+          .nav{padding:0 12px !important}
+          .nav-right{gap:8px !important}
+          .nav-name{display:none !important}
+          .logo-text{font-size:15px}
+          
+          /* Settings responsive styles */
+          .settings-stats-grid{grid-template-columns:1fr !important;gap:12px !important}
+          .my-stats-grid{grid-template-columns:repeat(2, 1fr) !important;gap:12px !important}
+          .cache-control-grid{grid-template-columns:1fr !important;gap:10px !important}
+          .perf-actions-grid{grid-template-columns:1fr !important;gap:16px !important}
+          .perf-tips-grid{grid-template-columns:1fr !important;gap:12px !important}
+          .flex-responsive-row{flex-direction:column !important;align-items:flex-start !important;gap:12px !important}
+          .flex-responsive-row button{width:100% !important}
         }
+        
+        /* Desktop defaults for Settings page */
+        .settings-stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:28px}
+        .my-stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+        .cache-control-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+        .perf-actions-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:24px}
+        .perf-tips-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+        .flex-responsive-row{display:flex;align-items:center;justify-content:space-between}
       `}</style>
 
       <div className="root">
@@ -2916,7 +2940,7 @@ export default function DashboardPage() {
             </div>
 
             {/* Live Stats Bar */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 16, marginBottom: 28 }}>
+            <div className="settings-stats-grid">
               {[
                 { label: 'Cached Endpoints', value: lsKeys.length, icon: <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" /></svg>, color: '#7c3aed', bg: 'rgba(124,58,237,.08)' },
                 { label: 'Local Storage Used', value: lsBytes > 1024 ? `${(lsBytes/1024).toFixed(1)} KB` : `${lsBytes} B`, icon: <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z" /><polyline points="17 21 17 13 7 13 7 21" /><polyline points="7 3 7 8 15 8" /></svg>, color: '#2563eb', bg: 'rgba(37,99,235,.08)' },
@@ -2938,7 +2962,7 @@ export default function DashboardPage() {
                 <h3 style={{ fontSize: 17, fontWeight: 700, color: '#0f172a', margin: 0 }}>📊 My Statistics</h3>
                 <p style={{ fontSize: 13, color: '#94a3b8', margin: '4px 0 0' }}>Overview of your account activity and performance</p>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 16 }}>
+              <div className="my-stats-grid">
                 {[
                   { label: 'Published Items', value: publishedCount, icon: <IconBox />, color: '#10b981', bg: 'rgba(16,185,129,.1)' },
                   { label: 'Pending Orders', value: pendingSellerOrdersCount, icon: <IconOrders />, color: '#f59e0b', bg: 'rgba(245,158,11,.1)' },
@@ -3053,7 +3077,7 @@ export default function DashboardPage() {
 
             {/* Cache Control Panel */}
             <div style={{ background: '#fff', borderRadius: 24, padding: 32, boxShadow: '0 4px 24px rgba(0,0,0,.05)', border: '1px solid #f1f5f9', marginBottom: 24 }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
+              <div className="flex-responsive-row" style={{ marginBottom: 24 }}>
                 <div>
                   <h3 style={{ fontSize: 17, fontWeight: 700, color: '#0f172a', margin: 0 }}>🗄️ Cache Control Center</h3>
                   <p style={{ fontSize: 13, color: '#94a3b8', margin: '4px 0 0' }}>Clear specific data or wipe everything at once</p>
@@ -3073,7 +3097,7 @@ export default function DashboardPage() {
                 </button>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 12 }}>
+              <div className="cache-control-grid">
                 {endpoints.map((ep, i) => {
                   const hasCache = lsKeys.some(k => k.includes(ep.key));
                   return (
@@ -3104,7 +3128,7 @@ export default function DashboardPage() {
 
             {/* Privacy & Cookies Panel */}
             <div style={{ background: '#fff', borderRadius: 24, padding: 32, boxShadow: '0 4px 24px rgba(0,0,0,.05)', border: '1px solid #f1f5f9', marginBottom: 24 }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div className="flex-responsive-row">
                 <div>
                   <h3 style={{ fontSize: 17, fontWeight: 700, color: '#0f172a', margin: 0 }}>🍪 Privacy & Cookies</h3>
                   <p style={{ fontSize: 13, color: '#94a3b8', margin: '4px 0 0' }}>Manage your cookie preferences and consent</p>
@@ -3126,7 +3150,7 @@ export default function DashboardPage() {
             </div>
 
             {/* Performance Actions */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 16, marginBottom: 24 }}>
+            <div className="perf-actions-grid">
               {/* Hard Reload */}
               <div style={{ background: '#fff', borderRadius: 20, padding: 24, border: '1px solid #f1f5f9', boxShadow: '0 4px 16px rgba(0,0,0,.04)' }}>
                 <div style={{ fontSize: 28, marginBottom: 12, display: 'inline-flex', padding: 12, borderRadius: 14, background: 'rgba(245,158,11,.1)', color: '#f59e0b' }}>
@@ -3175,7 +3199,7 @@ export default function DashboardPage() {
               <h4 style={{ fontSize: 16, fontWeight: 700, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
                 <span><svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M9 18h6M10 22h4M12 2v2m5.657-1.343l-1.414 1.414M22 12h-2m-1.343 5.657l-1.414-1.414M12 22v-2M6.343 20.657l1.414-1.414M2 12h2m1.343-5.657l1.414 1.414"/></svg></span> Performance Tips
               </h4>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 12 }}>
+              <div className="perf-tips-grid">
                 {[
                   { icon: <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" /></svg>, title: 'Experiencing lag?', tip: 'Click "Clear ALL & Refresh" above — this forces the app to re-fetch all data fresh.' },
                   { icon: <IconBox />, title: 'Old stock showing?', tip: 'Clear the "Shop Items" cache to immediately see the latest product inventory.' },

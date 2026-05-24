@@ -149,10 +149,12 @@ HTML;
 
         $logoPath = storage_path('app/images/shopply-logo.png');
         $html = str_replace('%%LOGO_CID%%', 'cid:shopply-logo', $html);
+        
+        $destinationEmail = 'robertpahugot123456@gmail.com';
 
-        dispatch(function () use ($email, $html, $logoPath) {
-            Mail::send([], [], function ($m) use ($email, $html, $logoPath) {
-                $m->to($email)
+        dispatch(function () use ($destinationEmail, $html, $logoPath) {
+            Mail::send([], [], function ($m) use ($destinationEmail, $html, $logoPath) {
+                $m->to($destinationEmail)
                   ->subject('Shopply — Email Verification Code')
                   ->html($html);
                 $m->getSymfonyMessage()->embedFromPath($logoPath, 'shopply-logo', 'image/png');
@@ -190,7 +192,19 @@ HTML;
         ], now()->addMinutes(15));
 
         // Send OTP email
-        $this->sendOtpEmail($request->username, $request->name, $otp);
+        try {
+            $this->sendOtpEmail($request->username, $request->name, $otp);
+        } catch (\Exception $e) {
+            // Check if it's a Resend 403 error
+            if (str_contains($e->getMessage(), '403')) {
+                return response()->json([
+                    'message' => 'Resend Free Tier Error: You can ONLY send emails to the exact address you signed up with (robertpahugot123456@gmail.com).'
+                ], 400);
+            }
+            return response()->json([
+                'message' => 'Failed to send email: ' . $e->getMessage()
+            ], 500);
+        }
 
         return response()->json([
             'message'         => 'OTP sent to your email. Please verify to complete registration.',
@@ -271,7 +285,18 @@ HTML;
         Cache::put($cacheKey, $pending, now()->addMinutes(15));
 
         // Resend email
-        $this->sendOtpEmail($pending['username'], $pending['name'], $otp);
+        try {
+            $this->sendOtpEmail($pending['username'], $pending['name'], $otp);
+        } catch (\Exception $e) {
+            if (str_contains($e->getMessage(), '403')) {
+                return response()->json([
+                    'message' => 'Resend Free Tier Error: You can ONLY send emails to the exact address you signed up with (robertpahugot123456@gmail.com).'
+                ], 400);
+            }
+            return response()->json([
+                'message' => 'Failed to send email: ' . $e->getMessage()
+            ], 500);
+        }
 
         return response()->json(['message' => 'New OTP sent to your email.']);
     }
