@@ -1226,6 +1226,32 @@ export default function DashboardPage() {
           overflow: visible;
         }
 
+        .sidebar-profile-header {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding: 12px 14px;
+          margin-bottom: 12px;
+          border-bottom: 1px solid #f1f5f9;
+          position: relative;
+        }
+        .sidebar.collapsed .sidebar-profile-header {
+          padding: 12px 0;
+          justify-content: center;
+          gap: 0;
+        }
+        .sidebar.collapsed .sidebar-item {
+          padding: 12px 0;
+          justify-content: center;
+        }
+        .sidebar.collapsed .sidebar-item-container .sidebar-badge {
+          position: absolute;
+          top: 6px;
+          right: 18px;
+          padding: 1px 4px;
+          font-size: 8px;
+        }
+
         .content{flex:1;min-width:0}
 
         .profile-header{background:linear-gradient(135deg,#fff,#f8fafc);border-radius:20px;padding:32px;
@@ -1515,8 +1541,17 @@ export default function DashboardPage() {
           {/* SIDEBAR */}
           <aside className={`sidebar no-print ${isSidebarCollapsed ? 'collapsed' : 'mobile-expanded'}`}>
             
+            {/* Expand/Collapse Toggle Button */}
+            <button className="sidebar-toggle" onClick={toggleSidebar} style={{ outline: 'none' }} title={isSidebarCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}>
+              {isSidebarCollapsed ? (
+                <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" /></svg>
+              ) : (
+                <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" /></svg>
+              )}
+            </button>
+
             {/* PROFILE HEADER IN SIDEBAR */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', marginBottom: 12, borderBottom: '1px solid #f1f5f9', position: 'relative' }}>
+            <div className="sidebar-profile-header">
               <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'linear-gradient(135deg,#7c3aed,#2563eb)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 16, flexShrink: 0, overflow: 'hidden' }}>
                 {user?.avatar ? (
                   <img src={user.avatar} alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -1530,15 +1565,6 @@ export default function DashboardPage() {
                   <div style={{ fontSize: 10, color: '#64748b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user?.email || 'member@shopply.com'}</div>
                 </div>
               )}
-              
-              {/* Expand/Collapse Toggle Button */}
-              <button className="sidebar-toggle" onClick={toggleSidebar} style={{ outline: 'none' }} title={isSidebarCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}>
-                {isSidebarCollapsed ? (
-                  <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" /></svg>
-                ) : (
-                  <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" /></svg>
-                )}
-              </button>
             </div>
 
             {/* CATEGORIZED ITEMS */}
