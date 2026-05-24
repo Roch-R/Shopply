@@ -32,12 +32,12 @@ class AuthController extends Controller
 
     private function sendOtp(User $user): void
     {
-        $otp = '123456'; // Hardcoded for Render testing
+        $otp = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
         $user->update([
             'otp_code'       => $otp,
             'otp_expires_at' => now()->addMinutes(10),
         ]);
-        // $this->sendOtpEmail($user->email, $user->name, $otp); // Disabled for Render testing
+        $this->sendOtpEmail($user->email, $user->name, $otp);
     }
 
     private function sendOtpEmail(string $email, string $name, string $otp): void
@@ -178,7 +178,7 @@ HTML;
         // Also check if there's already a pending registration for this email
         // (allow re-register to update the pending data)
 
-        $otp = '123456'; // Hardcoded for Render testing
+        $otp = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
 
         // Store pending registration in cache (NOT in the database)
         // Expires in 15 minutes
@@ -189,8 +189,8 @@ HTML;
             'otp'      => $otp,
         ], now()->addMinutes(15));
 
-        // Send OTP email (Disabled for Render testing due to SMTP block)
-        // $this->sendOtpEmail($request->username, $request->name, $otp);
+        // Send OTP email
+        $this->sendOtpEmail($request->username, $request->name, $otp);
 
         return response()->json([
             'message'         => 'OTP sent to your email. Please verify to complete registration.',
@@ -266,12 +266,12 @@ HTML;
         }
 
         // Generate new OTP
-        $otp = '123456'; // Hardcoded for Render testing
+        $otp = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
         $pending['otp'] = $otp;
         Cache::put($cacheKey, $pending, now()->addMinutes(15));
 
-        // Resend email (Disabled for Render testing due to SMTP block)
-        // $this->sendOtpEmail($pending['username'], $pending['name'], $otp);
+        // Resend email
+        $this->sendOtpEmail($pending['username'], $pending['name'], $otp);
 
         return response()->json(['message' => 'New OTP sent to your email.']);
     }
