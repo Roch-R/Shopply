@@ -1160,8 +1160,8 @@ export default function DashboardPage() {
         .dashboard-layout{display:flex;max-width:1200px;margin:0 auto;padding:24px;gap:32px;min-height:calc(100vh - 64px)}
 
         .sidebar{background:#fff;border-radius:24px;padding:16px 12px;box-shadow:0 10px 40px rgba(0,0,0,0.03);
-          border:1px solid #f1f5f9;display:flex;flex-direction:column;gap:6px;height:fit-content;position:sticky;top:32px;width:260px;flex-shrink:0;transition:width 0.3s cubic-bezier(0.4, 0, 0.2, 1), padding 0.3s ease;z-index:60}
-        .sidebar.collapsed{width:76px;padding:16px 8px}
+          border:1px solid #f1f5f9;display:flex;flex-direction:column;gap:6px;height:fit-content;max-height:calc(100vh - 64px);position:sticky;top:32px;width:260px;flex-shrink:0;transition:width 0.3s cubic-bezier(0.4, 0, 0.2, 1), padding 0.3s ease;z-index:60}
+        .sidebar.collapsed{width:76px;padding:16px 8px;max-height:none}
         
         .sidebar-toggle{position:absolute;top:20px;right:-14px;width:28px;height:28px;border-radius:50%;
           background:#fff;border:1px solid #e2e8f0;box-shadow:0 4px 10px rgba(0,0,0,0.06);
@@ -1201,7 +1201,30 @@ export default function DashboardPage() {
         .sidebar.collapsed .sidebar-sub-menu::before{display:none}
         .sidebar.collapsed .sidebar-sub-menu{padding-left:0}
         
-        .sidebar-section{display:flex;flex-direction:column;gap:4px;width:100%}ght:600}
+        .sidebar-section{display:flex;flex-direction:column;gap:4px;width:100%}
+        
+        .sidebar-menu-scrollable {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+          overflow-y: auto;
+          overflow-x: hidden;
+          width: 100%;
+        }
+        .sidebar-menu-scrollable::-webkit-scrollbar {
+          width: 4px;
+        }
+        .sidebar-menu-scrollable::-webkit-scrollbar-thumb {
+          background: #e2e8f0;
+          border-radius: 4px;
+        }
+        .sidebar-menu-scrollable::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .sidebar.collapsed .sidebar-menu-scrollable {
+          overflow: visible;
+        }
 
         .content{flex:1;min-width:0}
 
@@ -1519,109 +1542,111 @@ export default function DashboardPage() {
             </div>
 
             {/* CATEGORIZED ITEMS */}
-            {[
-              {
-                title: "Main Menu",
-                items: ["profile", "orders", "shop"]
-              },
-              {
-                title: "Seller Hub",
-                items: ["store-orders", "my-items", "add-item"]
-              },
-              {
-                title: "Application",
-                items: ["notifications", "messages", "settings"]
-              }
-            ].map((section, idx) => {
-              const visibleItems = sidebarItemsList.filter(item => section.items.includes(item.id));
-              if (visibleItems.length === 0) return null;
-              return (
-                <div key={idx} className="sidebar-section" style={{ marginBottom: 12 }}>
-                  {!isSidebarCollapsed && (
-                    <div style={{ fontSize: 9, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.8px', padding: '4px 14px 4px', marginBottom: 4 }}>
-                      {section.title}
-                    </div>
-                  )}
-                  {visibleItems.map(si => (
-                    <div key={si.id} className="sidebar-item-container">
-                      <button
-                        className={`sidebar-item ${activeTab === si.id ? "active" : ""}`}
-                        onClick={() => {
-                          if (si.id === "shop") {
-                            router.push("/shop");
-                          } else if (si.id === 'orders') {
-                            if (isSidebarCollapsed) {
-                              toggleSidebar();
-                              setOrdersExpanded(true);
-                            } else {
-                              if (activeTab !== 'orders') {
-                                setActiveTab('orders');
+            <div className="sidebar-menu-scrollable">
+              {[
+                {
+                  title: "Main Menu",
+                  items: ["profile", "orders", "shop"]
+                },
+                {
+                  title: "Seller Hub",
+                  items: ["store-orders", "my-items", "add-item"]
+                },
+                {
+                  title: "Application",
+                  items: ["notifications", "messages", "settings"]
+                }
+              ].map((section, idx) => {
+                const visibleItems = sidebarItemsList.filter(item => section.items.includes(item.id));
+                if (visibleItems.length === 0) return null;
+                return (
+                  <div key={idx} className="sidebar-section" style={{ marginBottom: 12 }}>
+                    {!isSidebarCollapsed && (
+                      <div style={{ fontSize: 9, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.8px', padding: '4px 14px 4px', marginBottom: 4 }}>
+                        {section.title}
+                      </div>
+                    )}
+                    {visibleItems.map(si => (
+                      <div key={si.id} className="sidebar-item-container">
+                        <button
+                          className={`sidebar-item ${activeTab === si.id ? "active" : ""}`}
+                          onClick={() => {
+                            if (si.id === "shop") {
+                              router.push("/shop");
+                            } else if (si.id === 'orders') {
+                              if (isSidebarCollapsed) {
+                                toggleSidebar();
                                 setOrdersExpanded(true);
                               } else {
-                                setOrdersExpanded(!ordersExpanded);
+                                if (activeTab !== 'orders') {
+                                  setActiveTab('orders');
+                                  setOrdersExpanded(true);
+                                } else {
+                                  setOrdersExpanded(!ordersExpanded);
+                                }
                               }
+                            } else {
+                              setActiveTab(si.id);
                             }
-                          } else {
-                            setActiveTab(si.id);
-                          }
-                        }}
-                      >
-                        <span className="sidebar-icon">{si.icon}</span>
-                        {!isSidebarCollapsed && <span style={{ flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{si.label}</span>}
-                        {si.id === 'notifications' && pendingSellerOrdersCount > 0 && (
-                          <span className="sidebar-badge">{pendingSellerOrdersCount}</span>
-                        )}
-                        {si.id === 'messages' && chatConversations.reduce((acc, c) => acc + (c.unread_count || 0), 0) > 0 && (
-                          <span className="sidebar-badge">{chatConversations.reduce((acc, c) => acc + (c.unread_count || 0), 0)}</span>
-                        )}
-                        {!isSidebarCollapsed && si.id === 'orders' && (
-                          <svg width="10" height="10" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24" style={{ transform: ordersExpanded ? 'rotate(0deg)' : 'rotate(-90deg)', transition: 'transform .3s ease', opacity: 0.8 }}>
-                            <path d="M6 9l6 6 6-6" />
-                          </svg>
-                        )}
-                      </button>
+                          }}
+                        >
+                          <span className="sidebar-icon">{si.icon}</span>
+                          {!isSidebarCollapsed && <span style={{ flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{si.label}</span>}
+                          {si.id === 'notifications' && pendingSellerOrdersCount > 0 && (
+                            <span className="sidebar-badge">{pendingSellerOrdersCount}</span>
+                          )}
+                          {si.id === 'messages' && chatConversations.reduce((acc, c) => acc + (c.unread_count || 0), 0) > 0 && (
+                            <span className="sidebar-badge">{chatConversations.reduce((acc, c) => acc + (c.unread_count || 0), 0)}</span>
+                          )}
+                          {!isSidebarCollapsed && si.id === 'orders' && (
+                            <svg width="10" height="10" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24" style={{ transform: ordersExpanded ? 'rotate(0deg)' : 'rotate(-90deg)', transition: 'transform .3s ease', opacity: 0.8 }}>
+                              <path d="M6 9l6 6 6-6" />
+                            </svg>
+                          )}
+                        </button>
 
-                      {/* Expanded Submenu */}
-                      {!isSidebarCollapsed && si.id === "orders" && (
-                        <div className={`sidebar-sub-menu ${ordersExpanded ? 'expanded' : ''}`}>
-                          {["all", "processing", "shipped", "delivered", "returns"].map(tab => (
-                            <button
-                              key={tab}
-                              className={`sidebar-sub-item ${activeTab === 'orders' && orderTab === tab ? "active" : ""}`}
-                              onClick={() => {
-                                setActiveTab('orders');
-                                setOrderTab(tab);
-                              }}
-                            >
-                              {tab === "all" ? "All orders" : tab.charAt(0).toUpperCase() + tab.slice(1).replace("-", " ")}
-                            </button>
-                          ))}
-                        </div>
-                      )}
+                        {/* Expanded Submenu */}
+                        {!isSidebarCollapsed && si.id === "orders" && (
+                          <div className={`sidebar-sub-menu ${ordersExpanded ? 'expanded' : ''}`}>
+                            {["all", "processing", "shipped", "delivered", "returns"].map(tab => (
+                              <button
+                                key={tab}
+                                className={`sidebar-sub-item ${activeTab === 'orders' && orderTab === tab ? "active" : ""}`}
+                                onClick={() => {
+                                  setActiveTab('orders');
+                                  setOrderTab(tab);
+                                }}
+                              >
+                                {tab === "all" ? "All orders" : tab.charAt(0).toUpperCase() + tab.slice(1).replace("-", " ")}
+                              </button>
+                            ))}
+                          </div>
+                        )}
 
-                      {/* Collapsed Hover Popup Tooltip Menu */}
-                      {isSidebarCollapsed && si.id === "orders" && (
-                        <div className="sidebar-popup-menu no-print">
-                          <div style={{ fontSize: 10, fontWeight: 700, color: '#94a3b8', padding: '4px 10px', borderBottom: '1px solid #f1f5f9', marginBottom: 4 }}>Orders</div>
-                          {["all", "processing", "shipped", "delivered", "returns"].map(tab => (
-                            <button
-                              key={tab}
-                              className={`sidebar-sub-item ${activeTab === 'orders' && orderTab === tab ? "active" : ""}`}
-                              onClick={() => {
-                                setActiveTab('orders');
-                                setOrderTab(tab);
-                              }}
-                            >
-                              {tab === "all" ? "All orders" : tab.charAt(0).toUpperCase() + tab.slice(1).replace("-", " ")}
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              );
-            })}
+                        {/* Collapsed Hover Popup Tooltip Menu */}
+                        {isSidebarCollapsed && si.id === "orders" && (
+                          <div className="sidebar-popup-menu no-print">
+                            <div style={{ fontSize: 10, fontWeight: 700, color: '#94a3b8', padding: '4px 10px', borderBottom: '1px solid #f1f5f9', marginBottom: 4 }}>Orders</div>
+                            {["all", "processing", "shipped", "delivered", "returns"].map(tab => (
+                              <button
+                                key={tab}
+                                className={`sidebar-sub-item ${activeTab === 'orders' && orderTab === tab ? "active" : ""}`}
+                                onClick={() => {
+                                  setActiveTab('orders');
+                                  setOrderTab(tab);
+                                }}
+                              >
+                                {tab === "all" ? "All orders" : tab.charAt(0).toUpperCase() + tab.slice(1).replace("-", " ")}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                );
+              })}
+            </div>
           </aside>
 
           {/* CONTENT */}
