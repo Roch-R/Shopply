@@ -1,10 +1,10 @@
 "use client";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { apiGoogleAuth } from "@/lib/api";
 
-export default function GoogleCallbackPage() {
+function GoogleCallbackContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [error, setError] = useState("");
@@ -91,5 +91,22 @@ export default function GoogleCallbackPage() {
         </div>
       </div>
     </>
+  );
+}
+
+export default function GoogleCallbackPage() {
+  return (
+    <Suspense fallback={
+      <div style={{ background: '#202124', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <style>{`
+          .spinner{width:48px;height:48px;border:4px solid #3c4043;border-top-color:#4285F4;
+          border-radius:50%;animation:spin 1s linear infinite}
+          @keyframes spin{to{transform:rotate(360deg)}}
+        `}</style>
+        <div className="spinner" />
+      </div>
+    }>
+      <GoogleCallbackContent />
+    </Suspense>
   );
 }
