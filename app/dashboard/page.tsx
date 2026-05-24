@@ -1407,14 +1407,16 @@ export default function DashboardPage() {
           }
           .sidebar.mobile-expanded{
             position:fixed !important;
-            top:76px;
-            left:12px;
-            bottom:12px;
-            width:260px !important;
-            height:calc(100vh - 90px);
+            top:0 !important;
+            left:0 !important;
+            bottom:0 !important;
+            width:280px !important;
+            height:100vh !important;
             box-shadow:0 20px 40px rgba(0,0,0,0.15);
             z-index:100;
-            padding:16px 12px;
+            padding:24px 16px;
+            padding-top:max(24px, env(safe-area-inset-top, 24px));
+            border-radius:0 24px 24px 0 !important;
           }
           
           .sidebar-backdrop{
