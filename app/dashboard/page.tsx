@@ -1496,6 +1496,11 @@ export default function DashboardPage() {
           .perf-tips-grid{grid-template-columns:1fr !important;gap:12px !important}
           .flex-responsive-row{flex-direction:column !important;align-items:flex-start !important;gap:12px !important}
           .flex-responsive-row button{width:100% !important}
+
+          /* Search responsive styles */
+          .order-search-container{flex-direction:column !important;align-items:stretch !important;gap:12px !important;padding:16px !important}
+          .order-search{width:100% !important}
+          .order-search input{width:100% !important}
         }
         
         /* Desktop defaults for Settings page */
