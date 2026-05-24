@@ -216,6 +216,22 @@ export default function DashboardPage() {
   // Scanner state
   const [showScanner, setShowScanner] = useState(false);
   const [ordersExpanded, setOrdersExpanded] = useState(false);
+  
+  // Sidebar collapsible state
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('shopply_sidebar_collapsed') === 'true';
+    }
+    return false;
+  });
+
+  const toggleSidebar = () => {
+    setIsSidebarCollapsed(prev => {
+      const next = !prev;
+      localStorage.setItem('shopply_sidebar_collapsed', String(next));
+      return next;
+    });
+  };
 
   // Profile update state
   const [profileName, setProfileName] = useState("");
@@ -1141,29 +1157,51 @@ export default function DashboardPage() {
           font-size:10px;font-weight:700;width:18px;height:18px;border-radius:50%;
           display:flex;align-items:center;justify-content:center;border:2px solid #fff}
 
-        .dashboard-layout{display:flex;max-width:1200px;margin:0 auto;padding:24px;gap:24px;min-height:calc(100vh - 64px)}
-
         .dashboard-layout{display:flex;max-width:1200px;margin:0 auto;padding:24px;gap:32px;min-height:calc(100vh - 64px)}
 
-        .sidebar{background:#fff;border-radius:24px;padding:16px;box-shadow:0 10px 40px rgba(0,0,0,0.03);
-          border:1px solid #f1f5f9;display:flex;flex-direction:column;gap:10px;height:fit-content;position:sticky;top:32px;width:240px;flex-shrink:0}
-        .sidebar-item{display:flex;align-items:center;gap:14px;padding:14px 20px;border-radius:14px;font-size:14px;font-weight:600;color:#64748b;cursor:pointer;background:none;border:none;transition:all 0.3s ease;text-align:left}
+        .sidebar{background:#fff;border-radius:24px;padding:16px 12px;box-shadow:0 10px 40px rgba(0,0,0,0.03);
+          border:1px solid #f1f5f9;display:flex;flex-direction:column;gap:6px;height:fit-content;position:sticky;top:32px;width:260px;flex-shrink:0;transition:width 0.3s cubic-bezier(0.4, 0, 0.2, 1), padding 0.3s ease;z-index:60}
+        .sidebar.collapsed{width:76px;padding:16px 8px}
+        
+        .sidebar-toggle{position:absolute;top:20px;right:-14px;width:28px;height:28px;border-radius:50%;
+          background:#fff;border:1px solid #e2e8f0;box-shadow:0 4px 10px rgba(0,0,0,0.06);
+          display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:70;
+          transition:all 0.2s;color:#64748b}
+        .sidebar-toggle:hover{color:#7c3aed;background:#f8fafc;transform:scale(1.08)}
+        
+        .sidebar-item{display:flex;align-items:center;gap:14px;padding:12px 18px;border-radius:14px;font-size:14px;font-weight:600;color:#64748b;cursor:pointer;background:none;border:none;transition:all 0.2s ease;text-align:left;width:100%;box-sizing:border-box}
         .sidebar-item:hover{background:#f8fafc;color:#7c3aed}
         .sidebar-item.active{background:linear-gradient(135deg,#7c3aed,#2563eb);color:#fff;
-          box-shadow:0 8px 16px rgba(124,58,237,.25);transform:scale(1.02)}
-        .sidebar-icon{display:flex;align-items:center;justify-content:center;font-size:18px;transition:transform 0.3s ease}
-        .sidebar-item.active .sidebar-icon{transform:scale(1.1)}
+          box-shadow:0 8px 16px rgba(124,58,237,.15)}
+        .sidebar-icon{display:flex;align-items:center;justify-content:center;font-size:18px;transition:transform 0.2s ease}
+        .sidebar-item.active .sidebar-icon{transform:scale(1.05)}
         
-        .sidebar-badge{background:#ef4444;color:#fff;font-size:12px;font-weight:700;padding:2px 8px;border-radius:12px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(239,68,68,0.4);animation:badgePulse 2s infinite}
-        .sidebar-item.active .sidebar-badge{background:#fff;color:#7c3aed;box-shadow:0 2px 6px rgba(0,0,0,0.15)}
-        @keyframes badgePulse{0%{transform:scale(1)}50%{transform:scale(1.08)}100%{transform:scale(1)}}
+        .sidebar-badge{background:#ef4444;color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(239,68,68,0.3)}
+        .sidebar-item.active .sidebar-badge{background:#fff;color:#7c3aed;box-shadow:0 2px 6px rgba(0,0,0,0.08)}
 
-        .sidebar-sub-menu{overflow:hidden;max-height:0;transition:all .3s ease;display:flex;flex-direction:column;gap:4px;padding-left:12px}
+        .sidebar-sub-menu{display:flex;flex-direction:column;gap:4px;padding-left:20px;margin-top:6px;position:relative;overflow:hidden;max-height:0;transition:all .3s ease}
         .sidebar-sub-menu.expanded{max-height:500px;margin:8px 0}
-        .sidebar-sub-item{display:flex;align-items:center;padding:10px 18px;font-size:13px;font-weight:500;
-          color:#64748b;border-radius:10px;transition:all .2s;border:none;background:none;cursor:pointer;text-align:left}
-        .sidebar-sub-item:hover{background:#f8fafc;color:#7c3aed}
+        .sidebar-sub-menu::before{content:'';position:absolute;left:20px;top:0;bottom:12px;width:1.5px;background:#e2e8f0}
+        
+        .sidebar-sub-item{position:relative;display:flex;align-items:center;padding:8px 16px 8px 32px;font-size:13px;font-weight:500;
+          color:#64748b;border-radius:10px;border:none;background:none;cursor:pointer;transition:all 0.2s;text-align:left;width:100%}
+        .sidebar-sub-item::before{content:'';position:absolute;left:20px;top:50%;width:8px;height:1.5px;background:#e2e8f0}
+        .sidebar-sub-item:hover{color:#7c3aed;background:#f8fafc}
         .sidebar-sub-item.active{color:#7c3aed;background:rgba(124,58,237,.06);font-weight:600}
+
+        /* Hover Popup Tooltip Menu when collapsed */
+        .sidebar-item-container{position:relative}
+        .sidebar.collapsed .sidebar-popup-menu{display:none;position:absolute;left:100%;top:50%;
+          transform:translateY(-50%);background:#fff;border-radius:12px;padding:8px;
+          box-shadow:0 10px 30px rgba(0,0,0,0.08);border:1px solid #e2e8f0;margin-left:12px;
+          z-index:100;min-width:140px;flex-direction:column;gap:4px}
+        .sidebar.collapsed .sidebar-item-container:hover .sidebar-popup-menu{display:flex}
+        .sidebar.collapsed .sidebar-sub-item{padding-left:14px}
+        .sidebar.collapsed .sidebar-sub-item::before{display:none}
+        .sidebar.collapsed .sidebar-sub-menu::before{display:none}
+        .sidebar.collapsed .sidebar-sub-menu{padding-left:0}
+        
+        .sidebar-section{display:flex;flex-direction:column;gap:4px;width:100%}ght:600}
 
         .content{flex:1;min-width:0}
 
@@ -1357,10 +1395,37 @@ export default function DashboardPage() {
         }
 
         @media(max-width:768px){
-          .dashboard-layout{flex-direction:column;padding:16px}
-          .sidebar{width:100%;position:static;display:flex;flex-direction:row;overflow-x:auto;gap:8px;padding:8px;border-radius:12px;scrollbar-width:none}
-          .sidebar::-webkit-scrollbar{display:none}
-          .sidebar-item{white-space:nowrap;padding:10px 14px}
+          .dashboard-layout{flex-direction:row !important;padding:12px;gap:12px}
+          .sidebar{
+            width:72px !important;
+            position:sticky !important;
+            top:76px;
+            height:calc(100vh - 90px);
+            z-index:90;
+            padding:12px 6px;
+            border-radius:16px;
+          }
+          .sidebar.mobile-expanded{
+            position:fixed !important;
+            top:76px;
+            left:12px;
+            bottom:12px;
+            width:260px !important;
+            height:calc(100vh - 90px);
+            box-shadow:0 20px 40px rgba(0,0,0,0.15);
+            z-index:100;
+            padding:16px 12px;
+          }
+          
+          .sidebar-backdrop{
+            position:fixed;
+            inset:0;
+            background:rgba(15,23,42,0.3);
+            backdrop-filter:blur(4px);
+            z-index:95;
+            animation:fadeIn 0.2s ease-out;
+          }
+          
           .profile-header{flex-direction:column;text-align:center}
           .profile-stats{margin-left:0}
           .form-row{grid-template-columns:1fr}
@@ -1417,60 +1482,144 @@ export default function DashboardPage() {
         </nav>
 
         <div className="dashboard-layout">
-          {/* SIDEBAR */}
-          <aside className="sidebar">
-            {sidebarItemsList.map(si => (
-              <div key={si.id}>
-                <button
-                  className={`sidebar-item ${activeTab === si.id ? "active" : ""}`}
-                  onClick={() => {
-                    if (si.id === "shop") {
-                      router.push("/shop");
-                    } else if (si.id === 'orders') {
-                      if (activeTab !== 'orders') {
-                        setActiveTab('orders');
-                        setOrdersExpanded(true);
-                      } else {
-                        setOrdersExpanded(!ordersExpanded);
-                      }
-                    } else {
-                      setActiveTab(si.id);
-                    }
-                  }}
-                >
-                  <span className="sidebar-icon">{si.icon}</span>
-                  <span style={{ flex: 1 }}>{si.label}</span>
-                  {si.id === 'notifications' && pendingSellerOrdersCount > 0 && (
-                    <span className="sidebar-badge">{pendingSellerOrdersCount}</span>
-                  )}
-                  {si.id === 'messages' && chatConversations.reduce((acc, c) => acc + (c.unread_count || 0), 0) > 0 && (
-                    <span className="sidebar-badge">{chatConversations.reduce((acc, c) => acc + (c.unread_count || 0), 0)}</span>
-                  )}
-                  {si.id === 'orders' && (
-                    <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24" style={{ transform: ordersExpanded ? 'rotate(0deg)' : 'rotate(-90deg)', transition: 'transform .3s cubic-bezier(0.4, 0, 0.2, 1)', opacity: 0.8 }}>
-                      <path d="M6 9l6 6 6-6" />
-                    </svg>
-                  )}
-                </button>
+          {/* BACKDROP OVERLAY FOR MOBILE DRAW */}
+          {!isSidebarCollapsed && (
+            <div className="sidebar-backdrop no-print" onClick={toggleSidebar} />
+          )}
 
-                {si.id === "orders" && (
-                  <div className={`sidebar-sub-menu ${ordersExpanded ? 'expanded' : ''}`}>
-                    {["all", "processing", "shipped", "delivered", "returns"].map(tab => (
-                      <button
-                        key={tab}
-                        className={`sidebar-sub-item ${activeTab === 'orders' && orderTab === tab ? "active" : ""}`}
-                        onClick={() => {
-                          setActiveTab('orders');
-                          setOrderTab(tab);
-                        }}
-                      >
-                        {tab === "all" ? "All orders" : tab.charAt(0).toUpperCase() + tab.slice(1).replace("-", " ")}
-                      </button>
-                    ))}
-                  </div>
+          {/* SIDEBAR */}
+          <aside className={`sidebar no-print ${isSidebarCollapsed ? 'collapsed' : 'mobile-expanded'}`}>
+            
+            {/* PROFILE HEADER IN SIDEBAR */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', marginBottom: 12, borderBottom: '1px solid #f1f5f9', position: 'relative' }}>
+              <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'linear-gradient(135deg,#7c3aed,#2563eb)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 16, flexShrink: 0, overflow: 'hidden' }}>
+                {user?.avatar ? (
+                  <img src={user.avatar} alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                ) : (
+                  user?.name ? user.name.charAt(0).toUpperCase() : 'U'
                 )}
               </div>
-            ))}
+              {!isSidebarCollapsed && (
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user?.name || 'User'}</div>
+                  <div style={{ fontSize: 10, color: '#64748b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user?.email || 'member@shopply.com'}</div>
+                </div>
+              )}
+              
+              {/* Expand/Collapse Toggle Button */}
+              <button className="sidebar-toggle" onClick={toggleSidebar} style={{ outline: 'none' }} title={isSidebarCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}>
+                {isSidebarCollapsed ? (
+                  <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" /></svg>
+                ) : (
+                  <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" /></svg>
+                )}
+              </button>
+            </div>
+
+            {/* CATEGORIZED ITEMS */}
+            {[
+              {
+                title: "Main Menu",
+                items: ["profile", "orders", "shop"]
+              },
+              {
+                title: "Seller Hub",
+                items: ["store-orders", "my-items", "add-item"]
+              },
+              {
+                title: "Application",
+                items: ["notifications", "messages", "settings"]
+              }
+            ].map((section, idx) => {
+              const visibleItems = sidebarItemsList.filter(item => section.items.includes(item.id));
+              if (visibleItems.length === 0) return null;
+              return (
+                <div key={idx} className="sidebar-section" style={{ marginBottom: 12 }}>
+                  {!isSidebarCollapsed && (
+                    <div style={{ fontSize: 9, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.8px', padding: '4px 14px 4px', marginBottom: 4 }}>
+                      {section.title}
+                    </div>
+                  )}
+                  {visibleItems.map(si => (
+                    <div key={si.id} className="sidebar-item-container">
+                      <button
+                        className={`sidebar-item ${activeTab === si.id ? "active" : ""}`}
+                        onClick={() => {
+                          if (si.id === "shop") {
+                            router.push("/shop");
+                          } else if (si.id === 'orders') {
+                            if (isSidebarCollapsed) {
+                              toggleSidebar();
+                              setOrdersExpanded(true);
+                            } else {
+                              if (activeTab !== 'orders') {
+                                setActiveTab('orders');
+                                setOrdersExpanded(true);
+                              } else {
+                                setOrdersExpanded(!ordersExpanded);
+                              }
+                            }
+                          } else {
+                            setActiveTab(si.id);
+                          }
+                        }}
+                      >
+                        <span className="sidebar-icon">{si.icon}</span>
+                        {!isSidebarCollapsed && <span style={{ flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{si.label}</span>}
+                        {si.id === 'notifications' && pendingSellerOrdersCount > 0 && (
+                          <span className="sidebar-badge">{pendingSellerOrdersCount}</span>
+                        )}
+                        {si.id === 'messages' && chatConversations.reduce((acc, c) => acc + (c.unread_count || 0), 0) > 0 && (
+                          <span className="sidebar-badge">{chatConversations.reduce((acc, c) => acc + (c.unread_count || 0), 0)}</span>
+                        )}
+                        {!isSidebarCollapsed && si.id === 'orders' && (
+                          <svg width="10" height="10" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24" style={{ transform: ordersExpanded ? 'rotate(0deg)' : 'rotate(-90deg)', transition: 'transform .3s ease', opacity: 0.8 }}>
+                            <path d="M6 9l6 6 6-6" />
+                          </svg>
+                        )}
+                      </button>
+
+                      {/* Expanded Submenu */}
+                      {!isSidebarCollapsed && si.id === "orders" && (
+                        <div className={`sidebar-sub-menu ${ordersExpanded ? 'expanded' : ''}`}>
+                          {["all", "processing", "shipped", "delivered", "returns"].map(tab => (
+                            <button
+                              key={tab}
+                              className={`sidebar-sub-item ${activeTab === 'orders' && orderTab === tab ? "active" : ""}`}
+                              onClick={() => {
+                                setActiveTab('orders');
+                                setOrderTab(tab);
+                              }}
+                            >
+                              {tab === "all" ? "All orders" : tab.charAt(0).toUpperCase() + tab.slice(1).replace("-", " ")}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Collapsed Hover Popup Tooltip Menu */}
+                      {isSidebarCollapsed && si.id === "orders" && (
+                        <div className="sidebar-popup-menu no-print">
+                          <div style={{ fontSize: 10, fontWeight: 700, color: '#94a3b8', padding: '4px 10px', borderBottom: '1px solid #f1f5f9', marginBottom: 4 }}>Orders</div>
+                          {["all", "processing", "shipped", "delivered", "returns"].map(tab => (
+                            <button
+                              key={tab}
+                              className={`sidebar-sub-item ${activeTab === 'orders' && orderTab === tab ? "active" : ""}`}
+                              onClick={() => {
+                                setActiveTab('orders');
+                                setOrderTab(tab);
+                              }}
+                            >
+                              {tab === "all" ? "All orders" : tab.charAt(0).toUpperCase() + tab.slice(1).replace("-", " ")}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              );
+            })}
           </aside>
 
           {/* CONTENT */}
