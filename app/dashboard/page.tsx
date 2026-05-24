@@ -1488,8 +1488,15 @@ export default function DashboardPage() {
             animation:fadeIn 0.2s ease-out;
           }
           
-          .profile-header{flex-direction:column;text-align:center}
-          .profile-stats{margin-left:0}
+          .profile-header{flex-direction:column;text-align:center;padding:24px 16px !important}
+          .profile-stats{
+            margin-left:0 !important;
+            width:100% !important;
+            grid-template-columns:repeat(2, 1fr) !important;
+            padding:16px !important;
+            gap:12px 16px !important;
+          }
+          .profile-stat{font-size:13px !important;gap:8px !important}
           .form-row{grid-template-columns:1fr}
           .items-grid{grid-template-columns:1fr}
           
