@@ -37,7 +37,7 @@ class AuthController extends Controller
             'otp_code'       => $otp,
             'otp_expires_at' => now()->addMinutes(10),
         ]);
-        $this->sendOtpEmail($user->email, $user->name, $otp);
+        // $this->sendOtpEmail($user->email, $user->name, $otp); // Disabled for Render testing
     }
 
     private function sendOtpEmail(string $email, string $name, string $otp): void
@@ -189,8 +189,8 @@ HTML;
             'otp'      => $otp,
         ], now()->addMinutes(15));
 
-        // Send OTP email
-        $this->sendOtpEmail($request->username, $request->name, $otp);
+        // Send OTP email (Disabled for Render testing due to SMTP block)
+        // $this->sendOtpEmail($request->username, $request->name, $otp);
 
         return response()->json([
             'message'         => 'OTP sent to your email. Please verify to complete registration.',
@@ -270,8 +270,8 @@ HTML;
         $pending['otp'] = $otp;
         Cache::put($cacheKey, $pending, now()->addMinutes(15));
 
-        // Resend email
-        $this->sendOtpEmail($pending['username'], $pending['name'], $otp);
+        // Resend email (Disabled for Render testing due to SMTP block)
+        // $this->sendOtpEmail($pending['username'], $pending['name'], $otp);
 
         return response()->json(['message' => 'New OTP sent to your email.']);
     }
