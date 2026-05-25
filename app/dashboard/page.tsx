@@ -375,6 +375,11 @@ export default function DashboardPage() {
     return path.startsWith('http://') || path.startsWith('https://') ? path : `${STORAGE_URL}/${path}`;
   };
 
+  const getImageUrl = (path?: string | null) => {
+    if (!path) return "";
+    return path.startsWith('http://') || path.startsWith('https://') ? path : `${STORAGE_URL}/${path}`;
+  };
+
   // SVG Icon components
   const IconUser = () => <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>;
   const IconBox = () => <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" /><polyline points="3.27 6.96 12 12.01 20.73 6.96" /><line x1="12" y1="22.08" x2="12" y2="12" /></svg>;
@@ -917,14 +922,14 @@ export default function DashboardPage() {
       color,
       price: item.attributes?.variant_prices?.[idx] || item.price,
       file: null,
-      preview: item.attributes?.variant_image_paths?.[idx] ? `${STORAGE_URL}/${item.attributes.variant_image_paths[idx]}` : null,
+      preview: item.attributes?.variant_image_paths?.[idx] ? getImageUrl(item.attributes.variant_image_paths[idx]) : null,
       path: item.attributes?.variant_image_paths?.[idx] || null
     }));
     setColorVariants(loadedVariants);
     const mainImages = item.attributes?.main_images || [];
     setMainImagesState(mainImages.map((path: string) => ({
       file: null,
-      preview: `${STORAGE_URL}/${path}`,
+      preview: getImageUrl(path),
       path
     })));
     setActiveTab("add-item");
@@ -1857,7 +1862,7 @@ export default function DashboardPage() {
                             </div>
                             <div className="order-card-body">
                               {order.item.image ? (
-                                <img src={`${STORAGE_URL}/${order.item.image}`} alt={order.item.name} className="order-img" />
+                                <img src={getImageUrl(order.item.image)} alt={order.item.name} className="order-img" />
                               ) : (
                                 <div className="order-img-placeholder"><IconBox /></div>
                               )}
@@ -2142,7 +2147,7 @@ export default function DashboardPage() {
                                       {msg.image && (
                                         <div style={{ marginBottom: msg.message ? 8 : 0 }}>
                                           <img
-                                            src={msg.optimistic_preview || `${STORAGE_URL}/${msg.image}`}
+                                            src={msg.optimistic_preview || getImageUrl(msg.image)}
                                             alt="Attachment"
                                             style={{ borderRadius: 12, maxWidth: '100%', maxHeight: 240, objectFit: 'cover', display: 'block' }}
                                           />
@@ -2325,7 +2330,7 @@ export default function DashboardPage() {
                         </div>
                         <div className="order-card-body">
                           {order.item.image ? (
-                            <img src={`${STORAGE_URL}/${order.item.image}`} alt={order.item.name} className="order-img" />
+                            <img src={getImageUrl(order.item.image)} alt={order.item.name} className="order-img" />
                           ) : (
                             <div className="order-img-placeholder"><IconBox /></div>
                           )}
@@ -2382,7 +2387,7 @@ export default function DashboardPage() {
                           {item.is_published ? '● Live' : '● Draft'}
                         </div>
                         {item.image ? (
-                          <img src={`${STORAGE_URL}/${item.image}`} alt={item.name} className="item-card-img" />
+                          <img src={getImageUrl(item.image)} alt={item.name} className="item-card-img" />
                         ) : (
                           <div className="item-card-placeholder"><IconCamera /></div>
                         )}

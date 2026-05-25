@@ -36,7 +36,12 @@ export default function CartPage() {
   const [toast, setToast] = useState<{message: string, type: 'success'|'error'} | null>(null);
 
   const API = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
-  const STORAGE_URL = "http://127.0.0.1:8000/storage";
+  const STORAGE_URL = API.replace('/api', '/storage');
+
+  const getImageUrl = (path?: string | null) => {
+    if (!path) return "";
+    return path.startsWith('http://') || path.startsWith('https://') ? path : `${STORAGE_URL}/${path}`;
+  };
 
   const fetchCart = async () => {
     const token = localStorage.getItem("token");
@@ -345,7 +350,17 @@ export default function CartPage() {
                     </div>
                     <div className="product-col">
                       {item.image ? (
-                        <img src={`${STORAGE_URL}/${item.image}`} alt={item.name} className="product-img" loading="lazy" decoding="async" />
+                        <img
+                          src={getImageUrl(item.image)}
+                          alt={item.name}
+                          className="product-img"
+                          loading="lazy"
+                          decoding="async"
+                          onError={(e) => {
+                            e.currentTarget.onerror = null;
+                            e.currentTarget.style.display = 'none';
+                          }}
+                        />
                       ) : (
                         <div className="product-placeholder">
                           <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>

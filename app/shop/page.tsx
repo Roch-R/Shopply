@@ -194,6 +194,11 @@ export default function ShopPage() {
     return path.startsWith('http://') || path.startsWith('https://') ? path : `${STORAGE_URL}/${path}`;
   };
 
+  const getImageUrl = (path?: string | null) => {
+    if (!path) return "";
+    return path.startsWith('http://') || path.startsWith('https://') ? path : `${STORAGE_URL}/${path}`;
+  };
+
   const IconCart = () => <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>;
   const IconCheck = () => <svg width="48" height="48" fill="none" stroke="#10b981" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>;
   const IconArrowUp = () => <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M18 15l-6-6-6 6" strokeLinecap="round" strokeLinejoin="round"/></svg>;
@@ -859,8 +864,21 @@ export default function ShopPage() {
               {items.filter(i => selectedCategory === "All" || i.category === selectedCategory).map((item) => (
                 <div key={item.id} className="item-card" onClick={() => handleViewItem(item)} style={{cursor:'pointer'}}>
                   {item.image ? (
-                    <img src={`${STORAGE_URL}/${item.image}`} alt={item.name} className="item-card-img" loading="lazy" decoding="async" />
-                  ) : (
+                    <img
+                      src={getImageUrl(item.image)}
+                      alt={item.name}
+                      className="item-card-img"
+                      loading="lazy"
+                      decoding="async"
+                      onError={(e) => {
+                        e.currentTarget.onerror = null;
+                        e.currentTarget.style.display = 'none';
+                        const placeholder = e.currentTarget.nextElementSibling as HTMLElement;
+                        if (placeholder) placeholder.style.display = 'flex';
+                      }}
+                    />
+                  ) : null}
+                  {(!item.image) && (
                     <div className="item-image-placeholder">
                       <svg width="48" height="48" fill="none" stroke="#cbd5e1" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
                     </div>
@@ -945,8 +963,8 @@ export default function ShopPage() {
         {viewItem && (
           (() => {
             const allAvailableImages = [
-            ...(viewItem.attributes?.main_images && viewItem.attributes.main_images.length > 0 ? viewItem.attributes.main_images : (viewItem.image ? [viewItem.image] : [])).map(path => `${STORAGE_URL}/${path}`),
-            ...(viewItem.attributes?.variant_image_paths || []).map(path => `${STORAGE_URL}/${path}`)
+            ...(viewItem.attributes?.main_images && viewItem.attributes.main_images.length > 0 ? viewItem.attributes.main_images : (viewItem.image ? [viewItem.image] : [])).map(path => getImageUrl(path)),
+            ...(viewItem.attributes?.variant_image_paths || []).filter(Boolean).map(path => getImageUrl(path))
           ];
 
           const handlePrevImage = (e: React.MouseEvent) => {
@@ -1047,7 +1065,7 @@ export default function ShopPage() {
                       {(viewItem.attributes?.main_images && viewItem.attributes.main_images.length > 0 ? viewItem.attributes.main_images : (viewItem.image ? [viewItem.image] : [])).map((path, idx) => (
                         <img 
                           key={`main-${idx}`} 
-                          src={`${STORAGE_URL}/${path}`} 
+                          src={getImageUrl(path)} 
                           className={`v-thumb ${activeImageIdx === idx ? 'active' : ''}`}
                           onClick={() => {
                             setActiveImageIdx(idx);
@@ -1061,7 +1079,7 @@ export default function ShopPage() {
                         return (
                           <img 
                             key={`var-${idx}`} 
-                            src={`${STORAGE_URL}/${path}`} 
+                            src={getImageUrl(path)} 
                             className={`v-thumb ${activeImageIdx === globalIdx ? 'active' : ''}`}
                             onClick={() => {
                               setActiveImageIdx(globalIdx);
@@ -1119,7 +1137,7 @@ export default function ShopPage() {
                           >
                             {viewItem.attributes?.variant_image_paths?.[idx] && (
                               <img 
-                                src={`${STORAGE_URL}/${viewItem.attributes.variant_image_paths[idx]}`} 
+                                src={getImageUrl(viewItem.attributes.variant_image_paths[idx])} 
                                 className="variant-btn-img" 
                                 alt={color}
                               />
@@ -1379,7 +1397,7 @@ export default function ShopPage() {
                       {rev.images && rev.images.length > 0 && (
                         <div className="r-images">
                           {rev.images.map((img, i) => (
-                            <img key={i} src={`${STORAGE_URL}/${img}`} className="r-img" alt="Review" onClick={() => window.open(`${STORAGE_URL}/${img}`, '_blank')} />
+                            <img key={i} src={getImageUrl(img)} className="r-img" alt="Review" onClick={() => window.open(getImageUrl(img), '_blank')} />
                           ))}
                         </div>
                       )}
@@ -1422,9 +1440,9 @@ export default function ShopPage() {
           <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,.45)',backdropFilter:'blur(4px)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:1000}} onClick={() => setBuyModal(null)}>
             <div style={{background:'#fff',borderRadius:20,padding:'36px 32px',maxWidth:420,width:'90%',boxShadow:'0 20px 60px rgba(0,0,0,.15)'}} onClick={e => e.stopPropagation()}>
               {(buyModal.variantIdx !== null && buyModal.item.attributes?.variant_image_paths?.[buyModal.variantIdx]) ? (
-                 <img src={`${STORAGE_URL}/${buyModal.item.attributes.variant_image_paths[buyModal.variantIdx]}`} alt={buyModal.item.name} style={{width:'100%',height:180,objectFit:'cover',borderRadius:12,marginBottom:20}} />
+                 <img src={getImageUrl(buyModal.item.attributes.variant_image_paths[buyModal.variantIdx])} alt={buyModal.item.name} style={{width:'100%',height:180,objectFit:'cover',borderRadius:12,marginBottom:20}} />
               ) : buyModal.item.image && (
-                <img src={`${STORAGE_URL}/${buyModal.item.image}`} alt={buyModal.item.name} style={{width:'100%',height:180,objectFit:'cover',borderRadius:12,marginBottom:20}} />
+                <img src={getImageUrl(buyModal.item.image)} alt={buyModal.item.name} style={{width:'100%',height:180,objectFit:'cover',borderRadius:12,marginBottom:20}} />
               )}
               <h3 style={{fontSize:20,fontWeight:700,color:'#0f172a',marginBottom:6}}>{buyModal.item.name}</h3>
               <p style={{fontSize:14,color:'#64748b',marginBottom:8}}>
@@ -1631,7 +1649,7 @@ export default function ShopPage() {
                                 {msg.image && (
                                   <div style={{ marginBottom: msg.message ? 8 : 0 }}>
                                     <img
-                                      src={msg.optimistic_preview || `${STORAGE_URL}/${msg.image}`}
+                                      src={msg.optimistic_preview || getImageUrl(msg.image)}
                                       alt="Attachment"
                                       style={{ borderRadius: 12, maxWidth: '100%', maxHeight: 240, objectFit: 'cover', display: 'block' }}
                                     />
