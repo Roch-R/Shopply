@@ -8,6 +8,9 @@ php artisan route:cache
 # Run database migrations
 php artisan migrate --force
 
+# Create storage symlink so uploaded images are publicly accessible
+php artisan storage:link --force 2>/dev/null || true
+
 # Start PHP-FPM in background
 php-fpm -D
 
