@@ -370,6 +370,11 @@ export default function DashboardPage() {
   const STORAGE_URL = process.env.NEXT_PUBLIC_API_URL ? process.env.NEXT_PUBLIC_API_URL.replace('/api', '/storage') : "http://localhost:8000/storage";
   const lastFetchedRef = useRef<number>(0);
 
+  const getAvatarUrl = (path?: string | null) => {
+    if (!path) return "";
+    return path.startsWith('http://') || path.startsWith('https://') ? path : `${STORAGE_URL}/${path}`;
+  };
+
   // SVG Icon components
   const IconUser = () => <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>;
   const IconBox = () => <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" /><polyline points="3.27 6.96 12 12.01 20.73 6.96" /><line x1="12" y1="22.08" x2="12" y2="12" /></svg>;
@@ -1579,7 +1584,7 @@ export default function DashboardPage() {
             <div className="sidebar-profile-header">
               <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'linear-gradient(135deg,#7c3aed,#2563eb)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 16, flexShrink: 0, overflow: 'hidden' }}>
                 {user?.avatar ? (
-                  <img src={user.avatar} alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <img src={getAvatarUrl(user.avatar)} alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 ) : (
                   user?.name ? user.name.charAt(0).toUpperCase() : 'U'
                 )}
@@ -1706,7 +1711,7 @@ export default function DashboardPage() {
             <div className="profile-header">
               <div className="profile-avatar" style={{ position: 'relative', overflow: 'hidden' }}>
                 {user.avatar ? (
-                  <img src={`${STORAGE_URL}/${user.avatar}`} alt={user.name} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%', position: 'absolute', top: 0, left: 0 }} />
+                  <img src={getAvatarUrl(user.avatar)} alt={user.name} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%', position: 'absolute', top: 0, left: 0 }} />
                 ) : initials}
               </div>
               <div className="profile-info">
@@ -1748,7 +1753,7 @@ export default function DashboardPage() {
                             {avatarPreview ? (
                               <img src={avatarPreview} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
                             ) : user.avatar ? (
-                              <img src={`${STORAGE_URL}/${user.avatar}`} alt={user.name} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
+                              <img src={getAvatarUrl(user.avatar)} alt={user.name} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
                             ) : initials}
                           </div>
                           <label htmlFor="avatar-upload" style={{ position: 'absolute', bottom: 0, right: 0, background: '#fff', padding: 6, borderRadius: '50%', boxShadow: '0 2px 8px rgba(0,0,0,.15)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #e2e8f0' }}>
@@ -2026,7 +2031,7 @@ export default function DashboardPage() {
                             }}
                           >
                             {conv.user.avatar ? (
-                              <img src={`${STORAGE_URL}/${conv.user.avatar}`} alt={conv.user.name} style={{width: 44, height: 44, borderRadius: '50%', objectFit: 'cover'}} />
+                              <img src={getAvatarUrl(conv.user.avatar)} alt={conv.user.name} style={{width: 44, height: 44, borderRadius: '50%', objectFit: 'cover'}} />
                             ) : (
                               <div style={{width: 44, height: 44, borderRadius: '50%', background: '#e2e8f0', color: '#64748b', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 16}}>
                                 {conv.user.name.charAt(0).toUpperCase()}
@@ -2066,7 +2071,7 @@ export default function DashboardPage() {
                         <div style={{padding: '16px 24px', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
                           <div style={{display: 'flex', alignItems: 'center', gap: 12}}>
                             {activeChatUser.avatar ? (
-                              <img src={`${STORAGE_URL}/${activeChatUser.avatar}`} alt={activeChatUser.name} style={{width: 40, height: 40, borderRadius: '50%', objectFit: 'cover'}} />
+                              <img src={getAvatarUrl(activeChatUser.avatar)} alt={activeChatUser.name} style={{width: 40, height: 40, borderRadius: '50%', objectFit: 'cover'}} />
                             ) : (
                               <div style={{width: 40, height: 40, borderRadius: '50%', background: '#e2e8f0', color: '#64748b', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 16}}>
                                 {activeChatUser.name.charAt(0).toUpperCase()}
@@ -2115,7 +2120,7 @@ export default function DashboardPage() {
                                 >
                                   {!isMe && (
                                     activeChatUser.avatar ? (
-                                      <img src={`${STORAGE_URL}/${activeChatUser.avatar}`} alt={activeChatUser.name} style={{width: 28, height: 28, borderRadius: '50%', objectFit: 'cover', marginBottom: 4}} />
+                                      <img src={getAvatarUrl(activeChatUser.avatar)} alt={activeChatUser.name} style={{width: 28, height: 28, borderRadius: '50%', objectFit: 'cover', marginBottom: 4}} />
                                     ) : (
                                       <div style={{width: 28, height: 28, borderRadius: '50%', background: '#e2e8f0', color: '#64748b', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 12, marginBottom: 4}}>
                                         {activeChatUser.name.charAt(0).toUpperCase()}
@@ -2156,7 +2161,7 @@ export default function DashboardPage() {
                           {isOtherUserTyping && activeChatUser && (
                             <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, alignSelf: 'flex-start', maxWidth: '75%', animation: 'slideIn 0.2s ease' }}>
                               {activeChatUser.avatar ? (
-                                <img src={`${STORAGE_URL}/${activeChatUser.avatar}`} alt={activeChatUser.name} style={{ width: 28, height: 28, borderRadius: '50%', objectFit: 'cover', marginBottom: 4 }} />
+                                <img src={getAvatarUrl(activeChatUser.avatar)} alt={activeChatUser.name} style={{ width: 28, height: 28, borderRadius: '50%', objectFit: 'cover', marginBottom: 4 }} />
                               ) : (
                                 <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#e2e8f0', color: '#64748b', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 12, marginBottom: 4 }}>
                                   {activeChatUser.name.charAt(0).toUpperCase()}

@@ -189,6 +189,11 @@ export default function ShopPage() {
   const API = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
   const STORAGE_URL = process.env.NEXT_PUBLIC_API_URL ? process.env.NEXT_PUBLIC_API_URL.replace('/api', '/storage') : "http://127.0.0.1:8000/storage";
 
+  const getAvatarUrl = (path?: string | null) => {
+    if (!path) return "";
+    return path.startsWith('http://') || path.startsWith('https://') ? path : `${STORAGE_URL}/${path}`;
+  };
+
   const IconCart = () => <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>;
   const IconCheck = () => <svg width="48" height="48" fill="none" stroke="#10b981" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>;
   const IconArrowUp = () => <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M18 15l-6-6-6 6" strokeLinecap="round" strokeLinejoin="round"/></svg>;
@@ -913,7 +918,7 @@ export default function ShopPage() {
                     <div className="item-seller" style={{marginTop:12, padding: '8px 12px', background: '#f8fafc', borderRadius: '10px', border: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', gap: '8px'}}>
                       {item.user.avatar ? (
                         <img 
-                          src={`${STORAGE_URL}/${item.user.avatar}`} 
+                          src={getAvatarUrl(item.user.avatar)} 
                           alt={item.user.name} 
                           className="seller-avatar" 
                           style={{objectFit: 'cover', width: '28px', height: '28px', flexShrink: 0}} 
@@ -1206,7 +1211,7 @@ export default function ShopPage() {
                 <div className="seller-left-side">
                   <div className="seller-avatar-wrapper">
                     {viewItem.user.avatar ? (
-                      <img src={`${STORAGE_URL}/${viewItem.user.avatar}`} className="seller-main-avatar" alt={viewItem.user.name} />
+                      <img src={getAvatarUrl(viewItem.user.avatar)} className="seller-main-avatar" alt={viewItem.user.name} />
                     ) : (
                       <div className="seller-main-avatar">{viewItem.user.name.charAt(0).toUpperCase()}</div>
                     )}
@@ -1513,7 +1518,7 @@ export default function ShopPage() {
                       }}
                     >
                       {conv.user.avatar ? (
-                        <img src={`${STORAGE_URL}/${conv.user.avatar}`} alt={conv.user.name} style={{width: 44, height: 44, borderRadius: '50%', objectFit: 'cover'}} />
+                        <img src={getAvatarUrl(conv.user.avatar)} alt={conv.user.name} style={{width: 44, height: 44, borderRadius: '50%', objectFit: 'cover'}} />
                       ) : (
                         <div style={{width: 44, height: 44, borderRadius: '50%', background: '#e2e8f0', color: '#64748b', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 16}}>
                           {conv.user.name.charAt(0).toUpperCase()}
@@ -1553,7 +1558,7 @@ export default function ShopPage() {
                   <div style={{padding: '16px 24px', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
                     <div style={{display: 'flex', alignItems: 'center', gap: 12}}>
                       {activeChatUser.avatar ? (
-                        <img src={`${STORAGE_URL}/${activeChatUser.avatar}`} alt={activeChatUser.name} style={{width: 40, height: 40, borderRadius: '50%', objectFit: 'cover'}} />
+                        <img src={getAvatarUrl(activeChatUser.avatar)} alt={activeChatUser.name} style={{width: 40, height: 40, borderRadius: '50%', objectFit: 'cover'}} />
                       ) : (
                         <div style={{width: 40, height: 40, borderRadius: '50%', background: '#e2e8f0', color: '#64748b', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 16}}>
                           {activeChatUser.name.charAt(0).toUpperCase()}
@@ -1604,7 +1609,7 @@ export default function ShopPage() {
                           >
                             {!isMe && (
                               activeChatUser.avatar ? (
-                                <img src={`${STORAGE_URL}/${activeChatUser.avatar}`} alt={activeChatUser.name} style={{width: 28, height: 28, borderRadius: '50%', objectFit: 'cover', marginBottom: 4}} />
+                                <img src={getAvatarUrl(activeChatUser.avatar)} alt={activeChatUser.name} style={{width: 28, height: 28, borderRadius: '50%', objectFit: 'cover', marginBottom: 4}} />
                               ) : (
                                 <div style={{width: 28, height: 28, borderRadius: '50%', background: '#e2e8f0', color: '#64748b', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 12, marginBottom: 4}}>
                                   {activeChatUser.name.charAt(0).toUpperCase()}
@@ -1645,7 +1650,7 @@ export default function ShopPage() {
                     {isOtherUserTyping && activeChatUser && (
                       <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, alignSelf: 'flex-start', maxWidth: '75%', animation: 'slideIn 0.2s ease' }}>
                         {activeChatUser.avatar ? (
-                          <img src={`${STORAGE_URL}/${activeChatUser.avatar}`} alt={activeChatUser.name} style={{ width: 28, height: 28, borderRadius: '50%', objectFit: 'cover', marginBottom: 4 }} />
+                          <img src={getAvatarUrl(activeChatUser.avatar)} alt={activeChatUser.name} style={{ width: 28, height: 28, borderRadius: '50%', objectFit: 'cover', marginBottom: 4 }} />
                         ) : (
                           <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#e2e8f0', color: '#64748b', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 12, marginBottom: 4 }}>
                             {activeChatUser.name.charAt(0).toUpperCase()}
