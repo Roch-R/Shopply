@@ -2419,7 +2419,7 @@ export default function DashboardPage() {
             {/* ——— STORE ORDERS TAB ——— */}
             {activeTab === "store-orders" && (
               <div className="orders-container">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
                   <div>
                     <h2 style={{ fontSize: 20, color: '#0f172a' }}>Store Orders</h2>
                     <p style={{ color: '#64748b', fontSize: 14 }}>Manage incoming orders for your products.</p>
