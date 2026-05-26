@@ -393,7 +393,10 @@ HTML;
             ]);
 
             if ($tokenResponse->failed()) {
-                return response()->json(['message' => 'Failed to exchange Google authorization code.'], 400);
+                $googleErr = $tokenResponse->json('error_description') ?? $tokenResponse->json('error') ?? 'Unknown error';
+                return response()->json([
+                    'message' => 'Failed to exchange Google authorization code: ' . $googleErr,
+                ], 400);
             }
 
             $accessToken = $tokenResponse->json('access_token');
