@@ -185,6 +185,16 @@ export default function CartPage() {
         .nav-link{font-size:13px;font-weight:500;color:#64748b;text-decoration:none;
           padding:6px 12px;border-radius:8px;transition:all .2s}
         .nav-link:hover{color:#7c3aed;background:rgba(124,58,237,.06)}
+
+        .shop-link{font-size:13px;font-weight:600;color:#7c3aed;text-decoration:none;
+          padding:6px 12px;border-radius:8px;background:rgba(124,58,237,.1);transition:all .2s;
+          display:inline-flex;align-items:center;gap:6px}
+        .shop-link:hover{background:rgba(124,58,237,.2)}
+        
+        .login-btn{padding:8px 16px;background:linear-gradient(135deg,#7c3aed,#2563eb);
+          border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:600;
+          font-family:'Inter',sans-serif;cursor:pointer;transition:all .2s;text-decoration:none}
+        .login-btn:hover{opacity:.85;transform:translateY(-1px)}
         
         /* Layout */
         .container{max-width:1200px;margin:24px auto;padding:0 24px}
@@ -252,6 +262,114 @@ export default function CartPage() {
         
         /* Empty */
         .empty-cart{background:#fff;padding:100px 0;text-align:center;border-radius:16px;border:1px solid #f1f5f9;box-shadow:0 4px 20px rgba(0,0,0,.03)}
+
+        .mobile-details-row { display: none; }
+
+        @media (max-width: 768px) {
+          .cart-header { display: none !important; }
+          .item-row.cart-grid {
+            display: grid !important;
+            grid-template-columns: 32px 1fr !important;
+            gap: 12px !important;
+            padding: 16px 12px !important;
+            align-items: start !important;
+          }
+          .chk-col {
+            display: flex;
+            align-items: center;
+            height: 80px;
+            justify-content: center;
+          }
+          .desktop-col { display: none !important; }
+          .mobile-details-row {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            grid-column: 1 / span 2;
+            background: #f8fafc;
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid #f1f5f9;
+            margin-top: 4px;
+          }
+          .mobile-price-row, .mobile-total-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+          }
+          .price-label, .total-label {
+            color: #64748b;
+            font-weight: 500;
+          }
+          .price-value {
+            color: #334155;
+            font-weight: 600;
+          }
+          .total-value {
+            color: #7c3aed;
+            font-weight: 700;
+            font-size: 15px;
+          }
+          .mobile-qty-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid #f1f5f9;
+            border-bottom: 1px solid #f1f5f9;
+            padding: 8px 0;
+          }
+          .remove-btn-mobile {
+            padding: 4px 8px !important;
+            font-size: 12px !important;
+          }
+          .bottom-bar {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 16px !important;
+            padding: 16px !important;
+            bottom: 12px !important;
+            border-radius: 12px !important;
+          }
+          .bottom-left {
+            justify-content: space-between !important;
+          }
+          .bottom-right {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 12px !important;
+          }
+          .bottom-right > div {
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+          }
+          .checkout-btn {
+            width: 100% !important;
+            text-align: center !important;
+            padding: 12px !important;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .nav{padding:0 8px !important}
+          .nav-right{gap:4px !important}
+          .logo-text{display:none !important}
+          .cart-title-text{display:none !important}
+          .continue-text{display:none !important}
+          .dashboard-text{display:none !important}
+          .dashboard-icon-span{display:inline-flex !important;color:#fff}
+          .login-btn{width:36px !important;height:36px !important;padding:0 !important;border-radius:50% !important;min-width:36px !important;background:linear-gradient(135deg,#7c3aed,#2563eb) !important;display:inline-flex !important;align-items:center !important;justify-content:center !important}
+          .shop-link{padding:0 !important;border-radius:50% !important;width:36px !important;height:36px !important;display:inline-flex !important;justify-content:center !important;align-items:center !important;background:rgba(124,58,237,0.1) !important;color:#7c3aed !important}
+          .container {
+            padding: 0 12px !important;
+            margin: 16px auto !important;
+          }
+          .cart-card {
+            border-radius: 8px !important;
+            margin-bottom: 12px !important;
+          }
+        }
       `}</style>
 
       {/* Navigation */}
@@ -270,11 +388,25 @@ export default function CartPage() {
             </linearGradient></defs>
           </svg>
           <span className="logo-text">Shopply</span>
-          <span style={{color: '#64748b', fontSize: '15px', marginLeft: 12, borderLeft: '1px solid #e2e8f0', paddingLeft: 16, fontWeight: 500}}>Shopping Cart</span>
+          <span className="cart-title-text" style={{color: '#64748b', fontSize: '15px', marginLeft: 12, borderLeft: '1px solid #e2e8f0', paddingLeft: 16, fontWeight: 500}}>Shopping Cart</span>
         </Link>
         <div className="nav-right">
-          <Link href="/shop" className="nav-link">Continue Shopping</Link>
-          <Link href="/dashboard" className="nav-link" style={{background:'linear-gradient(135deg,#7c3aed,#2563eb)', color:'#fff', padding:'8px 16px', fontWeight:600}}>Dashboard</Link>
+          <Link href="/shop" className="shop-link" style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+            <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+              <path d="M6 2L3 7v13a2 2 0 002 2h14a2 2 0 002-2V7l-3-5H6z" />
+              <line x1="3" y1="7" x2="21" y2="7" />
+              <path d="M16 11a4 4 0 01-8 0" />
+            </svg>
+            <span className="continue-text">Continue Shopping</span>
+          </Link>
+          <Link href="/dashboard" className="login-btn" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+            <span className="dashboard-text">Dashboard</span>
+            <span className="dashboard-icon-span" style={{ display: 'none', alignItems: 'center', justifyContent: 'center' }}>
+              <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                <path d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </span>
+          </Link>
         </div>
       </nav>
 
@@ -340,7 +472,7 @@ export default function CartPage() {
                     {item.user.name}
                   </div>
                   <div className="item-row cart-grid">
-                    <div style={{display:'flex', justifyContent:'center'}}>
+                    <div className="chk-col">
                       <div 
                         className={`checkbox ${isSelected ? 'checked' : ''}`}
                         onClick={() => toggleSelect(cartItem.id)}
@@ -374,8 +506,8 @@ export default function CartPage() {
                         {cartItem.variation && <div className="product-stock" style={{color:'#7c3aed', fontWeight:600}}>Variation: {cartItem.variation}</div>}
                       </div>
                     </div>
-                    <div style={{textAlign:'center', fontWeight:500, color:'#334155'}}>₱{parseFloat(cartItem.price || item.price).toFixed(2)}</div>
-                    <div style={{display:'flex', justifyContent:'center'}}>
+                    <div className="desktop-col unit-price-col" style={{textAlign:'center', fontWeight:500, color:'#334155'}}>₱{parseFloat(cartItem.price || item.price).toFixed(2)}</div>
+                    <div className="desktop-col qty-col" style={{display:'flex', justifyContent:'center'}}>
                       <div className="qty-controls">
                         <button 
                           className="qty-btn" 
@@ -390,9 +522,37 @@ export default function CartPage() {
                         >+</button>
                       </div>
                     </div>
-                    <div className="price-col" style={{textAlign:'center'}}>₱{(parseFloat(cartItem.price || item.price) * cartItem.quantity).toFixed(2)}</div>
-                    <div style={{textAlign:'center'}}>
+                    <div className="desktop-col total-price-col price-col" style={{textAlign:'center'}}>₱{(parseFloat(cartItem.price || item.price) * cartItem.quantity).toFixed(2)}</div>
+                    <div className="desktop-col actions-col" style={{textAlign:'center'}}>
                       <button className="action-btn" onClick={() => removeCartItem(cartItem.id)}>Remove</button>
+                    </div>
+
+                    {/* Mobile Details Row */}
+                    <div className="mobile-details-row">
+                      <div className="mobile-price-row">
+                        <span className="price-label">Unit Price:</span>
+                        <span className="price-value">₱{parseFloat(cartItem.price || item.price).toFixed(2)}</span>
+                      </div>
+                      <div className="mobile-qty-row">
+                        <div className="qty-controls">
+                          <button 
+                            className="qty-btn" 
+                            onClick={() => updateQuantity(cartItem.id, cartItem.quantity - 1, maxStock)}
+                            disabled={cartItem.quantity <= 1}
+                          >-</button>
+                          <input type="text" className="qty-input" value={cartItem.quantity} readOnly />
+                          <button 
+                            className="qty-btn" 
+                            onClick={() => updateQuantity(cartItem.id, cartItem.quantity + 1, maxStock)}
+                            disabled={cartItem.quantity >= maxStock || isSizeOutOfStock}
+                          >+</button>
+                        </div>
+                        <button className="action-btn remove-btn-mobile" onClick={() => removeCartItem(cartItem.id)}>Remove</button>
+                      </div>
+                      <div className="mobile-total-row">
+                        <span className="total-label">Total Price:</span>
+                        <span className="total-value">₱{(parseFloat(cartItem.price || item.price) * cartItem.quantity).toFixed(2)}</span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -408,6 +568,7 @@ export default function CartPage() {
                   <span style={{fontSize: 15, color: '#0f172a', fontWeight: 500}}>Select All ({cartItems.length})</span>
                 </div>
               </div>
+
               <div className="bottom-right">
                 <div style={{fontSize: 15, color: '#64748b', fontWeight: 500}}>
                   Total ({totalItemsCount} item{totalItemsCount !== 1 && 's'}): <span style={{fontSize: 26, color: '#7c3aed', fontWeight: 700, marginLeft: 8}}>₱{totalPrice.toFixed(2)}</span>
