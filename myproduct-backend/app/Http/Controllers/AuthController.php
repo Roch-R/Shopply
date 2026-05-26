@@ -384,7 +384,7 @@ HTML;
                 return response()->json(['message' => 'Google OAuth credentials are not configured on the backend.'], 500);
             }
 
-            $tokenResponse = \Illuminate\Support\Facades\Http::post('https://oauth2.googleapis.com/token', [
+            $tokenResponse = \Illuminate\Support\Facades\Http::asForm()->post('https://oauth2.googleapis.com/token', [
                 'client_id' => $clientId,
                 'client_secret' => $clientSecret,
                 'redirect_uri' => $redirectUri,
@@ -393,9 +393,9 @@ HTML;
             ]);
 
             if ($tokenResponse->failed()) {
-                $googleErr = $tokenResponse->json('error_description') ?? $tokenResponse->json('error') ?? 'Unknown error';
+                $errBody = json_encode($tokenResponse->json() ?? $tokenResponse->body());
                 return response()->json([
-                    'message' => 'Failed to exchange Google authorization code: ' . $googleErr,
+                    'message' => 'Failed to exchange Google authorization code. Details: ' . $errBody,
                 ], 400);
             }
 
