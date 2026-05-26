@@ -57,6 +57,8 @@ class ItemController extends Controller
             'category' => 'required|string',
             'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:20480',
             'variant_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:20480',
+            'video' => 'nullable|file|mimes:mp4,mov,ogg,qt,webm,avi,mkv|max:51200',
+            'description_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:20480',
         ]);
 
         $attributes = $request->input('attributes') ? json_decode($request->input('attributes'), true) : [];
@@ -78,6 +80,24 @@ class ItemController extends Controller
         unset($attributes['existing_main_images']);
 
         $imagePath = count($finalMainPaths) > 0 ? $finalMainPaths[0] : null;
+
+        // Handle showcase video
+        if ($request->hasFile('video')) {
+            $attributes['video_path'] = $request->file('video')->store('item-videos', 'public');
+        } else {
+            $attributes['video_path'] = null;
+        }
+
+        // Handle description images
+        $existingDesc = $attributes['existing_description_images'] ?? [];
+        $newDescFiles = $request->file('description_images') ?? [];
+        $finalDescPaths = $existingDesc;
+
+        foreach ($newDescFiles as $img) {
+            $finalDescPaths[] = $img->store('item-images', 'public');
+        }
+        $attributes['description_images'] = $finalDescPaths;
+        unset($attributes['existing_description_images']);
 
         // Handle variant images
         $existingVariantPaths = $attributes['existing_variant_paths'] ?? [];
@@ -143,6 +163,8 @@ class ItemController extends Controller
             'category' => 'required|string',
             'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:20480',
             'variant_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:20480',
+            'video' => 'nullable|file|mimes:mp4,mov,ogg,qt,webm,avi,mkv|max:51200',
+            'description_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:20480',
         ]);
 
         $oldAttributes = $item->attributes ?? [];
@@ -166,6 +188,34 @@ class ItemController extends Controller
         unset($attributes['existing_main_images']);
 
         $imagePath = count($finalMainPaths) > 0 ? $finalMainPaths[0] : ($item->image ?? null);
+
+        // Handle showcase video
+        if ($request->hasFile('video')) {
+            // Delete old video if it exists
+            if (!empty($item->attributes['video_path'])) {
+                Storage::disk('public')->delete($item->attributes['video_path']);
+            }
+            $attributes['video_path'] = $request->file('video')->store('item-videos', 'public');
+        } else {
+            // Keep existing video if specified, otherwise delete it
+            $existingVideo = $newAttrs['existing_video_path'] ?? null;
+            if (!$existingVideo && !empty($item->attributes['video_path'])) {
+                Storage::disk('public')->delete($item->attributes['video_path']);
+            }
+            $attributes['video_path'] = $existingVideo;
+        }
+        unset($attributes['existing_video_path']);
+
+        // Handle description images
+        $existingDesc = $newAttrs['existing_description_images'] ?? [];
+        $newDescFiles = $request->file('description_images') ?? [];
+        $finalDescPaths = $existingDesc;
+
+        foreach ($newDescFiles as $img) {
+            $finalDescPaths[] = $img->store('item-images', 'public');
+        }
+        $attributes['description_images'] = $finalDescPaths;
+        unset($attributes['existing_description_images']);
 
         // Handle variant images
         $existingVariantPaths = $newAttrs['existing_variant_paths'] ?? [];

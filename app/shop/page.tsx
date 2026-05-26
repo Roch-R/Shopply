@@ -23,6 +23,8 @@ interface ShopItem {
     variant_image_paths?: string[];
     main_images?: string[];
     size_stocks?: Record<string, number>;
+    video_path?: string;
+    description_images?: string[];
   } | null;
   user: {
     id: number;
@@ -991,146 +993,173 @@ export default function ShopPage() {
         {/* PRODUCT DETAIL MODAL */}
         {viewItem && (
           (() => {
-            const allAvailableImages = [
-            ...(viewItem.attributes?.main_images && viewItem.attributes.main_images.length > 0 ? viewItem.attributes.main_images : (viewItem.image ? [viewItem.image] : [])).map(path => getImageUrl(path)),
-            ...(viewItem.attributes?.variant_image_paths || []).filter(Boolean).map(path => getImageUrl(path))
-          ];
+            const mediaItems = [];
+            if (viewItem.attributes?.video_path) {
+              mediaItems.push({ type: 'video', url: getImageUrl(viewItem.attributes.video_path) });
+            }
+            const mainImages = viewItem.attributes?.main_images && viewItem.attributes.main_images.length > 0
+              ? viewItem.attributes.main_images
+              : (viewItem.image ? [viewItem.image] : []);
+            mainImages.forEach(path => {
+              mediaItems.push({ type: 'image', url: getImageUrl(path) });
+            });
+            (viewItem.attributes?.variant_image_paths || []).filter(Boolean).forEach(path => {
+              mediaItems.push({ type: 'image', url: getImageUrl(path) });
+            });
 
-          const handlePrevImage = (e: React.MouseEvent) => {
-            e.stopPropagation();
-            if (allAvailableImages.length <= 1) return;
-            const newIdx = activeImageIdx <= 0 ? allAvailableImages.length - 1 : activeImageIdx - 1;
-            setActiveImageIdx(newIdx);
-            const mainLen = viewItem.attributes?.main_images?.length || (viewItem.image ? 1 : 0);
-            setSelectedVariant(newIdx >= mainLen ? newIdx - mainLen : null);
-          };
+            const handlePrevImage = (e: React.MouseEvent) => {
+              e.stopPropagation();
+              if (mediaItems.length <= 1) return;
+              const newIdx = activeImageIdx <= 0 ? mediaItems.length - 1 : activeImageIdx - 1;
+              setActiveImageIdx(newIdx);
+              const hasVideo = !!viewItem.attributes?.video_path;
+              const videoOffset = hasVideo ? 1 : 0;
+              const mainLen = (viewItem.attributes?.main_images?.length || (viewItem.image ? 1 : 0)) + videoOffset;
+              setSelectedVariant(newIdx >= mainLen ? newIdx - mainLen : null);
+            };
 
-          const handleNextImage = (e: React.MouseEvent) => {
-            e.stopPropagation();
-            if (allAvailableImages.length <= 1) return;
-            const newIdx = activeImageIdx >= allAvailableImages.length - 1 ? 0 : activeImageIdx + 1;
-            setActiveImageIdx(newIdx);
-            const mainLen = viewItem.attributes?.main_images?.length || (viewItem.image ? 1 : 0);
-            setSelectedVariant(newIdx >= mainLen ? newIdx - mainLen : null);
-          };
+            const handleNextImage = (e: React.MouseEvent) => {
+              e.stopPropagation();
+              if (mediaItems.length <= 1) return;
+              const newIdx = activeImageIdx >= mediaItems.length - 1 ? 0 : activeImageIdx + 1;
+              setActiveImageIdx(newIdx);
+              const hasVideo = !!viewItem.attributes?.video_path;
+              const videoOffset = hasVideo ? 1 : 0;
+              const mainLen = (viewItem.attributes?.main_images?.length || (viewItem.image ? 1 : 0)) + videoOffset;
+              setSelectedVariant(newIdx >= mainLen ? newIdx - mainLen : null);
+            };
 
-          return (
-            <div className="modal-overlay" onClick={() => setViewItem(null)}>
-              <div className="detail-modal" onClick={e => e.stopPropagation()}>
-                <button className="modal-close-btn" onClick={() => setViewItem(null)} title="Close">
-                  <IconClose />
-                </button>
-                <div className="detail-content">
-                  <div className="detail-img-side">
-                    <div style={{ position: 'relative', width: '100%', aspectRatio: '1/1', borderRadius: 20, overflow: 'hidden', background: '#f8fafc', border: '1px solid #f1f5f9', boxShadow: '0 4px 20px rgba(0,0,0,0.04)' }}>
-                      <img 
-                        src={allAvailableImages[activeImageIdx] || "https://placehold.co/600x600/f8fafc/cbd5e1?text=No+Image"} 
-                        style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-                        onError={(e) => {
-                          e.currentTarget.onerror = null;
-                          e.currentTarget.src = "https://placehold.co/600x600/f8fafc/cbd5e1?text=No+Image";
-                        }}
-                      />
-                      {allAvailableImages.length > 1 && (
-                        <>
-                          <button
-                            type="button"
-                            onClick={handlePrevImage}
-                            style={{
-                              position: 'absolute',
-                              left: 0,
-                              top: '50%',
-                              transform: 'translateY(-50%)',
-                              width: 48,
-                              height: 80,
-                              background: 'rgba(0,0,0,0.55)',
-                              backdropFilter: 'blur(4px)',
-                              border: 'none',
-                              borderTopRightRadius: 8,
-                              borderBottomRightRadius: 8,
-                              color: '#fff',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              cursor: 'pointer',
-                              transition: 'all .2s',
-                              zIndex: 10
-                            }}
-                            onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,0,0,0.85)'}
-                            onMouseLeave={e => e.currentTarget.style.background = 'rgba(0,0,0,0.55)'}
-                            title="Previous Image"
-                          >
-                            <svg width="32" height="32" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                          </button>
-                          <button
-                            type="button"
-                            onClick={handleNextImage}
-                            style={{
-                              position: 'absolute',
-                              right: 0,
-                              top: '50%',
-                              transform: 'translateY(-50%)',
-                              width: 48,
-                              height: 80,
-                              background: 'rgba(0,0,0,0.55)',
-                              backdropFilter: 'blur(4px)',
-                              border: 'none',
-                              borderTopLeftRadius: 8,
-                              borderBottomLeftRadius: 8,
-                              color: '#fff',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              cursor: 'pointer',
-                              transition: 'all .2s',
-                              zIndex: 10
-                            }}
-                            onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,0,0,0.85)'}
-                            onMouseLeave={e => e.currentTarget.style.background = 'rgba(0,0,0,0.55)'}
-                            title="Next Image"
-                          >
-                            <svg width="32" height="32" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                          </button>
-                        </>
-                      )}
-                    </div>
-                    <div className="variant-thumbs">
-                      {(viewItem.attributes?.main_images && viewItem.attributes.main_images.length > 0 ? viewItem.attributes.main_images : (viewItem.image ? [viewItem.image] : [])).map((path, idx) => (
-                        <img 
-                          key={`main-${idx}`} 
-                          src={getImageUrl(path)} 
-                          className={`v-thumb ${activeImageIdx === idx ? 'active' : ''}`}
-                          onClick={() => {
-                            setActiveImageIdx(idx);
-                            setSelectedVariant(null);
-                          }}
-                          onError={(e) => {
-                            e.currentTarget.onerror = null;
-                            e.currentTarget.src = "https://placehold.co/100x100/f8fafc/cbd5e1?text=No+Image";
-                          }}
-                        />
-                      ))}
-                      {viewItem.attributes?.variant_image_paths?.map((path, idx) => {
-                        const mainLen = viewItem.attributes?.main_images?.length || (viewItem.image ? 1 : 0);
-                        const globalIdx = mainLen + idx;
-                        return (
+            return (
+              <div className="modal-overlay" onClick={() => setViewItem(null)}>
+                <div className="detail-modal" onClick={e => e.stopPropagation()}>
+                  <button className="modal-close-btn" onClick={() => setViewItem(null)} title="Close">
+                    <IconClose />
+                  </button>
+                  <div className="detail-content">
+                    <div className="detail-img-side">
+                      <div style={{ position: 'relative', width: '100%', aspectRatio: '1/1', borderRadius: 20, overflow: 'hidden', background: '#f8fafc', border: '1px solid #f1f5f9', boxShadow: '0 4px 20px rgba(0,0,0,0.04)' }}>
+                        {mediaItems[activeImageIdx]?.type === 'video' ? (
+                          <video 
+                            src={mediaItems[activeImageIdx].url} 
+                            controls 
+                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                          />
+                        ) : (
                           <img 
-                            key={`var-${idx}`} 
-                            src={getImageUrl(path)} 
-                            className={`v-thumb ${activeImageIdx === globalIdx ? 'active' : ''}`}
-                            onClick={() => {
-                              setActiveImageIdx(globalIdx);
-                              setSelectedVariant(idx);
-                            }}
+                            src={mediaItems[activeImageIdx]?.url || "https://placehold.co/600x600/f8fafc/cbd5e1?text=No+Image"} 
+                            style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
                             onError={(e) => {
                               e.currentTarget.onerror = null;
-                              e.currentTarget.src = "https://placehold.co/100x100/f8fafc/cbd5e1?text=No+Image";
+                              e.currentTarget.src = "https://placehold.co/600x600/f8fafc/cbd5e1?text=No+Image";
                             }}
                           />
-                        );
-                      })}
+                        )}
+                        {mediaItems.length > 1 && (
+                          <>
+                            <button
+                              type="button"
+                              onClick={handlePrevImage}
+                              style={{
+                                position: 'absolute',
+                                left: 0,
+                                top: '50%',
+                                transform: 'translateY(-50%)',
+                                width: 48,
+                                height: 80,
+                                background: 'rgba(0,0,0,0.55)',
+                                backdropFilter: 'blur(4px)',
+                                border: 'none',
+                                borderTopRightRadius: 8,
+                                borderBottomRightRadius: 8,
+                                color: '#fff',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                cursor: 'pointer',
+                                transition: 'all .2s',
+                                zIndex: 10
+                              }}
+                              onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,0,0,0.85)'}
+                              onMouseLeave={e => e.currentTarget.style.background = 'rgba(0,0,0,0.55)'}
+                              title="Previous Image"
+                            >
+                              <svg width="32" height="32" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={handleNextImage}
+                              style={{
+                                position: 'absolute',
+                                right: 0,
+                                top: '50%',
+                                transform: 'translateY(-50%)',
+                                width: 48,
+                                height: 80,
+                                background: 'rgba(0,0,0,0.55)',
+                                backdropFilter: 'blur(4px)',
+                                border: 'none',
+                                borderTopLeftRadius: 8,
+                                borderBottomLeftRadius: 8,
+                                color: '#fff',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                cursor: 'pointer',
+                                transition: 'all .2s',
+                                zIndex: 10
+                              }}
+                              onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,0,0,0.85)'}
+                              onMouseLeave={e => e.currentTarget.style.background = 'rgba(0,0,0,0.55)'}
+                              title="Next Image"
+                            >
+                              <svg width="32" height="32" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                            </button>
+                          </>
+                        )}
+                      </div>
+                      <div className="variant-thumbs">
+                        {mediaItems.map((media, idx) => {
+                          if (media.type === 'video') {
+                            return (
+                              <div 
+                                key={`thumb-video-${idx}`}
+                                className={`v-thumb ${activeImageIdx === idx ? 'active' : ''}`}
+                                onClick={() => {
+                                  setActiveImageIdx(idx);
+                                  setSelectedVariant(null);
+                                }}
+                                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0f172a', color: '#fff', fontSize: 24 }}
+                                title="Play Video"
+                              >
+                                📹
+                              </div>
+                            );
+                          }
+
+                          const hasVideo = !!viewItem.attributes?.video_path;
+                          const videoOffset = hasVideo ? 1 : 0;
+                          const mainLen = viewItem.attributes?.main_images?.length || (viewItem.image ? 1 : 0);
+                          const isVariant = idx >= (mainLen + videoOffset);
+                          const variantIdx = isVariant ? idx - (mainLen + videoOffset) : null;
+
+                          return (
+                            <img 
+                              key={`thumb-img-${idx}`} 
+                              src={media.url} 
+                              className={`v-thumb ${activeImageIdx === idx ? 'active' : ''}`}
+                              onClick={() => {
+                                setActiveImageIdx(idx);
+                                setSelectedVariant(variantIdx);
+                              }}
+                              onError={(e) => {
+                                e.currentTarget.onerror = null;
+                                e.currentTarget.src = "https://placehold.co/100x100/f8fafc/cbd5e1?text=No+Image";
+                              }}
+                            />
+                          );
+                        })}
+                      </div>
                     </div>
-                  </div>
                 
                 <div className="detail-info-side">
                   <div>
@@ -1159,6 +1188,23 @@ export default function ShopPage() {
                   </div>
                   
                   <p className="detail-desc">{viewItem.description || "This item has no description yet. Explore its quality and features below."}</p>
+
+                  {viewItem.attributes?.description_images && viewItem.attributes.description_images.length > 0 && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginTop: 16 }}>
+                      {viewItem.attributes.description_images.map((path: string, index: number) => (
+                        <img 
+                          key={index} 
+                          src={getImageUrl(path)} 
+                          style={{ width: '100%', borderRadius: 12, objectFit: 'contain' }} 
+                          alt={`Description Image ${index + 1}`}
+                          onError={(e) => {
+                            e.currentTarget.onerror = null;
+                            e.currentTarget.src = "https://placehold.co/600x400/f8fafc/cbd5e1?text=Image+Not+Found";
+                          }}
+                        />
+                      ))}
+                    </div>
+                  )}
 
                   {viewItem.attributes?.colors && (
                     <div>

@@ -345,6 +345,10 @@ export default function DashboardPage() {
   const [newItemPrice, setNewItemPrice] = useState("");
   const [newItemStock, setNewItemStock] = useState("1");
   const [mainImagesState, setMainImagesState] = useState<{ file: File | null, preview: string, path: string | null }[]>([]);
+  const [newVideoFile, setNewVideoFile] = useState<File | null>(null);
+  const [newVideoPreview, setNewVideoPreview] = useState<string | null>(null);
+  const [existingVideoPath, setExistingVideoPath] = useState<string | null>(null);
+  const [descImagesState, setDescImagesState] = useState<{ file: File | null, preview: string, path: string | null }[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [newItemCategory, setNewItemCategory] = useState("General");
   const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
@@ -849,6 +853,18 @@ export default function DashboardPage() {
         if (v.file) formData.append("variant_images[]", v.file);
       });
     }
+    // Showcase Video
+    if (newVideoFile) {
+      formData.append("video", newVideoFile);
+    }
+    attributes.existing_video_path = existingVideoPath;
+
+    // Description Images
+    attributes.existing_description_images = descImagesState.filter(d => d.path).map(d => d.path);
+    descImagesState.forEach(d => {
+      if (d.file) formData.append("description_images[]", d.file);
+    });
+
     attributes.existing_main_images = mainImagesState.filter(m => m.path).map(m => m.path);
     formData.append("attributes", JSON.stringify(attributes));
     mainImagesState.forEach(m => {
@@ -891,6 +907,10 @@ export default function DashboardPage() {
         setSpecs([]);
         setColorVariants([]);
         setMainImagesState([]);
+        setNewVideoFile(null);
+        setNewVideoPreview(null);
+        setExistingVideoPath(null);
+        setDescImagesState([]);
         if (fileInputRef.current) fileInputRef.current.value = "";
         setActiveTab("my-items");
       } else {
@@ -932,6 +952,18 @@ export default function DashboardPage() {
       preview: getImageUrl(path),
       path
     })));
+
+    setExistingVideoPath(item.attributes?.video_path || null);
+    setNewVideoFile(null);
+    setNewVideoPreview(item.attributes?.video_path ? getImageUrl(item.attributes.video_path) : null);
+
+    const descImages = item.attributes?.description_images || [];
+    setDescImagesState(descImages.map((path: string) => ({
+      file: null,
+      preview: getImageUrl(path),
+      path
+    })));
+
     setActiveTab("add-item");
   };
 
@@ -964,6 +996,18 @@ export default function DashboardPage() {
         if (v.file) formData.append("variant_images[]", v.file);
       });
     }
+    // Showcase Video
+    if (newVideoFile) {
+      formData.append("video", newVideoFile);
+    }
+    attributes.existing_video_path = existingVideoPath;
+
+    // Description Images
+    attributes.existing_description_images = descImagesState.filter(d => d.path).map(d => d.path);
+    descImagesState.forEach(d => {
+      if (d.file) formData.append("description_images[]", d.file);
+    });
+
     attributes.existing_main_images = mainImagesState.filter(m => m.path).map(m => m.path);
     formData.append("attributes", JSON.stringify(attributes));
     mainImagesState.forEach(m => {
@@ -1008,6 +1052,10 @@ export default function DashboardPage() {
         setSelectedSizes([]);
         setColorVariants([]);
         setMainImagesState([]);
+        setNewVideoFile(null);
+        setNewVideoPreview(null);
+        setExistingVideoPath(null);
+        setDescImagesState([]);
         setActiveTab("my-items");
       } else {
         showToast(data.message || "Failed to update item", 'error');
@@ -2488,6 +2536,10 @@ export default function DashboardPage() {
                         setMainImagesState([]);
                         setSpecs([]);
                         setColorVariants([]);
+                        setNewVideoFile(null);
+                        setNewVideoPreview(null);
+                        setExistingVideoPath(null);
+                        setDescImagesState([]);
                         setActiveTab("my-items");
                       }}
                       style={{ background: 'none', border: 'none', color: '#64748b', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
@@ -3170,9 +3222,132 @@ export default function DashboardPage() {
                   </div>
 
                   <div className="form-group">
+                    <label className="form-label">Product Showcase Video (Optional)</label>
+                    <div style={{ display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
+                      {newVideoPreview ? (
+                        <div style={{ position: 'relative', width: 200, height: 120, borderRadius: 12, overflow: 'hidden', border: '1px solid #e2e8f0', background: '#000' }}>
+                          <video src={newVideoPreview} controls style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setNewVideoFile(null);
+                              setNewVideoPreview(null);
+                              setExistingVideoPath(null);
+                            }}
+                            style={{ position: 'absolute', top: 6, right: 6, background: 'rgba(239,68,68,0.9)', color: '#fff', border: 'none', borderRadius: '50%', width: 22, height: 22, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 10 }}
+                          >
+                            <IconTrash />
+                          </button>
+                        </div>
+                      ) : (
+                        <div
+                          onClick={() => document.getElementById('showcase-video-input')?.click()}
+                          style={{
+                            width: 200,
+                            height: 120,
+                            border: '2px dashed #cbd5e1',
+                            borderRadius: 12,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            cursor: 'pointer',
+                            background: '#f8fafc',
+                            color: '#94a3b8',
+                            transition: 'all .2s'
+                          }}
+                        >
+                          <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" style={{ marginBottom: 4 }}>
+                            <path d="M23 7l-7 5 7 5V7z" />
+                            <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
+                          </svg>
+                          <span style={{ fontSize: 11, fontWeight: 600 }}>Upload Showcase Video</span>
+                          <span style={{ fontSize: 9, color: '#94a3b8', marginTop: 2 }}>Max 50MB (mp4, mov, webm)</span>
+                        </div>
+                      )}
+                      <input
+                        id="showcase-video-input"
+                        type="file"
+                        accept="video/mp4,video/quicktime,video/webm"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            if (file.size > 52428800) {
+                              showToast("Video size exceeds the 50MB limit.", "error");
+                              return;
+                            }
+                            setNewVideoFile(file);
+                            setNewVideoPreview(URL.createObjectURL(file));
+                          }
+                        }}
+                        style={{ display: 'none' }}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="form-group">
                     <label className="form-label">Description</label>
                     <textarea className="form-textarea" placeholder="Describe your item..."
                       value={newItemDesc} onChange={e => setNewItemDesc(e.target.value)} />
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">Description Images (Unlimited)</label>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: 12, marginBottom: 16 }}>
+                      {descImagesState.map((imgObj, idx) => (
+                        <div key={idx} style={{ position: 'relative', borderRadius: 12, overflow: 'hidden', border: '1px solid #e2e8f0', aspectRatio: '1.5', background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <img src={imgObj.preview} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setDescImagesState(prev => prev.filter((_, i) => i !== idx));
+                            }}
+                            style={{ position: 'absolute', top: 4, right: 4, background: 'rgba(239,68,68,0.9)', color: '#fff', border: 'none', borderRadius: '50%', width: 22, height: 22, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                          >
+                            <IconTrash />
+                          </button>
+                        </div>
+                      ))}
+                      <div
+                        onClick={() => document.getElementById('desc-images-input')?.click()}
+                        style={{
+                          aspectRatio: '1.5',
+                          border: '2px dashed #e2e8f0',
+                          borderRadius: 12,
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          cursor: 'pointer',
+                          background: '#f8fafc',
+                          color: '#94a3b8',
+                          transition: 'all .2s'
+                        }}
+                      >
+                        <IconPlus />
+                        <span style={{ fontSize: 11, marginTop: 4, fontWeight: 600 }}>Add Image</span>
+                      </div>
+                    </div>
+                    <input
+                      id="desc-images-input"
+                      type="file"
+                      multiple
+                      accept="image/jpeg,image/png,image/gif,image/webp"
+                      onChange={async (e) => {
+                        const files = Array.from(e.target.files || []);
+                        if (files.length > 0) {
+                          for (const file of files) {
+                            const compressedFile = await compressImage(file, 800);
+                            const reader = new FileReader();
+                            reader.onloadend = () => {
+                              setDescImagesState(prev => [...prev, { file: compressedFile, preview: reader.result as string, path: null }]);
+                            };
+                            reader.readAsDataURL(compressedFile);
+                          }
+                        }
+                      }}
+                      style={{ display: 'none' }}
+                    />
                   </div>
 
                   <button type="submit" className="submit-btn" disabled={isSubmitting} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
