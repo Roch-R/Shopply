@@ -261,7 +261,7 @@ export default function CartPage() {
         @keyframes slideDown{from{opacity:0;transform:translate(-50%,-20px)}to{opacity:1;transform:translate(-50%,0)}}
         
         /* Empty */
-        .empty-cart{background:#fff;padding:100px 0;text-align:center;border-radius:16px;border:1px solid #f1f5f9;box-shadow:0 4px 20px rgba(0,0,0,.03)}
+        .empty-cart{background:#fff;padding:80px 32px;text-align:center;border-radius:16px;border:1px solid #f1f5f9;box-shadow:0 4px 20px rgba(0,0,0,.03)}
 
         .mobile-details-row { display: none; }
 
@@ -368,6 +368,9 @@ export default function CartPage() {
           .cart-card {
             border-radius: 8px !important;
             margin-bottom: 12px !important;
+          }
+          .empty-cart {
+            padding: 48px 16px !important;
           }
         }
       `}</style>
