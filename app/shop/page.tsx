@@ -900,16 +900,15 @@ export default function ShopPage() {
                       onError={(e) => {
                         e.currentTarget.onerror = null;
                         e.currentTarget.style.display = 'none';
-                        const placeholder = e.currentTarget.nextElementSibling as HTMLElement;
+                        const card = e.currentTarget.closest('.item-card');
+                        const placeholder = card?.querySelector('.item-image-placeholder') as HTMLElement;
                         if (placeholder) placeholder.style.display = 'flex';
                       }}
                     />
                   ) : null}
-                  {(!item.image) && (
-                    <div className="item-image-placeholder">
-                      <svg width="48" height="48" fill="none" stroke="#cbd5e1" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
-                    </div>
-                  )}
+                  <div className="item-image-placeholder" style={{ display: item.image ? 'none' : 'flex' }}>
+                    <svg width="48" height="48" fill="none" stroke="#cbd5e1" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                  </div>
                   <div className="item-content">
                     <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:8}}>
                       <h3 className="item-name">{item.name}</h3>
@@ -1024,6 +1023,10 @@ export default function ShopPage() {
                       <img 
                         src={allAvailableImages[activeImageIdx] || "https://placehold.co/600x600/f8fafc/cbd5e1?text=No+Image"} 
                         style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                        onError={(e) => {
+                          e.currentTarget.onerror = null;
+                          e.currentTarget.src = "https://placehold.co/600x600/f8fafc/cbd5e1?text=No+Image";
+                        }}
                       />
                       {allAvailableImages.length > 1 && (
                         <>
@@ -1098,6 +1101,10 @@ export default function ShopPage() {
                             setActiveImageIdx(idx);
                             setSelectedVariant(null);
                           }}
+                          onError={(e) => {
+                            e.currentTarget.onerror = null;
+                            e.currentTarget.src = "https://placehold.co/100x100/f8fafc/cbd5e1?text=No+Image";
+                          }}
                         />
                       ))}
                       {viewItem.attributes?.variant_image_paths?.map((path, idx) => {
@@ -1111,6 +1118,10 @@ export default function ShopPage() {
                             onClick={() => {
                               setActiveImageIdx(globalIdx);
                               setSelectedVariant(idx);
+                            }}
+                            onError={(e) => {
+                              e.currentTarget.onerror = null;
+                              e.currentTarget.src = "https://placehold.co/100x100/f8fafc/cbd5e1?text=No+Image";
                             }}
                           />
                         );
