@@ -1,4 +1,5 @@
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
+import { getApiCache } from "./apiCache";
 
 export interface AuthUser {
   id: number;
@@ -40,6 +41,9 @@ export function clearAuth() {
   localStorage.removeItem("token");
   localStorage.removeItem("user");
   localStorage.removeItem("pending_email");
+  if (typeof window !== "undefined") {
+    getApiCache().invalidateAll();
+  }
 }
 
 async function request<T>(

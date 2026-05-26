@@ -3,6 +3,7 @@ import { useEffect, useState, useRef, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { apiGoogleAuth } from "@/lib/api";
+import { getApiCache } from "@/lib/apiCache";
 
 function GoogleCallbackContent() {
   const router = useRouter();
@@ -38,6 +39,10 @@ function GoogleCallbackContent() {
           simulated_name,
           simulated_avatar,
         });
+        
+        // Invalidate API cache to prevent stale user profile /me loading
+        getApiCache().invalidateAll();
+        
         localStorage.setItem("token", data.token!);
         localStorage.setItem("user", JSON.stringify(data.user));
         router.replace("/dashboard");

@@ -3,6 +3,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { apiRegister } from "@/lib/api";
+import { getApiCache } from "@/lib/apiCache";
 
 const EyeOpen = () => (
   <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -69,6 +70,7 @@ export default function RegisterPage() {
     setLoading(true);
     try {
       const data = await apiRegister({ name: name.trim(), username: username.trim(), password });
+      getApiCache().invalidateAll();
       localStorage.setItem("token", data.token!);
       localStorage.setItem("user", JSON.stringify(data.user));
       window.location.href = "/dashboard";

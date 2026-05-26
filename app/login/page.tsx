@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { apiLogin } from "@/lib/api";
+import { getApiCache } from "@/lib/apiCache";
 
 const EyeOpen = () => (
   <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -68,6 +69,7 @@ export default function LoginPage() {
     setError("");
     try {
       const data = await apiLogin(form);
+      getApiCache().invalidateAll();
       localStorage.setItem("token", data.token!);
       localStorage.setItem("user", JSON.stringify(data.user));
       // Hard navigate so dashboard loads with fresh localStorage state
