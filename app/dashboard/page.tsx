@@ -2977,22 +2977,44 @@ export default function DashboardPage() {
 
                   <div className="form-group" style={{ marginTop: 24 }}>
                     <label className="form-label">Product Specifications</label>
-                    <div style={{ display: 'flex', gap: 12, marginBottom: 12 }}>
+                    <div style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr)) auto',
+                      gap: 12,
+                      width: '100%',
+                      marginBottom: 12
+                    }}>
                       <input
                         type="text"
                         className="form-input"
-                        placeholder="Label (e.g. Brand)"
+                        placeholder="Property (e.g. Color)"
                         value={newSpecKey}
                         onChange={e => setNewSpecKey(e.target.value)}
-                        style={{ flex: 1 }}
+                        style={{
+                          borderRadius: 14,
+                          background: '#f8fafc',
+                          border: '1.5px solid #e2e8f0',
+                          padding: '10px 16px',
+                          fontSize: 13,
+                          transition: 'all 0.2s',
+                          width: '100%'
+                        }}
                       />
                       <input
                         type="text"
                         className="form-input"
-                        placeholder="Value (e.g. Nike)"
+                        placeholder="Value (e.g. Red)"
                         value={newSpecValue}
                         onChange={e => setNewSpecValue(e.target.value)}
-                        style={{ flex: 1 }}
+                        style={{
+                          borderRadius: 14,
+                          background: '#f8fafc',
+                          border: '1.5px solid #e2e8f0',
+                          padding: '10px 16px',
+                          fontSize: 13,
+                          transition: 'all 0.2s',
+                          width: '100%'
+                        }}
                       />
                       <button
                         type="button"
@@ -3003,20 +3025,58 @@ export default function DashboardPage() {
                             setNewSpecValue("");
                           }
                         }}
-                        style={{ padding: '0 20px', borderRadius: 10, border: 'none', background: '#7c3aed', color: '#fff', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                        style={{
+                          padding: '0 24px',
+                          height: 42,
+                          borderRadius: 14,
+                          border: 'none',
+                          background: 'linear-gradient(135deg,#7c3aed,#6366f1)',
+                          color: '#fff',
+                          fontWeight: 700,
+                          fontSize: 13,
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: 6,
+                          boxShadow: '0 4px 12px rgba(124,58,237,0.2)',
+                          transition: 'all .2s'
+                        }}
+                        onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 6px 16px rgba(124,58,237,0.3)'; }}
+                        onMouseOut={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(124,58,237,0.2)'; }}
                       >
+                        <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
                         Add
                       </button>
                     </div>
                     {specs.length > 0 && (
-                      <div style={{ background: '#f8fafc', borderRadius: 12, padding: 12, border: '1px solid #e2e8f0' }}>
+                      <div style={{ background: '#f8fafc', borderRadius: 14, padding: '12px 16px', border: '1.5px solid #e2e8f0', marginTop: 12, display: 'flex', flexDirection: 'column', gap: 8 }}>
                         {specs.map((s, idx) => (
-                          <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: idx === specs.length - 1 ? 'none' : '1px solid #f1f5f9' }}>
-                            <div style={{ display: 'flex', gap: 8, fontSize: 13 }}>
-                              <span style={{ fontWeight: 600, color: '#64748b', width: 100 }}>{s.key}:</span>
-                              <span style={{ color: '#0f172a' }}>{s.value}</span>
+                          <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 0', borderBottom: idx === specs.length - 1 ? 'none' : '1px solid #f1f5f9' }}>
+                            <div style={{ display: 'flex', gap: 12, fontSize: 13, alignItems: 'center' }}>
+                              <span style={{ display: 'inline-block', width: 6, height: 6, borderRadius: '50%', background: '#7c3aed' }}></span>
+                              <span style={{ fontWeight: 600, color: '#475569', minWidth: 80 }}>{s.key}:</span>
+                              <span style={{ color: '#0f172a', fontWeight: 500 }}>{s.value}</span>
                             </div>
-                            <button type="button" onClick={() => setSpecs(prev => prev.filter((_, i) => i !== idx))} style={{ border: 'none', background: 'none', color: '#ef4444', cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>Remove</button>
+                            <button
+                              type="button"
+                              onClick={() => setSpecs(prev => prev.filter((_, i) => i !== idx))}
+                              style={{
+                                border: 'none',
+                                background: 'rgba(239,68,68,0.08)',
+                                color: '#ef4444',
+                                padding: '4px 10px',
+                                borderRadius: 8,
+                                cursor: 'pointer',
+                                fontSize: 11,
+                                fontWeight: 700,
+                                transition: 'all 0.2s'
+                              }}
+                              onMouseOver={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.15)'; }}
+                              onMouseOut={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.08)'; }}
+                            >
+                              Remove
+                            </button>
                           </div>
                         ))}
                       </div>
