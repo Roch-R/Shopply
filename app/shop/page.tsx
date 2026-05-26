@@ -686,7 +686,7 @@ export default function ShopPage() {
 
         .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(8px);
           display:flex;align-items:center;justify-content:center;z-index:500;padding:20px}
-        .detail-modal{background:#fff;border-radius:24px;max-width:1100px;width:100%;max-height:90vh;
+        .detail-modal{position:relative;background:#fff;border-radius:24px;max-width:1100px;width:100%;max-height:90vh;
           overflow-y:auto;display:flex;flex-direction:column;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);animation:scaleUp .3s ease}
         @keyframes scaleUp{from{opacity:0;transform:scale(0.95)}to{opacity:1;transform:scale(1)}}
         
@@ -695,7 +695,8 @@ export default function ShopPage() {
         
         .detail-img-side{display:flex;flex-direction:column;gap:16px}
         .main-detail-img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:20px;background:#f8fafc;border:1px solid #f1f5f9}
-        .variant-thumbs{display:flex;gap:12px;overflow-x:auto;padding:4px}
+        .variant-thumbs{display:flex;gap:12px;overflow-x:auto;padding:4px;scrollbar-width:none;-ms-overflow-style:none}
+        .variant-thumbs::-webkit-scrollbar{display:none}
         .v-thumb{width:70px;height:70px;border-radius:12px;object-fit:cover;cursor:pointer;
           border:2px solid transparent;transition:all .2s;flex-shrink:0;background:#f8fafc}
         .v-thumb.active{border-color:#7c3aed;transform:scale(1.05);box-shadow:0 4px 12px rgba(124,58,237,.2)}
@@ -707,11 +708,20 @@ export default function ShopPage() {
         .detail-desc{font-size:15px;color:#64748b;line-height:1.7}
         .modal-actions-container{display:flex;gap:16px;margin-top:12px}
         
+        @media (max-width: 768px) {
+          .rating-summary{display:flex;flex-direction:column;gap:20px;padding:20px;align-items:center;text-align:center}
+          .review-filters{justify-content:center;margin-bottom:0}
+        }
+        
         @media (max-width: 480px) {
-          .modal-overlay{padding:12px 8px}
-          .detail-modal{border-radius:16px}
-          .detail-content{padding:16px;gap:24px}
-          .detail-name{font-size:26px}
+          .modal-overlay{padding:0}
+          .detail-modal{border-radius:0;max-height:100vh;height:100%;width:100%;max-width:100%}
+          .detail-content{padding:12px;gap:20px}
+          .detail-info-side{gap:16px}
+          .detail-name{font-size:24px}
+          .detail-price{font-size:24px}
+          .detail-category{font-size:11px}
+          .modal-back-btn{top:12px;left:12px;margin-bottom:-40px}
           .modal-actions-container{flex-direction:column;gap:12px}
           .buy-btn, .add-cart-btn{width:100%;height:48px !important}
           .spec-grid{grid-template-columns:1fr;padding:16px}
@@ -765,13 +775,13 @@ export default function ShopPage() {
           transition:all .3s ease;z-index:1000;opacity:0;visibility:hidden;transform:translateY(20px)}
         .back-to-top.visible{opacity:1;visibility:visible;transform:translateY(0)}
         .back-to-top:hover{transform:translateY(-4px);background:#1e293b;box-shadow:0 12px 30px rgba(0,0,0,.2)}
-
-        .modal-back-btn{position:absolute;top:20px;left:20px;width:40px;height:40px;
-          border-radius:50%;background:rgba(255,255,255,0.8);backdrop-filter:blur(10px);
+ 
+        .modal-back-btn{position:sticky;top:20px;left:20px;align-self:flex-start;margin-bottom:-40px;width:40px;height:40px;
+          border-radius:50%;background:rgba(255,255,255,0.9);backdrop-filter:blur(10px);
           display:flex;align-items:center;justify-content:center;cursor:pointer;
           border:1px solid #e2e8f0;color:#0f172a;z-index:100;transition:all .2s}
         .modal-back-btn:hover{background:#fff;transform:scale(1.1);box-shadow:0 4px 12px rgba(0,0,0,.1)}
-
+ 
         .seller-header-bar{background:#fff;border-top:1px solid #f1f5f9;border-bottom:1px solid #f1f5f9;padding:32px 48px;display:flex;align-items:center;justify-content:space-between;gap:32px;flex-wrap:wrap}
         @media (max-width: 950px) { .seller-header-bar{padding:24px;flex-direction:column;align-items:flex-start} }
         .seller-left-side{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
@@ -787,7 +797,10 @@ export default function ShopPage() {
         .seller-btn-shop{padding:8px 16px;background:#fff;border:1px solid #cbd5e1;color:#475569;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .2s}
         .seller-btn-shop:hover{background:#f8fafc;transform:translateY(-1px)}
         .seller-stats-grid{display:grid;grid-template-columns:repeat(3, 1fr);gap:16px 48px;flex-grow:1;max-width:600px}
-        @media (max-width: 650px) { .seller-stats-grid{grid-template-columns:1fr 1fr;gap:12px} }
+        @media (max-width: 650px) {
+          .seller-stats-grid{grid-template-columns:1fr 1fr;gap:12px}
+          .seller-stat-box{flex-direction:column;align-items:flex-start;gap:4px;border-bottom:none;padding-bottom:0}
+        }
         .seller-stat-box{display:flex;align-items:center;justify-content:space-between;gap:16px;border-bottom:1px solid #f8fafc;padding-bottom:4px}
         .seller-stat-label{font-size:13px;color:#64748b}
         .seller-stat-val{font-size:13px;font-weight:700;color:#7c3aed}
