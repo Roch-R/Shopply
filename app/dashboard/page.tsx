@@ -1555,7 +1555,7 @@ export default function DashboardPage() {
           .profile-stats{
             margin-left:0 !important;
             width:100% !important;
-            grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)) !important;
+            grid-template-columns:repeat(2, 1fr) !important;
             padding:16px 12px !important;
             gap:12px 16px !important;
           }
@@ -1598,7 +1598,7 @@ export default function DashboardPage() {
           .profile-info h2{font-size:22px !important}
           .profile-info p{font-size:13px !important}
           .profile-stats{margin-left:0 !important;width:100% !important;
-            grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)) !important;gap:12px 16px !important;
+            grid-template-columns:repeat(2, 1fr) !important;gap:12px 16px !important;
             padding:12px !important;border-radius:16px !important}
           .profile-stat{font-size:13px !important;gap:8px !important}
           .profile-stat-val{display:inline !important}
