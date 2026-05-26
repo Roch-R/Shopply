@@ -1513,17 +1513,13 @@ export default function DashboardPage() {
         }
 
         @media(max-width:768px){
+          .menu-toggle-btn{display:flex !important}
           .dashboard-layout{flex-direction:row !important;padding:12px;gap:12px}
           .sidebar{
-            width:72px !important;
-            position:sticky !important;
-            top:76px;
-            height:calc(100vh - 90px);
-            z-index:90;
-            padding:12px 6px;
-            border-radius:16px;
+            display:none !important;
           }
           .sidebar.mobile-expanded{
+            display:flex !important;
             position:fixed !important;
             top:0 !important;
             left:0 !important;
@@ -1583,8 +1579,6 @@ export default function DashboardPage() {
 
         @media(max-width:480px){
           .dashboard-layout{padding:8px !important;gap:0 !important}
-          .sidebar{display:none !important}
-          .sidebar-backdrop{display:none !important}
           .content{width:100% !important}
           .profile-header{flex-direction:column !important;text-align:center !important;
             padding:20px 12px !important;gap:16px !important;border-radius:16px !important;margin-bottom:16px !important}
@@ -1627,6 +1621,27 @@ export default function DashboardPage() {
 
       <div className="root">
         <nav className="nav">
+          <button 
+            type="button"
+            className="menu-toggle-btn"
+            onClick={toggleSidebar}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: '#0f172a',
+              cursor: 'pointer',
+              padding: 8,
+              display: 'none',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginRight: 8
+            }}
+            title="Menu"
+          >
+            <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+              <path d="M4 6h16M4 12h16M4 18h16" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
           <Link href="/dashboard" className="nav-logo">
             <svg width="30" height="30" viewBox="0 0 200 260" xmlns="http://www.w3.org/2000/svg">
               <rect x="8" y="68" width="184" height="176" rx="24" fill="none" stroke="#7c3aed" strokeWidth="14" />
