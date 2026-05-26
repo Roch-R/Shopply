@@ -220,7 +220,11 @@ export default function DashboardPage() {
   // Sidebar collapsible state
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem('shopply_sidebar_collapsed') === 'true';
+      const stored = localStorage.getItem('shopply_sidebar_collapsed');
+      if (stored !== null) {
+        return stored === 'true';
+      }
+      return window.innerWidth <= 768; // default to collapsed on mobile
     }
     return false;
   });
@@ -1546,8 +1550,8 @@ export default function DashboardPage() {
           .profile-stats{
             margin-left:0 !important;
             width:100% !important;
-            grid-template-columns:repeat(2, 1fr) !important;
-            padding:16px !important;
+            grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)) !important;
+            padding:16px 12px !important;
             gap:12px 16px !important;
           }
           .profile-stat{font-size:13px !important;gap:8px !important}
@@ -1589,17 +1593,21 @@ export default function DashboardPage() {
           .profile-info h2{font-size:22px !important}
           .profile-info p{font-size:13px !important}
           .profile-stats{margin-left:0 !important;width:100% !important;
-            grid-template-columns:1fr 1fr !important;gap:12px 16px !important;
-            padding:16px !important;border-radius:16px !important}
+            grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)) !important;gap:12px 16px !important;
+            padding:12px !important;border-radius:16px !important}
           .profile-stat{font-size:13px !important;gap:8px !important}
-          .profile-stat-val{display:block !important}
+          .profile-stat-val{display:inline !important}
           .info-cards{grid-template-columns:1fr !important;gap:14px !important}
           .info-card{padding:16px !important;border-radius:14px !important}
-          .nav{padding:0 10px !important}
-          .nav-right{gap:6px !important}
-          .logo-text{font-size:14px !important}
-          .logout-btn{font-size:12px !important;padding:8px 14px !important}
-          .shop-link{font-size:12px !important;padding:6px 10px !important}
+          .nav{padding:0 8px !important}
+          .nav-right{gap:4px !important}
+          .logo-text{display:none !important}
+          .shop-text{display:none !important}
+          .logout-text{display:none !important}
+          .logout-icon-span{display:inline-flex !important;color:#fff}
+          .logout-btn{width:36px !important;height:36px !important;padding:0 !important;border-radius:50% !important;min-width:36px !important;background:linear-gradient(135deg,#7c3aed,#2563eb) !important;display:inline-flex !important;align-items:center !important;justify-content:center !important}
+          .shop-link{padding:0 !important;border-radius:50% !important;width:36px !important;height:36px !important;display:inline-flex !important;justify-content:center !important;align-items:center !important;background:rgba(124,58,237,0.1) !important}
+          .cart-nav-icon{width:36px !important;height:36px !important;margin-right:0 !important}
           .toast{bottom:16px !important;right:16px !important;left:16px !important;font-size:13px !important}
           .add-form{padding:16px !important;border-radius:14px !important}
           .form-row{grid-template-columns:1fr !important}
@@ -1656,12 +1664,21 @@ export default function DashboardPage() {
           </Link>
           <div className="nav-right">
             <span className="nav-name">Hi, {user.name.split(" ")[0]} 👋</span>
-            <Link href="/shop" className="shop-link" style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><IconShop /> Shop</Link>
+            <Link href="/shop" className="shop-link" style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+              <IconShop /> <span className="shop-text">Shop</span>
+            </Link>
             <Link href="/cart" className="cart-nav-icon" style={{ marginRight: 8 }}>
               <IconCart />
               {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
             </Link>
-            <button className="logout-btn" onClick={handleLogout}>Logout</button>
+            <button className="logout-btn" onClick={handleLogout} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+              <span className="logout-text">Logout</span>
+              <span className="logout-icon-span" style={{ display: 'none', alignItems: 'center', justifyContent: 'center' }}>
+                <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                  <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </span>
+            </button>
           </div>
         </nav>
 

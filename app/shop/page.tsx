@@ -717,6 +717,14 @@ export default function ShopPage() {
         }
         
         @media (max-width: 480px) {
+          .nav{padding:0 8px !important}
+          .nav-right{gap:4px !important}
+          .logo-text{display:none !important}
+          .about-text{display:none !important}
+          .login-text-span{display:none !important}
+          .login-icon-span{display:inline-flex !important;color:#fff}
+          .login-btn{width:36px !important;height:36px !important;padding:0 !important;border-radius:50% !important;min-width:36px !important;background:linear-gradient(135deg,#7c3aed,#2563eb) !important;display:inline-flex !important;align-items:center !important;justify-content:center !important}
+          .cart-nav-icon{width:36px !important;height:36px !important;margin-right:0 !important;display:inline-flex !important;align-items:center !important;justify-content:center !important}
           .modal-overlay{padding:0}
           .detail-modal{border-radius:0;max-height:100vh;height:100%;width:100%;max-width:100%}
           .detail-content{padding:12px;gap:20px}
@@ -729,7 +737,7 @@ export default function ShopPage() {
           .buy-btn, .add-cart-btn{width:100%;height:48px !important}
           .spec-grid{grid-template-columns:1fr;padding:16px}
           .seller-header-bar{padding:16px;gap:20px}
-          .seller-stats-grid{grid-template-columns:1fr 1fr;gap:8px 16px;width:100%}
+          .seller-stats-grid{grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)) !important;gap:8px 16px;width:100%}
           .seller-left-side{width:100%}
         }
         
@@ -803,7 +811,7 @@ export default function ShopPage() {
         .seller-btn-shop:hover{background:#f8fafc;transform:translateY(-1px)}
         .seller-stats-grid{display:grid;grid-template-columns:repeat(3, 1fr);gap:16px 48px;flex-grow:1;max-width:600px}
         @media (max-width: 650px) {
-          .seller-stats-grid{grid-template-columns:1fr 1fr;gap:12px}
+          .seller-stats-grid{grid-template-columns:repeat(auto-fit, minmax(140px, 1fr));gap:12px}
           .seller-stat-box{flex-direction:column;align-items:flex-start;gap:4px;border-bottom:none;padding-bottom:0}
         }
         .seller-stat-box{display:flex;align-items:center;justify-content:space-between;gap:16px;border-bottom:1px solid #f8fafc;padding-bottom:4px}
@@ -827,12 +835,19 @@ export default function ShopPage() {
             <span className="logo-text">Shopply</span>
           </Link>
           <div className="nav-right">
-            <Link href="/about" className="nav-link">About</Link>
+            <Link href="/about" className="nav-link"><span className="about-text">About</span></Link>
             <Link href="/cart" className="cart-nav-icon">
               <IconCart />
               {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
             </Link>
-            <Link href="/dashboard" className="login-btn">Dashboard</Link>
+            <Link href="/dashboard" className="login-btn" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+              <span className="login-text-span">Dashboard</span>
+              <span className="login-icon-span" style={{ display: 'none', alignItems: 'center', justifyContent: 'center' }}>
+                <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                  <path d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </span>
+            </Link>
           </div>
         </nav>
 
