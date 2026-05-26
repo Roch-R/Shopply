@@ -705,6 +705,20 @@ export default function ShopPage() {
         .detail-name{font-size:36px;font-weight:800;color:#0f172a;letter-spacing:-1px;line-height:1.1}
         .detail-price{font-size:32px;font-weight:800;color:#10b981}
         .detail-desc{font-size:15px;color:#64748b;line-height:1.7}
+        .modal-actions-container{display:flex;gap:16px;margin-top:12px}
+        
+        @media (max-width: 480px) {
+          .modal-overlay{padding:12px 8px}
+          .detail-modal{border-radius:16px}
+          .detail-content{padding:16px;gap:24px}
+          .detail-name{font-size:26px}
+          .modal-actions-container{flex-direction:column;gap:12px}
+          .buy-btn, .add-cart-btn{width:100%;height:48px !important}
+          .spec-grid{grid-template-columns:1fr;padding:16px}
+          .seller-header-bar{padding:16px;gap:20px}
+          .seller-stats-grid{grid-template-columns:1fr 1fr;gap:8px 16px;width:100%}
+          .seller-left-side{width:100%}
+        }
         
         .variant-section-label{font-size:13px;font-weight:700;color:#0f172a;margin-bottom:12px;display:block}
         .size-grid{display:flex;gap:10px;flex-wrap:wrap}
@@ -1172,7 +1186,7 @@ export default function ShopPage() {
                     </div>
                   )}
 
-                  <div style={{display:'flex',gap:16,marginTop:12}}>
+                  <div className="modal-actions-container">
                     <button className="add-cart-btn" style={{height:52,flex:1}} onClick={() => {
                       if (viewItem.attributes?.colors && viewItem.attributes.colors.length > 0 && selectedVariant === null) {
                         setErrorMsg("Please select a color variation first.");
