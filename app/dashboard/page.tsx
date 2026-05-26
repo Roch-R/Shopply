@@ -1532,6 +1532,41 @@ export default function DashboardPage() {
           .category-grid{grid-template-columns:repeat(2, 1fr) !important;gap:8px !important}
           .variant-form-grid{grid-template-columns:1fr !important;gap:16px !important}
         }
+
+        @media(max-width:480px){
+          .dashboard-layout{padding:8px !important;gap:0 !important}
+          .sidebar{display:none !important}
+          .sidebar-backdrop{display:none !important}
+          .content{width:100% !important}
+          .profile-header{flex-direction:column !important;text-align:center !important;
+            padding:20px 12px !important;gap:16px !important;border-radius:16px !important;margin-bottom:16px !important}
+          .profile-header::before{display:none !important}
+          .profile-avatar{width:80px !important;height:80px !important;font-size:28px !important;
+            border-width:3px !important;margin:0 auto !important}
+          .profile-info{width:100%}
+          .profile-info h2{font-size:22px !important}
+          .profile-info p{font-size:13px !important}
+          .profile-stats{margin-left:0 !important;width:100% !important;
+            grid-template-columns:1fr 1fr !important;gap:12px 16px !important;
+            padding:16px !important;border-radius:16px !important}
+          .profile-stat{font-size:13px !important;gap:8px !important}
+          .profile-stat-val{display:block !important}
+          .info-cards{grid-template-columns:1fr !important;gap:14px !important}
+          .info-card{padding:16px !important;border-radius:14px !important}
+          .nav{padding:0 10px !important}
+          .nav-right{gap:6px !important}
+          .logo-text{font-size:14px !important}
+          .logout-btn{font-size:12px !important;padding:8px 14px !important}
+          .shop-link{font-size:12px !important;padding:6px 10px !important}
+          .toast{bottom:16px !important;right:16px !important;left:16px !important;font-size:13px !important}
+          .add-form{padding:16px !important;border-radius:14px !important}
+          .form-row{grid-template-columns:1fr !important}
+          .items-grid{grid-template-columns:1fr !important}
+          .category-grid{grid-template-columns:repeat(2, 1fr) !important;gap:8px !important}
+          .settings-stats-grid{grid-template-columns:1fr !important}
+          .my-stats-grid{grid-template-columns:1fr 1fr !important;gap:10px !important}
+          .order-search-container{flex-direction:column !important;padding:12px !important}
+        }
         
         /* Desktop defaults for Settings page */
         .settings-stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:28px}
