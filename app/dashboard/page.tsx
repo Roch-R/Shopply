@@ -1274,7 +1274,7 @@ export default function DashboardPage() {
         .dashboard-layout{display:flex;max-width:1200px;margin:0 auto;padding:24px;gap:32px;min-height:calc(100vh - 64px)}
 
         .sidebar{background:#fff;border-radius:24px;padding:16px 12px;box-shadow:0 10px 40px rgba(0,0,0,0.03);
-          border:1px solid #f1f5f9;display:flex;flex-direction:column;gap:6px;height:fit-content;max-height:calc(100vh - 64px);position:sticky;top:32px;width:260px;flex-shrink:0;transition:width 0.3s cubic-bezier(0.4, 0, 0.2, 1), padding 0.3s ease;z-index:60}
+          border:1px solid #f1f5f9;display:flex;flex-direction:column;gap:6px;height:fit-content;max-height:calc(100vh - 112px);position:sticky;top:88px;width:260px;flex-shrink:0;transition:width 0.3s cubic-bezier(0.4, 0, 0.2, 1), padding 0.3s ease;z-index:60}
         .sidebar.collapsed{width:76px;padding:16px 8px;max-height:none}
         
         .sidebar-toggle{position:absolute;top:84px;right:-14px;width:28px;height:28px;border-radius:50%;
