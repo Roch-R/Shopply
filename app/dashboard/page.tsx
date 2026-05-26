@@ -3502,7 +3502,16 @@ export default function DashboardPage() {
             {/* My Statistics */}
             <div style={{ background: '#fff', borderRadius: 24, padding: 32, boxShadow: '0 4px 24px rgba(0,0,0,.05)', border: '1px solid #f1f5f9', marginBottom: 24 }}>
               <div style={{ marginBottom: 24 }}>
-                <h3 style={{ fontSize: 17, fontWeight: 700, color: '#0f172a', margin: 0 }}>📊 My Statistics</h3>
+                <h3 style={{ fontSize: 17, fontWeight: 700, color: '#0f172a', margin: 0, display: 'flex', alignItems: 'center' }}>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 32, height: 32, borderRadius: 8, background: 'rgba(124,58,237,0.1)', color: '#7c3aed', marginRight: 10 }}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <line x1="18" y1="20" x2="18" y2="10" />
+                      <line x1="12" y1="20" x2="12" y2="4" />
+                      <line x1="6" y1="20" x2="6" y2="14" />
+                    </svg>
+                  </span>
+                  My Statistics
+                </h3>
                 <p style={{ fontSize: 13, color: '#94a3b8', margin: '4px 0 0' }}>Overview of your account activity and performance</p>
               </div>
               <div className="my-stats-grid">
@@ -3622,7 +3631,16 @@ export default function DashboardPage() {
             <div style={{ background: '#fff', borderRadius: 24, padding: 32, boxShadow: '0 4px 24px rgba(0,0,0,.05)', border: '1px solid #f1f5f9', marginBottom: 24 }}>
               <div className="flex-responsive-row" style={{ marginBottom: 24 }}>
                 <div>
-                  <h3 style={{ fontSize: 17, fontWeight: 700, color: '#0f172a', margin: 0 }}>🗄️ Cache Control Center</h3>
+                  <h3 style={{ fontSize: 17, fontWeight: 700, color: '#0f172a', margin: 0, display: 'flex', alignItems: 'center' }}>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 32, height: 32, borderRadius: 8, background: 'rgba(59,130,246,0.1)', color: '#3b82f6', marginRight: 10 }}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <ellipse cx="12" cy="5" rx="9" ry="3" />
+                        <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
+                        <path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3" />
+                      </svg>
+                    </span>
+                    Cache Control Center
+                  </h3>
                   <p style={{ fontSize: 13, color: '#94a3b8', margin: '4px 0 0' }}>Clear specific data or wipe everything at once</p>
                 </div>
                 <button
@@ -3673,7 +3691,14 @@ export default function DashboardPage() {
             <div style={{ background: '#fff', borderRadius: 24, padding: 32, boxShadow: '0 4px 24px rgba(0,0,0,.05)', border: '1px solid #f1f5f9', marginBottom: 24 }}>
               <div className="flex-responsive-row">
                 <div>
-                  <h3 style={{ fontSize: 17, fontWeight: 700, color: '#0f172a', margin: 0 }}>🍪 Privacy & Cookies</h3>
+                  <h3 style={{ fontSize: 17, fontWeight: 700, color: '#0f172a', margin: 0, display: 'flex', alignItems: 'center' }}>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 32, height: 32, borderRadius: 8, background: 'rgba(245,158,11,0.1)', color: '#f59e0b', marginRight: 10 }}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                      </svg>
+                    </span>
+                    Privacy & Cookies
+                  </h3>
                   <p style={{ fontSize: 13, color: '#94a3b8', margin: '4px 0 0' }}>Manage your cookie preferences and consent</p>
                 </div>
                 <button
@@ -3696,8 +3721,15 @@ export default function DashboardPage() {
             <div style={{ background: '#fff', borderRadius: 24, padding: 32, boxShadow: '0 4px 24px rgba(0,0,0,.05)', border: '1px solid #f1f5f9', marginBottom: 24 }}>
               <div className="flex-responsive-row" style={{ alignItems: 'flex-start' }}>
                 <div style={{ flex: 1 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                    <h3 style={{ fontSize: 17, fontWeight: 700, color: '#0f172a', margin: 0 }}>⚡ Lag Optimization Center</h3>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 6 }}>
+                    <h3 style={{ fontSize: 17, fontWeight: 700, color: '#0f172a', margin: 0, display: 'flex', alignItems: 'center' }}>
+                      <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 32, height: 32, borderRadius: 8, background: 'rgba(16,185,129,0.1)', color: '#10b981', marginRight: 10 }}>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+                        </svg>
+                      </span>
+                      Lag Optimization Center
+                    </h3>
                     <span style={{
                       padding: '4px 10px',
                       borderRadius: 12,
