@@ -1277,7 +1277,7 @@ export default function DashboardPage() {
           border:1px solid #f1f5f9;display:flex;flex-direction:column;gap:6px;height:fit-content;max-height:calc(100vh - 64px);position:sticky;top:32px;width:260px;flex-shrink:0;transition:width 0.3s cubic-bezier(0.4, 0, 0.2, 1), padding 0.3s ease;z-index:60}
         .sidebar.collapsed{width:76px;padding:16px 8px;max-height:none}
         
-        .sidebar-toggle{position:absolute;top:20px;right:-14px;width:28px;height:28px;border-radius:50%;
+        .sidebar-toggle{position:absolute;top:84px;right:-14px;width:28px;height:28px;border-radius:50%;
           background:#fff;border:1px solid #e2e8f0;box-shadow:0 4px 10px rgba(0,0,0,0.06);
           display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:70;
           transition:all 0.2s;color:#64748b}
