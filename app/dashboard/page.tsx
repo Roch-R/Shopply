@@ -243,6 +243,39 @@ export default function DashboardPage() {
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [updatingProfile, setUpdatingProfile] = useState(false);
 
+  // Smooth mode state
+  const [smoothMode, setSmoothMode] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('shopply_smooth_mode') === 'true';
+    }
+    return false;
+  });
+
+  const handleToggleSmoothMode = () => {
+    const next = !smoothMode;
+    localStorage.setItem('shopply_smooth_mode', String(next));
+    setSmoothMode(next);
+    window.dispatchEvent(new Event('smooth_mode_changed'));
+    showToast(next ? "🚀 Smooth Mode enabled! Lag optimized." : "Smooth Mode disabled.", "success");
+  };
+
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'shopply_smooth_mode') {
+        setSmoothMode(e.newValue === 'true');
+      }
+    };
+    const handleCustomChange = () => {
+      setSmoothMode(localStorage.getItem('shopply_smooth_mode') === 'true');
+    };
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('smooth_mode_changed', handleCustomChange);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('smooth_mode_changed', handleCustomChange);
+    };
+  }, []);
+
   // Toast state
   const [toast, setToast] = useState<{ message: string, type: 'success' | 'error' } | null>(null);
 
@@ -495,9 +528,11 @@ export default function DashboardPage() {
     const cache = getApiCache();
     const doFetchAll = () => {
       // Invalidate stale data then refetch through cache
-      cache.invalidate('/orders');
-      cache.invalidate('/seller/orders');
-      cache.invalidate('/items');
+      if (!smoothMode) {
+        cache.invalidate('/orders');
+        cache.invalidate('/seller/orders');
+        cache.invalidate('/items');
+      }
 
       cache.fetch(`${API}/orders`, { headers: { Accept: "application/json", Authorization: `Bearer ${token}` } })
         .then((data: any) => { if (data.orders) setOrders(data.orders); })
@@ -536,7 +571,7 @@ export default function DashboardPage() {
       window.removeEventListener('focus', fetchOnFocus);
       window.removeEventListener('storage', handleStorageChange);
     };
-  }, [activeTab, API]);
+  }, [activeTab, API, smoothMode]);
 
   // Poll chat conversations & active chat messages
   useEffect(() => {
@@ -571,9 +606,6 @@ export default function DashboardPage() {
       }
     };
 
-    fetchConversations();
-    fetchMessages();
-
     const handleChatUpdate = (e?: Event) => {
       if (!e || (e as StorageEvent).key === 'shopply_chat_update' || e.type === 'focus' || e.type === 'visibilitychange') {
         clearTimeout(chatDebounce);
@@ -588,20 +620,40 @@ export default function DashboardPage() {
     window.addEventListener('focus', handleChatUpdate);
     window.addEventListener('visibilitychange', handleChatUpdate);
 
-    const convInterval = setInterval(fetchConversations, 5000);
-    let msgInterval: NodeJS.Timeout | undefined;
-    if (activeChatUser) {
-      msgInterval = setInterval(fetchMessages, 1000);
+    let cleanConvPoller: (() => void) | null = null;
+    let cleanMsgPoller: (() => void) | null = null;
+
+    if (smoothMode) {
+      cleanConvPoller = createSmartPoller(fetchConversations, 10000, {
+        idleIntervalMs: 30000,
+        idleAfterMs: 60000
+      });
+      if (activeChatUser) {
+        cleanMsgPoller = createSmartPoller(fetchMessages, 2000, {
+          idleIntervalMs: 10000,
+          idleAfterMs: 30000
+        });
+      }
+    } else {
+      fetchConversations();
+      fetchMessages();
+      const convInterval = setInterval(fetchConversations, 5000);
+      cleanConvPoller = () => clearInterval(convInterval);
+      if (activeChatUser) {
+        const msgInterval = setInterval(fetchMessages, 1000);
+        cleanMsgPoller = () => clearInterval(msgInterval);
+      }
     }
+
     return () => {
       clearTimeout(chatDebounce);
       window.removeEventListener('storage', handleChatUpdate);
       window.removeEventListener('focus', handleChatUpdate);
       window.removeEventListener('visibilitychange', handleChatUpdate);
-      if (msgInterval) clearInterval(msgInterval);
-      clearInterval(convInterval);
+      if (cleanConvPoller) cleanConvPoller();
+      if (cleanMsgPoller) cleanMsgPoller();
     };
-  }, [activeTab, activeChatUser, API]);
+  }, [activeTab, activeChatUser, API, smoothMode]);
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -1889,11 +1941,18 @@ export default function DashboardPage() {
                             type="file"
                             hidden
                             accept="image/*"
-                            onChange={(e) => {
+                            onChange={async (e) => {
                               const file = e.target.files?.[0];
                               if (file) {
-                                setAvatarFile(file);
-                                setAvatarPreview(URL.createObjectURL(file));
+                                try {
+                                  const compressed = await compressImage(file, 400);
+                                  setAvatarFile(compressed);
+                                  setAvatarPreview(URL.createObjectURL(compressed));
+                                } catch (err) {
+                                  console.error("Failed to compress avatar", err);
+                                  setAvatarFile(file);
+                                  setAvatarPreview(URL.createObjectURL(file));
+                                }
                               }
                             }}
                           />
@@ -3630,6 +3689,86 @@ export default function DashboardPage() {
                   <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
                   Reset Cookie Consent
                 </button>
+              </div>
+            </div>
+
+            {/* Lag Optimization Center */}
+            <div style={{ background: '#fff', borderRadius: 24, padding: 32, boxShadow: '0 4px 24px rgba(0,0,0,.05)', border: '1px solid #f1f5f9', marginBottom: 24 }}>
+              <div className="flex-responsive-row" style={{ alignItems: 'flex-start' }}>
+                <div style={{ flex: 1 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                    <h3 style={{ fontSize: 17, fontWeight: 700, color: '#0f172a', margin: 0 }}>⚡ Lag Optimization Center</h3>
+                    <span style={{
+                      padding: '4px 10px',
+                      borderRadius: 12,
+                      fontSize: 11,
+                      fontWeight: 700,
+                      background: smoothMode ? '#dcfce7' : '#f1f5f9',
+                      color: smoothMode ? '#15803d' : '#475569',
+                      transition: 'all 0.3s ease'
+                    }}>
+                      {smoothMode ? '● Smooth Mode Active' : '○ Standard Mode'}
+                    </span>
+                  </div>
+                  <p style={{ fontSize: 13, color: '#94a3b8', margin: '6px 0 0', lineHeight: 1.5 }}>
+                    Optimize rendering speed and network usage. Smooth Mode reduces background refresh loops, throttles polling, and avoids cache flashes during tab switching to eliminate visual lag.
+                  </p>
+                </div>
+                <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginTop: 12 }}>
+                  <button
+                    onClick={handleToggleSmoothMode}
+                    style={{
+                      padding: '10px 20px',
+                      borderRadius: 10,
+                      border: 'none',
+                      background: smoothMode ? 'linear-gradient(135deg,#22c55e,#16a34a)' : 'linear-gradient(135deg,#7c3aed,#6366f1)',
+                      color: '#fff',
+                      fontWeight: 700,
+                      fontSize: 13,
+                      cursor: 'pointer',
+                      boxShadow: smoothMode ? '0 4px 12px rgba(34,197,94,0.2)' : '0 4px 12px rgba(124,58,237,0.2)',
+                      transition: 'all .2s',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 6
+                    }}
+                    onMouseOver={e => (e.currentTarget.style.transform = 'translateY(-1px)')}
+                    onMouseOut={e => (e.currentTarget.style.transform = 'translateY(0)')}
+                  >
+                    <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+                    </svg>
+                    {smoothMode ? 'Disable Smooth Mode' : 'Enable Smooth Mode'}
+                  </button>
+                  <button
+                    onClick={() => {
+                      getApiCache().invalidateAll();
+                      showToast('🧹 Clearing cache and optimizing lag...', 'success');
+                      setTimeout(() => window.location.reload(), 1000);
+                    }}
+                    style={{
+                      padding: '10px 20px',
+                      borderRadius: 10,
+                      border: '1.5px solid #e2e8f0',
+                      background: '#fff',
+                      color: '#475569',
+                      fontWeight: 600,
+                      fontSize: 13,
+                      cursor: 'pointer',
+                      transition: 'all .2s',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 6
+                    }}
+                    onMouseOver={e => { e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.borderColor = '#cbd5e1'; }}
+                    onMouseOut={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.borderColor = '#e2e8f0'; }}
+                  >
+                    <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+                    </svg>
+                    Optimize Lag Now
+                  </button>
+                </div>
               </div>
             </div>
 

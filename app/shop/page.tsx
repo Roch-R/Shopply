@@ -131,7 +131,30 @@ export default function ShopPage() {
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const isSendingRef = useRef(false);
+  // Smooth mode state
+  const [smoothMode, setSmoothMode] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('shopply_smooth_mode') === 'true';
+    }
+    return false;
+  });
 
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'shopply_smooth_mode') {
+        setSmoothMode(e.newValue === 'true');
+      }
+    };
+    const handleCustomChange = () => {
+      setSmoothMode(localStorage.getItem('shopply_smooth_mode') === 'true');
+    };
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('smooth_mode_changed', handleCustomChange);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('smooth_mode_changed', handleCustomChange);
+    };
+  }, []);
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chatMessages, isChatOpen]);
@@ -300,9 +323,6 @@ export default function ShopPage() {
         }
       };
 
-      fetchConversations();
-      fetchMessages();
-
       const handleChatUpdate = (e?: Event) => {
         if (!e || (e as StorageEvent).key === 'shopply_chat_update' || e.type === 'focus' || e.type === 'visibilitychange') {
           clearTimeout(chatDebounce);
@@ -317,21 +337,41 @@ export default function ShopPage() {
       window.addEventListener('focus', handleChatUpdate);
       window.addEventListener('visibilitychange', handleChatUpdate);
 
-      const convInterval = setInterval(fetchConversations, 5000);
-      let msgInterval: NodeJS.Timeout | undefined;
-      if (activeChatUser) {
-        msgInterval = setInterval(fetchMessages, 1000);
+      let cleanConvPoller: (() => void) | null = null;
+      let cleanMsgPoller: (() => void) | null = null;
+
+      if (smoothMode) {
+        cleanConvPoller = createSmartPoller(fetchConversations, 10000, {
+          idleIntervalMs: 30000,
+          idleAfterMs: 60000
+        });
+        if (activeChatUser) {
+          cleanMsgPoller = createSmartPoller(fetchMessages, 2000, {
+            idleIntervalMs: 10000,
+            idleAfterMs: 30000
+          });
+        }
+      } else {
+        fetchConversations();
+        fetchMessages();
+        const convInterval = setInterval(fetchConversations, 5000);
+        cleanConvPoller = () => clearInterval(convInterval);
+        if (activeChatUser) {
+          const msgInterval = setInterval(fetchMessages, 1000);
+          cleanMsgPoller = () => clearInterval(msgInterval);
+        }
       }
+
       return () => {
         clearTimeout(chatDebounce);
         window.removeEventListener('storage', handleChatUpdate);
         window.removeEventListener('focus', handleChatUpdate);
         window.removeEventListener('visibilitychange', handleChatUpdate);
-        if (msgInterval) clearInterval(msgInterval);
-        clearInterval(convInterval);
+        if (cleanConvPoller) cleanConvPoller();
+        if (cleanMsgPoller) cleanMsgPoller();
       };
     }
-  }, [isChatOpen, activeChatUser, API]);
+  }, [isChatOpen, activeChatUser, API, smoothMode]);
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
