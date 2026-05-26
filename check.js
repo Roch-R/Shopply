@@ -1,0 +1,1 @@
+fetch('https://shopply-nine.vercel.app').then(r=>r.text()).then(t=>console.log(t.includes('shopply-backend-et1d.onrender.com') ? 'STILL RENDER' : (t.includes('shopply-production.up.railway.app') ? 'RAILWAY' : 'UNKNOWN')))

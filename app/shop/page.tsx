@@ -203,6 +203,7 @@ export default function ShopPage() {
   const IconCheck = () => <svg width="48" height="48" fill="none" stroke="#10b981" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>;
   const IconArrowUp = () => <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M18 15l-6-6-6 6" strokeLinecap="round" strokeLinejoin="round"/></svg>;
   const IconBack = () => <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6" strokeLinecap="round" strokeLinejoin="round"/></svg>;
+  const IconClose = () => <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12" strokeLinecap="round" strokeLinejoin="round"/></svg>;
   const IconChat = () => <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>;
   const IconShop = () => <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>;
 
@@ -721,7 +722,7 @@ export default function ShopPage() {
           .detail-name{font-size:24px}
           .detail-price{font-size:24px}
           .detail-category{font-size:11px}
-          .modal-back-btn{top:12px;left:12px;margin-bottom:-40px}
+          .modal-close-btn{top:12px;right:12px;width:36px;height:36px}
           .modal-actions-container{flex-direction:column;gap:12px}
           .buy-btn, .add-cart-btn{width:100%;height:48px !important}
           .spec-grid{grid-template-columns:1fr;padding:16px}
@@ -776,11 +777,13 @@ export default function ShopPage() {
         .back-to-top.visible{opacity:1;visibility:visible;transform:translateY(0)}
         .back-to-top:hover{transform:translateY(-4px);background:#1e293b;box-shadow:0 12px 30px rgba(0,0,0,.2)}
  
-        .modal-back-btn{position:sticky;top:20px;left:20px;align-self:flex-start;margin-bottom:-40px;width:40px;height:40px;
-          border-radius:50%;background:rgba(255,255,255,0.9);backdrop-filter:blur(10px);
+        .modal-close-btn{position:absolute;top:16px;right:16px;width:40px;height:40px;
+          border-radius:50%;background:rgba(255,255,255,0.92);backdrop-filter:blur(12px);
           display:flex;align-items:center;justify-content:center;cursor:pointer;
-          border:1px solid #e2e8f0;color:#0f172a;z-index:100;transition:all .2s}
-        .modal-back-btn:hover{background:#fff;transform:scale(1.1);box-shadow:0 4px 12px rgba(0,0,0,.1)}
+          border:1px solid #e2e8f0;color:#0f172a;z-index:110;transition:all .25s ease;
+          box-shadow:0 2px 8px rgba(0,0,0,.06)}
+        .modal-close-btn:hover{background:#fff;transform:scale(1.1);box-shadow:0 6px 16px rgba(0,0,0,.12);
+          color:#ef4444;border-color:#fecaca}
  
         .seller-header-bar{background:#fff;border-top:1px solid #f1f5f9;border-bottom:1px solid #f1f5f9;padding:32px 48px;display:flex;align-items:center;justify-content:space-between;gap:32px;flex-wrap:wrap}
         @media (max-width: 950px) { .seller-header-bar{padding:24px;flex-direction:column;align-items:flex-start} }
@@ -1014,8 +1017,8 @@ export default function ShopPage() {
           return (
             <div className="modal-overlay" onClick={() => setViewItem(null)}>
               <div className="detail-modal" onClick={e => e.stopPropagation()}>
-                <button className="modal-back-btn" onClick={() => setViewItem(null)}>
-                  <IconBack />
+                <button className="modal-close-btn" onClick={() => setViewItem(null)} title="Close">
+                  <IconClose />
                 </button>
                 <div className="detail-content">
                   <div className="detail-img-side">
