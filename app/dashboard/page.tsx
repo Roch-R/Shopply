@@ -3445,10 +3445,50 @@ export default function DashboardPage() {
                     </div>
                   </div>
 
-                  <div className="form-group">
-                    <label className="form-label">Description</label>
-                    <textarea className="form-textarea" placeholder="Describe your item..."
-                      value={newItemDesc} onChange={e => setNewItemDesc(e.target.value)} />
+                  <div className="form-group" style={{ position: 'relative' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                      <label className="form-label" style={{ margin: 0 }}>Description</label>
+                      <span style={{ fontSize: 11, color: '#94a3b8', fontWeight: 600 }}>
+                        {newItemDesc.length} characters
+                      </span>
+                    </div>
+                    <div style={{ position: 'relative' }}>
+                      <textarea
+                        className="form-textarea"
+                        placeholder="Describe your item (e.g. material, fit, condition, tags)..."
+                        value={newItemDesc}
+                        onChange={e => setNewItemDesc(e.target.value)}
+                        style={{
+                          width: '100%',
+                          minHeight: 160,
+                          padding: '16px',
+                          borderRadius: 16,
+                          border: '1.5px solid #e2e8f0',
+                          background: '#f8fafc',
+                          fontFamily: 'inherit',
+                          fontSize: 14,
+                          color: '#0f172a',
+                          transition: 'all 0.2s ease',
+                          resize: 'vertical',
+                          outline: 'none',
+                          boxShadow: 'none'
+                        }}
+                        onFocus={e => {
+                          e.currentTarget.style.borderColor = '#7c3aed';
+                          e.currentTarget.style.background = '#fff';
+                          e.currentTarget.style.boxShadow = '0 0 0 4px rgba(124,58,237,0.08)';
+                        }}
+                        onBlur={e => {
+                          e.currentTarget.style.borderColor = '#e2e8f0';
+                          e.currentTarget.style.background = '#f8fafc';
+                          e.currentTarget.style.boxShadow = 'none';
+                        }}
+                      />
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 8, color: '#64748b', fontSize: 11, fontWeight: 500 }}>
+                      <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" /></svg>
+                      <span>Write about condition, material, and measurements for faster sales.</span>
+                    </div>
                   </div>
 
                   <div className="form-group">
