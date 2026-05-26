@@ -3332,7 +3332,7 @@ export default function DashboardPage() {
 
                   <div className="form-group">
                     <label className="form-label">Main Product Images (Multiple)</label>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: 12, marginBottom: 16 }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(80px, 96px))', gap: 12, marginBottom: 16 }}>
                       {mainImagesState.map((imgObj, idx) => (
                         <div key={idx} style={{ position: 'relative', borderRadius: 12, overflow: 'hidden', border: '1px solid #e2e8f0', aspectRatio: '1', background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                           <img src={imgObj.preview} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
@@ -3351,7 +3351,7 @@ export default function DashboardPage() {
                         onClick={() => fileInputRef.current?.click()}
                         style={{
                           aspectRatio: '1',
-                          border: '2px dashed #e2e8f0',
+                          border: '2px dashed #cbd5e1',
                           borderRadius: 12,
                           display: 'flex',
                           flexDirection: 'column',
@@ -3359,12 +3359,14 @@ export default function DashboardPage() {
                           justifyContent: 'center',
                           cursor: 'pointer',
                           background: '#f8fafc',
-                          color: '#94a3b8',
+                          color: '#64748b',
                           transition: 'all .2s'
                         }}
+                        onMouseOver={e => { e.currentTarget.style.borderColor = '#7c3aed'; e.currentTarget.style.background = '#faf5ff'; e.currentTarget.style.color = '#7c3aed'; }}
+                        onMouseOut={e => { e.currentTarget.style.borderColor = '#cbd5e1'; e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.color = '#64748b'; }}
                       >
                         <IconPlus />
-                        <span style={{ fontSize: 11, marginTop: 4, fontWeight: 600 }}>Add Image</span>
+                        <span style={{ fontSize: 11, marginTop: 4, fontWeight: 700 }}>Add Image</span>
                       </div>
                     </div>
                     <input
@@ -3381,7 +3383,7 @@ export default function DashboardPage() {
                     <label className="form-label">Product Showcase Video (Optional)</label>
                     <div style={{ display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
                       {newVideoPreview ? (
-                        <div style={{ position: 'relative', width: 200, height: 120, borderRadius: 12, overflow: 'hidden', border: '1px solid #e2e8f0', background: '#000' }}>
+                        <div style={{ position: 'relative', width: 160, height: 96, borderRadius: 12, overflow: 'hidden', border: '1px solid #e2e8f0', background: '#000' }}>
                           <video src={newVideoPreview} controls style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                           <button
                             type="button"
@@ -3390,7 +3392,7 @@ export default function DashboardPage() {
                               setNewVideoPreview(null);
                               setExistingVideoPath(null);
                             }}
-                            style={{ position: 'absolute', top: 6, right: 6, background: 'rgba(239,68,68,0.9)', color: '#fff', border: 'none', borderRadius: '50%', width: 22, height: 22, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 10 }}
+                            style={{ position: 'absolute', top: 4, right: 4, background: 'rgba(239,68,68,0.9)', color: '#fff', border: 'none', borderRadius: '50%', width: 20, height: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 10 }}
                           >
                             <IconTrash />
                           </button>
@@ -3399,8 +3401,8 @@ export default function DashboardPage() {
                         <div
                           onClick={() => document.getElementById('showcase-video-input')?.click()}
                           style={{
-                            width: 200,
-                            height: 120,
+                            width: 160,
+                            height: 96,
                             border: '2px dashed #cbd5e1',
                             borderRadius: 12,
                             display: 'flex',
@@ -3409,16 +3411,18 @@ export default function DashboardPage() {
                             justifyContent: 'center',
                             cursor: 'pointer',
                             background: '#f8fafc',
-                            color: '#94a3b8',
+                            color: '#64748b',
                             transition: 'all .2s'
                           }}
+                          onMouseOver={e => { e.currentTarget.style.borderColor = '#7c3aed'; e.currentTarget.style.background = '#faf5ff'; e.currentTarget.style.color = '#7c3aed'; }}
+                          onMouseOut={e => { e.currentTarget.style.borderColor = '#cbd5e1'; e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.color = '#64748b'; }}
                         >
-                          <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" style={{ marginBottom: 4 }}>
+                          <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ marginBottom: 4 }}>
                             <path d="M23 7l-7 5 7 5V7z" />
                             <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
                           </svg>
-                          <span style={{ fontSize: 11, fontWeight: 600 }}>Upload Showcase Video</span>
-                          <span style={{ fontSize: 9, color: '#94a3b8', marginTop: 2 }}>Max 50MB (mp4, mov, webm)</span>
+                          <span style={{ fontSize: 11, fontWeight: 700 }}>Upload Video</span>
+                          <span style={{ fontSize: 8, color: '#94a3b8', marginTop: 1 }}>Max 50MB</span>
                         </div>
                       )}
                       <input
