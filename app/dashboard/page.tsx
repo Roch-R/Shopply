@@ -1516,9 +1516,9 @@ export default function DashboardPage() {
           .no-print { display: none !important; }
         }
 
-        @media(max-width:768px){
+        @media (max-width: 768px){
           .menu-toggle-btn{display:flex !important}
-          .dashboard-layout{flex-direction:row !important;padding:12px;gap:12px}
+          .dashboard-layout{flex-direction:column !important;padding:12px;gap:12px}
           .sidebar{
             display:none !important;
           }
@@ -1530,11 +1530,16 @@ export default function DashboardPage() {
             bottom:0 !important;
             width:280px !important;
             height:100vh !important;
+            max-height:100vh !important;
             box-shadow:0 20px 40px rgba(0,0,0,0.15);
             z-index:100;
-            padding:24px 16px;
-            padding-top:max(24px, env(safe-area-inset-top, 24px));
+            padding:16px 12px !important;
+            padding-top:max(12px, env(safe-area-inset-top, 12px)) !important;
             border-radius:0 24px 24px 0 !important;
+          }
+          .sidebar-profile-header {
+            padding: 8px 12px !important;
+            margin-bottom: 8px !important;
           }
           
           .sidebar-backdrop{
@@ -1581,7 +1586,7 @@ export default function DashboardPage() {
           .variant-form-grid{grid-template-columns:1fr !important;gap:16px !important}
         }
 
-        @media(max-width:480px){
+        @media (max-width: 480px){
           .dashboard-layout{padding:8px !important;gap:0 !important}
           .content{width:100% !important}
           .profile-header{flex-direction:column !important;text-align:center !important;
