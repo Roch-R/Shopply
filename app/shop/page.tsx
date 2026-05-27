@@ -210,7 +210,6 @@ export default function ShopPage() {
   const [revPreviews, setRevPreviews] = useState<string[]>([]);
   const [submittingReview, setSubmittingReview] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
-  const [visibleReviewsCount, setVisibleReviewsCount] = useState(3);
   const [reviewFilter, setReviewFilter] = useState<'all' | 'comment' | 'media'>('all');
 
   const API = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
@@ -478,7 +477,6 @@ export default function ShopPage() {
     setSelectedSize(null);
     setReviews([]); // Clear old reviews while loading
     setActiveImageIdx(0);
-    setVisibleReviewsCount(3);
     setReviewFilter('all');
   };
 
@@ -806,6 +804,19 @@ export default function ShopPage() {
         
         .description-section{border-top:1px solid #f1f5f9;padding:48px;background:#fff}
         .rating-section{border-top:1px solid #f1f5f9;padding:48px;background:#fdfdfd}
+        .reviews-scroll-container{
+          max-height:420px;
+          overflow-y:auto;
+          padding: 16px 24px;
+          background: #f8fafc;
+          border-radius: 16px;
+          border: 1px solid #e2e8f0;
+          box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+        }
+        .reviews-scroll-container::-webkit-scrollbar{width:6px}
+        .reviews-scroll-container::-webkit-scrollbar-track{background:transparent}
+        .reviews-scroll-container::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:3px;transition:background .2s}
+        .reviews-scroll-container::-webkit-scrollbar-thumb:hover{background:#94a3b8}
         .rating-header-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:32px}
         .rating-summary{display:flex;align-items:center;gap:32px;background:#fff;padding:28px;border-radius:24px;border:1px solid #f1f5f9;box-shadow:0 4px 15px rgba(0,0,0,.02)}
         .big-rating{font-size:44px;font-weight:800;color:#7c3aed}
@@ -816,17 +827,18 @@ export default function ShopPage() {
         .rev-filter{padding:8px 16px;border-radius:20px;border:1px solid #e2e8f0;font-size:12px;font-weight:600;color:#64748b;cursor:pointer;background:#fff}
         .rev-filter.active{background:#7c3aed;color:#fff;border-color:#7c3aed}
         
-        .review-card{padding:32px 0;border-bottom:1px solid #f1f5f9}
-        .review-user{display:flex;align-items:center;gap:14px;margin-bottom:12px}
-        .u-avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#e2e8f0,#cbd5e1);
-          display:flex;align-items:center;justify-content:center;font-weight:700;color:#64748b;font-size:14px}
+        .review-card{padding:20px 0;border-bottom:1px solid #e2e8f0}
+        .review-card:last-child{border-bottom:none}
+        .review-user{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+        .u-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#e2e8f0,#cbd5e1);
+          display:flex;align-items:center;justify-content:center;font-weight:700;color:#64748b;font-size:13px}
         .u-info{display:flex;flex-direction:column;gap:2px}
-        .u-name{font-size:14px;font-weight:700;color:#0f172a}
-        .r-date{font-size:12px;color:#94a3b8}
-        .r-text{font-size:15px;color:#475569;line-height:1.7;margin:16px 0}
-        .r-variation{font-size:12px;color:#94a3b8;margin-bottom:16px;display:block}
+        .u-name{font-size:13px;font-weight:700;color:#0f172a}
+        .r-date{font-size:11px;color:#94a3b8}
+        .r-text{font-size:14px;color:#334155;line-height:1.6;margin:8px 0}
+        .r-variation{font-size:11px;color:#94a3b8;margin-bottom:12px;display:block}
         .r-images{display:flex;gap:12px}
-        .r-img{width:90px;height:90px;border-radius:12px;object-fit:cover;cursor:pointer;border:1px solid #f1f5f9}
+        .r-img{width:80px;height:80px;border-radius:10px;object-fit:cover;cursor:pointer;border:1px solid #f1f5f9}
         
         .back-to-top{position:fixed;bottom:32px;right:32px;width:50px;height:50px;
           border-radius:50%;background:#0f172a;color:#fff;display:flex;align-items:center;
@@ -1454,19 +1466,19 @@ export default function ShopPage() {
                   <div className="review-filters">
                     <button 
                       className={`rev-filter ${reviewFilter === 'all' ? 'active' : ''}`}
-                      onClick={() => { setReviewFilter('all'); setVisibleReviewsCount(3); }}
+                      onClick={() => setReviewFilter('all')}
                     >
                       All
                     </button>
                     <button 
                       className={`rev-filter ${reviewFilter === 'comment' ? 'active' : ''}`}
-                      onClick={() => { setReviewFilter('comment'); setVisibleReviewsCount(3); }}
+                      onClick={() => setReviewFilter('comment')}
                     >
                       With Comments ({reviews.filter(r => r.comment).length})
                     </button>
                     <button 
                       className={`rev-filter ${reviewFilter === 'media' ? 'active' : ''}`}
-                      onClick={() => { setReviewFilter('media'); setVisibleReviewsCount(3); }}
+                      onClick={() => setReviewFilter('media')}
                     >
                       With Media ({reviews.filter(r => r.images && r.images.length > 0).length})
                     </button>
@@ -1535,8 +1547,8 @@ export default function ShopPage() {
                     <p>{reviewFilter === 'all' ? "No reviews yet. Be the first to review this product!" : "No reviews match the selected filter."}</p>
                   </div>
                 ) : (
-                  <>
-                    {filteredReviews.slice(0, visibleReviewsCount).map(rev => (
+                  <div className="reviews-scroll-container">
+                    {filteredReviews.map(rev => (
                       <div key={rev.id} className="review-card">
                         <div className="review-user">
                           <div className="u-avatar">{rev.user?.name?.charAt(0).toUpperCase() || 'U'}</div>
@@ -1556,29 +1568,7 @@ export default function ShopPage() {
                         )}
                       </div>
                     ))}
-                    {filteredReviews.length > visibleReviewsCount && (
-                      <div style={{ display: 'flex', justifyContent: 'center', marginTop: 24 }}>
-                        <button 
-                          onClick={() => setVisibleReviewsCount(prev => prev + 5)}
-                          style={{
-                            padding: '10px 24px',
-                            borderRadius: '20px',
-                            border: '1.5px solid #e2e8f0',
-                            background: '#fff',
-                            color: '#475569',
-                            fontWeight: 600,
-                            fontSize: '13px',
-                            cursor: 'pointer',
-                            transition: 'all 0.2s',
-                          }}
-                          onMouseEnter={e => { e.currentTarget.style.borderColor = '#7c3aed'; e.currentTarget.style.color = '#7c3aed'; }}
-                          onMouseLeave={e => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.color = '#475569'; }}
-                        >
-                          Show More Reviews ({filteredReviews.length - visibleReviewsCount} left)
-                        </button>
-                      </div>
-                    )}
-                  </>
+                  </div>
                 )}
               </div>
 
