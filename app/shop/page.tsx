@@ -538,6 +538,8 @@ export default function ShopPage() {
 
       if (res.ok) {
         const data = await res.json();
+        getApiCache().invalidate(`/chat/${activeChatUser.id}`);
+        getApiCache().invalidate(`/chat/conversations`);
         setChatMessages(prev => prev.map(m => m.id === optimisticMsg.id ? data.message : m));
         localStorage.setItem('shopply_chat_update', Date.now().toString());
         // Refresh conversations

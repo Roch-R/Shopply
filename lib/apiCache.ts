@@ -29,7 +29,8 @@ const CACHE_CONFIGS: Record<string, CacheConfig> = {
   '/cart':               { ttl: 15_000,  staleTime: 60_000,   persist: false },
   '/orders':             { ttl: 30_000,  staleTime: 120_000,  persist: false },
   '/seller/orders':      { ttl: 30_000,  staleTime: 120_000,  persist: false },
-  '/chat/conversations': { ttl: 5_000,   staleTime: 15_000,   persist: false },
+  '/chat/conversations': { ttl: 2_000,   staleTime: 10_000,   persist: false },
+  '/chat/':              { ttl: 1_000,   staleTime: 5_000,    persist: false },
 };
 
 const DEFAULT_CONFIG: CacheConfig = { ttl: 15_000, staleTime: 60_000, persist: false };

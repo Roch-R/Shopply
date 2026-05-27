@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Skeleton } from "@/components/Skeleton";
+import { getApiCache } from "@/lib/apiCache";
 
 export default function VerifyPage() {
   const router = useRouter();
@@ -47,6 +48,7 @@ export default function VerifyPage() {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     localStorage.removeItem("pending_email");
+    getApiCache().invalidateAll();
     window.location.href = "/login";
   };
 

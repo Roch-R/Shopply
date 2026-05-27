@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Skeleton } from "@/components/Skeleton";
+import { getApiCache } from "@/lib/apiCache";
 
 function getAuth() {
   if (typeof window === "undefined") return { token: null, user: null };
@@ -33,6 +34,7 @@ export default function AboutPage() {
   function handleLogout() {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    getApiCache().invalidateAll();
     router.push("/login");
   }
 
