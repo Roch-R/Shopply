@@ -1001,26 +1001,26 @@ export default function DashboardPage() {
     setSelectedSizes(attrs.sizes || []);
     setSizeStocks(attrs.size_stocks || {});
     setSpecs(attrs.specs || []);
-    const loadedVariants = (item.attributes?.colors || []).map((color: string, idx: number) => ({
+    const loadedVariants = (attrs.colors || []).map((color: string, idx: number) => ({
       color,
-      price: item.attributes?.variant_prices?.[idx] || item.price,
+      price: attrs.variant_prices?.[idx] || item.price,
       file: null,
-      preview: item.attributes?.variant_image_paths?.[idx] ? getImageUrl(item.attributes.variant_image_paths[idx]) : null,
-      path: item.attributes?.variant_image_paths?.[idx] || null
+      preview: attrs.variant_image_paths?.[idx] ? getImageUrl(attrs.variant_image_paths[idx]) : null,
+      path: attrs.variant_image_paths?.[idx] || null
     }));
     setColorVariants(loadedVariants);
-    const mainImages = item.attributes?.main_images || [];
+    const mainImages = attrs.main_images || [];
     setMainImagesState(mainImages.map((path: string) => ({
       file: null,
       preview: getImageUrl(path),
       path
     })));
 
-    setExistingVideoPath(item.attributes?.video_path || null);
+    setExistingVideoPath(attrs.video_path || null);
     setNewVideoFile(null);
-    setNewVideoPreview(item.attributes?.video_path ? getImageUrl(item.attributes.video_path) : null);
+    setNewVideoPreview(attrs.video_path ? getImageUrl(attrs.video_path) : null);
 
-    const descImages = item.attributes?.description_images || [];
+    const descImages = attrs.description_images || [];
     setDescImagesState(descImages.map((path: string) => ({
       file: null,
       preview: getImageUrl(path),
