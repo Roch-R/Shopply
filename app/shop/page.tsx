@@ -478,6 +478,10 @@ export default function ShopPage() {
     setReviews([]); // Clear old reviews while loading
     setActiveImageIdx(0);
     setReviewFilter('all');
+    // Reset modal scroll to top when switching products
+    setTimeout(() => {
+      document.querySelector('.detail-modal')?.scrollTo({ top: 0 });
+    }, 50);
   };
 
   const handleReviewImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -1602,6 +1606,84 @@ export default function ShopPage() {
                     ))}
                   </div>
                 )}
+              </div>
+
+              {/* SIMILAR PRODUCTS SECTION */}
+              <div className="similar-products-section" style={{ borderTop: '3px solid #3b82f6', padding: '48px', background: '#fff' }}>
+                <span className="variant-section-label" style={{ fontSize: '16px', marginBottom: '24px' }}>Similar Products</span>
+                {(() => {
+                  const similarItems = items
+                    .filter(item => item.id !== viewItem.id && item.category === viewItem.category)
+                    .slice(0, 3);
+                  
+                  const displayItems = similarItems.length > 0 
+                    ? similarItems 
+                    : items.filter(item => item.id !== viewItem.id).slice(0, 3);
+
+                  if (displayItems.length === 0) {
+                    return <p style={{ color: '#94a3b8', fontSize: '14px' }}>No similar products found.</p>;
+                  }
+
+                  return (
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '24px' }}>
+                      {displayItems.map(item => (
+                        <div 
+                          key={item.id} 
+                          onClick={() => handleViewItem(item)}
+                          style={{ 
+                            background: '#f8fafc', 
+                            borderRadius: '16px', 
+                            overflow: 'hidden', 
+                            border: '1px solid #e2e8f0', 
+                            cursor: 'pointer',
+                            transition: 'all 0.2s',
+                          }}
+                          onMouseEnter={e => {
+                            e.currentTarget.style.transform = 'translateY(-4px)';
+                            e.currentTarget.style.boxShadow = '0 12px 24px rgba(0,0,0,0.05)';
+                            e.currentTarget.style.borderColor = '#cbd5e1';
+                          }}
+                          onMouseLeave={e => {
+                            e.currentTarget.style.transform = 'none';
+                            e.currentTarget.style.boxShadow = 'none';
+                            e.currentTarget.style.borderColor = '#e2e8f0';
+                          }}
+                        >
+                          <div style={{ position: 'relative', width: '100%', aspectRatio: '1', overflow: 'hidden', background: '#e2e8f0' }}>
+                            {item.image ? (
+                              <img 
+                                src={getImageUrl(item.image)} 
+                                alt={item.name} 
+                                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                onError={(e) => {
+                                  e.currentTarget.onerror = null;
+                                  e.currentTarget.src = "https://placehold.co/400x400/f8fafc/cbd5e1?text=No+Image";
+                                }}
+                              />
+                            ) : (
+                              <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8' }}>
+                                📷
+                              </div>
+                            )}
+                          </div>
+                          <div style={{ padding: '16px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px' }}>
+                              <h5 style={{ fontSize: '14px', fontWeight: 700, color: '#0f172a', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 1, WebkitBoxOrient: 'vertical' }}>
+                                {item.name}
+                              </h5>
+                              <span style={{ fontSize: '15px', fontWeight: 800, color: '#10b981', whiteSpace: 'nowrap' }}>
+                                {formatPriceDisplay(item)}
+                              </span>
+                            </div>
+                            <p style={{ fontSize: '12px', color: '#64748b', marginTop: '6px', overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', lineHeight: '1.4' }}>
+                              {item.description || "Explore this premium item's features and style."}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  );
+                })()}
               </div>
 
             </div>
