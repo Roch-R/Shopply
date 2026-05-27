@@ -210,6 +210,8 @@ export default function ShopPage() {
   const [revPreviews, setRevPreviews] = useState<string[]>([]);
   const [submittingReview, setSubmittingReview] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [visibleReviewsCount, setVisibleReviewsCount] = useState(3);
+  const [reviewFilter, setReviewFilter] = useState<'all' | 'comment' | 'media'>('all');
 
   const API = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
   const STORAGE_URL = process.env.NEXT_PUBLIC_API_URL ? process.env.NEXT_PUBLIC_API_URL.replace('/api', '/storage') : "http://127.0.0.1:8000/storage";
@@ -476,6 +478,8 @@ export default function ShopPage() {
     setSelectedSize(null);
     setReviews([]); // Clear old reviews while loading
     setActiveImageIdx(0);
+    setVisibleReviewsCount(3);
+    setReviewFilter('all');
   };
 
   const handleReviewImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -1053,6 +1057,11 @@ export default function ShopPage() {
         {viewItem && (
           (() => {
             const mediaItems = [];
+            const filteredReviews = reviews.filter(rev => {
+              if (reviewFilter === 'comment') return !!rev.comment;
+              if (reviewFilter === 'media') return rev.images && rev.images.length > 0;
+              return true;
+            });
             if (viewItem.attributes?.video_path) {
               mediaItems.push({ type: 'video', url: getImageUrl(viewItem.attributes.video_path) });
             }
@@ -1443,9 +1452,24 @@ export default function ShopPage() {
                     <StarRating rating={Math.round(reviews.reduce((acc, r) => acc + Number(r.rating), 0) / (reviews.length || 1))} size={24} />
                   </div>
                   <div className="review-filters">
-                    <button className="rev-filter active">All</button>
-                    <button className="rev-filter">With Comments ({reviews.filter(r => r.comment).length})</button>
-                    <button className="rev-filter">With Media ({reviews.filter(r => r.images && r.images.length > 0).length})</button>
+                    <button 
+                      className={`rev-filter ${reviewFilter === 'all' ? 'active' : ''}`}
+                      onClick={() => { setReviewFilter('all'); setVisibleReviewsCount(3); }}
+                    >
+                      All
+                    </button>
+                    <button 
+                      className={`rev-filter ${reviewFilter === 'comment' ? 'active' : ''}`}
+                      onClick={() => { setReviewFilter('comment'); setVisibleReviewsCount(3); }}
+                    >
+                      With Comments ({reviews.filter(r => r.comment).length})
+                    </button>
+                    <button 
+                      className={`rev-filter ${reviewFilter === 'media' ? 'active' : ''}`}
+                      onClick={() => { setReviewFilter('media'); setVisibleReviewsCount(3); }}
+                    >
+                      With Media ({reviews.filter(r => r.images && r.images.length > 0).length})
+                    </button>
                   </div>
                 </div>
 
@@ -1506,31 +1530,55 @@ export default function ShopPage() {
                   </form>
                 </div>
 
-                {reviews.length === 0 ? (
+                {filteredReviews.length === 0 ? (
                   <div style={{textAlign:'center',padding:'40px 0',color:'#94a3b8'}}>
-                    <p>No reviews yet. Be the first to review this product!</p>
+                    <p>{reviewFilter === 'all' ? "No reviews yet. Be the first to review this product!" : "No reviews match the selected filter."}</p>
                   </div>
                 ) : (
-                  reviews.map(rev => (
-                    <div key={rev.id} className="review-card">
-                      <div className="review-user">
-                        <div className="u-avatar">{rev.user?.name?.charAt(0).toUpperCase() || 'U'}</div>
-                        <div className="u-info">
-                          <span className="u-name">{rev.user?.name || "Anonymous User"}</span>
-                          <StarRating rating={Number(rev.rating)} size={12} />
+                  <>
+                    {filteredReviews.slice(0, visibleReviewsCount).map(rev => (
+                      <div key={rev.id} className="review-card">
+                        <div className="review-user">
+                          <div className="u-avatar">{rev.user?.name?.charAt(0).toUpperCase() || 'U'}</div>
+                          <div className="u-info">
+                            <span className="u-name">{rev.user?.name || "Anonymous User"}</span>
+                            <StarRating rating={Number(rev.rating)} size={12} />
+                          </div>
                         </div>
+                        <span className="r-date">{new Date(rev.created_at).toLocaleDateString()} | Variation: {rev.variation || "Default"}</span>
+                        <p className="r-text">{rev.comment}</p>
+                        {rev.images && rev.images.length > 0 && (
+                          <div className="r-images">
+                            {rev.images.map((img, i) => (
+                              <img key={i} src={getImageUrl(img)} className="r-img" alt="Review" onClick={() => window.open(getImageUrl(img), '_blank')} />
+                            ))}
+                          </div>
+                        )}
                       </div>
-                      <span className="r-date">{new Date(rev.created_at).toLocaleDateString()} | Variation: {rev.variation || "Default"}</span>
-                      <p className="r-text">{rev.comment}</p>
-                      {rev.images && rev.images.length > 0 && (
-                        <div className="r-images">
-                          {rev.images.map((img, i) => (
-                            <img key={i} src={getImageUrl(img)} className="r-img" alt="Review" onClick={() => window.open(getImageUrl(img), '_blank')} />
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  ))
+                    ))}
+                    {filteredReviews.length > visibleReviewsCount && (
+                      <div style={{ display: 'flex', justifyContent: 'center', marginTop: 24 }}>
+                        <button 
+                          onClick={() => setVisibleReviewsCount(prev => prev + 5)}
+                          style={{
+                            padding: '10px 24px',
+                            borderRadius: '20px',
+                            border: '1.5px solid #e2e8f0',
+                            background: '#fff',
+                            color: '#475569',
+                            fontWeight: 600,
+                            fontSize: '13px',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s',
+                          }}
+                          onMouseEnter={e => { e.currentTarget.style.borderColor = '#7c3aed'; e.currentTarget.style.color = '#7c3aed'; }}
+                          onMouseLeave={e => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.color = '#475569'; }}
+                        >
+                          Show More Reviews ({filteredReviews.length - visibleReviewsCount} left)
+                        </button>
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
 
