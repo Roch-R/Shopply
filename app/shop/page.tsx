@@ -786,7 +786,7 @@ export default function ShopPage() {
           .spec-grid{grid-template-columns:1fr;padding:16px}
           .description-section{padding:24px 16px}
           .seller-header-bar{padding:16px;gap:20px}
-          .seller-stats-grid{grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)) !important;gap:8px 16px;width:100%}
+          .seller-stats-grid{grid-template-columns:repeat(2, 1fr) !important;gap:8px !important;width:100%}
           .seller-left-side{width:100%}
         }
         
@@ -872,15 +872,29 @@ export default function ShopPage() {
         .seller-btn-chat{padding:8px 16px;background:#f3e8ff;border:1px solid #7c3aed;color:#7c3aed;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .2s}
         .seller-btn-chat:hover{background:#e9d5ff;transform:translateY(-1px)}
         .seller-btn-shop{padding:8px 16px;background:#fff;border:1px solid #cbd5e1;color:#475569;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .2s}
-        .seller-btn-shop:hover{background:#f8fafc;transform:translateY(-1px)}
-        .seller-stats-grid{display:grid;grid-template-columns:repeat(3, 1fr);gap:16px 48px;flex-grow:1;max-width:600px}
+        .seller-stats-grid{display:grid;grid-template-columns:repeat(3, 1fr);gap:12px;flex-grow:1;max-width:600px}
         @media (max-width: 650px) {
-          .seller-stats-grid{grid-template-columns:repeat(auto-fit, minmax(140px, 1fr));gap:12px}
-          .seller-stat-box{flex-direction:column;align-items:flex-start;gap:4px;border-bottom:none;padding-bottom:0}
+          .seller-stats-grid{grid-template-columns:repeat(2, 1fr);gap:8px}
         }
-        .seller-stat-box{display:flex;align-items:center;justify-content:space-between;gap:16px;border-bottom:1px solid #f8fafc;padding-bottom:4px}
-        .seller-stat-label{font-size:13px;color:#64748b}
-        .seller-stat-val{font-size:13px;font-weight:700;color:#7c3aed}
+        .seller-stat-box{
+          display:flex;
+          flex-direction:column-reverse;
+          align-items:center;
+          justify-content:center;
+          text-align:center;
+          padding:12px 8px;
+          background:#f8fafc;
+          border:1px solid #e2e8f0;
+          border-radius:12px;
+          gap:4px;
+          transition:all .2s;
+        }
+        .seller-stat-box:hover{
+          background:#f1f5f9;
+          border-color:#cbd5e1;
+        }
+        .seller-stat-label{font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:0.3px}
+        .seller-stat-val{font-size:14px;font-weight:700;color:#7c3aed}
         .seller-stat-val.dark{color:#0f172a}
       `}</style>
 
