@@ -1609,7 +1609,7 @@ export default function ShopPage() {
               </div>
 
               {/* SIMILAR PRODUCTS SECTION */}
-              <div className="similar-products-section" style={{ borderTop: '3px solid #3b82f6', padding: '48px', background: '#fff' }}>
+              <div className="similar-products-section" style={{ borderTop: '1px solid #f1f5f9', padding: '48px', background: '#fff' }}>
                 <span className="variant-section-label" style={{ fontSize: '16px', marginBottom: '24px' }}>Similar Products</span>
                 {(() => {
                   const similarItems = items
