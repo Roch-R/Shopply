@@ -582,6 +582,12 @@ HTML;
         $buyer = $request->user();
         $action = $request->input('action', 'follow');
 
+        if ($buyer && $buyer->id === $seller->id) {
+            return response()->json([
+                'message' => 'You cannot follow yourself.'
+            ], 400);
+        }
+
         if ($action === 'unfollow') {
             if ($seller->followers_count > 0) {
                 $seller->followers_count = $seller->followers_count - 1;
