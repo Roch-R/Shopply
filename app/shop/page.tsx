@@ -161,11 +161,26 @@ export default function ShopPage() {
 
   const handleToggleFollow = async (userId: number) => {
     const token = localStorage.getItem("token");
+    if (!token || !currentUser) {
+      setErrorMsg("Please log in to follow sellers.");
+      setTimeout(() => setErrorMsg(null), 3000);
+      return;
+    }
+    if (currentUser.id === userId) {
+      setErrorMsg("You cannot follow yourself.");
+      setTimeout(() => setErrorMsg(null), 3000);
+      return;
+    }
+
     const isFollowing = followedSellers[userId];
     const action = isFollowing ? "unfollow" : "follow";
 
-    // Optimistic UI update
-    setFollowedSellers(prev => ({ ...prev, [userId]: !isFollowing }));
+    // Optimistic UI updates
+    const updatedFollowed = { ...followedSellers, [userId]: !isFollowing };
+    setFollowedSellers(updatedFollowed);
+    localStorage.setItem(`shopply_followed_sellers_${currentUser.id}`, JSON.stringify(updatedFollowed));
+
+    // Optimistic update for viewItem
     if (viewItem && viewItem.user.id === userId) {
       const currentCount = viewItem.user.followers_count !== undefined ? viewItem.user.followers_count : 0;
       setViewItem({
@@ -177,13 +192,28 @@ export default function ShopPage() {
       });
     }
 
+    // Optimistic update for all items in list by this seller
+    setItems(prevItems => prevItems.map(item => {
+      if (item.user.id === userId) {
+        const currentCount = item.user.followers_count !== undefined ? item.user.followers_count : 0;
+        return {
+          ...item,
+          user: {
+            ...item.user,
+            followers_count: isFollowing ? Math.max(0, currentCount - 1) : currentCount + 1
+          }
+        };
+      }
+      return item;
+    }));
+
     try {
       const res = await fetch(`${API}/users/${userId}/follow`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",
-          ...(token ? { Authorization: `Bearer ${token}` } : {})
+          Authorization: `Bearer ${token}`
         },
         body: JSON.stringify({ action })
       });
@@ -192,14 +222,91 @@ export default function ShopPage() {
         if (viewItem && viewItem.user.id === userId) {
           setViewItem(prev => prev ? ({ ...prev, user: { ...prev.user, followers_count: data.followers_count } }) : null);
         }
+        // Update items list with final count from backend
+        setItems(prevItems => prevItems.map(item => {
+          if (item.user.id === userId) {
+            return {
+              ...item,
+              user: {
+                ...item.user,
+                followers_count: data.followers_count
+              }
+            };
+          }
+          return item;
+        }));
         if (data.user) {
           localStorage.setItem("user", JSON.stringify(data.user));
-          // If we also want to dispatch a custom event or let dashboard know
           window.dispatchEvent(new Event('user_updated'));
         }
+      } else {
+        // Revert optimistic updates
+        const revertedFollowed = { ...followedSellers, [userId]: isFollowing };
+        setFollowedSellers(revertedFollowed);
+        localStorage.setItem(`shopply_followed_sellers_${currentUser.id}`, JSON.stringify(revertedFollowed));
+
+        if (viewItem && viewItem.user.id === userId) {
+          const currentCount = viewItem.user.followers_count !== undefined ? viewItem.user.followers_count : 0;
+          setViewItem({
+            ...viewItem,
+            user: {
+              ...viewItem.user,
+              followers_count: isFollowing ? currentCount + 1 : Math.max(0, currentCount - 1)
+            }
+          });
+        }
+
+        setItems(prevItems => prevItems.map(item => {
+          if (item.user.id === userId) {
+            const currentCount = item.user.followers_count !== undefined ? item.user.followers_count : 0;
+            return {
+              ...item,
+              user: {
+                ...item.user,
+                followers_count: isFollowing ? currentCount + 1 : Math.max(0, currentCount - 1)
+              }
+            };
+          }
+          return item;
+        }));
+
+        setErrorMsg(data.message || "Failed to update follow status.");
+        setTimeout(() => setErrorMsg(null), 3000);
       }
     } catch (err) {
       console.error("Failed to toggle follow", err);
+      // Revert optimistic updates
+      const revertedFollowed = { ...followedSellers, [userId]: isFollowing };
+      setFollowedSellers(revertedFollowed);
+      localStorage.setItem(`shopply_followed_sellers_${currentUser.id}`, JSON.stringify(revertedFollowed));
+
+      if (viewItem && viewItem.user.id === userId) {
+        const currentCount = viewItem.user.followers_count !== undefined ? viewItem.user.followers_count : 0;
+        setViewItem({
+          ...viewItem,
+          user: {
+            ...viewItem.user,
+            followers_count: isFollowing ? currentCount + 1 : Math.max(0, currentCount - 1)
+          }
+        });
+      }
+
+      setItems(prevItems => prevItems.map(item => {
+        if (item.user.id === userId) {
+          const currentCount = item.user.followers_count !== undefined ? item.user.followers_count : 0;
+          return {
+            ...item,
+            user: {
+              ...item.user,
+              followers_count: isFollowing ? currentCount + 1 : Math.max(0, currentCount - 1)
+            }
+          };
+        }
+        return item;
+      }));
+
+      setErrorMsg("Something went wrong. Please try again.");
+      setTimeout(() => setErrorMsg(null), 3000);
     }
   };
 
@@ -282,13 +389,25 @@ export default function ShopPage() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Load current user for chat
+  // Load current user for chat & followed sellers
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
       const cache = getApiCache();
       cache.fetch(`${API}/me`, { headers: { Authorization: `Bearer ${token}`, Accept: "application/json" } })
-        .then((data: any) => { if (data.user) setCurrentUser(data.user); })
+        .then((data: any) => { 
+          if (data.user) {
+            setCurrentUser(data.user);
+            const storedFollowed = localStorage.getItem(`shopply_followed_sellers_${data.user.id}`);
+            if (storedFollowed) {
+              try {
+                setFollowedSellers(JSON.parse(storedFollowed));
+              } catch (e) {
+                console.error("Failed to parse followed sellers", e);
+              }
+            }
+          }
+        })
         .catch(() => {});
     }
   }, []);
@@ -1419,13 +1538,15 @@ export default function ShopPage() {
                       }}>
                         <IconChat /> Chat Now
                       </button>
-                      <button 
-                        className="seller-btn-shop" 
-                        onClick={() => handleToggleFollow(viewItem.user.id)}
-                        style={{borderColor: followedSellers[viewItem.user.id] ? '#10b981' : '#cbd5e1', color: followedSellers[viewItem.user.id] ? '#10b981' : '#475569'}}
-                      >
-                        <IconShop /> {followedSellers[viewItem.user.id] ? "Following" : "+ Follow"}
-                      </button>
+                      {(!currentUser || currentUser.id !== viewItem.user.id) && (
+                        <button 
+                          className="seller-btn-shop" 
+                          onClick={() => handleToggleFollow(viewItem.user.id)}
+                          style={{borderColor: followedSellers[viewItem.user.id] ? '#10b981' : '#cbd5e1', color: followedSellers[viewItem.user.id] ? '#10b981' : '#475569'}}
+                        >
+                          <IconShop /> {followedSellers[viewItem.user.id] ? "Following" : "+ Follow"}
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>
