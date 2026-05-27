@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Item;
+use App\Models\CartItem;
+use App\Models\Order;
+use App\Models\Review;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
@@ -278,6 +281,11 @@ class ItemController extends Controller
                 Storage::disk('public')->delete($path);
             }
         }
+
+        // Programmatically delete related cart items, orders, and reviews to prevent orphaned database records and frontend crashes
+        CartItem::where('item_id', $item->id)->delete();
+        Order::where('item_id', $item->id)->delete();
+        Review::where('item_id', $item->id)->delete();
 
         $item->delete();
 
