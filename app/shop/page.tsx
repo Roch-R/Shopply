@@ -1486,61 +1486,70 @@ export default function ShopPage() {
                 </div>
 
                 {/* WRITE A REVIEW FORM */}
-                <div style={{background:'#f8fafc',borderRadius:20,padding:24,marginBottom:40,border:'1.5px dashed #e2e8f0'}}>
-                  <h4 style={{fontSize:15,fontWeight:700,color:'#0f172a',marginBottom:16}}>Share your experience</h4>
-                  <form onSubmit={handleSubmitReview}>
-                    <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:20}}>
-                      <span style={{fontSize:13,fontWeight:600,color:'#64748b'}}>Your Rating:</span>
-                      <div style={{display:'flex',gap:4}}>
-                        {[1,2,3,4,5].map(star => (
+                {currentUser && reviews.some(rev => rev.user?.id === currentUser.id) ? (
+                  <div style={{background:'#f0fdf4',borderRadius:20,padding:24,marginBottom:40,border:'1.5px solid #bbf7d0',display:'flex',alignItems:'center',gap:12,color:'#166534'}}>
+                    <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{flexShrink:0}}>
+                      <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    <span style={{fontSize:14,fontWeight:600}}>You have already submitted a review for this product. Thank you!</span>
+                  </div>
+                ) : (
+                  <div style={{background:'#f8fafc',borderRadius:20,padding:24,marginBottom:40,border:'1.5px dashed #e2e8f0'}}>
+                    <h4 style={{fontSize:15,fontWeight:700,color:'#0f172a',marginBottom:16}}>Share your experience</h4>
+                    <form onSubmit={handleSubmitReview}>
+                      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:20}}>
+                        <span style={{fontSize:13,fontWeight:600,color:'#64748b'}}>Your Rating:</span>
+                        <div style={{display:'flex',gap:4}}>
+                          {[1,2,3,4,5].map(star => (
+                            <button 
+                              key={star} 
+                              type="button" 
+                              onClick={() => setRevRating(star)}
+                              style={{background:'none',border:'none',cursor:'pointer',color:star <= revRating ? '#f59e0b' : '#cbd5e1',padding:0}}
+                            >
+                              <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.27 5.82 22 7 14.14l-5-4.87 6.91-1.01L12 2z"/>
+                              </svg>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                      
+                      <textarea 
+                        className="form-input" 
+                        placeholder="Write your honest review here..." 
+                        value={revComment} 
+                        onChange={e => setRevComment(e.target.value)}
+                        style={{width:'100%',minHeight:100,marginBottom:16,padding:16,borderRadius:12,resize:'none'}}
+                      />
+
+                      <div style={{marginBottom:20}}>
+                        <label className="variant-section-label">Add Photos</label>
+                        <div style={{display:'flex',gap:12,flexWrap:'wrap'}}>
+                          {revPreviews.map((p, i) => (
+                            <img key={i} src={p} style={{width:60,height:60,borderRadius:8,objectFit:'cover'}} />
+                          ))}
                           <button 
-                            key={star} 
                             type="button" 
-                            onClick={() => setRevRating(star)}
-                            style={{background:'none',border:'none',cursor:'pointer',color:star <= revRating ? '#f59e0b' : '#cbd5e1',padding:0}}
+                            onClick={() => document.getElementById('rev-img-input')?.click()}
+                            style={{width:60,height:60,borderRadius:8,border:'1.5px dashed #cbd5e1',background:'#fff',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',color:'#94a3b8'}}
                           >
-                            <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-                              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.27 5.82 22 7 14.14l-5-4.87 6.91-1.01L12 2z"/>
-                            </svg>
+                            <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
                           </button>
-                        ))}
+                          <input id="rev-img-input" type="file" multiple accept="image/*" style={{display:'none'}} onChange={handleReviewImageChange} />
+                        </div>
                       </div>
-                    </div>
-                    
-                    <textarea 
-                      className="form-input" 
-                      placeholder="Write your honest review here..." 
-                      value={revComment} 
-                      onChange={e => setRevComment(e.target.value)}
-                      style={{width:'100%',minHeight:100,marginBottom:16,padding:16,borderRadius:12,resize:'none'}}
-                    />
 
-                    <div style={{marginBottom:20}}>
-                      <label className="variant-section-label">Add Photos</label>
-                      <div style={{display:'flex',gap:12,flexWrap:'wrap'}}>
-                        {revPreviews.map((p, i) => (
-                          <img key={i} src={p} style={{width:60,height:60,borderRadius:8,objectFit:'cover'}} />
-                        ))}
-                        <button 
-                          type="button" 
-                          onClick={() => document.getElementById('rev-img-input')?.click()}
-                          style={{width:60,height:60,borderRadius:8,border:'1.5px dashed #cbd5e1',background:'#fff',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',color:'#94a3b8'}}
-                        >
-                          <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
-                        </button>
-                        <input id="rev-img-input" type="file" multiple accept="image/*" style={{display:'none'}} onChange={handleReviewImageChange} />
-                      </div>
-                    </div>
-
-                    <button 
-                      type="submit" 
-                      disabled={submittingReview}
-                      style={{width:'100%',padding:'14px',borderRadius:12,border:'none',background:'#0f172a',color:'#fff',fontWeight:700,cursor:'pointer',opacity:submittingReview ? 0.7 : 1}}
-                    >
-                      {submittingReview ? "Submitting..." : "Submit Review"}
-                    </button>
-                  </form>
-                </div>
+                      <button 
+                        type="submit" 
+                        disabled={submittingReview}
+                        style={{width:'100%',padding:'14px',borderRadius:12,border:'none',background:'#0f172a',color:'#fff',fontWeight:700,cursor:'pointer',opacity:submittingReview ? 0.7 : 1}}
+                      >
+                        {submittingReview ? "Submitting..." : "Submit Review"}
+                      </button>
+                    </form>
+                  </div>
+                )}
 
                 {filteredReviews.length === 0 ? (
                   <div style={{textAlign:'center',padding:'40px 0',color:'#94a3b8'}}>

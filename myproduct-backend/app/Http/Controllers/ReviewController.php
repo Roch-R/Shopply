@@ -31,6 +31,17 @@ class ReviewController extends Controller
             'review_images.*'  => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:20480',
         ]);
 
+        // Prevent multiple reviews per product from the same user
+        $exists = Review::where('item_id', $request->item_id)
+            ->where('user_id', Auth::id())
+            ->exists();
+
+        if ($exists) {
+            return response()->json([
+                'message' => 'You have already submitted a review for this product.'
+            ], 422);
+        }
+
         $imagePaths = [];
         if ($request->hasFile('review_images')) {
             foreach ($request->file('review_images') as $img) {
