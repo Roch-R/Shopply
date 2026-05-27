@@ -1352,29 +1352,6 @@ export default function ShopPage() {
                 </div>
               </div>
 
-              <div className="description-section">
-                <span className="variant-section-label" style={{ fontSize: '16px', marginBottom: '16px' }}>Product Description</span>
-                <p className="detail-desc" style={{ whiteSpace: 'pre-wrap', color: '#475569', fontSize: '15px', lineHeight: '1.7', marginBottom: viewItem.attributes?.description_images?.length ? '24px' : '0px' }}>
-                  {viewItem.description || "This item has no description yet. Explore its quality and features below."}
-                </p>
-                {viewItem.attributes?.description_images && viewItem.attributes.description_images.length > 0 && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', maxWidth: '800px', margin: '0 auto' }}>
-                    {viewItem.attributes.description_images.map((path: string, index: number) => (
-                      <img 
-                        key={index} 
-                        src={getImageUrl(path)} 
-                        style={{ width: '100%', borderRadius: '16px', objectFit: 'contain', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }} 
-                        alt={`Description Image ${index + 1}`}
-                        onError={(e) => {
-                          e.currentTarget.onerror = null;
-                          e.currentTarget.src = "https://placehold.co/600x400/f8fafc/cbd5e1?text=Image+Not+Found";
-                        }}
-                      />
-                    ))}
-                  </div>
-                )}
-              </div>
-
               {/* SELLER PROFILE HEADER BAR */}
               <div className="seller-header-bar">
                 <div className="seller-left-side">
@@ -1556,6 +1533,30 @@ export default function ShopPage() {
                   ))
                 )}
               </div>
+
+              <div className="description-section">
+                <span className="variant-section-label" style={{ fontSize: '16px', marginBottom: '16px' }}>Product Description</span>
+                <p className="detail-desc" style={{ whiteSpace: 'pre-wrap', color: '#475569', fontSize: '15px', lineHeight: '1.7', marginBottom: viewItem.attributes?.description_images?.length ? '24px' : '0px' }}>
+                  {viewItem.description || "This item has no description yet. Explore its quality and features below."}
+                </p>
+                {viewItem.attributes?.description_images && viewItem.attributes.description_images.length > 0 && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', maxWidth: '800px', margin: '0 auto' }}>
+                    {viewItem.attributes.description_images.map((path: string, index: number) => (
+                      <img 
+                        key={index} 
+                        src={getImageUrl(path)} 
+                        style={{ width: '100%', borderRadius: '16px', objectFit: 'contain', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }} 
+                        alt={`Description Image ${index + 1}`}
+                        onError={(e) => {
+                          e.currentTarget.onerror = null;
+                          e.currentTarget.src = "https://placehold.co/600x400/f8fafc/cbd5e1?text=Image+Not+Found";
+                        }}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+
             </div>
           </div>
           );
