@@ -1766,7 +1766,7 @@ export default function ShopPage() {
                   }
 
                   return (
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '24px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 220px))', gap: '24px', justifyContent: 'start' }}>
                       {displayItems.map(item => (
                         <div 
                           key={item.id} 
