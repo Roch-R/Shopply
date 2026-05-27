@@ -131,6 +131,8 @@ export default function ShopPage() {
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const isSendingRef = useRef(false);
+  const fetchConversationsRef = useRef<() => void>(() => {});
+  const fetchMessagesRef = useRef<() => void>(() => {});
   // Smooth mode state
   const [smoothMode, setSmoothMode] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -443,6 +445,9 @@ export default function ShopPage() {
         }
       };
 
+      fetchConversationsRef.current = fetchConversations;
+      fetchMessagesRef.current = fetchMessages;
+
       const handleChatUpdate = (e?: Event) => {
         if (!e || (e as StorageEvent).key === 'shopply_chat_update' || e.type === 'focus' || e.type === 'visibilitychange') {
           clearTimeout(chatDebounce);
@@ -461,23 +466,23 @@ export default function ShopPage() {
       let cleanMsgPoller: (() => void) | null = null;
 
       if (smoothMode) {
-        cleanConvPoller = createSmartPoller(fetchConversations, 10000, {
-          idleIntervalMs: 30000,
-          idleAfterMs: 60000
+        cleanConvPoller = createSmartPoller(fetchConversations, 5000, {
+          idleIntervalMs: 15000,
+          idleAfterMs: 30000
         });
         if (activeChatUser) {
-          cleanMsgPoller = createSmartPoller(fetchMessages, 2000, {
-            idleIntervalMs: 10000,
-            idleAfterMs: 30000
+          cleanMsgPoller = createSmartPoller(fetchMessages, 1000, {
+            idleIntervalMs: 5000,
+            idleAfterMs: 15000
           });
         }
       } else {
         fetchConversations();
         fetchMessages();
-        const convInterval = setInterval(fetchConversations, 5000);
+        const convInterval = setInterval(fetchConversations, 2500);
         cleanConvPoller = () => clearInterval(convInterval);
         if (activeChatUser) {
-          const msgInterval = setInterval(fetchMessages, 1000);
+          const msgInterval = setInterval(fetchMessages, 500);
           cleanMsgPoller = () => clearInterval(msgInterval);
         }
       }
@@ -542,10 +547,9 @@ export default function ShopPage() {
         getApiCache().invalidate(`/chat/conversations`);
         setChatMessages(prev => prev.map(m => m.id === optimisticMsg.id ? data.message : m));
         localStorage.setItem('shopply_chat_update', Date.now().toString());
-        // Refresh conversations
-        fetch(`${API}/chat/conversations?_t=${Date.now()}`, { headers: { Authorization: `Bearer ${token}`, Accept: "application/json" }, cache: 'no-store' })
-          .then(res => res.json())
-          .then(data => { if (data.conversations) setChatConversations(data.conversations); });
+        // Refresh conversations and messages instantly
+        fetchConversationsRef.current();
+        fetchMessagesRef.current();
       }
     } catch (err) {
       console.error(err);
