@@ -981,7 +981,7 @@ export default function DashboardPage() {
       }
     } catch (err: any) {
       console.error(err);
-      showToast(err?.message === "Failed to fetch" ? "Network error: The image size might be too large or the server is offline." : "Something went wrong: " + (err?.message || err), "error");
+      showToast(err?.message === "Failed to fetch" ? "Network error: The video or image size might exceed your server's upload limits (php.ini upload_max_filesize / post_max_size), or the server is offline." : "Something went wrong: " + (err?.message || err), "error");
     } finally {
       setIsSubmitting(false);
     }
@@ -1125,7 +1125,7 @@ export default function DashboardPage() {
       }
     } catch (err: any) {
       console.error(err);
-      showToast(err?.message === "Failed to fetch" ? "Network error: The image size might be too large or the server is offline." : "Something went wrong: " + (err?.message || err), "error");
+      showToast(err?.message === "Failed to fetch" ? "Network error: The video or image size might exceed your server's upload limits (php.ini upload_max_filesize / post_max_size), or the server is offline." : "Something went wrong: " + (err?.message || err), "error");
     } finally {
       setIsSubmitting(false);
     }
@@ -3439,8 +3439,8 @@ export default function DashboardPage() {
                         onChange={(e) => {
                           const file = e.target.files?.[0];
                           if (file) {
-                            if (file.size > 52428800) {
-                              showToast("Video size exceeds the 50MB limit.", "error");
+                            if (file.size > 104857600) {
+                              showToast("Video size exceeds the 100MB limit.", "error");
                               return;
                             }
                             setNewVideoFile(file);

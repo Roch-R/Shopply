@@ -60,7 +60,7 @@ class ItemController extends Controller
             'category' => 'required|string',
             'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:20480',
             'variant_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:20480',
-            'video' => 'nullable|file|mimes:mp4,mov,ogg,qt,webm,avi,mkv|max:51200',
+            'video' => 'nullable|file|mimes:mp4,mov,ogg,qt,webm,avi,mkv|max:102400',
             'description_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:20480',
         ]);
 
@@ -166,7 +166,7 @@ class ItemController extends Controller
             'category' => 'required|string',
             'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:20480',
             'variant_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:20480',
-            'video' => 'nullable|file|mimes:mp4,mov,ogg,qt,webm,avi,mkv|max:51200',
+            'video' => 'nullable|file|mimes:mp4,mov,ogg,qt,webm,avi,mkv|max:102400',
             'description_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:20480',
         ]);
 
