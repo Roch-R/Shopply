@@ -778,6 +778,7 @@ export default function ShopPage() {
           .modal-actions-container{flex-direction:column;gap:12px}
           .buy-btn, .add-cart-btn{width:100%;height:48px !important}
           .spec-grid{grid-template-columns:1fr;padding:16px}
+          .description-section{padding:24px 16px}
           .seller-header-bar{padding:16px;gap:20px}
           .seller-stats-grid{grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)) !important;gap:8px 16px;width:100%}
           .seller-left-side{width:100%}
@@ -799,6 +800,7 @@ export default function ShopPage() {
         .spec-label{font-size:11px;color:#94a3b8;font-weight:700;text-transform:uppercase}
         .spec-val{font-size:14px;color:#334155;font-weight:600}
         
+        .description-section{border-top:1px solid #f1f5f9;padding:48px;background:#fff}
         .rating-section{border-top:1px solid #f1f5f9;padding:48px;background:#fdfdfd}
         .rating-header-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:32px}
         .rating-summary{display:flex;align-items:center;gap:32px;background:#fff;padding:28px;border-radius:24px;border:1px solid #f1f5f9;box-shadow:0 4px 15px rgba(0,0,0,.02)}
@@ -1243,28 +1245,7 @@ export default function ShopPage() {
                       ? `₱${parseFloat(viewItem.attributes?.variant_prices?.[selectedVariant] || viewItem.price).toFixed(2)}`
                       : formatPriceDisplay(viewItem)}
                   </div>
-                  
-                  <div style={{ marginTop: 8 }}>
-                    <span className="variant-section-label">Product Description</span>
-                    <p className="detail-desc" style={{ whiteSpace: 'pre-wrap' }}>{viewItem.description || "This item has no description yet. Explore its quality and features below."}</p>
-                  </div>
 
-                  {viewItem.attributes?.description_images && viewItem.attributes.description_images.length > 0 && (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginTop: 16 }}>
-                      {viewItem.attributes.description_images.map((path: string, index: number) => (
-                        <img 
-                          key={index} 
-                          src={getImageUrl(path)} 
-                          style={{ width: '100%', borderRadius: 12, objectFit: 'contain' }} 
-                          alt={`Description Image ${index + 1}`}
-                          onError={(e) => {
-                            e.currentTarget.onerror = null;
-                            e.currentTarget.src = "https://placehold.co/600x400/f8fafc/cbd5e1?text=Image+Not+Found";
-                          }}
-                        />
-                      ))}
-                    </div>
-                  )}
 
                   {viewItem.attributes?.colors && (
                     <div>
@@ -1369,6 +1350,29 @@ export default function ShopPage() {
                     </div>
                   )}
                 </div>
+              </div>
+
+              <div className="description-section">
+                <span className="variant-section-label" style={{ fontSize: '16px', marginBottom: '16px' }}>Product Description</span>
+                <p className="detail-desc" style={{ whiteSpace: 'pre-wrap', color: '#475569', fontSize: '15px', lineHeight: '1.7', marginBottom: viewItem.attributes?.description_images?.length ? '24px' : '0px' }}>
+                  {viewItem.description || "This item has no description yet. Explore its quality and features below."}
+                </p>
+                {viewItem.attributes?.description_images && viewItem.attributes.description_images.length > 0 && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', maxWidth: '800px', margin: '0 auto' }}>
+                    {viewItem.attributes.description_images.map((path: string, index: number) => (
+                      <img 
+                        key={index} 
+                        src={getImageUrl(path)} 
+                        style={{ width: '100%', borderRadius: '16px', objectFit: 'contain', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }} 
+                        alt={`Description Image ${index + 1}`}
+                        onError={(e) => {
+                          e.currentTarget.onerror = null;
+                          e.currentTarget.src = "https://placehold.co/600x400/f8fafc/cbd5e1?text=Image+Not+Found";
+                        }}
+                      />
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* SELLER PROFILE HEADER BAR */}
