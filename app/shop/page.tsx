@@ -521,6 +521,8 @@ export default function ShopPage() {
 
       if (res.ok) {
         const data = await res.json();
+        getApiCache().invalidate(`/items/${viewItem.id}/reviews`);
+        getApiCache().invalidate('/shop/items');
         setReviews([data.review, ...reviews]);
         localStorage.setItem('shopply_item_update', Date.now().toString());
         setRevComment("");
@@ -1242,7 +1244,10 @@ export default function ShopPage() {
                       : formatPriceDisplay(viewItem)}
                   </div>
                   
-                  <p className="detail-desc">{viewItem.description || "This item has no description yet. Explore its quality and features below."}</p>
+                  <div style={{ marginTop: 8 }}>
+                    <span className="variant-section-label">Product Description</span>
+                    <p className="detail-desc" style={{ whiteSpace: 'pre-wrap' }}>{viewItem.description || "This item has no description yet. Explore its quality and features below."}</p>
+                  </div>
 
                   {viewItem.attributes?.description_images && viewItem.attributes.description_images.length > 0 && (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginTop: 16 }}>
