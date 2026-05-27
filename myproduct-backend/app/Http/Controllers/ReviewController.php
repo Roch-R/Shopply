@@ -44,8 +44,9 @@ class ReviewController extends Controller
 
         $imagePaths = [];
         if ($request->hasFile('review_images')) {
+            $cloudinary = new \App\Services\CloudinaryService();
             foreach ($request->file('review_images') as $img) {
-                $imagePaths[] = $img->store('review-images', 'public');
+                $imagePaths[] = $cloudinary->uploadImage($img, 'review-images');
             }
         }
 

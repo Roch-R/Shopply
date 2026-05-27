@@ -562,10 +562,15 @@ HTML;
         $data = ['name' => $request->name];
 
         if ($request->hasFile('avatar')) {
-            $file = $request->file('avatar');
-            $filename = time() . '_' . $file->getClientOriginalName();
-            $file->storeAs('avatars', $filename, 'public');
-            $data['avatar'] = 'avatars/' . $filename;
+            $cloudinary = new \App\Services\CloudinaryService();
+            if ($user->avatar) {
+                if (\App\Services\CloudinaryService::isCloudinaryUrl($user->avatar)) {
+                    $cloudinary->delete($user->avatar, 'image');
+                } else {
+                    \Illuminate\Support\Facades\Storage::disk('public')->delete(str_replace('storage/', '', $user->avatar));
+                }
+            }
+            $data['avatar'] = $cloudinary->uploadImage($request->file('avatar'), 'avatars');
         }
 
         $user->update($data);

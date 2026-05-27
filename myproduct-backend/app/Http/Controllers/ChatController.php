@@ -114,7 +114,8 @@ class ChatController extends Controller
 
         $imagePath = null;
         if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('chat_images', 'public');
+            $cloudinary = new \App\Services\CloudinaryService();
+            $imagePath = $cloudinary->uploadImage($request->file('image'), 'chat-images');
         }
 
         $message = Message::create([

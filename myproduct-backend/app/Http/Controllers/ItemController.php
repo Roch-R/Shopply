@@ -9,6 +9,7 @@ use App\Models\Order;
 use App\Models\Review;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use App\Services\CloudinaryService;
 
 class ItemController extends Controller
 {
@@ -71,13 +72,15 @@ class ItemController extends Controller
             $totalStock = array_sum($attributes['size_stocks']);
         }
 
+        $cloudinary = new CloudinaryService();
+
         // Handle main images
         $existingMain = $attributes['existing_main_images'] ?? [];
         $newMainFiles = $request->file('images') ?? [];
         $finalMainPaths = $existingMain;
 
         foreach ($newMainFiles as $img) {
-            $finalMainPaths[] = $img->store('item-images', 'public');
+            $finalMainPaths[] = $cloudinary->uploadImage($img, 'item-images');
         }
         $attributes['main_images'] = $finalMainPaths;
         unset($attributes['existing_main_images']);
@@ -86,7 +89,7 @@ class ItemController extends Controller
 
         // Handle showcase video
         if ($request->hasFile('video')) {
-            $attributes['video_path'] = $request->file('video')->store('item-videos', 'public');
+            $attributes['video_path'] = $cloudinary->uploadVideo($request->file('video'), 'item-videos');
         } else {
             $attributes['video_path'] = null;
         }
@@ -97,7 +100,7 @@ class ItemController extends Controller
         $finalDescPaths = $existingDesc;
 
         foreach ($newDescFiles as $img) {
-            $finalDescPaths[] = $img->store('item-images', 'public');
+            $finalDescPaths[] = $cloudinary->uploadImage($img, 'item-images');
         }
         $attributes['description_images'] = $finalDescPaths;
         unset($attributes['existing_description_images']);
@@ -113,7 +116,7 @@ class ItemController extends Controller
                 $finalVariantPaths[] = $existingVariantPaths[$idx];
             } else {
                 if (isset($variantFiles[$fileIndex])) {
-                    $finalVariantPaths[] = $variantFiles[$fileIndex]->store('item-images', 'public');
+                    $finalVariantPaths[] = $cloudinary->uploadImage($variantFiles[$fileIndex], 'item-images');
                     $fileIndex++;
                 } else {
                     $finalVariantPaths[] = null;
@@ -179,31 +182,52 @@ class ItemController extends Controller
             $totalStock = array_sum($attributes['size_stocks']);
         }
 
+        $cloudinary = new CloudinaryService();
+
         // Handle main images
         $existingMain = $newAttrs['existing_main_images'] ?? [];
         $newMainFiles = $request->file('images') ?? [];
         $finalMainPaths = $existingMain;
 
+        // Clean up deleted main images
+        $oldMainImages = $oldAttributes['main_images'] ?? [];
+        $removedMainImages = array_diff($oldMainImages, $existingMain);
+        foreach ($removedMainImages as $removedImg) {
+            if (CloudinaryService::isCloudinaryUrl($removedImg)) {
+                $cloudinary->delete($removedImg, 'image');
+            } else {
+                Storage::disk('public')->delete($removedImg);
+            }
+        }
+
         foreach ($newMainFiles as $img) {
-            $finalMainPaths[] = $img->store('item-images', 'public');
+            $finalMainPaths[] = $cloudinary->uploadImage($img, 'item-images');
         }
         $attributes['main_images'] = $finalMainPaths;
         unset($attributes['existing_main_images']);
 
-        $imagePath = count($finalMainPaths) > 0 ? $finalMainPaths[0] : ($item->image ?? null);
+        $imagePath = count($finalMainPaths) > 0 ? $finalMainPaths[0] : null;
 
         // Handle showcase video
         if ($request->hasFile('video')) {
             // Delete old video if it exists
-            if (!empty($item->attributes['video_path'])) {
-                Storage::disk('public')->delete($item->attributes['video_path']);
+            if (!empty($oldAttributes['video_path'])) {
+                if (CloudinaryService::isCloudinaryUrl($oldAttributes['video_path'])) {
+                    $cloudinary->delete($oldAttributes['video_path'], 'video');
+                } else {
+                    Storage::disk('public')->delete($oldAttributes['video_path']);
+                }
             }
-            $attributes['video_path'] = $request->file('video')->store('item-videos', 'public');
+            $attributes['video_path'] = $cloudinary->uploadVideo($request->file('video'), 'item-videos');
         } else {
             // Keep existing video if specified, otherwise delete it
             $existingVideo = $newAttrs['existing_video_path'] ?? null;
-            if (!$existingVideo && !empty($item->attributes['video_path'])) {
-                Storage::disk('public')->delete($item->attributes['video_path']);
+            if (!$existingVideo && !empty($oldAttributes['video_path'])) {
+                if (CloudinaryService::isCloudinaryUrl($oldAttributes['video_path'])) {
+                    $cloudinary->delete($oldAttributes['video_path'], 'video');
+                } else {
+                    Storage::disk('public')->delete($oldAttributes['video_path']);
+                }
             }
             $attributes['video_path'] = $existingVideo;
         }
@@ -214,8 +238,19 @@ class ItemController extends Controller
         $newDescFiles = $request->file('description_images') ?? [];
         $finalDescPaths = $existingDesc;
 
+        // Clean up deleted description images
+        $oldDescImages = $oldAttributes['description_images'] ?? [];
+        $removedDescImages = array_diff($oldDescImages, $existingDesc);
+        foreach ($removedDescImages as $removedImg) {
+            if (CloudinaryService::isCloudinaryUrl($removedImg)) {
+                $cloudinary->delete($removedImg, 'image');
+            } else {
+                Storage::disk('public')->delete($removedImg);
+            }
+        }
+
         foreach ($newDescFiles as $img) {
-            $finalDescPaths[] = $img->store('item-images', 'public');
+            $finalDescPaths[] = $cloudinary->uploadImage($img, 'item-images');
         }
         $attributes['description_images'] = $finalDescPaths;
         unset($attributes['existing_description_images']);
@@ -226,12 +261,23 @@ class ItemController extends Controller
         $fileIndex = 0;
         $finalVariantPaths = [];
 
+        // Clean up deleted variant images
+        $oldVariantImages = $oldAttributes['variant_image_paths'] ?? [];
+        $removedVariantImages = array_diff(array_filter($oldVariantImages), array_filter($existingVariantPaths));
+        foreach ($removedVariantImages as $removedImg) {
+            if (CloudinaryService::isCloudinaryUrl($removedImg)) {
+                $cloudinary->delete($removedImg, 'image');
+            } else {
+                Storage::disk('public')->delete($removedImg);
+            }
+        }
+
         foreach ($attributes['colors'] ?? [] as $idx => $color) {
             if (!empty($existingVariantPaths[$idx])) {
                 $finalVariantPaths[] = $existingVariantPaths[$idx];
             } else {
                 if (isset($variantFiles[$fileIndex])) {
-                    $finalVariantPaths[] = $variantFiles[$fileIndex]->store('item-images', 'public');
+                    $finalVariantPaths[] = $cloudinary->uploadImage($variantFiles[$fileIndex], 'item-images');
                     $fileIndex++;
                 } else {
                     $finalVariantPaths[] = null;
@@ -263,22 +309,61 @@ class ItemController extends Controller
             return response()->json(['message' => 'Item not found.'], 404);
         }
 
+        $cloudinary = new CloudinaryService();
+
         // Delete the main image file if it exists
         if ($item->image) {
-            Storage::disk('public')->delete($item->image);
+            if (CloudinaryService::isCloudinaryUrl($item->image)) {
+                $cloudinary->delete($item->image, 'image');
+            } else {
+                Storage::disk('public')->delete($item->image);
+            }
         }
 
         // Delete all main images in attributes
         if (isset($item->attributes['main_images'])) {
             foreach ($item->attributes['main_images'] as $path) {
-                Storage::disk('public')->delete($path);
+                if (CloudinaryService::isCloudinaryUrl($path)) {
+                    $cloudinary->delete($path, 'image');
+                } else {
+                    Storage::disk('public')->delete($path);
+                }
             }
         }
 
         // Delete all variant images in attributes
         if (isset($item->attributes['variant_image_paths'])) {
             foreach ($item->attributes['variant_image_paths'] as $path) {
-                Storage::disk('public')->delete($path);
+                if ($path) {
+                    if (CloudinaryService::isCloudinaryUrl($path)) {
+                        $cloudinary->delete($path, 'image');
+                    } else {
+                        Storage::disk('public')->delete($path);
+                    }
+                }
+            }
+        }
+
+        // Delete all description images in attributes
+        if (isset($item->attributes['description_images'])) {
+            foreach ($item->attributes['description_images'] as $path) {
+                if ($path) {
+                    if (CloudinaryService::isCloudinaryUrl($path)) {
+                        $cloudinary->delete($path, 'image');
+                    } else {
+                        Storage::disk('public')->delete($path);
+                    }
+                }
+            }
+        }
+
+        // Delete video path if it exists
+        if (isset($item->attributes['video_path']) && $item->attributes['video_path']) {
+            $vPath = $item->attributes['video_path'];
+            if (CloudinaryService::isCloudinaryUrl($vPath)) {
+                $cloudinary->delete($vPath, 'video');
+            } else {
+                Storage::disk('public')->delete($vPath);
             }
         }
 
