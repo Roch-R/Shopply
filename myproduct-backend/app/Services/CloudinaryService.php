@@ -48,8 +48,8 @@ class CloudinaryService
         try {
             return $this->upload($file, $folder, 'image');
         } catch (\Throwable $e) {
-            error_log("Cloudinary image upload failed, falling back to local storage: " . $e->getMessage());
-            return $file->store($folder, 'public');
+            error_log("Cloudinary image upload failed, falling back to database storage: " . $e->getMessage());
+            return $this->storeInDatabase($file);
         }
     }
 
@@ -65,8 +65,8 @@ class CloudinaryService
         try {
             return $this->upload($file, $folder, 'video');
         } catch (\Throwable $e) {
-            error_log("Cloudinary video upload failed, falling back to local storage: " . $e->getMessage());
-            return $file->store($folder, 'public');
+            error_log("Cloudinary video upload failed, falling back to database storage: " . $e->getMessage());
+            return $this->storeInDatabase($file);
         }
     }
 
@@ -201,5 +201,24 @@ class CloudinaryService
     {
         if (!$path) return false;
         return str_contains($path, 'cloudinary.com') || str_starts_with($path, 'https://res.cloudinary.com');
+    }
+
+    /**
+     * Fallback to store file in MySQL database as a binary BLOB.
+     */
+    private function storeInDatabase($file): string
+    {
+        $extension = $file->getClientOriginalExtension() ?: 'bin';
+        $filename = uniqid('media_', true) . '.' . $extension;
+
+        \Illuminate\Support\Facades\DB::table('media')->insert([
+            'filename' => $filename,
+            'mime_type' => $file->getMimeType() ?: 'application/octet-stream',
+            'data' => file_get_contents($file->getRealPath()),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        return url('/api/media/' . $filename);
     }
 }

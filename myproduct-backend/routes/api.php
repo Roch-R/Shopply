@@ -97,3 +97,20 @@ Route::get('/debug-logs', function() {
         ]
     ]);
 });
+
+Route::get('/media/{filename}', function ($filename) {
+    $media = \DB::table('media')->where('filename', $filename)->first();
+    if (!$media) {
+        abort(404);
+    }
+    
+    $data = $media->data;
+    if (is_resource($data)) {
+        $data = stream_get_contents($data);
+    }
+
+    return response($data)
+        ->header('Content-Type', $media->mime_type)
+        ->header('Cache-Control', 'public, max-age=31536000')
+        ->header('Access-Control-Allow-Origin', '*');
+});
