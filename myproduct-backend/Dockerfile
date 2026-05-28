@@ -41,8 +41,9 @@ RUN echo "upload_max_filesize = 200M" > /usr/local/etc/php/conf.d/uploads.ini \
     && echo "max_input_time = 300" >> /usr/local/etc/php/conf.d/uploads.ini
 
 # Set permissions
-RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
-RUN chmod -R 775 /var/www/storage /var/www/bootstrap/cache
+RUN mkdir -p /var/lib/nginx/tmp /var/log/nginx \
+    && chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache /var/lib/nginx /var/log/nginx \
+    && chmod -R 775 /var/www/storage /var/www/bootstrap/cache
 
 # Install composer dependencies
 RUN composer install --no-dev --optimize-autoloader
