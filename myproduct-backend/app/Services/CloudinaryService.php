@@ -48,7 +48,7 @@ class CloudinaryService
         try {
             return $this->upload($file, $folder, 'image');
         } catch (\Throwable $e) {
-            \Log::warning("Cloudinary image upload failed, falling back to local storage: " . $e->getMessage());
+            error_log("Cloudinary image upload failed, falling back to local storage: " . $e->getMessage());
             return $file->store($folder, 'public');
         }
     }
@@ -65,7 +65,7 @@ class CloudinaryService
         try {
             return $this->upload($file, $folder, 'video');
         } catch (\Throwable $e) {
-            \Log::warning("Cloudinary video upload failed, falling back to local storage: " . $e->getMessage());
+            error_log("Cloudinary video upload failed, falling back to local storage: " . $e->getMessage());
             return $file->store($folder, 'public');
         }
     }
