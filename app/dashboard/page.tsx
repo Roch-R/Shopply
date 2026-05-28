@@ -981,7 +981,15 @@ export default function DashboardPage() {
       }
     } catch (err: any) {
       console.error(err);
-      showToast(err?.message === "Failed to fetch" ? "Network error: The video or image size might exceed your server's upload limits (php.ini upload_max_filesize / post_max_size), or the server is offline." : "Something went wrong: " + (err?.message || err), "error");
+      const totalSizeBytes = [
+        newVideoFile,
+        ...descImagesState.map(d => d.file),
+        ...mainImagesState.map(m => m.file),
+        ...colorVariants.map(v => v.file)
+      ].reduce((acc, f) => acc + (f ? f.size : 0), 0);
+      const totalSizeMB = (totalSizeBytes / (1024 * 1024)).toFixed(2);
+      const details = ` (Payload: ${totalSizeMB}MB, Error: ${err?.message || err})`;
+      showToast(err?.message === "Failed to fetch" ? `Network error: The video or image size might exceed your server's upload limits (php.ini upload_max_filesize / post_max_size), or the server is offline.${details}` : `Something went wrong: ` + (err?.message || err) + details, "error");
     } finally {
       setIsSubmitting(false);
     }
@@ -1125,7 +1133,15 @@ export default function DashboardPage() {
       }
     } catch (err: any) {
       console.error(err);
-      showToast(err?.message === "Failed to fetch" ? "Network error: The video or image size might exceed your server's upload limits (php.ini upload_max_filesize / post_max_size), or the server is offline." : "Something went wrong: " + (err?.message || err), "error");
+      const totalSizeBytes = [
+        newVideoFile,
+        ...descImagesState.map(d => d.file),
+        ...mainImagesState.map(m => m.file),
+        ...colorVariants.map(v => v.file)
+      ].reduce((acc, f) => acc + (f ? f.size : 0), 0);
+      const totalSizeMB = (totalSizeBytes / (1024 * 1024)).toFixed(2);
+      const details = ` (Payload: ${totalSizeMB}MB, Error: ${err?.message || err})`;
+      showToast(err?.message === "Failed to fetch" ? `Network error: The video or image size might exceed your server's upload limits (php.ini upload_max_filesize / post_max_size), or the server is offline.${details}` : `Something went wrong: ` + (err?.message || err) + details, "error");
     } finally {
       setIsSubmitting(false);
     }
