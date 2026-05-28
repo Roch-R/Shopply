@@ -63,3 +63,21 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/chat/{userId}/typing', [ChatController::class, 'typing']);
     Route::post('/chat/{userId}', [ChatController::class, 'sendMessage']);
 });
+
+Route::get('/debug-logs', function() {
+    $nginxError = @file_get_contents('/var/log/nginx/error.log') ?: 'Nginx error log is empty or unreadable';
+    $nginxAccess = @file_get_contents('/var/log/nginx/access.log') ?: 'Nginx access log is empty or unreadable';
+    $laravelLog = @file_get_contents(storage_path('logs/laravel.log')) ?: 'Laravel log is empty or unreadable';
+    
+    $tail = function($content, $lines = 100) {
+        $arr = explode("\n", $content);
+        $arr = array_slice($arr, -$lines);
+        return implode("\n", $arr);
+    };
+
+    return response()->json([
+        'nginx_error' => $tail($nginxError),
+        'nginx_access' => $tail($nginxAccess),
+        'laravel_log' => $tail($laravelLog),
+    ]);
+});
