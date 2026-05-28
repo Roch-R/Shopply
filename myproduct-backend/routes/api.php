@@ -17,6 +17,12 @@ Route::post('/resend-registration-otp', [AuthController::class, 'resendRegistrat
 // Public Shop Route
 Route::get('/shop/items', [ItemController::class, 'index']);
 Route::get('/items/{id}/reviews', [ReviewController::class, 'index']);
+Route::get('/phpinfo', function() {
+    return response()->json([
+        'upload_max_filesize' => ini_get('upload_max_filesize'),
+        'post_max_size' => ini_get('post_max_size')
+    ]);
+});
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout',       [AuthController::class, 'logout']);
