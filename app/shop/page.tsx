@@ -932,6 +932,116 @@ export default function ShopPage() {
         .spec-val{font-size:14px;color:#334155;font-weight:600}
         
         .description-section{border-top:1px solid #f1f5f9;padding:48px;background:#fff}
+        .description-header {
+          margin-bottom: 24px;
+        }
+        .description-header-divider {
+          width: 64px;
+          height: 4px;
+          background: linear-gradient(135deg, #7c3aed, #4f46e5);
+          border-radius: 2px;
+          margin-top: 4px;
+        }
+        .description-card-body {
+          background: #f8fafc;
+          border-radius: 20px;
+          padding: 28px;
+          border: 1px solid #f1f5f9;
+          box-shadow: 0 4px 20px rgba(0,0,0,0.01);
+          margin-bottom: 32px;
+        }
+        .detail-desc-premium {
+          white-space: pre-wrap;
+          color: #334155;
+          font-size: 15px;
+          line-height: 1.8;
+          margin: 0;
+          font-family: 'Inter', sans-serif;
+        }
+        .description-images-gallery {
+          display: flex;
+          flex-direction: column;
+          gap: 32px;
+          max-width: 800px;
+          margin: 0 auto;
+        }
+        .desc-image-card {
+          position: relative;
+          border-radius: 24px;
+          overflow: hidden;
+          border: 1px solid #e2e8f0;
+          box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+          background: #fff;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .desc-image-card:hover {
+          transform: translateY(-6px);
+          box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+          border-color: #cbd5e1;
+        }
+        .desc-image-badge {
+          position: absolute;
+          top: 16px;
+          left: 16px;
+          background: rgba(15, 23, 42, 0.75);
+          backdrop-filter: blur(8px);
+          color: #fff;
+          font-size: 11px;
+          font-weight: 700;
+          padding: 6px 14px;
+          border-radius: 20px;
+          letter-spacing: 0.05em;
+          text-transform: uppercase;
+          z-index: 10;
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .desc-gallery-img {
+          width: 100%;
+          height: auto;
+          max-height: 700px;
+          object-fit: contain;
+          display: block;
+          transition: transform 0.5s ease;
+        }
+        .desc-image-card:hover .desc-gallery-img {
+          transform: scale(1.02);
+        }
+        .desc-image-actions {
+          position: absolute;
+          inset: 0;
+          background: rgba(15, 23, 42, 0.4);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          opacity: 0;
+          transition: opacity 0.3s ease;
+          z-index: 5;
+        }
+        .desc-image-card:hover .desc-image-actions {
+          opacity: 1;
+        }
+        .desc-zoom-btn {
+          background: #fff;
+          color: #0f172a;
+          font-size: 13px;
+          font-weight: 700;
+          padding: 12px 24px;
+          border-radius: 14px;
+          text-decoration: none;
+          box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+          transition: all 0.2s;
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          border: 1px solid #cbd5e1;
+        }
+        .desc-zoom-btn:hover {
+          transform: scale(1.05);
+          background: #0f172a;
+          color: #fff;
+          border-color: #0f172a;
+        }
         .rating-section{border-top:1px solid #f1f5f9;padding:48px;background:#fdfdfd}
         .reviews-scroll-container{
           max-height:420px;
@@ -1727,23 +1837,39 @@ export default function ShopPage() {
               </div>
 
               <div className="description-section">
-                <span className="variant-section-label" style={{ fontSize: '16px', marginBottom: '16px' }}>Product Description</span>
-                <p className="detail-desc" style={{ whiteSpace: 'pre-wrap', color: '#475569', fontSize: '15px', lineHeight: '1.7', marginBottom: viewItem.attributes?.description_images?.length ? '24px' : '0px' }}>
-                  {viewItem.description || "This item has no description yet. Explore its quality and features below."}
-                </p>
+                <div className="description-header">
+                  <span className="variant-section-label" style={{ fontSize: '18px', fontWeight: 800, letterSpacing: '-0.02em', background: 'linear-gradient(to right, #7c3aed, #4f46e5)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', marginBottom: '8px', display: 'inline-block' }}>
+                    Product Description
+                  </span>
+                  <div className="description-header-divider" />
+                </div>
+                
+                <div className="description-card-body">
+                  <p className="detail-desc-premium">
+                    {viewItem.description || "This item has no description yet. Explore its quality and features below."}
+                  </p>
+                </div>
+                
                 {viewItem.attributes?.description_images && viewItem.attributes.description_images.length > 0 && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', maxWidth: '800px', margin: '0 auto' }}>
+                  <div className="description-images-gallery">
                     {viewItem.attributes.description_images.map((path: string, index: number) => (
-                      <img 
-                        key={index} 
-                        src={getImageUrl(path)} 
-                        style={{ width: '100%', borderRadius: '16px', objectFit: 'contain', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }} 
-                        alt={`Description Image ${index + 1}`}
-                        onError={(e) => {
-                          e.currentTarget.onerror = null;
-                          e.currentTarget.src = "https://placehold.co/600x400/f8fafc/cbd5e1?text=Image+Not+Found";
-                        }}
-                      />
+                      <div key={index} className="desc-image-card">
+                        <div className="desc-image-badge">Gallery Image {index + 1}</div>
+                        <img 
+                          src={getImageUrl(path)} 
+                          alt={`Description Image ${index + 1}`}
+                          className="desc-gallery-img"
+                          onError={(e) => {
+                            e.currentTarget.onerror = null;
+                            e.currentTarget.src = "https://placehold.co/600x400/f8fafc/cbd5e1?text=Image+Not+Found";
+                          }}
+                        />
+                        <div className="desc-image-actions">
+                          <a href={getImageUrl(path)} target="_blank" rel="noopener noreferrer" className="desc-zoom-btn">
+                            🔍 Expand Full Resolution
+                          </a>
+                        </div>
+                      </div>
                     ))}
                   </div>
                 )}
