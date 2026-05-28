@@ -45,7 +45,12 @@ class CloudinaryService
      */
     public function uploadImage($file, string $folder = 'item-images'): string
     {
-        return $this->upload($file, $folder, 'image');
+        try {
+            return $this->upload($file, $folder, 'image');
+        } catch (\Throwable $e) {
+            \Log::warning("Cloudinary image upload failed, falling back to local storage: " . $e->getMessage());
+            return $file->store($folder, 'public');
+        }
     }
 
     /**
@@ -57,7 +62,12 @@ class CloudinaryService
      */
     public function uploadVideo($file, string $folder = 'item-videos'): string
     {
-        return $this->upload($file, $folder, 'video');
+        try {
+            return $this->upload($file, $folder, 'video');
+        } catch (\Throwable $e) {
+            \Log::warning("Cloudinary video upload failed, falling back to local storage: " . $e->getMessage());
+            return $file->store($folder, 'public');
+        }
     }
 
     /**
