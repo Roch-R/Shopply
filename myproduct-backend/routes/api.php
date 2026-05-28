@@ -85,6 +85,15 @@ Route::get('/debug-logs', function() {
             'memory_limit' => ini_get('memory_limit'),
             'max_execution_time' => ini_get('max_execution_time'),
             'max_input_time' => ini_get('max_input_time'),
+        ],
+        'storage_debug' => [
+            'public_path_storage_exists' => file_exists(public_path('storage')),
+            'public_path_storage_is_link' => is_link(public_path('storage')),
+            'public_path_storage_link_target' => is_link(public_path('storage')) ? readlink(public_path('storage')) : null,
+            'storage_app_public_exists' => file_exists(storage_path('app/public')),
+            'item_images_dir_exists' => file_exists(storage_path('app/public/item-images')),
+            'item_images_files' => file_exists(storage_path('app/public/item-images')) ? scandir(storage_path('app/public/item-images')) : [],
+            'item_videos_files' => file_exists(storage_path('app/public/item-videos')) ? scandir(storage_path('app/public/item-videos')) : [],
         ]
     ]);
 });
