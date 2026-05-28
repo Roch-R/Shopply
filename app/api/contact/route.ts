@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import clientPromise from '@/lib/mongodb';
 
 export async function POST(request: Request) {
   try {
@@ -13,17 +14,27 @@ export async function POST(request: Request) {
       );
     }
 
-    // Simulate sending an email or storing in a database with a delay
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    // Connect to MongoDB
+    const client = await clientPromise;
+    const db = client.db('shopply');
+    
+    // Store message in the database
+    await db.collection('messages').insertOne({
+      name,
+      email,
+      message,
+      created_at: new Date()
+    });
 
     // Return success response
     return NextResponse.json(
       { message: 'Message sent successfully' },
       { status: 200 }
     );
-  } catch (error) {
+  } catch (error: any) {
+    console.error('MongoDB contact form error:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: error?.message || 'Internal server error' },
       { status: 500 }
     );
   }
