@@ -184,6 +184,17 @@ class ItemController extends Controller
 
         $cloudinary = new CloudinaryService();
 
+        $safeDelete = function ($path, $type = 'image') use ($cloudinary) {
+            if (!is_string($path) || empty($path)) {
+                return;
+            }
+            if (CloudinaryService::isCloudinaryUrl($path)) {
+                $cloudinary->delete($path, $type);
+            } else {
+                Storage::disk('public')->delete($path);
+            }
+        };
+
         // Handle main images
         $existingMain = $newAttrs['existing_main_images'] ?? [];
         $newMainFiles = $request->file('images') ?? [];
@@ -193,11 +204,7 @@ class ItemController extends Controller
         $oldMainImages = $oldAttributes['main_images'] ?? [];
         $removedMainImages = array_diff($oldMainImages, $existingMain);
         foreach ($removedMainImages as $removedImg) {
-            if (CloudinaryService::isCloudinaryUrl($removedImg)) {
-                $cloudinary->delete($removedImg, 'image');
-            } else {
-                Storage::disk('public')->delete($removedImg);
-            }
+            $safeDelete($removedImg);
         }
 
         foreach ($newMainFiles as $img) {
@@ -212,22 +219,14 @@ class ItemController extends Controller
         if ($request->hasFile('video')) {
             // Delete old video if it exists
             if (!empty($oldAttributes['video_path'])) {
-                if (CloudinaryService::isCloudinaryUrl($oldAttributes['video_path'])) {
-                    $cloudinary->delete($oldAttributes['video_path'], 'video');
-                } else {
-                    Storage::disk('public')->delete($oldAttributes['video_path']);
-                }
+                $safeDelete($oldAttributes['video_path'], 'video');
             }
             $attributes['video_path'] = $cloudinary->uploadVideo($request->file('video'), 'item-videos');
         } else {
             // Keep existing video if specified, otherwise delete it
             $existingVideo = $newAttrs['existing_video_path'] ?? null;
             if (!$existingVideo && !empty($oldAttributes['video_path'])) {
-                if (CloudinaryService::isCloudinaryUrl($oldAttributes['video_path'])) {
-                    $cloudinary->delete($oldAttributes['video_path'], 'video');
-                } else {
-                    Storage::disk('public')->delete($oldAttributes['video_path']);
-                }
+                $safeDelete($oldAttributes['video_path'], 'video');
             }
             $attributes['video_path'] = $existingVideo;
         }
@@ -242,11 +241,7 @@ class ItemController extends Controller
         $oldDescImages = $oldAttributes['description_images'] ?? [];
         $removedDescImages = array_diff($oldDescImages, $existingDesc);
         foreach ($removedDescImages as $removedImg) {
-            if (CloudinaryService::isCloudinaryUrl($removedImg)) {
-                $cloudinary->delete($removedImg, 'image');
-            } else {
-                Storage::disk('public')->delete($removedImg);
-            }
+            $safeDelete($removedImg);
         }
 
         foreach ($newDescFiles as $img) {
@@ -265,11 +260,7 @@ class ItemController extends Controller
         $oldVariantImages = $oldAttributes['variant_image_paths'] ?? [];
         $removedVariantImages = array_diff(array_filter($oldVariantImages), array_filter($existingVariantPaths));
         foreach ($removedVariantImages as $removedImg) {
-            if (CloudinaryService::isCloudinaryUrl($removedImg)) {
-                $cloudinary->delete($removedImg, 'image');
-            } else {
-                Storage::disk('public')->delete($removedImg);
-            }
+            $safeDelete($removedImg);
         }
 
         foreach ($attributes['colors'] ?? [] as $idx => $color) {
@@ -311,60 +302,44 @@ class ItemController extends Controller
 
         $cloudinary = new CloudinaryService();
 
-        // Delete the main image file if it exists
-        if ($item->image) {
-            if (CloudinaryService::isCloudinaryUrl($item->image)) {
-                $cloudinary->delete($item->image, 'image');
-            } else {
-                Storage::disk('public')->delete($item->image);
+        $safeDelete = function ($path, $type = 'image') use ($cloudinary) {
+            if (!is_string($path) || empty($path)) {
+                return;
             }
-        }
+            if (CloudinaryService::isCloudinaryUrl($path)) {
+                $cloudinary->delete($path, $type);
+            } else {
+                Storage::disk('public')->delete($path);
+            }
+        };
+
+        // Delete the main image file if it exists
+        $safeDelete($item->image);
 
         // Delete all main images in attributes
-        if (isset($item->attributes['main_images'])) {
+        if (isset($item->attributes['main_images']) && is_array($item->attributes['main_images'])) {
             foreach ($item->attributes['main_images'] as $path) {
-                if (CloudinaryService::isCloudinaryUrl($path)) {
-                    $cloudinary->delete($path, 'image');
-                } else {
-                    Storage::disk('public')->delete($path);
-                }
+                $safeDelete($path);
             }
         }
 
         // Delete all variant images in attributes
-        if (isset($item->attributes['variant_image_paths'])) {
+        if (isset($item->attributes['variant_image_paths']) && is_array($item->attributes['variant_image_paths'])) {
             foreach ($item->attributes['variant_image_paths'] as $path) {
-                if ($path) {
-                    if (CloudinaryService::isCloudinaryUrl($path)) {
-                        $cloudinary->delete($path, 'image');
-                    } else {
-                        Storage::disk('public')->delete($path);
-                    }
-                }
+                $safeDelete($path);
             }
         }
 
         // Delete all description images in attributes
-        if (isset($item->attributes['description_images'])) {
+        if (isset($item->attributes['description_images']) && is_array($item->attributes['description_images'])) {
             foreach ($item->attributes['description_images'] as $path) {
-                if ($path) {
-                    if (CloudinaryService::isCloudinaryUrl($path)) {
-                        $cloudinary->delete($path, 'image');
-                    } else {
-                        Storage::disk('public')->delete($path);
-                    }
-                }
+                $safeDelete($path);
             }
         }
 
         // Delete video path if it exists
-        if (isset($item->attributes['video_path']) && $item->attributes['video_path']) {
-            $vPath = $item->attributes['video_path'];
-            if (CloudinaryService::isCloudinaryUrl($vPath)) {
-                $cloudinary->delete($vPath, 'video');
-            } else {
-                Storage::disk('public')->delete($vPath);
-            }
+        if (isset($item->attributes['video_path'])) {
+            $safeDelete($item->attributes['video_path'], 'video');
         }
 
         // Programmatically delete related cart items, orders, and reviews to prevent orphaned database records and frontend crashes
