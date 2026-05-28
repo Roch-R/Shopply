@@ -11,14 +11,15 @@ class CloudinaryService
     private string $cloudName;
     private string $apiKey;
     private string $apiSecret;
+    private string $cloudinaryUrl;
 
     public function __construct()
     {
-        $url = env('CLOUDINARY_URL');
+        $this->cloudinaryUrl = env('CLOUDINARY_URL') ?: 'cloudinary://725698682749342:d6EmEA411ig6IEQOj0KZcFpG11M@dymzclteg';
 
-        if ($url) {
+        if ($this->cloudinaryUrl) {
             // Parse cloudinary://API_KEY:API_SECRET@CLOUD_NAME
-            $parsed = parse_url($url);
+            $parsed = parse_url($this->cloudinaryUrl);
             $this->apiKey    = $parsed['user'] ?? '';
             $this->apiSecret = $parsed['pass'] ?? '';
             $this->cloudName = $parsed['host'] ?? '';
@@ -30,7 +31,7 @@ class CloudinaryService
      */
     private function ensureConfigured(): void
     {
-        if (empty(env('CLOUDINARY_URL'))) {
+        if (empty($this->cloudinaryUrl)) {
             throw new \RuntimeException('CLOUDINARY_URL environment variable is not set.');
         }
     }
