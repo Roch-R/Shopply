@@ -16,15 +16,23 @@ class CloudinaryService
     {
         $url = env('CLOUDINARY_URL');
 
-        if (!$url) {
+        if ($url) {
+            // Parse cloudinary://API_KEY:API_SECRET@CLOUD_NAME
+            $parsed = parse_url($url);
+            $this->apiKey    = $parsed['user'] ?? '';
+            $this->apiSecret = $parsed['pass'] ?? '';
+            $this->cloudName = $parsed['host'] ?? '';
+        }
+    }
+
+    /**
+     * Ensure Cloudinary config is present before performing operations.
+     */
+    private function ensureConfigured(): void
+    {
+        if (empty(env('CLOUDINARY_URL'))) {
             throw new \RuntimeException('CLOUDINARY_URL environment variable is not set.');
         }
-
-        // Parse cloudinary://API_KEY:API_SECRET@CLOUD_NAME
-        $parsed = parse_url($url);
-        $this->apiKey    = $parsed['user'] ?? '';
-        $this->apiSecret = $parsed['pass'] ?? '';
-        $this->cloudName = $parsed['host'] ?? '';
     }
 
     /**
@@ -59,6 +67,7 @@ class CloudinaryService
      */
     public function delete(string $secureUrl, string $resourceType = 'image'): void
     {
+        $this->ensureConfigured();
         $publicId = $this->extractPublicId($secureUrl);
         if (!$publicId) return;
 
@@ -92,6 +101,7 @@ class CloudinaryService
      */
     private function upload($file, string $folder, string $resourceType): string
     {
+        $this->ensureConfigured();
         $timestamp = time();
         $params = [
             'folder'    => $folder,
