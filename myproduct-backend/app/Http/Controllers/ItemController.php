@@ -50,9 +50,9 @@ class ItemController extends Controller
         return response()->json(['items' => $items]);
     }
 
-    // Create a new item
     public function store(Request $request)
     {
+        set_time_limit(300);
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -61,7 +61,7 @@ class ItemController extends Controller
             'category' => 'required|string',
             'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:20480',
             'variant_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:20480',
-            'video' => 'nullable|file|mimes:mp4,mov,ogg,qt,webm,avi,mkv|max:102400',
+            'video' => 'nullable|file|mimes:mp4,mov,ogg,qt,webm,avi,mkv|max:204800',
             'description_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:20480',
         ]);
 
@@ -155,9 +155,9 @@ class ItemController extends Controller
         return response()->json(['message' => 'Item publish status updated.', 'item' => $item]);
     }
 
-    // Update an item
     public function update(Request $request, $id)
     {
+        set_time_limit(300);
         $item = Auth::user()->items()->find($id);
         if (!$item) return response()->json(['message' => 'Item not found.'], 404);
 
@@ -169,7 +169,7 @@ class ItemController extends Controller
             'category' => 'required|string',
             'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:20480',
             'variant_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:20480',
-            'video' => 'nullable|file|mimes:mp4,mov,ogg,qt,webm,avi,mkv|max:102400',
+            'video' => 'nullable|file|mimes:mp4,mov,ogg,qt,webm,avi,mkv|max:204800',
             'description_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:20480',
         ]);
 

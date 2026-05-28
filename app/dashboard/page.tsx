@@ -3439,8 +3439,8 @@ export default function DashboardPage() {
                         onChange={(e) => {
                           const file = e.target.files?.[0];
                           if (file) {
-                            if (file.size > 104857600) {
-                              showToast("Video size exceeds the 100MB limit.", "error");
+                            if (file.size > 209715200) {
+                              showToast("Video size exceeds the 200MB limit.", "error");
                               return;
                             }
                             setNewVideoFile(file);
