@@ -52,92 +52,105 @@ class ItemController extends Controller
 
     public function store(Request $request)
     {
-        set_time_limit(300);
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'price' => 'required|numeric|min:0',
-            'stock' => 'required|integer|min:1',
-            'category' => 'required|string',
-            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:20480',
-            'variant_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:20480',
-            'video' => 'nullable|file|mimes:mp4,mov,ogg,qt,webm,avi,mkv|max:204800',
-            'description_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:20480',
-        ]);
+        try {
+            set_time_limit(300);
+            $request->validate([
+                'name' => 'required|string|max:255',
+                'description' => 'nullable|string',
+                'price' => 'required|numeric|min:0',
+                'stock' => 'required|integer|min:1',
+                'category' => 'required|string',
+                'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:20480',
+                'variant_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:20480',
+                'video' => 'nullable|file|mimes:mp4,mov,ogg,qt,webm,avi,mkv|max:204800',
+                'description_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:20480',
+            ]);
 
-        $attributes = $request->input('attributes') ? json_decode($request->input('attributes'), true) : [];
+            $attributes = $request->input('attributes') ? json_decode($request->input('attributes'), true) : [];
 
-        $totalStock = $request->stock;
-        if (isset($attributes['size_stocks']) && is_array($attributes['size_stocks']) && count($attributes['size_stocks']) > 0) {
-            $totalStock = array_sum($attributes['size_stocks']);
-        }
+            $totalStock = $request->stock;
+            if (isset($attributes['size_stocks']) && is_array($attributes['size_stocks']) && count($attributes['size_stocks']) > 0) {
+                $totalStock = array_sum($attributes['size_stocks']);
+            }
 
-        $cloudinary = new CloudinaryService();
+            $cloudinary = new CloudinaryService();
 
-        // Handle main images
-        $existingMain = $attributes['existing_main_images'] ?? [];
-        $newMainFiles = $request->file('images') ?? [];
-        $finalMainPaths = $existingMain;
+            // Handle main images
+            $existingMain = $attributes['existing_main_images'] ?? [];
+            $newMainFiles = $request->file('images') ?? [];
+            $finalMainPaths = $existingMain;
 
-        foreach ($newMainFiles as $img) {
-            $finalMainPaths[] = $cloudinary->uploadImage($img, 'item-images');
-        }
-        $attributes['main_images'] = $finalMainPaths;
-        unset($attributes['existing_main_images']);
+            foreach ($newMainFiles as $img) {
+                $finalMainPaths[] = $cloudinary->uploadImage($img, 'item-images');
+            }
+            $attributes['main_images'] = $finalMainPaths;
+            unset($attributes['existing_main_images']);
 
-        $imagePath = count($finalMainPaths) > 0 ? $finalMainPaths[0] : null;
+            $imagePath = count($finalMainPaths) > 0 ? $finalMainPaths[0] : null;
 
-        // Handle showcase video
-        if ($request->hasFile('video')) {
-            $attributes['video_path'] = $cloudinary->uploadVideo($request->file('video'), 'item-videos');
-        } else {
-            $attributes['video_path'] = null;
-        }
-
-        // Handle description images
-        $existingDesc = $attributes['existing_description_images'] ?? [];
-        $newDescFiles = $request->file('description_images') ?? [];
-        $finalDescPaths = $existingDesc;
-
-        foreach ($newDescFiles as $img) {
-            $finalDescPaths[] = $cloudinary->uploadImage($img, 'item-images');
-        }
-        $attributes['description_images'] = $finalDescPaths;
-        unset($attributes['existing_description_images']);
-
-        // Handle variant images
-        $existingVariantPaths = $attributes['existing_variant_paths'] ?? [];
-        $variantFiles = $request->file('variant_images') ?? [];
-        $fileIndex = 0;
-        $finalVariantPaths = [];
-
-        foreach ($attributes['colors'] ?? [] as $idx => $color) {
-            if (!empty($existingVariantPaths[$idx])) {
-                $finalVariantPaths[] = $existingVariantPaths[$idx];
+            // Handle showcase video
+            if ($request->hasFile('video')) {
+                $attributes['video_path'] = $cloudinary->uploadVideo($request->file('video'), 'item-videos');
             } else {
-                if (isset($variantFiles[$fileIndex])) {
-                    $finalVariantPaths[] = $cloudinary->uploadImage($variantFiles[$fileIndex], 'item-images');
-                    $fileIndex++;
+                $attributes['video_path'] = null;
+            }
+
+            // Handle description images
+            $existingDesc = $attributes['existing_description_images'] ?? [];
+            $newDescFiles = $request->file('description_images') ?? [];
+            $finalDescPaths = $existingDesc;
+
+            foreach ($newDescFiles as $img) {
+                $finalDescPaths[] = $cloudinary->uploadImage($img, 'item-images');
+            }
+            $attributes['description_images'] = $finalDescPaths;
+            unset($attributes['existing_description_images']);
+
+            // Handle variant images
+            $existingVariantPaths = $attributes['existing_variant_paths'] ?? [];
+            $variantFiles = $request->file('variant_images') ?? [];
+            $fileIndex = 0;
+            $finalVariantPaths = [];
+
+            foreach ($attributes['colors'] ?? [] as $idx => $color) {
+                if (!empty($existingVariantPaths[$idx])) {
+                    $finalVariantPaths[] = $existingVariantPaths[$idx];
                 } else {
-                    $finalVariantPaths[] = null;
+                    if (isset($variantFiles[$fileIndex])) {
+                        $finalVariantPaths[] = $cloudinary->uploadImage($variantFiles[$fileIndex], 'item-images');
+                        $fileIndex++;
+                    } else {
+                        $finalVariantPaths[] = null;
+                    }
                 }
             }
+            $attributes['variant_image_paths'] = $finalVariantPaths;
+            unset($attributes['existing_variant_paths']);
+
+            $item = Auth::user()->items()->create([
+                'name' => $request->name,
+                'description' => $request->description,
+                'price' => $request->price,
+                'stock' => $totalStock,
+                'category' => $request->category,
+                'attributes' => $attributes,
+                'image' => $imagePath,
+                'is_published' => false,
+            ]);
+
+            return response()->json(['message' => 'Item created successfully.', 'item' => $item], 201);
+        } catch (\Throwable $e) {
+            $msg = $e->getMessage() . ' in ' . $e->getFile() . ' on line ' . $e->getLine();
+            @file_put_contents('/tmp/laravel_last_error.txt', $msg . "\n" . $e->getTraceAsString());
+            return response()->json([
+                'message' => 'Controller error: ' . $msg,
+                'trace' => $e->getTraceAsString()
+            ], 500)
+            ->header('Access-Control-Allow-Origin', $request->header('Origin') ?? '*')
+            ->header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+            ->header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept, X-Requested-With')
+            ->header('Access-Control-Allow-Credentials', 'true');
         }
-        $attributes['variant_image_paths'] = $finalVariantPaths;
-        unset($attributes['existing_variant_paths']);
-
-        $item = Auth::user()->items()->create([
-            'name' => $request->name,
-            'description' => $request->description,
-            'price' => $request->price,
-            'stock' => $totalStock,
-            'category' => $request->category,
-            'attributes' => $attributes,
-            'image' => $imagePath,
-            'is_published' => false,
-        ]);
-
-        return response()->json(['message' => 'Item created successfully.', 'item' => $item], 201);
     }
 
     // Toggle publish status
@@ -157,138 +170,151 @@ class ItemController extends Controller
 
     public function update(Request $request, $id)
     {
-        set_time_limit(300);
-        $item = Auth::user()->items()->find($id);
-        if (!$item) return response()->json(['message' => 'Item not found.'], 404);
+        try {
+            set_time_limit(300);
+            $item = Auth::user()->items()->find($id);
+            if (!$item) return response()->json(['message' => 'Item not found.'], 404);
 
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'price' => 'required|numeric|min:0',
-            'stock' => 'required|integer|min:1',
-            'category' => 'required|string',
-            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:20480',
-            'variant_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:20480',
-            'video' => 'nullable|file|mimes:mp4,mov,ogg,qt,webm,avi,mkv|max:204800',
-            'description_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:20480',
-        ]);
+            $request->validate([
+                'name' => 'required|string|max:255',
+                'description' => 'nullable|string',
+                'price' => 'required|numeric|min:0',
+                'stock' => 'required|integer|min:1',
+                'category' => 'required|string',
+                'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:20480',
+                'variant_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:20480',
+                'video' => 'nullable|file|mimes:mp4,mov,ogg,qt,webm,avi,mkv|max:204800',
+                'description_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:20480',
+            ]);
 
-        $oldAttributes = $item->attributes ?? [];
-        $newAttrs = $request->input('attributes') ? json_decode($request->input('attributes'), true) : [];
-        $attributes = array_merge($oldAttributes, $newAttrs);
+            $oldAttributes = $item->attributes ?? [];
+            $newAttrs = $request->input('attributes') ? json_decode($request->input('attributes'), true) : [];
+            $attributes = array_merge($oldAttributes, $newAttrs);
 
-        $totalStock = $request->stock;
-        if (isset($attributes['size_stocks']) && is_array($attributes['size_stocks']) && count($attributes['size_stocks']) > 0) {
-            $totalStock = array_sum($attributes['size_stocks']);
-        }
-
-        $cloudinary = new CloudinaryService();
-
-        $safeDelete = function ($path, $type = 'image') use ($cloudinary) {
-            if (!is_string($path) || empty($path)) {
-                return;
+            $totalStock = $request->stock;
+            if (isset($attributes['size_stocks']) && is_array($attributes['size_stocks']) && count($attributes['size_stocks']) > 0) {
+                $totalStock = array_sum($attributes['size_stocks']);
             }
-            if (CloudinaryService::isCloudinaryUrl($path)) {
-                $cloudinary->delete($path, $type);
-            } else {
-                Storage::disk('public')->delete($path);
-            }
-        };
 
-        // Handle main images
-        $existingMain = $newAttrs['existing_main_images'] ?? [];
-        $newMainFiles = $request->file('images') ?? [];
-        $finalMainPaths = $existingMain;
+            $cloudinary = new CloudinaryService();
 
-        // Clean up deleted main images
-        $oldMainImages = $oldAttributes['main_images'] ?? [];
-        $removedMainImages = array_diff($oldMainImages, $existingMain);
-        foreach ($removedMainImages as $removedImg) {
-            $safeDelete($removedImg);
-        }
-
-        foreach ($newMainFiles as $img) {
-            $finalMainPaths[] = $cloudinary->uploadImage($img, 'item-images');
-        }
-        $attributes['main_images'] = $finalMainPaths;
-        unset($attributes['existing_main_images']);
-
-        $imagePath = count($finalMainPaths) > 0 ? $finalMainPaths[0] : null;
-
-        // Handle showcase video
-        if ($request->hasFile('video')) {
-            // Delete old video if it exists
-            if (!empty($oldAttributes['video_path'])) {
-                $safeDelete($oldAttributes['video_path'], 'video');
-            }
-            $attributes['video_path'] = $cloudinary->uploadVideo($request->file('video'), 'item-videos');
-        } else {
-            // Keep existing video if specified, otherwise delete it
-            $existingVideo = $newAttrs['existing_video_path'] ?? null;
-            if (!$existingVideo && !empty($oldAttributes['video_path'])) {
-                $safeDelete($oldAttributes['video_path'], 'video');
-            }
-            $attributes['video_path'] = $existingVideo;
-        }
-        unset($attributes['existing_video_path']);
-
-        // Handle description images
-        $existingDesc = $newAttrs['existing_description_images'] ?? [];
-        $newDescFiles = $request->file('description_images') ?? [];
-        $finalDescPaths = $existingDesc;
-
-        // Clean up deleted description images
-        $oldDescImages = $oldAttributes['description_images'] ?? [];
-        $removedDescImages = array_diff($oldDescImages, $existingDesc);
-        foreach ($removedDescImages as $removedImg) {
-            $safeDelete($removedImg);
-        }
-
-        foreach ($newDescFiles as $img) {
-            $finalDescPaths[] = $cloudinary->uploadImage($img, 'item-images');
-        }
-        $attributes['description_images'] = $finalDescPaths;
-        unset($attributes['existing_description_images']);
-
-        // Handle variant images
-        $existingVariantPaths = $newAttrs['existing_variant_paths'] ?? [];
-        $variantFiles = $request->file('variant_images') ?? [];
-        $fileIndex = 0;
-        $finalVariantPaths = [];
-
-        // Clean up deleted variant images
-        $oldVariantImages = $oldAttributes['variant_image_paths'] ?? [];
-        $removedVariantImages = array_diff(array_filter($oldVariantImages), array_filter($existingVariantPaths));
-        foreach ($removedVariantImages as $removedImg) {
-            $safeDelete($removedImg);
-        }
-
-        foreach ($attributes['colors'] ?? [] as $idx => $color) {
-            if (!empty($existingVariantPaths[$idx])) {
-                $finalVariantPaths[] = $existingVariantPaths[$idx];
-            } else {
-                if (isset($variantFiles[$fileIndex])) {
-                    $finalVariantPaths[] = $cloudinary->uploadImage($variantFiles[$fileIndex], 'item-images');
-                    $fileIndex++;
+            $safeDelete = function ($path, $type = 'image') use ($cloudinary) {
+                if (!is_string($path) || empty($path)) {
+                    return;
+                }
+                if (CloudinaryService::isCloudinaryUrl($path)) {
+                    $cloudinary->delete($path, $type);
                 } else {
-                    $finalVariantPaths[] = null;
+                    Storage::disk('public')->delete($path);
+                }
+            };
+
+            // Handle main images
+            $existingMain = $newAttrs['existing_main_images'] ?? [];
+            $newMainFiles = $request->file('images') ?? [];
+            $finalMainPaths = $existingMain;
+
+            // Clean up deleted main images
+            $oldMainImages = $oldAttributes['main_images'] ?? [];
+            $removedMainImages = array_diff($oldMainImages, $existingMain);
+            foreach ($removedMainImages as $removedImg) {
+                $safeDelete($removedImg);
+            }
+
+            foreach ($newMainFiles as $img) {
+                $finalMainPaths[] = $cloudinary->uploadImage($img, 'item-images');
+            }
+            $attributes['main_images'] = $finalMainPaths;
+            unset($attributes['existing_main_images']);
+
+            $imagePath = count($finalMainPaths) > 0 ? $finalMainPaths[0] : null;
+
+            // Handle showcase video
+            if ($request->hasFile('video')) {
+                // Delete old video if it exists
+                if (!empty($oldAttributes['video_path'])) {
+                    $safeDelete($oldAttributes['video_path'], 'video');
+                }
+                $attributes['video_path'] = $cloudinary->uploadVideo($request->file('video'), 'item-videos');
+            } else {
+                // Keep existing video if specified, otherwise delete it
+                $existingVideo = $newAttrs['existing_video_path'] ?? null;
+                if (!$existingVideo && !empty($oldAttributes['video_path'])) {
+                    $safeDelete($oldAttributes['video_path'], 'video');
+                }
+                $attributes['video_path'] = $existingVideo;
+            }
+            unset($attributes['existing_video_path']);
+
+            // Handle description images
+            $existingDesc = $newAttrs['existing_description_images'] ?? [];
+            $newDescFiles = $request->file('description_images') ?? [];
+            $finalDescPaths = $existingDesc;
+
+            // Clean up deleted description images
+            $oldDescImages = $oldAttributes['description_images'] ?? [];
+            $removedDescImages = array_diff($oldDescImages, $existingDesc);
+            foreach ($removedDescImages as $removedImg) {
+                $safeDelete($removedImg);
+            }
+
+            foreach ($newDescFiles as $img) {
+                $finalDescPaths[] = $cloudinary->uploadImage($img, 'item-images');
+            }
+            $attributes['description_images'] = $finalDescPaths;
+            unset($attributes['existing_description_images']);
+
+            // Handle variant images
+            $existingVariantPaths = $newAttrs['existing_variant_paths'] ?? [];
+            $variantFiles = $request->file('variant_images') ?? [];
+            $fileIndex = 0;
+            $finalVariantPaths = [];
+
+            // Clean up deleted variant images
+            $oldVariantImages = $oldAttributes['variant_image_paths'] ?? [];
+            $removedVariantImages = array_diff(array_filter($oldVariantImages), array_filter($existingVariantPaths));
+            foreach ($removedVariantImages as $removedImg) {
+                $safeDelete($removedImg);
+            }
+
+            foreach ($attributes['colors'] ?? [] as $idx => $color) {
+                if (!empty($existingVariantPaths[$idx])) {
+                    $finalVariantPaths[] = $existingVariantPaths[$idx];
+                } else {
+                    if (isset($variantFiles[$fileIndex])) {
+                        $finalVariantPaths[] = $cloudinary->uploadImage($variantFiles[$fileIndex], 'item-images');
+                        $fileIndex++;
+                    } else {
+                        $finalVariantPaths[] = null;
+                    }
                 }
             }
+            $attributes['variant_image_paths'] = $finalVariantPaths;
+            unset($attributes['existing_variant_paths']);
+
+            $item->update([
+                'name' => $request->name,
+                'description' => $request->description,
+                'price' => $request->price,
+                'stock' => $totalStock,
+                'category' => $request->category,
+                'attributes' => $attributes,
+                'image' => $imagePath,
+            ]);
+
+            return response()->json(['message' => 'Item updated successfully.', 'item' => $item]);
+        } catch (\Throwable $e) {
+            $msg = $e->getMessage() . ' in ' . $e->getFile() . ' on line ' . $e->getLine();
+            @file_put_contents('/tmp/laravel_last_error.txt', $msg . "\n" . $e->getTraceAsString());
+            return response()->json([
+                'message' => 'Controller error: ' . $msg,
+                'trace' => $e->getTraceAsString()
+            ], 500)
+            ->header('Access-Control-Allow-Origin', $request->header('Origin') ?? '*')
+            ->header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+            ->header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept, X-Requested-With')
+            ->header('Access-Control-Allow-Credentials', 'true');
         }
-        $attributes['variant_image_paths'] = $finalVariantPaths;
-        unset($attributes['existing_variant_paths']);
-
-        $item->update([
-            'name' => $request->name,
-            'description' => $request->description,
-            'price' => $request->price,
-            'stock' => $totalStock,
-            'category' => $request->category,
-            'attributes' => $attributes,
-            'image' => $imagePath,
-        ]);
-
-        return response()->json(['message' => 'Item updated successfully.', 'item' => $item]);
     }
 
     // Delete an item
