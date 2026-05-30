@@ -13,6 +13,7 @@ export default function VerifyPage() {
   const [resending, setResending] = useState(false);
   const [redirecting, setRedirecting] = useState(false);
   const [pendingPhone, setPendingPhone] = useState<string | null>(null);
+  const [debugOtp, setDebugOtp] = useState<string | null>(null);
 
   const API = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
   const getToken = () => typeof window !== "undefined" ? localStorage.getItem("token") : null;
@@ -21,8 +22,13 @@ export default function VerifyPage() {
     const token = localStorage.getItem("token");
     const raw = localStorage.getItem("user");
     const pendingEmail = localStorage.getItem("pending_email");
+    const code = localStorage.getItem("debug_otp");
 
     console.log("[verify] Initial check. Token:", !!token, "Pending Email:", !!pendingEmail);
+
+    if (code) {
+      setDebugOtp(code);
+    }
 
     if (!token && !pendingEmail) {
       console.log("[verify] Missing credentials, redirecting to login");
@@ -52,7 +58,7 @@ export default function VerifyPage() {
 
     if (targetPhone) {
       setPendingPhone(targetPhone);
-      setSuccess("We sent a verification code to your phone number. Please check your SMS.");
+      setSuccess("Verification code sent! Please input your 6-digit OTP code below.");
     }
   }, []);
 
@@ -60,6 +66,7 @@ export default function VerifyPage() {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     localStorage.removeItem("pending_email");
+    localStorage.removeItem("debug_otp");
     getApiCache().invalidateAll();
     window.location.href = "/login";
   };
@@ -115,6 +122,7 @@ export default function VerifyPage() {
       if (data.token) localStorage.setItem("token", data.token);
       if (data.user) localStorage.setItem("user", JSON.stringify(data.user));
       localStorage.removeItem("pending_email");
+      localStorage.removeItem("debug_otp");
 
       setSuccess("✓ Phone verified successfully! Redirecting...");
       setRedirecting(true);
@@ -164,7 +172,12 @@ export default function VerifyPage() {
         throw new Error(data.message || "Failed to resend verification code.");
       }
 
-      setSuccess("✓ A new verification code has been sent to your phone number!");
+      if (data.debug_otp) {
+        localStorage.setItem("debug_otp", data.debug_otp);
+        setDebugOtp(data.debug_otp);
+      }
+
+      setSuccess("✓ A new verification code has been sent!");
     } catch (e: any) {
       setError(e?.message || "Resend failed.");
     }
@@ -227,6 +240,12 @@ export default function VerifyPage() {
             We sent a 6-digit SMS OTP to your phone number ({pendingPhone || "loading..."}).<br/>
             Enter it below to activate your account.
           </p>
+
+          {debugOtp && (
+            <div style={{ background: "#f5f3ff", border: "1.5px dashed #c084fc", borderRadius: 12, padding: "12px 14px", fontSize: 13, color: "#7c3aed", marginBottom: 16, fontWeight: 600, textAlign: "left" }}>
+              🔧 [Test Mode] Your OTP verification code is: <strong>{debugOtp}</strong>
+            </div>
+          )}
 
           {error && <div className="err">⚠ {error}</div>}
           {success && <div className="ok">{success}</div>}

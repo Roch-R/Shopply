@@ -69,6 +69,7 @@ async function request<T>(
       if (data.token) localStorage.setItem("token", data.token);
       if (data.user) localStorage.setItem("user", JSON.stringify(data.user));
       if (data.pending_email) localStorage.setItem("pending_email", data.pending_email);
+      if (data.debug_otp) localStorage.setItem("debug_otp", data.debug_otp);
     }
     throw new Error("requires_verify");
   }

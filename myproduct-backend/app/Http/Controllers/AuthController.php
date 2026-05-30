@@ -178,6 +178,7 @@ class AuthController extends Controller
             'message'         => 'OTP sent to your phone number. Please verify to complete registration.',
             'requires_verify' => true,
             'pending_email'   => $request->phone,
+            'debug_otp'       => $otp,
         ], 201);
     }
 
@@ -275,7 +276,10 @@ class AuthController extends Controller
             ], 500);
         }
 
-        return response()->json(['message' => 'New OTP sent to your phone number.']);
+        return response()->json([
+            'message' => 'New OTP sent to your phone number.',
+            'debug_otp' => $otp
+        ]);
     }
 
     public function login(Request $request)
@@ -319,6 +323,7 @@ class AuthController extends Controller
                 'requires_verify' => true,
                 'token'           => $token,
                 'user'            => $this->formatUser($user),
+                'debug_otp'       => $user->otp_code,
             ], 403);
         }
 
@@ -495,7 +500,10 @@ class AuthController extends Controller
         // Send OTP via backend
         $this->sendOtp($user);
 
-        return response()->json(['message' => 'New OTP sent to your phone number.']);
+        return response()->json([
+            'message' => 'New OTP sent to your phone number.',
+            'debug_otp' => $user->otp_code
+        ]);
     }
 
     public function logout(Request $request)
