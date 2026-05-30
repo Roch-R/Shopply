@@ -70,17 +70,25 @@ class AuthController extends Controller
         $twilioNumber = env('TWILIO_NUMBER');
         if ($twilioSid && $twilioToken && $twilioNumber && $phone) {
             try {
+                // Twilio requires E.164 format (e.g. +639XXXXXXXXX)
+                $twilioTo = $phone;
+                if (str_starts_with($twilioTo, '09') && strlen($twilioTo) === 11) {
+                    $twilioTo = '+63' . substr($twilioTo, 1);
+                } elseif (str_starts_with($twilioTo, '9') && strlen($twilioTo) === 10) {
+                    $twilioTo = '+63' . $twilioTo;
+                }
+
                 $response = \Illuminate\Support\Facades\Http::withBasicAuth($twilioSid, $twilioToken)
                     ->post("https://api.twilio.com/2010-04-01/Accounts/$twilioSid/Messages.json", [
-                        'To'   => $phone,
+                        'To'   => $twilioTo,
                         'From' => $twilioNumber,
                         'Body' => $message,
                     ]);
                 if ($response->successful()) {
-                    error_log("[Shopply] SMS sent to $phone via Twilio.");
+                    error_log("[Shopply] SMS sent to $twilioTo via Twilio.");
                     return;
                 }
-                error_log("[Shopply] Twilio failed: " . $response->body());
+                error_log("[Shopply] Twilio failed for $twilioTo: " . $response->body());
             } catch (\Exception $e) {
                 error_log("[Shopply] Twilio error: " . $e->getMessage());
             }
@@ -133,17 +141,11 @@ class AuthController extends Controller
             ], 500);
         }
 
-        $isMock = !env('SEMAPHORE_API_KEY') && !(env('TWILIO_SID') && env('TWILIO_AUTH_TOKEN') && env('TWILIO_NUMBER'));
-        $resp = [
+        return response()->json([
             'message'         => 'OTP sent to your phone number. Please verify to complete registration.',
             'requires_verify' => true,
             'pending_email'   => $request->phone,
-        ];
-        if ($isMock) {
-            $resp['debug_otp'] = $otp;
-        }
-
-        return response()->json($resp, 201);
+        ], 201);
     }
 
     /**
@@ -229,13 +231,7 @@ class AuthController extends Controller
             ], 500);
         }
 
-        $isMock = !env('SEMAPHORE_API_KEY') && !(env('TWILIO_SID') && env('TWILIO_AUTH_TOKEN') && env('TWILIO_NUMBER'));
-        $resp = ['message' => 'New OTP sent to your phone number.'];
-        if ($isMock) {
-            $resp['debug_otp'] = $otp;
-        }
-
-        return response()->json($resp);
+        return response()->json(['message' => 'New OTP sent to your phone number.']);
     }
 
     public function login(Request $request)
@@ -273,18 +269,12 @@ class AuthController extends Controller
                 $this->sendOtp($user);
             }
 
-            $isMock = !env('SEMAPHORE_API_KEY') && !(env('TWILIO_SID') && env('TWILIO_AUTH_TOKEN') && env('TWILIO_NUMBER'));
-            $resp = [
+            return response()->json([
                 'message'         => 'Please verify your account first.',
                 'requires_verify' => true,
                 'token'           => $token,
                 'user'            => $this->formatUser($user),
-            ];
-            if ($isMock) {
-                $resp['debug_otp'] = $user->fresh()->otp_code;
-            }
-
-            return response()->json($resp, 403);
+            ], 403);
         }
 
         // ✅ Only delete tokens on a successful verified login
@@ -449,13 +439,7 @@ class AuthController extends Controller
 
         $this->sendOtp($user);
 
-        $isMock = !env('SEMAPHORE_API_KEY') && !(env('TWILIO_SID') && env('TWILIO_AUTH_TOKEN') && env('TWILIO_NUMBER'));
-        $resp = ['message' => 'New OTP sent to your phone number.'];
-        if ($isMock) {
-            $resp['debug_otp'] = $user->fresh()->otp_code;
-        }
-
-        return response()->json($resp);
+        return response()->json(['message' => 'New OTP sent to your phone number.']);
     }
 
     public function logout(Request $request)
