@@ -817,7 +817,9 @@ export default function ShopPage() {
           display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:48px}
         .item-content{padding:24px;flex-grow:1;display:flex;flex-direction:column}
         .item-name{font-size:18px;font-weight:700;color:#0f172a;margin-bottom:8px}
-        .item-desc{font-size:14px;color:#64748b;line-height:1.5;margin-bottom:20px;flex-grow:1}
+        .item-desc{font-size:14px;color:#64748b;line-height:1.5;margin-bottom:20px;
+          display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;
+          height:4.5em}
         .item-footer{display:flex;align-items:center;justify-content:space-between;
           padding-top:16px;border-top:1px solid #f1f5f9}
         .item-price{font-size:20px;font-weight:700;color:#10b981}
