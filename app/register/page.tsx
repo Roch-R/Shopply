@@ -246,7 +246,7 @@ export default function RegisterPage() {
                 type="text" placeholder="Username"
                 value={username}
                 onChange={e => { setUsername(e.target.value); setError(""); }}
-                autoComplete="username"
+                autoComplete="off"
               />
             </div>
 
