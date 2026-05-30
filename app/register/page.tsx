@@ -67,6 +67,8 @@ export default function RegisterPage() {
     setError("");
     if (!username.trim()) { setError("Username is required."); return; }
     if (!phone.trim()) { setError("Phone number is required."); return; }
+    if (phone.length !== 11) { setError("Phone number must be exactly 11 digits (e.g. 09XXXXXXXXX)."); return; }
+    if (!phone.startsWith("09")) { setError("Phone number must start with 09."); return; }
     if (!password) { setError("Password is required."); return; }
     if (password.length < 6) { setError("Password must be at least 6 characters."); return; }
     if (!confirm) { setError("Please confirm your password."); return; }
@@ -246,15 +248,28 @@ export default function RegisterPage() {
               />
             </div>
 
+
             <div className="field">
               <label>Phone Number</label>
               <input
                 type="tel" placeholder="09xxxxxxxxx"
                 value={phone}
-                onChange={e => { setPhone(e.target.value); setError(""); }}
+                maxLength={11}
+                onChange={e => {
+                  // Only allow digits, max 11 characters
+                  const digits = e.target.value.replace(/\D/g, "").slice(0, 11);
+                  setPhone(digits);
+                  setError("");
+                }}
                 autoComplete="tel"
               />
+              {phone.length > 0 && phone.length < 11 && (
+                <p className="hint" style={{ color: phone.length === 11 ? '#10b981' : '#94a3b8' }}>
+                  {phone.length}/11 digits
+                </p>
+              )}
             </div>
+
 
             <div className="row">
               <div className="field">
