@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { apiRegister } from "@/lib/api";
@@ -41,6 +41,11 @@ export default function RegisterPage() {
   const [showConfirm, setShowConfirm] = useState(false);
   const [showGoogleModal, setShowGoogleModal] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [origin, setOrigin] = useState("");
+
+  useEffect(() => {
+    setOrigin(window.location.origin);
+  }, []);
 
   const strength =
     password.length === 0 ? 0 : password.length < 6 ? 1 : password.length < 10 ? 2 : 3;
@@ -336,12 +341,12 @@ export default function RegisterPage() {
                     Create an OAuth Client ID (Web application) and add the following Authorized Redirect URI exactly as shown:
                   </p>
                   <div className="code-block">
-                    {`${window.location.origin}/auth/google/callback`}
+                    {`${origin}/auth/google/callback`}
                     <button
                       type="button"
                       className="copy-btn"
                       onClick={() => {
-                        navigator.clipboard.writeText(`${window.location.origin}/auth/google/callback`);
+                        navigator.clipboard.writeText(`${origin}/auth/google/callback`);
                         setCopied(true);
                         setTimeout(() => setCopied(false), 2000);
                       }}
