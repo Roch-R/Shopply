@@ -164,14 +164,14 @@ class AuthController extends Controller
             'otp'      => $otp,
         ], now()->addMinutes(15));
 
-        // Send OTP SMS (bypassed since client-side Firebase handles this)
-        // try {
-        //     $this->sendOtpSms($request->phone, $otp);
-        // } catch (\Exception $e) {
-        //     return response()->json([
-        //         'message' => 'Failed to send SMS: ' . $e->getMessage()
-        //     ], 500);
-        // }
+        // Send OTP SMS via backend
+        try {
+            $this->sendOtpSms($request->phone, $otp);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Failed to send SMS: ' . $e->getMessage()
+            ], 500);
+        }
 
         return response()->json([
             'message'         => 'OTP sent to your phone number. Please verify to complete registration.',
@@ -265,14 +265,14 @@ class AuthController extends Controller
         $pending['otp'] = $otp;
         Cache::put($cacheKey, $pending, now()->addMinutes(15));
 
-        // Resend SMS OTP (bypassed since client-side Firebase handles this)
-        // try {
-        //     $this->sendOtpSms($phone, $otp);
-        // } catch (\Exception $e) {
-        //     return response()->json([
-        //         'message' => 'Failed to send SMS: ' . $e->getMessage()
-        //     ], 500);
-        // }
+        // Resend SMS OTP via backend
+        try {
+            $this->sendOtpSms($phone, $otp);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Failed to send SMS: ' . $e->getMessage()
+            ], 500);
+        }
 
         return response()->json(['message' => 'New OTP sent to your phone number.']);
     }
@@ -308,10 +308,10 @@ class AuthController extends Controller
             $otpMissing = ! $user->otp_code;
             $otpExpired = $user->otp_expires_at && now()->isAfter($user->otp_expires_at);
 
-            // Bypassed since client-side Firebase handles this
-            // if ($otpMissing || $otpExpired) {
-            //     $this->sendOtp($user);
-            // }
+            // Send OTP on login if missing or expired
+            if ($otpMissing || $otpExpired) {
+                $this->sendOtp($user);
+            }
 
             return response()->json([
                 'message'         => 'Please verify your account first.',
@@ -491,8 +491,8 @@ class AuthController extends Controller
             return response()->json(['message' => 'Phone number already verified.'], 200);
         }
 
-        // Bypassed since client-side Firebase handles this
-        // $this->sendOtp($user);
+        // Send OTP via backend
+        $this->sendOtp($user);
 
         return response()->json(['message' => 'New OTP sent to your phone number.']);
     }
