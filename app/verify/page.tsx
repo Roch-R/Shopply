@@ -198,17 +198,6 @@ export default function VerifyPage() {
     if (!pendingPhone) { setError("No phone number to resend to."); return; }
     setResending(true); setError(""); setSuccess("");
     
-    if (typeof window !== "undefined") {
-      const gWindow = window as any;
-      if (gWindow.recaptchaVerifier) {
-        try {
-          gWindow.recaptchaVerifier.clear();
-          gWindow.recaptchaVerifier = null;
-        } catch (e) {
-          console.error("Error clearing recaptcha:", e);
-        }
-      }
-    }
     hasSent.current = false;
     
     try {
