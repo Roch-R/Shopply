@@ -133,11 +133,17 @@ class AuthController extends Controller
             ], 500);
         }
 
-        return response()->json([
+        $isMock = !env('SEMAPHORE_API_KEY') && !(env('TWILIO_SID') && env('TWILIO_AUTH_TOKEN') && env('TWILIO_NUMBER'));
+        $resp = [
             'message'         => 'OTP sent to your phone number. Please verify to complete registration.',
             'requires_verify' => true,
             'pending_email'   => $request->phone,
-        ], 201);
+        ];
+        if ($isMock) {
+            $resp['debug_otp'] = $otp;
+        }
+
+        return response()->json($resp, 201);
     }
 
     /**
@@ -223,7 +229,13 @@ class AuthController extends Controller
             ], 500);
         }
 
-        return response()->json(['message' => 'New OTP sent to your phone number.']);
+        $isMock = !env('SEMAPHORE_API_KEY') && !(env('TWILIO_SID') && env('TWILIO_AUTH_TOKEN') && env('TWILIO_NUMBER'));
+        $resp = ['message' => 'New OTP sent to your phone number.'];
+        if ($isMock) {
+            $resp['debug_otp'] = $otp;
+        }
+
+        return response()->json($resp);
     }
 
     public function login(Request $request)
@@ -261,12 +273,18 @@ class AuthController extends Controller
                 $this->sendOtp($user);
             }
 
-            return response()->json([
+            $isMock = !env('SEMAPHORE_API_KEY') && !(env('TWILIO_SID') && env('TWILIO_AUTH_TOKEN') && env('TWILIO_NUMBER'));
+            $resp = [
                 'message'         => 'Please verify your account first.',
                 'requires_verify' => true,
                 'token'           => $token,
                 'user'            => $this->formatUser($user),
-            ], 403);
+            ];
+            if ($isMock) {
+                $resp['debug_otp'] = $user->fresh()->otp_code;
+            }
+
+            return response()->json($resp, 403);
         }
 
         // ✅ Only delete tokens on a successful verified login
@@ -431,7 +449,13 @@ class AuthController extends Controller
 
         $this->sendOtp($user);
 
-        return response()->json(['message' => 'New OTP sent to your phone number.']);
+        $isMock = !env('SEMAPHORE_API_KEY') && !(env('TWILIO_SID') && env('TWILIO_AUTH_TOKEN') && env('TWILIO_NUMBER'));
+        $resp = ['message' => 'New OTP sent to your phone number.'];
+        if ($isMock) {
+            $resp['debug_otp'] = $user->fresh()->otp_code;
+        }
+
+        return response()->json($resp);
     }
 
     public function logout(Request $request)

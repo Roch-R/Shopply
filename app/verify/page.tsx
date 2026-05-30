@@ -12,6 +12,7 @@ export default function VerifyPage() {
   const [loading, setLoading] = useState(false);
   const [resending, setResending] = useState(false);
   const [redirecting, setRedirecting] = useState(false);
+  const [localDebugOtp, setLocalDebugOtp] = useState<string | null>(null);
 
   const API = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
   const getToken = () => typeof window !== "undefined" ? localStorage.getItem("token") : null;
@@ -20,8 +21,13 @@ export default function VerifyPage() {
     const token = localStorage.getItem("token");
     const raw = localStorage.getItem("user");
     const pendingEmail = localStorage.getItem("pending_email");
+    const storedDebug = localStorage.getItem("debug_otp");
 
     console.log("[verify] Initial check. Token:", !!token, "Pending Email:", !!pendingEmail);
+
+    if (storedDebug) {
+      setLocalDebugOtp(storedDebug);
+    }
 
     if (!token && !pendingEmail) {
       console.log("[verify] Missing credentials, redirecting to login");
@@ -48,6 +54,7 @@ export default function VerifyPage() {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     localStorage.removeItem("pending_email");
+    localStorage.removeItem("debug_otp");
     getApiCache().invalidateAll();
     window.location.href = "/login";
   };
@@ -104,6 +111,7 @@ export default function VerifyPage() {
       if (data.token) localStorage.setItem("token", data.token);
       if (data.user) localStorage.setItem("user", JSON.stringify(data.user));
       localStorage.removeItem("pending_email");
+      localStorage.removeItem("debug_otp");
 
       setSuccess("✓ Phone verified! Redirecting...");
       setRedirecting(true);
@@ -144,6 +152,10 @@ export default function VerifyPage() {
       } else if (!res.ok) {
         setError(data.message || "Failed to resend.");
       } else {
+        if (data.debug_otp) {
+          localStorage.setItem("debug_otp", data.debug_otp);
+          setLocalDebugOtp(data.debug_otp);
+        }
         setSuccess("New OTP sent! Check your phone number.");
       }
     } catch {
@@ -211,6 +223,45 @@ export default function VerifyPage() {
 
           {error && <div className="err">⚠ {error}</div>}
           {success && <div className="ok">{success}</div>}
+
+          {localDebugOtp && (
+            <div style={{
+              background: "#fff9db",
+              border: "1.5px solid #ffe066",
+              borderRadius: "12px",
+              padding: "14px 16px",
+              fontSize: "14.5px",
+              color: "#856404",
+              marginBottom: "20px",
+              textAlign: "left",
+              lineHeight: "1.5",
+              display: "flex",
+              flexDirection: "column",
+              gap: 4
+            }}>
+              <div style={{ fontWeight: "700", display: "flex", alignItems: "center", gap: 6 }}>
+                <span>⚠️</span> Mock SMS Mode
+              </div>
+              <div>
+                Since no SMS provider is configured on the backend, please use this verification code:
+              </div>
+              <div style={{
+                fontFamily: "monospace",
+                fontSize: "22px",
+                fontWeight: "700",
+                letterSpacing: "4px",
+                background: "#fff",
+                border: "1px solid #ffe066",
+                padding: "8px 12px",
+                borderRadius: "8px",
+                textAlign: "center",
+                marginTop: "6px",
+                color: "#2b2b2b"
+              }}>
+                {localDebugOtp}
+              </div>
+            </div>
+          )}
 
           <input
             className="otp-input"
