@@ -172,6 +172,8 @@ export default function RegisterPage() {
         .foot a{color:#4f46e5;text-decoration:none;font-weight:600}
         .foot a:hover{color:#4338ca}
         .hint{font-size:11px;color:#94a3b8;margin-top:4px}
+        .telegram-hint{display:flex;align-items:center;gap:5px;font-size:11px;color:#0284c7;margin-top:4px;font-weight:500}
+        .telegram-hint svg{color:#0284c7;flex-shrink:0}
 
         /* Modal Styles */
         .modal-overlay{position:fixed;inset:0;background:rgba(15,23,42,.6);backdrop-filter:blur(8px);
@@ -263,11 +265,19 @@ export default function RegisterPage() {
                 }}
                 autoComplete="tel"
               />
-              {phone.length > 0 && phone.length < 11 && (
-                <p className="hint" style={{ color: phone.length === 11 ? '#10b981' : '#94a3b8' }}>
-                  {phone.length}/11 digits
-                </p>
-              )}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 2 }}>
+                <div className="telegram-hint">
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
+                    <path d="M12 0C5.37 0 0 5.37 0 12s5.37 12 12 12 12-5.37 12-12S18.63 0 12 0zm5.56 8.61l-1.91 9c-.14.65-.53.81-1.08.5l-2.92-2.15-1.41 1.36c-.16.16-.29.29-.59.29l.21-3 5.46-4.93c.24-.22-.05-.34-.37-.13L8.2 14.39l-2.91-.91c-.63-.2-1.12-.2-1.12-.76.03-.5.55-.74 1.63-1.16 3.16-1.33 5.27-2.21 6.33-2.66 3.02-1.28 3.65-1.5 4.06-1.5.09 0 .29.02.42.12.11.09.14.21.15.3l.03.35z"/>
+                  </svg>
+                  <span>Telegram is required for OTP</span>
+                </div>
+                {phone.length > 0 && phone.length < 11 && (
+                  <span style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 500, marginTop: 4 }}>
+                    {phone.length}/11 digits
+                  </span>
+                )}
+              </div>
             </div>
 
 
