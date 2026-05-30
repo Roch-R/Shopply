@@ -19,6 +19,7 @@ class AuthController extends Controller
             'name'              => $user->name,
             'username'          => $user->username,
             'email'             => $user->username,
+            'phone'             => $user->phone,
             'avatar'            => $user->avatar,
             'followers_count'   => $user->followers_count ?? 0,
             'following_count'   => $user->following_count ?? 0,
@@ -37,136 +38,67 @@ class AuthController extends Controller
             'otp_code'       => $otp,
             'otp_expires_at' => now()->addMinutes(10),
         ]);
-        $this->sendOtpEmail($user->email, $user->name, $otp);
+        $this->sendOtpSms($user->phone ?? '', $otp);
     }
 
-    private function sendOtpEmail(string $email, string $name, string $otp): void
+    private function sendOtpSms(string $phone, string $otp): void
     {
-        $name = e($name);
-        $year = date('Y');
+        $message = "Your Shopply verification code is: $otp. Expires in 10 minutes.";
 
-        $otpDisplay = $otp;
+        // 1. Semaphore SMS API
+        $semaphoreApiKey = env('SEMAPHORE_API_KEY');
+        if ($semaphoreApiKey && $phone) {
+            try {
+                $response = \Illuminate\Support\Facades\Http::post('https://api.semaphore.co/api/v4/messages', [
+                    'apikey'  => $semaphoreApiKey,
+                    'number'  => $phone,
+                    'message' => $message,
+                ]);
+                if ($response->successful()) {
+                    \Log::info("SMS sent to $phone via Semaphore.");
+                    return;
+                }
+                \Log::error("Semaphore failed: " . $response->body());
+            } catch (\Exception $e) {
+                \Log::error("Semaphore error: " . $e->getMessage());
+            }
+        }
 
-        $html = <<<HTML
-<!DOCTYPE html>
-<html lang="en">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
-<body style="margin:0;padding:0;background-color:#f5f3ff;font-family:'Segoe UI','Helvetica Neue',Arial,sans-serif;">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f5f3ff;padding:40px 16px;">
-<tr><td align="center">
+        // 2. Twilio SMS API
+        $twilioSid = env('TWILIO_SID');
+        $twilioToken = env('TWILIO_AUTH_TOKEN');
+        $twilioNumber = env('TWILIO_NUMBER');
+        if ($twilioSid && $twilioToken && $twilioNumber && $phone) {
+            try {
+                $response = \Illuminate\Support\Facades\Http::withBasicAuth($twilioSid, $twilioToken)
+                    ->post("https://api.twilio.com/2010-04-01/Accounts/$twilioSid/Messages.json", [
+                        'To'   => $phone,
+                        'From' => $twilioNumber,
+                        'Body' => $message,
+                    ]);
+                if ($response->successful()) {
+                    \Log::info("SMS sent to $phone via Twilio.");
+                    return;
+                }
+                \Log::error("Twilio failed: " . $response->body());
+            } catch (\Exception $e) {
+                \Log::error("Twilio error: " . $e->getMessage());
+            }
+        }
 
-<!-- Main Card -->
-<table role="presentation" width="520" cellpadding="0" cellspacing="0" style="max-width:520px;width:100%;background:#ffffff;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(124,58,237,0.08);">
-
-  <!-- Logo Bar -->
-  <tr>
-    <td style="padding:32px 40px 0;text-align:center;">
-      <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 auto;">
-        <tr>
-          <td style="vertical-align:middle;padding-right:12px;">
-            <img src="%%LOGO_CID%%" alt="Shopply" width="32" height="42" style="display:block;border:0;" />
-          </td>
-          <td style="vertical-align:middle;">
-            <span style="font-size:22px;font-weight:700;color:#7c3aed;letter-spacing:-0.3px;font-family:'Segoe UI',Arial,sans-serif;">Shopply</span>
-          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-
-  <!-- Greeting -->
-  <tr>
-    <td style="padding:36px 40px 0;text-align:left;">
-      <h1 style="margin:0 0 16px;font-size:22px;font-weight:700;color:#1e1b4b;">Hey {$name}! 👋</h1>
-      <p style="margin:0 0 8px;font-size:15px;color:#475569;line-height:1.7;">
-        Thanks for signing up — we're excited to have you on board!
-      </p>
-      <p style="margin:0;font-size:15px;color:#475569;line-height:1.7;">
-        To get started, enter this verification code in the app:
-      </p>
-    </td>
-  </tr>
-
-  <!-- OTP Code -->
-  <tr>
-    <td style="padding:28px 40px;" align="center">
-      <div style="font-size:36px;font-weight:700;color:#7c3aed;letter-spacing:14px;font-family:'Segoe UI',Arial,sans-serif;padding:20px 0;">
-        {$otpDisplay}
-      </div>
-    </td>
-  </tr>
-
-  <!-- Expiry Note -->
-  <tr>
-    <td style="padding:0 40px;text-align:center;">
-      <p style="margin:0;font-size:13px;color:#a78bfa;font-weight:500;">
-        ⏱ This code expires in <strong style="color:#7c3aed;">10 minutes</strong>
-      </p>
-    </td>
-  </tr>
-
-  <!-- Friendly Note -->
-  <tr>
-    <td style="padding:28px 40px 0;text-align:left;">
-      <p style="margin:0;font-size:14px;color:#64748b;line-height:1.7;">
-        If you didn't create a Shopply account, no worries — just ignore this email and nothing will happen. 😊
-      </p>
-    </td>
-  </tr>
-
-  <!-- Sign-off -->
-  <tr>
-    <td style="padding:24px 40px 0;text-align:left;">
-      <p style="margin:0 0 4px;font-size:14px;color:#475569;line-height:1.6;">
-        Cheers,<br/>
-        <strong style="color:#7c3aed;">The Shopply Team</strong>
-      </p>
-    </td>
-  </tr>
-
-  <!-- Divider -->
-  <tr>
-    <td style="padding:28px 40px 0;">
-      <div style="height:1px;background:#f1f0fb;"></div>
-    </td>
-  </tr>
-
-  <!-- Footer -->
-  <tr>
-    <td style="padding:20px 40px 28px;text-align:center;">
-      <p style="margin:0 0 4px;font-size:11px;color:#c4b5fd;">🔒 Never share this code with anyone</p>
-      <p style="margin:0;font-size:11px;color:#cbd5e1;">© {$year} Shopply · All rights reserved</p>
-    </td>
-  </tr>
-
-</table>
-
-</td></tr>
-</table>
-</body>
-</html>
-HTML;
-
-        $logoPath = storage_path('app/images/shopply-logo.png');
-        $html = str_replace('%%LOGO_CID%%', 'cid:shopply-logo', $html);
-        
-        $destinationEmail = 'robertpahugot123456@gmail.com';
-
-        dispatch(function () use ($destinationEmail, $html, $logoPath) {
-            Mail::send([], [], function ($m) use ($destinationEmail, $html, $logoPath) {
-                $m->to($destinationEmail)
-                  ->subject('Shopply — Email Verification Code')
-                  ->html($html);
-                $m->getSymfonyMessage()->embedFromPath($logoPath, 'shopply-logo', 'image/png');
-            });
-        });
+        // 3. Fallback: log to storage/logs/laravel.log
+        \Log::info("----- [SMS OTP MOCK] -----");
+        \Log::info("To: " . ($phone ?: 'N/A'));
+        \Log::info("Body: $message");
+        \Log::info("--------------------------");
     }
 
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'name'     => 'required|string|max:255',
-            'username' => 'required|string|email|max:255|unique:users',
+            'username' => 'required|string|max:255|unique:users',
+            'phone'    => 'required|string|max:255|unique:users',
             'password' => 'required|string|min:6',
         ]);
 
@@ -177,39 +109,31 @@ HTML;
             ], 422);
         }
 
-        // Also check if there's already a pending registration for this email
-        // (allow re-register to update the pending data)
-
         $otp = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
 
         // Store pending registration in cache (NOT in the database)
         // Expires in 15 minutes
-        Cache::put('pending_reg_' . $request->username, [
+        Cache::put('pending_reg_' . $request->phone, [
             'name'     => $request->name,
             'username' => $request->username,
+            'phone'    => $request->phone,
             'password' => Hash::make($request->password),
             'otp'      => $otp,
         ], now()->addMinutes(15));
 
-        // Send OTP email
+        // Send OTP SMS
         try {
-            $this->sendOtpEmail($request->username, $request->name, $otp);
+            $this->sendOtpSms($request->phone, $otp);
         } catch (\Exception $e) {
-            // Check if it's a Resend 403 error
-            if (str_contains($e->getMessage(), '403')) {
-                return response()->json([
-                    'message' => 'Resend Free Tier Error: You can ONLY send emails to the exact address you signed up with (robertpahugot123456@gmail.com).'
-                ], 400);
-            }
             return response()->json([
-                'message' => 'Failed to send email: ' . $e->getMessage()
+                'message' => 'Failed to send SMS: ' . $e->getMessage()
             ], 500);
         }
 
         return response()->json([
-            'message'         => 'OTP sent to your email. Please verify to complete registration.',
+            'message'         => 'OTP sent to your phone number. Please verify to complete registration.',
             'requires_verify' => true,
-            'pending_email'   => $request->username,
+            'pending_email'   => $request->phone,
         ], 201);
     }
 
@@ -220,7 +144,7 @@ HTML;
     public function verifyRegistration(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'email' => 'required|string|email',
+            'email' => 'required|string',
             'otp'   => 'required|string|size:6',
         ]);
 
@@ -228,7 +152,8 @@ HTML;
             return response()->json(['message' => $validator->errors()->first()], 422);
         }
 
-        $cacheKey = 'pending_reg_' . $request->email;
+        $phone = $request->email;
+        $cacheKey = 'pending_reg_' . $phone;
         $pending = Cache::get($cacheKey);
 
         if (!$pending) {
@@ -243,6 +168,7 @@ HTML;
         $user = User::create([
             'name'              => $pending['name'],
             'username'          => $pending['username'],
+            'phone'             => $pending['phone'],
             'password'          => $pending['password'],
             'email_verified_at' => now(),
         ]);
@@ -253,7 +179,7 @@ HTML;
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
-            'message' => 'Email verified successfully!',
+            'message' => 'Phone number verified successfully!',
             'token'   => $token,
             'user'    => $this->formatUser($user),
         ]);
@@ -265,14 +191,15 @@ HTML;
     public function resendRegistrationOtp(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'email' => 'required|string|email',
+            'email' => 'required|string',
         ]);
 
         if ($validator->fails()) {
             return response()->json(['message' => $validator->errors()->first()], 422);
         }
 
-        $cacheKey = 'pending_reg_' . $request->email;
+        $phone = $request->email;
+        $cacheKey = 'pending_reg_' . $phone;
         $pending = Cache::get($cacheKey);
 
         if (!$pending) {
@@ -284,21 +211,16 @@ HTML;
         $pending['otp'] = $otp;
         Cache::put($cacheKey, $pending, now()->addMinutes(15));
 
-        // Resend email
+        // Resend SMS OTP
         try {
-            $this->sendOtpEmail($pending['username'], $pending['name'], $otp);
+            $this->sendOtpSms($phone, $otp);
         } catch (\Exception $e) {
-            if (str_contains($e->getMessage(), '403')) {
-                return response()->json([
-                    'message' => 'Resend Free Tier Error: You can ONLY send emails to the exact address you signed up with (robertpahugot123456@gmail.com).'
-                ], 400);
-            }
             return response()->json([
-                'message' => 'Failed to send email: ' . $e->getMessage()
+                'message' => 'Failed to send SMS: ' . $e->getMessage()
             ], 500);
         }
 
-        return response()->json(['message' => 'New OTP sent to your email.']);
+        return response()->json(['message' => 'New OTP sent to your phone number.']);
     }
 
     public function login(Request $request)
@@ -466,7 +388,7 @@ HTML;
 
     if ($user->email_verified_at) {
         return response()->json([
-            'message' => 'Email already verified.',
+            'message' => 'Phone number already verified.',
             'user'    => $this->formatUser($user),
         ], 200);
     }
@@ -490,7 +412,7 @@ HTML;
     $freshToken = $user->createToken('auth_token')->plainTextToken;
 
     return response()->json([
-        'message' => 'Email verified successfully!',
+        'message' => 'Phone number verified successfully!',
         'token'   => $freshToken,
         'user'    => $this->formatUser($user->fresh()),
     ]);
@@ -501,12 +423,12 @@ HTML;
         $user = $request->user();
 
         if ($user->email_verified_at) {
-            return response()->json(['message' => 'Email already verified.'], 200);
+            return response()->json(['message' => 'Phone number already verified.'], 200);
         }
 
         $this->sendOtp($user);
 
-        return response()->json(['message' => 'New OTP sent to your email.']);
+        return response()->json(['message' => 'New OTP sent to your phone number.']);
     }
 
     public function logout(Request $request)

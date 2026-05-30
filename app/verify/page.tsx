@@ -105,7 +105,7 @@ export default function VerifyPage() {
       if (data.user) localStorage.setItem("user", JSON.stringify(data.user));
       localStorage.removeItem("pending_email");
 
-      setSuccess("✓ Email verified! Redirecting...");
+      setSuccess("✓ Phone verified! Redirecting...");
       setRedirecting(true);
       window.location.href = "/dashboard";
 
@@ -144,7 +144,7 @@ export default function VerifyPage() {
       } else if (!res.ok) {
         setError(data.message || "Failed to resend.");
       } else {
-        setSuccess("New OTP sent! Check your email.");
+        setSuccess("New OTP sent! Check your phone number.");
       }
     } catch {
       setError("Network error. Please try again.");
@@ -202,10 +202,10 @@ export default function VerifyPage() {
       `}</style>
       <div className="root">
         <div className="card">
-          <div className="icon-wrap">📧</div>
-          <h1>Verify your email</h1>
+          <div className="icon-wrap">💬</div>
+          <h1>Verify your phone</h1>
           <p className="sub">
-            We sent a 6-digit code to your email address.<br/>
+            We sent a 6-digit SMS OTP to your phone number.<br/>
             Enter it below to activate your account.
           </p>
 
@@ -226,7 +226,7 @@ export default function VerifyPage() {
           <button className="btn" onClick={handleVerify} disabled={loading || !!success}>
             {loading ? (
               <div className="animate-pulse bg-white/40 rounded" style={{ height: 16, width: 100 }}></div>
-            ) : "Verify Email →"}
+            ) : "Verify Phone →"}
           </button>
 
           <div className="divider">

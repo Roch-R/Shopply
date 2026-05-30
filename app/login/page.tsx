@@ -226,15 +226,15 @@ export default function LoginPage() {
             {error && <div className="err"><span>⚠</span>{error}</div>}
             <form onSubmit={handleSubmit} method="POST">
               <div className="field">
-                <label>Email Address</label>
+                <label>Username</label>
                 <input
-                  type="email"
+                  type="text"
                   name="username"
-                  placeholder="you@example.com"
+                  placeholder="e.g. rochellreponte1"
                   value={form.username}
                   onChange={handleChange}
                   required
-                  autoComplete="email"
+                  autoComplete="username"
                 />
               </div>
               <div className="field">

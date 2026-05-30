@@ -5,6 +5,7 @@ export interface AuthUser {
   id: number;
   name: string;
   username: string;
+  phone: string | null;
   email_verified_at: string | null;
   created_at: string;
   updated_at: string;
@@ -83,6 +84,7 @@ async function request<T>(
 export async function apiRegister(payload: {
   name: string;
   username: string;
+  phone: string;
   password: string;
 }) {
   return request<AuthUser>("/register", {

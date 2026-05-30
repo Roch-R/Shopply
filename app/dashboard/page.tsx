@@ -2002,9 +2002,15 @@ export default function DashboardPage() {
                     <div className="info-card-label">Account Information</div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginTop: 16 }}>
                       <div className="info-row">
-                        <span className="info-card-label">Email Address</span>
-                        <div className="info-card-value">{user.email} <span className="badge badge-green" style={{ fontSize: 10, marginLeft: 8 }}>Verified</span></div>
+                        <span className="info-card-label">Username</span>
+                        <div className="info-card-value">{user.username}</div>
                       </div>
+                      {user.phone && (
+                        <div className="info-row">
+                          <span className="info-card-label">Phone Number</span>
+                          <div className="info-card-value">{user.phone} <span className="badge badge-green" style={{ fontSize: 10, marginLeft: 8 }}>Verified</span></div>
+                        </div>
+                      )}
                       <div className="info-row">
                         <span className="info-card-label">Member Since</span>
                         <div className="info-card-value">{new Date(user.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</div>

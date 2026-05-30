@@ -31,8 +31,8 @@ const GoogleIcon = () => (
 
 export default function RegisterPage() {
   const router = useRouter();
-  const [name, setName] = useState("");
   const [username, setUsername] = useState("");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [error, setError] = useState("");
@@ -60,8 +60,8 @@ export default function RegisterPage() {
 
   const handleSubmit = async () => {
     setError("");
-    if (!name.trim()) { setError("Full name is required."); return; }
     if (!username.trim()) { setError("Username is required."); return; }
+    if (!phone.trim()) { setError("Phone number is required."); return; }
     if (!password) { setError("Password is required."); return; }
     if (password.length < 6) { setError("Password must be at least 6 characters."); return; }
     if (!confirm) { setError("Please confirm your password."); return; }
@@ -69,7 +69,7 @@ export default function RegisterPage() {
 
     setLoading(true);
     try {
-      const data = await apiRegister({ name: name.trim(), username: username.trim(), password });
+      const data = await apiRegister({ name: username.trim(), username: username.trim(), phone: phone.trim(), password });
       getApiCache().invalidateAll();
       localStorage.setItem("token", data.token!);
       localStorage.setItem("user", JSON.stringify(data.user));
@@ -235,19 +235,19 @@ export default function RegisterPage() {
               <label>Full Name</label>
               <input
                 type="text" placeholder="Juan dela Cruz"
-                value={name}
-                onChange={e => { setName(e.target.value); setError(""); }}
+                value={username}
+                onChange={e => { setUsername(e.target.value); setError(""); }}
                 autoComplete="name"
               />
             </div>
 
             <div className="field">
-              <label>Email Address</label>
+              <label>Phone Number</label>
               <input
-                type="email" placeholder="you@example.com"
-                value={username}
-                onChange={e => { setUsername(e.target.value); setError(""); }}
-                autoComplete="email"
+                type="tel" placeholder="09xxxxxxxxx"
+                value={phone}
+                onChange={e => { setPhone(e.target.value); setError(""); }}
+                autoComplete="tel"
               />
             </div>
 
