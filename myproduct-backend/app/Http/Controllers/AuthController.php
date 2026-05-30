@@ -79,6 +79,7 @@ class AuthController extends Controller
                 }
 
                 $response = \Illuminate\Support\Facades\Http::withBasicAuth($twilioSid, $twilioToken)
+                    ->asForm()
                     ->post("https://api.twilio.com/2010-04-01/Accounts/$twilioSid/Messages.json", [
                         'To'   => $twilioTo,
                         'From' => $twilioNumber,
