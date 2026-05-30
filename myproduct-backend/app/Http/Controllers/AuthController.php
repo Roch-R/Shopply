@@ -45,7 +45,7 @@ class AuthController extends Controller
     {
         $message = "Your Shopply verification code is: $otp. Expires in 10 minutes.";
 
-        // 1. Semaphore SMS API
+        // 1. Semaphore SMS API (Philippine SMS gateway)
         $semaphoreApiKey = env('SEMAPHORE_API_KEY');
         if ($semaphoreApiKey && $phone) {
             try {
@@ -55,18 +55,18 @@ class AuthController extends Controller
                     'message' => $message,
                 ]);
                 if ($response->successful()) {
-                    \Log::info("SMS sent to $phone via Semaphore.");
+                    error_log("[Shopply] SMS sent to $phone via Semaphore.");
                     return;
                 }
-                \Log::error("Semaphore failed: " . $response->body());
+                error_log("[Shopply] Semaphore failed: " . $response->body());
             } catch (\Exception $e) {
-                \Log::error("Semaphore error: " . $e->getMessage());
+                error_log("[Shopply] Semaphore error: " . $e->getMessage());
             }
         }
 
         // 2. Twilio SMS API
-        $twilioSid = env('TWILIO_SID');
-        $twilioToken = env('TWILIO_AUTH_TOKEN');
+        $twilioSid    = env('TWILIO_SID');
+        $twilioToken  = env('TWILIO_AUTH_TOKEN');
         $twilioNumber = env('TWILIO_NUMBER');
         if ($twilioSid && $twilioToken && $twilioNumber && $phone) {
             try {
@@ -77,21 +77,24 @@ class AuthController extends Controller
                         'Body' => $message,
                     ]);
                 if ($response->successful()) {
-                    \Log::info("SMS sent to $phone via Twilio.");
+                    error_log("[Shopply] SMS sent to $phone via Twilio.");
                     return;
                 }
-                \Log::error("Twilio failed: " . $response->body());
+                error_log("[Shopply] Twilio failed: " . $response->body());
             } catch (\Exception $e) {
-                \Log::error("Twilio error: " . $e->getMessage());
+                error_log("[Shopply] Twilio error: " . $e->getMessage());
             }
         }
 
-        // 3. Fallback: log to storage/logs/laravel.log
-        \Log::info("----- [SMS OTP MOCK] -----");
-        \Log::info("To: " . ($phone ?: 'N/A'));
-        \Log::info("Body: $message");
-        \Log::info("--------------------------");
+        // 3. Fallback: print to stderr (safe on Railway — no filesystem writes)
+        // In production, configure SEMAPHORE_API_KEY or Twilio env vars above.
+        error_log("----- [SMS OTP MOCK] -----");
+        error_log("To: " . ($phone ?: 'N/A'));
+        error_log("OTP: $otp");
+        error_log("Body: $message");
+        error_log("--------------------------");
     }
+
 
     public function register(Request $request)
     {
