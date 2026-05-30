@@ -241,12 +241,12 @@ export default function RegisterPage() {
             {error && <div className="err"><span>⚠</span>{error}</div>}
 
             <div className="field">
-              <label>Full Name</label>
+              <label>Username</label>
               <input
-                type="text" placeholder="Juan dela Cruz"
+                type="text" placeholder="Username"
                 value={username}
                 onChange={e => { setUsername(e.target.value); setError(""); }}
-                autoComplete="name"
+                autoComplete="username"
               />
             </div>
 

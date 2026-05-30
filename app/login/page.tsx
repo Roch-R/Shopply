@@ -230,7 +230,7 @@ export default function LoginPage() {
                 <input
                   type="text"
                   name="username"
-                  placeholder="e.g. rochellreponte1"
+                  placeholder="Enter username"
                   value={form.username}
                   onChange={handleChange}
                   required
