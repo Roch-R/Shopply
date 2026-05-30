@@ -103,6 +103,38 @@ class AuthController extends Controller
         error_log("--------------------------");
     }
 
+    private function verifyFirebaseToken(string $idToken): ?string
+    {
+        $apiKey = env('FIREBASE_API_KEY', 'AIzaSyDesMBn0S2_mKQwT-dcHP6oSanntLrlsn8');
+        try {
+            $response = \Illuminate\Support\Facades\Http::post("https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=$apiKey", [
+                'idToken' => $idToken,
+            ]);
+
+            if ($response->successful()) {
+                $users = $response->json('users');
+                if (!empty($users) && isset($users[0]['phoneNumber'])) {
+                    $phoneNumber = $users[0]['phoneNumber'];
+                    
+                    // Normalize to 09XXXXXXXXX
+                    if (str_starts_with($phoneNumber, '+639') && strlen($phoneNumber) === 13) {
+                        return '09' . substr($phoneNumber, 4);
+                    }
+                    if (str_starts_with($phoneNumber, '639') && strlen($phoneNumber) === 12) {
+                        return '09' . substr($phoneNumber, 3);
+                    }
+                    return $phoneNumber;
+                }
+            } else {
+                error_log("[Shopply] Firebase token verification failed: " . $response->body());
+            }
+        } catch (\Exception $e) {
+            error_log("[Shopply] Firebase token verification exception: " . $e->getMessage());
+        }
+
+        return null;
+    }
+
 
     public function register(Request $request)
     {
@@ -132,14 +164,14 @@ class AuthController extends Controller
             'otp'      => $otp,
         ], now()->addMinutes(15));
 
-        // Send OTP SMS
-        try {
-            $this->sendOtpSms($request->phone, $otp);
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Failed to send SMS: ' . $e->getMessage()
-            ], 500);
-        }
+        // Send OTP SMS (bypassed since client-side Firebase handles this)
+        // try {
+        //     $this->sendOtpSms($request->phone, $otp);
+        // } catch (\Exception $e) {
+        //     return response()->json([
+        //         'message' => 'Failed to send SMS: ' . $e->getMessage()
+        //     ], 500);
+        // }
 
         return response()->json([
             'message'         => 'OTP sent to your phone number. Please verify to complete registration.',
@@ -155,8 +187,9 @@ class AuthController extends Controller
     public function verifyRegistration(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'email' => 'required|string',
-            'otp'   => 'required|string|size:6',
+            'email'          => 'required|string',
+            'otp'            => 'nullable|string',
+            'firebase_token' => 'nullable|string',
         ]);
 
         if ($validator->fails()) {
@@ -171,8 +204,18 @@ class AuthController extends Controller
             return response()->json(['message' => 'Registration expired or not found. Please register again.'], 422);
         }
 
-        if ($pending['otp'] !== $request->otp) {
-            return response()->json(['message' => 'Invalid OTP code. Please try again.'], 422);
+        if ($request->filled('firebase_token')) {
+            $verifiedPhone = $this->verifyFirebaseToken($request->firebase_token);
+            if (!$verifiedPhone) {
+                return response()->json(['message' => 'Invalid or expired Firebase verification token.'], 422);
+            }
+            if ($verifiedPhone !== $phone) {
+                return response()->json(['message' => 'Firebase verified number (' . $verifiedPhone . ') does not match registration phone number (' . $phone . ').'], 422);
+            }
+        } else {
+            if ($pending['otp'] !== $request->otp) {
+                return response()->json(['message' => 'Invalid OTP code. Please try again.'], 422);
+            }
         }
 
         // OTP is correct — NOW create the user in the database
@@ -222,14 +265,14 @@ class AuthController extends Controller
         $pending['otp'] = $otp;
         Cache::put($cacheKey, $pending, now()->addMinutes(15));
 
-        // Resend SMS OTP
-        try {
-            $this->sendOtpSms($phone, $otp);
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Failed to send SMS: ' . $e->getMessage()
-            ], 500);
-        }
+        // Resend SMS OTP (bypassed since client-side Firebase handles this)
+        // try {
+        //     $this->sendOtpSms($phone, $otp);
+        // } catch (\Exception $e) {
+        //     return response()->json([
+        //         'message' => 'Failed to send SMS: ' . $e->getMessage()
+        //     ], 500);
+        // }
 
         return response()->json(['message' => 'New OTP sent to your phone number.']);
     }
@@ -265,9 +308,10 @@ class AuthController extends Controller
             $otpMissing = ! $user->otp_code;
             $otpExpired = $user->otp_expires_at && now()->isAfter($user->otp_expires_at);
 
-            if ($otpMissing || $otpExpired) {
-                $this->sendOtp($user);
-            }
+            // Bypassed since client-side Firebase handles this
+            // if ($otpMissing || $otpExpired) {
+            //     $this->sendOtp($user);
+            // }
 
             return response()->json([
                 'message'         => 'Please verify your account first.',
@@ -388,7 +432,8 @@ class AuthController extends Controller
    public function verifyEmail(Request $request)
 {
     $validator = Validator::make($request->all(), [
-        'otp' => 'required|string|size:6',
+        'otp'            => 'nullable|string',
+        'firebase_token' => 'nullable|string',
     ]);
 
     if ($validator->fails()) {
@@ -404,12 +449,21 @@ class AuthController extends Controller
         ], 200);
     }
 
-    if ($user->otp_code !== $request->otp) {
-        return response()->json(['message' => 'Invalid OTP code. Please try again.'], 422);
-    }
-
-    if (now()->isAfter($user->otp_expires_at)) {
-        return response()->json(['message' => 'OTP has expired. Please request a new one.'], 422);
+    if ($request->filled('firebase_token')) {
+        $verifiedPhone = $this->verifyFirebaseToken($request->firebase_token);
+        if (!$verifiedPhone) {
+            return response()->json(['message' => 'Invalid or expired Firebase verification token.'], 422);
+        }
+        if ($verifiedPhone !== $user->phone) {
+            return response()->json(['message' => 'Firebase verified number (' . $verifiedPhone . ') does not match account phone number (' . $user->phone . ').'], 422);
+        }
+    } else {
+        if ($user->otp_code !== $request->otp) {
+            return response()->json(['message' => 'Invalid OTP code. Please try again.'], 422);
+        }
+        if (now()->isAfter($user->otp_expires_at)) {
+            return response()->json(['message' => 'OTP has expired. Please request a new one.'], 422);
+        }
     }
 
     $user->update([
@@ -437,7 +491,8 @@ class AuthController extends Controller
             return response()->json(['message' => 'Phone number already verified.'], 200);
         }
 
-        $this->sendOtp($user);
+        // Bypassed since client-side Firebase handles this
+        // $this->sendOtp($user);
 
         return response()->json(['message' => 'New OTP sent to your phone number.']);
     }

@@ -1,8 +1,10 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Skeleton } from "@/components/Skeleton";
 import { getApiCache } from "@/lib/apiCache";
+import { auth } from "@/lib/firebase";
+import { RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult } from "firebase/auth";
 
 export default function VerifyPage() {
   const router = useRouter();
@@ -12,9 +14,26 @@ export default function VerifyPage() {
   const [loading, setLoading] = useState(false);
   const [resending, setResending] = useState(false);
   const [redirecting, setRedirecting] = useState(false);
+  const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
+  const [pendingPhone, setPendingPhone] = useState<string | null>(null);
 
   const API = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
   const getToken = () => typeof window !== "undefined" ? localStorage.getItem("token") : null;
+  const hasSent = useRef(false);
+
+  const formatE164 = (num: string) => {
+    let clean = num.replace(/\D/g, "");
+    if (clean.startsWith("09") && clean.length === 11) {
+      return "+63" + clean.slice(1);
+    }
+    if (clean.startsWith("9") && clean.length === 10) {
+      return "+63" + clean;
+    }
+    if (clean.startsWith("639") && clean.length === 12) {
+      return "+" + clean;
+    }
+    return "+" + clean;
+  };
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -29,6 +48,7 @@ export default function VerifyPage() {
       return;
     }
     
+    let targetPhone = "";
     if (token && raw) {
       try {
         const parsed = JSON.parse(raw);
@@ -36,13 +56,66 @@ export default function VerifyPage() {
           console.log("[verify] Email already verified, redirecting to dashboard");
           setRedirecting(true);
           window.location.href = "/dashboard";
+          return;
         }
+        targetPhone = parsed.phone || "";
       } catch (e) {
         console.error("[verify] Parse error:", e);
         window.location.href = "/login";
+        return;
       }
+    } else if (pendingEmail) {
+      targetPhone = pendingEmail;
+    }
+
+    if (targetPhone) {
+      setPendingPhone(targetPhone);
+      // Wait for DOM layout
+      const timer = setTimeout(() => {
+        initAndSend(targetPhone);
+      }, 600);
+      return () => clearTimeout(timer);
     }
   }, []);
+
+  const initAndSend = async (phoneNumber: string) => {
+    if (hasSent.current) return;
+    hasSent.current = true;
+
+    if (typeof window !== "undefined") {
+      try {
+        const container = document.getElementById("recaptcha-container");
+        if (!container) {
+          console.error("[verify] recaptcha-container not found in DOM");
+          hasSent.current = false;
+          return;
+        }
+        
+        console.log("[verify] Initializing invisible RecaptchaVerifier...");
+        const gWindow = window as any;
+        if (!gWindow.recaptchaVerifier) {
+          gWindow.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+            size: 'invisible',
+            callback: () => {
+              console.log("[verify] Recaptcha solved");
+            }
+          });
+        }
+
+        const formatted = formatE164(phoneNumber);
+        console.log("[verify] Triggering Firebase signInWithPhoneNumber for:", formatted);
+        
+        const confirmation = await signInWithPhoneNumber(auth, formatted, gWindow.recaptchaVerifier);
+        setConfirmationResult(confirmation);
+        setSuccess("SMS verification code sent successfully via Google Firebase!");
+        setError("");
+      } catch (err: any) {
+        console.error("[verify] Firebase send SMS error:", err);
+        setError("Failed to send verification SMS: " + (err?.message || "Internal error"));
+        hasSent.current = false;
+      }
+    }
+  };
 
   const forceLogin = () => {
     localStorage.removeItem("token");
@@ -54,6 +127,8 @@ export default function VerifyPage() {
 
   const handleVerify = async () => {
     if (otp.length !== 6) { setError("Please enter the 6-digit OTP."); return; }
+    if (!confirmationResult) { setError("Verification code was not sent yet or expired. Please click Resend."); return; }
+    
     const token = getToken();
     const pendingEmail = typeof window !== "undefined" ? localStorage.getItem("pending_email") : null;
     
@@ -61,8 +136,11 @@ export default function VerifyPage() {
 
     setLoading(true); setError(""); setSuccess("");
     try {
-      console.log("[verify] Submitting OTP...");
-      
+      console.log("[verify] Verifying OTP code with Firebase...");
+      const result = await confirmationResult.confirm(otp);
+      const idToken = await result.user.getIdToken();
+      console.log("[verify] Firebase OTP matches! ID Token retrieved.");
+
       let res;
       if (pendingEmail) {
         res = await fetch(`${API}/verify-registration`, {
@@ -71,7 +149,7 @@ export default function VerifyPage() {
             "Content-Type": "application/json",
             Accept: "application/json",
           },
-          body: JSON.stringify({ email: pendingEmail, otp }),
+          body: JSON.stringify({ email: pendingEmail, firebase_token: idToken }),
         });
       } else {
         res = await fetch(`${API}/verify-email`, {
@@ -81,12 +159,12 @@ export default function VerifyPage() {
             Accept: "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({ otp }),
+          body: JSON.stringify({ firebase_token: idToken }),
         });
       }
 
       const data = await res.json();
-      console.log("[verify] Response status:", res.status, data);
+      console.log("[verify] Backend validation response:", res.status, data);
 
       if (res.status === 401) {
         setError("Session expired — please log in again.");
@@ -96,7 +174,7 @@ export default function VerifyPage() {
       }
 
       if (!res.ok) {
-        setError(data.message || "Invalid OTP. Please try again.");
+        setError(data.message || "Failed to complete account activation with backend.");
         setLoading(false);
         return;
       }
@@ -105,49 +183,38 @@ export default function VerifyPage() {
       if (data.user) localStorage.setItem("user", JSON.stringify(data.user));
       localStorage.removeItem("pending_email");
 
-      setSuccess("✓ Phone verified! Redirecting...");
+      setSuccess("✓ Phone verified successfully! Redirecting...");
       setRedirecting(true);
       window.location.href = "/dashboard";
 
-    } catch (err) {
-      console.error("[verify] fetch error:", err);
-      setError("Network error. Please check your connection.");
+    } catch (err: any) {
+      console.error("[verify] Firebase verification error:", err);
+      setError(err?.message || "Invalid verification code. Please check and try again.");
       setLoading(false);
     }
   };
 
   const handleResend = async () => {
-    const token = getToken();
-    const pendingEmail = typeof window !== "undefined" ? localStorage.getItem("pending_email") : null;
-    
-    if (!token && !pendingEmail) { forceLogin(); return; }
+    if (!pendingPhone) { setError("No phone number to resend to."); return; }
     setResending(true); setError(""); setSuccess("");
+    
+    if (typeof window !== "undefined") {
+      const gWindow = window as any;
+      if (gWindow.recaptchaVerifier) {
+        try {
+          gWindow.recaptchaVerifier.clear();
+          gWindow.recaptchaVerifier = null;
+        } catch (e) {
+          console.error("Error clearing recaptcha:", e);
+        }
+      }
+    }
+    hasSent.current = false;
+    
     try {
-      let res;
-      if (pendingEmail) {
-        res = await fetch(`${API}/resend-registration-otp`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json", Accept: "application/json" },
-          body: JSON.stringify({ email: pendingEmail })
-        });
-      } else {
-        res = await fetch(`${API}/resend-otp`, {
-          method: "POST",
-          headers: { Accept: "application/json", Authorization: `Bearer ${token}` },
-        });
-      }
-      
-      const data = await res.json();
-      if (res.status === 401) {
-        setError("Session expired — please log in again.");
-        setTimeout(forceLogin, 2000);
-      } else if (!res.ok) {
-        setError(data.message || "Failed to resend.");
-      } else {
-        setSuccess("New OTP sent! Check your phone number.");
-      }
-    } catch {
-      setError("Network error. Please try again.");
+      await initAndSend(pendingPhone);
+    } catch (e: any) {
+      setError(e?.message || "Resend failed.");
     }
     setResending(false);
   };
@@ -205,13 +272,12 @@ export default function VerifyPage() {
           <div className="icon-wrap">💬</div>
           <h1>Verify your phone</h1>
           <p className="sub">
-            We sent a 6-digit SMS OTP to your phone number.<br/>
+            We sent a 6-digit SMS OTP to your phone number ({pendingPhone || "loading..."}).<br/>
             Enter it below to activate your account.
           </p>
 
           {error && <div className="err">⚠ {error}</div>}
           {success && <div className="ok">{success}</div>}
-
 
           <input
             className="otp-input"
@@ -224,7 +290,7 @@ export default function VerifyPage() {
             onKeyDown={e => { if (e.key === "Enter") handleVerify(); }}
           />
 
-          <button className="btn" onClick={handleVerify} disabled={loading || !!success}>
+          <button className="btn" onClick={handleVerify} disabled={loading || !confirmationResult}>
             {loading ? (
               <div className="animate-pulse bg-white/40 rounded" style={{ height: 16, width: 100 }}></div>
             ) : "Verify Phone →"}
@@ -239,6 +305,9 @@ export default function VerifyPage() {
           <button className="resend-btn" onClick={handleResend} disabled={resending}>
             {resending ? "Sending…" : "Resend OTP"}
           </button>
+
+          {/* Invisible Recaptcha Mount Point */}
+          <div id="recaptcha-container"></div>
         </div>
       </div>
     </>
