@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import clientPromise from '@/lib/mongodb';
+import getClientPromise from '@/lib/mongodb';
 
 export async function POST(request: Request) {
   try {
@@ -14,8 +14,8 @@ export async function POST(request: Request) {
       );
     }
 
-    // Connect to MongoDB
-    const client = await clientPromise;
+    // Connect to MongoDB (lazy — checks MONGODB_URI at request time)
+    const client = await getClientPromise();
     const db = client.db('shopply');
     
     // Store message in the database
