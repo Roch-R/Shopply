@@ -37,6 +37,18 @@ class User extends Authenticatable
         return $this->username;
     }
 
+    protected function avatar(): \Illuminate\Database\Eloquent\Casts\Attribute
+    {
+        return \Illuminate\Database\Eloquent\Casts\Attribute::make(
+            get: function ($value) {
+                if (is_string($value) && str_starts_with($value, 'http://shopply-production.up.railway.app')) {
+                    return str_replace('http://shopply-production.up.railway.app', 'https://shopply-production.up.railway.app', $value);
+                }
+                return $value;
+            }
+        );
+    }
+
    protected $casts = [
     'email_verified_at' => 'datetime',
     'otp_expires_at'    => 'datetime',

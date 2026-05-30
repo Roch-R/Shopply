@@ -98,7 +98,7 @@ Route::get('/debug-logs', function() {
     ]);
 });
 
-Route::get('/media/{filename}', function ($filename) {
+Route::get('/media/{filename}', function ($filename, \Illuminate\Http\Request $request) {
     $media = \DB::table('media')->where('filename', $filename)->first();
     if (!$media) {
         abort(404);
@@ -109,8 +109,40 @@ Route::get('/media/{filename}', function ($filename) {
         $data = stream_get_contents($data);
     }
 
-    return response($data)
-        ->header('Content-Type', $media->mime_type)
-        ->header('Cache-Control', 'public, max-age=31536000')
-        ->header('Access-Control-Allow-Origin', '*');
+    $size = strlen($data);
+    $mimeType = $media->mime_type;
+
+    $headers = [
+        'Content-Type' => $mimeType,
+        'Cache-Control' => 'public, max-age=31536000',
+        'Access-Control-Allow-Origin' => '*',
+        'Accept-Ranges' => 'bytes',
+    ];
+
+    if ($request->headers->has('Range')) {
+        $range = $request->header('Range');
+        if (preg_match('/bytes=\s*(\d+)-(\d*)/', $range, $matches)) {
+            $start = intval($matches[1]);
+            $end = $matches[2] !== '' ? intval($matches[2]) : $size - 1;
+
+            if ($start >= $size || $end >= $size || $start > $end) {
+                return response('', 416, [
+                    'Content-Range' => "bytes */$size",
+                    'Access-Control-Allow-Origin' => '*',
+                ]);
+            }
+
+            $length = $end - $start + 1;
+            $chunk = substr($data, $start, $length);
+
+            return response($chunk, 206, array_merge($headers, [
+                'Content-Range' => "bytes $start-$end/$size",
+                'Content-Length' => $length,
+            ]));
+        }
+    }
+
+    return response($data, 200, array_merge($headers, [
+        'Content-Length' => $size,
+    ]));
 });
