@@ -39,10 +39,10 @@ export function getStoredUser(): AuthUser | null {
 }
 
 export function clearAuth() {
-  localStorage.removeItem("token");
-  localStorage.removeItem("user");
-  localStorage.removeItem("pending_email");
   if (typeof window !== "undefined") {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    localStorage.removeItem("pending_email");
     getApiCache().invalidateAll();
   }
 }
@@ -65,9 +65,11 @@ async function request<T>(
 
   // Handle requires_verify on BOTH error (403 login) and success (201 register)
   if (data.requires_verify) {
-    if (data.token) localStorage.setItem("token", data.token);
-    if (data.user) localStorage.setItem("user", JSON.stringify(data.user));
-    if (data.pending_email) localStorage.setItem("pending_email", data.pending_email);
+    if (typeof window !== "undefined") {
+      if (data.token) localStorage.setItem("token", data.token);
+      if (data.user) localStorage.setItem("user", JSON.stringify(data.user));
+      if (data.pending_email) localStorage.setItem("pending_email", data.pending_email);
+    }
     throw new Error("requires_verify");
   }
 
