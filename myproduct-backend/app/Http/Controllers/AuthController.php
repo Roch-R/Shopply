@@ -45,6 +45,25 @@ class AuthController extends Controller
     {
         $message = "Your Shopply verification code is: $otp. Expires in 10 minutes.";
 
+        // 0. Telegram Bot API (Free & reliable alternative to paid SMS carrier gateways)
+        $telegramToken = env('TELEGRAM_BOT_TOKEN');
+        $telegramChatId = env('TELEGRAM_CHAT_ID');
+        if ($telegramToken && $telegramChatId) {
+            try {
+                $response = \Illuminate\Support\Facades\Http::post("https://api.telegram.org/bot{$telegramToken}/sendMessage", [
+                    'chat_id' => $telegramChatId,
+                    'text'    => $message,
+                ]);
+                if ($response->successful()) {
+                    error_log("[Shopply] SMS sent to Telegram Chat $telegramChatId.");
+                    return;
+                }
+                error_log("[Shopply] Telegram API failed: " . $response->body());
+            } catch (\Exception $e) {
+                error_log("[Shopply] Telegram error: " . $e->getMessage());
+            }
+        }
+
         // 1. Semaphore SMS API (Philippine SMS gateway)
         $semaphoreApiKey = env('SEMAPHORE_API_KEY');
         if ($semaphoreApiKey && $phone) {
@@ -178,7 +197,6 @@ class AuthController extends Controller
             'message'         => 'OTP sent to your phone number. Please verify to complete registration.',
             'requires_verify' => true,
             'pending_email'   => $request->phone,
-            'debug_otp'       => $otp,
         ], 201);
     }
 
@@ -278,7 +296,6 @@ class AuthController extends Controller
 
         return response()->json([
             'message' => 'New OTP sent to your phone number.',
-            'debug_otp' => $otp
         ]);
     }
 
@@ -323,7 +340,6 @@ class AuthController extends Controller
                 'requires_verify' => true,
                 'token'           => $token,
                 'user'            => $this->formatUser($user),
-                'debug_otp'       => $user->otp_code,
             ], 403);
         }
 
@@ -502,7 +518,6 @@ class AuthController extends Controller
 
         return response()->json([
             'message' => 'New OTP sent to your phone number.',
-            'debug_otp' => $user->otp_code
         ]);
     }
 
