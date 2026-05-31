@@ -14,6 +14,8 @@ Route::post('/auth/google/callback', [AuthController::class, 'handleGoogleCallba
 Route::post('/verify-registration', [AuthController::class, 'verifyRegistration']);
 Route::post('/resend-registration-otp', [AuthController::class, 'resendRegistrationOtp']);
 Route::post('/telegram/webhook', [AuthController::class, 'telegramWebhook']);
+Route::post('/telegram/link-phone', [AuthController::class, 'telegramLinkPhone']);
+Route::post('/telegram/register-webhook', [AuthController::class, 'telegramRegisterWebhook']);
 
 // Public Shop Route
 Route::get('/shop/items', [ItemController::class, 'index']);

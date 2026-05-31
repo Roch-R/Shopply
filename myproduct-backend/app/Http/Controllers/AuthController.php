@@ -734,4 +734,79 @@ class AuthController extends Controller
 
         return response()->json(['status' => 'ok'], 200);
     }
+
+    /**
+     * Admin: Manually link a phone number to a Telegram Chat ID.
+     * POST /api/telegram/link-phone
+     * Body: { "secret": "shopply_admin_2024", "phone": "09XXXXXXXXX", "chat_id": 123456789 }
+     */
+    public function telegramLinkPhone(Request $request)
+    {
+        if ($request->input('secret') !== env('ADMIN_SECRET', 'shopply_admin_2024')) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        $phone = $request->input('phone');
+        $chatId = $request->input('chat_id');
+
+        if (!$phone || !$chatId) {
+            return response()->json(['error' => 'phone and chat_id are required'], 422);
+        }
+
+        // Normalize phone
+        $normalizedPhone = preg_replace('/\D/', '', $phone);
+        if (str_starts_with($normalizedPhone, '639') && strlen($normalizedPhone) === 12) {
+            $normalizedPhone = '0' . substr($normalizedPhone, 2);
+        } elseif (str_starts_with($normalizedPhone, '9') && strlen($normalizedPhone) === 10) {
+            $normalizedPhone = '0' . $normalizedPhone;
+        }
+
+        \Illuminate\Support\Facades\Cache::forever('telegram_chat_' . $normalizedPhone, $chatId);
+        error_log("[Shopply] Admin linked phone $normalizedPhone to Telegram chat $chatId.");
+
+        return response()->json([
+            'success' => true,
+            'message' => "Phone $normalizedPhone linked to Telegram chat ID $chatId",
+        ]);
+    }
+
+    /**
+     * Admin: Register or update the Telegram webhook.
+     * POST /api/telegram/register-webhook
+     * Body: { "secret": "shopply_admin_2024", "url": "https://your-backend-url" }
+     */
+    public function telegramRegisterWebhook(Request $request)
+    {
+        if ($request->input('secret') !== env('ADMIN_SECRET', 'shopply_admin_2024')) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        $telegramToken = env('TELEGRAM_BOT_TOKEN');
+        if (!$telegramToken) {
+            return response()->json(['error' => 'TELEGRAM_BOT_TOKEN not configured'], 500);
+        }
+
+        $baseUrl = $request->input('url') ?: $request->getSchemeAndHttpHost();
+        $webhookUrl = rtrim($baseUrl, '/') . '/api/telegram/webhook';
+
+        $response = \Illuminate\Support\Facades\Http::post("https://api.telegram.org/bot{$telegramToken}/setWebhook", [
+            'url' => $webhookUrl,
+        ]);
+
+        if ($response->successful()) {
+            \Illuminate\Support\Facades\Cache::forget('telegram_webhook_registered');
+            \Illuminate\Support\Facades\Cache::put('telegram_webhook_registered', true, now()->addDays(30));
+            return response()->json([
+                'success' => true,
+                'webhook_url' => $webhookUrl,
+                'telegram_response' => $response->json(),
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'webhook_url' => $webhookUrl,
+            'telegram_response' => $response->json(),
+        ], 500);
+    }
 }
