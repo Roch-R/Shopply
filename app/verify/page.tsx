@@ -13,6 +13,7 @@ export default function VerifyPage() {
   const [resending, setResending] = useState(false);
   const [redirecting, setRedirecting] = useState(false);
   const [pendingPhone, setPendingPhone] = useState<string | null>(null);
+  const [timeLeft, setTimeLeft] = useState<number>(300);
 
   const API = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
   const getToken = () => typeof window !== "undefined" ? localStorage.getItem("token") : null;
@@ -21,6 +22,22 @@ export default function VerifyPage() {
     const token = localStorage.getItem("token");
     const raw = localStorage.getItem("user");
     const pendingEmail = localStorage.getItem("pending_email");
+
+    // Initialize expiration timer from localStorage
+    const expiresAt = localStorage.getItem("otp_expires_at");
+    if (expiresAt) {
+      const remaining = Math.round((parseInt(expiresAt, 10) - Date.now()) / 1000);
+      if (remaining > 0) {
+        setTimeLeft(remaining);
+      } else {
+        setTimeLeft(0);
+        setError("Your verification code has expired. Please request a new one.");
+      }
+    } else {
+      const fallbackExpires = Date.now() + 300 * 1000;
+      localStorage.setItem("otp_expires_at", fallbackExpires.toString());
+      setTimeLeft(300);
+    }
 
     console.log("[verify] Initial check. Token:", !!token, "Pending Email:", !!pendingEmail);
 
@@ -56,10 +73,28 @@ export default function VerifyPage() {
     }
   }, []);
 
+  useEffect(() => {
+    if (timeLeft <= 0) return;
+
+    const timer = setInterval(() => {
+      setTimeLeft(prev => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          setError("Your verification code has expired. Please request a new one.");
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [timeLeft]);
+
   const forceLogin = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     localStorage.removeItem("pending_email");
+    localStorage.removeItem("otp_expires_at");
     getApiCache().invalidateAll();
     window.location.href = "/login";
   };
@@ -115,6 +150,7 @@ export default function VerifyPage() {
       if (data.token) localStorage.setItem("token", data.token);
       if (data.user) localStorage.setItem("user", JSON.stringify(data.user));
       localStorage.removeItem("pending_email");
+      localStorage.removeItem("otp_expires_at");
 
       setSuccess("✓ Phone verified successfully! Redirecting...");
       setRedirecting(true);
@@ -164,6 +200,9 @@ export default function VerifyPage() {
         throw new Error(data.message || "Failed to resend verification code.");
       }
 
+      const expiresAt = Date.now() + 300 * 1000;
+      localStorage.setItem("otp_expires_at", expiresAt.toString());
+      setTimeLeft(300);
       setSuccess("✓ A new verification code has been sent!");
     } catch (e: any) {
       setError(e?.message || "Resend failed.");
@@ -232,6 +271,17 @@ export default function VerifyPage() {
             Please check your Telegram app and enter the code below.
           </p>
 
+          <div style={{ margin: "0 auto 24px", display: "inline-flex", alignItems: "center", gap: "8px", background: timeLeft > 60 ? "#f0fdf4" : "#fef2f2", border: timeLeft > 60 ? "1px solid #bbf7d0" : "1px solid #fecaca", borderRadius: "100px", padding: "6px 16px", color: timeLeft > 60 ? "#16a34a" : "#ef4444", fontSize: "13px", fontWeight: 600 }}>
+            <span>⏳</span>
+            <span>
+              {timeLeft > 0 ? (
+                `Expires in ${Math.floor(timeLeft / 60).toString().padStart(2, "0")}:${(timeLeft % 60).toString().padStart(2, "0")}`
+              ) : (
+                "Code Expired"
+              )}
+            </span>
+          </div>
+
           {error && <div className="err">⚠ {error}</div>}
           {success && <div className="ok">{success}</div>}
 
@@ -243,10 +293,12 @@ export default function VerifyPage() {
             placeholder="000000"
             value={otp}
             onChange={e => { setOtp(e.target.value.replace(/\D/g, "")); setError(""); setSuccess(""); }}
-            onKeyDown={e => { if (e.key === "Enter") handleVerify(); }}
+            onKeyDown={e => { if (e.key === "Enter" && timeLeft > 0) handleVerify(); }}
+            disabled={timeLeft === 0}
+            style={{ opacity: timeLeft === 0 ? 0.6 : 1 }}
           />
 
-          <button className="btn" onClick={handleVerify} disabled={loading}>
+          <button className="btn" onClick={handleVerify} disabled={loading || timeLeft === 0}>
             {loading ? (
               <div className="animate-pulse bg-white/40 rounded" style={{ height: 16, width: 100 }}></div>
             ) : "Verify Phone →"}
