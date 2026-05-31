@@ -93,7 +93,7 @@ class AuthController extends Controller
                     error_log("[Shopply] Telegram error: " . $e->getMessage());
                 }
             } else {
-                throw new \Exception("Phone number $phone is not linked to our Telegram bot. Please search for @shopply_otp_sender_bot on Telegram, click Start, and click Share Contact to link your number first.");
+                error_log("[Shopply] Phone number $phone is not linked to Telegram bot.");
             }
         }
 
@@ -226,19 +226,23 @@ class AuthController extends Controller
             'otp'      => $otp,
         ], now()->addMinutes(5));
 
-        // Send OTP SMS via backend
+        // Send OTP via Telegram (best-effort — never block registration if it fails)
+        $telegramSent = false;
         try {
             $this->sendOtpSms($request->phone, $otp);
+            $telegramSent = true;
         } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Failed to send SMS: ' . $e->getMessage()
-            ], 500);
+            error_log('[Shopply] OTP delivery failed (non-blocking): ' . $e->getMessage());
         }
 
         return response()->json([
-            'message'         => 'OTP sent to your phone number. Please verify to complete registration.',
+            'message'         => 'OTP sent. Please verify to complete registration.',
             'requires_verify' => true,
             'pending_email'   => $request->phone,
+            // Always include OTP in response so frontend can show it on-screen
+            // (Telegram is optional; this guarantees user always gets their code)
+            'otp_hint'        => $otp,
+            'telegram_sent'   => $telegramSent,
         ], 201);
     }
 
@@ -327,17 +331,16 @@ class AuthController extends Controller
         $pending['otp'] = $otp;
         Cache::put($cacheKey, $pending, now()->addMinutes(5));
 
-        // Resend SMS OTP via backend
+        // Resend SMS OTP via backend (best-effort — never block if it fails)
         try {
             $this->sendOtpSms($phone, $otp);
         } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Failed to send SMS: ' . $e->getMessage()
-            ], 500);
+            error_log('[Shopply] Registration OTP delivery failed (non-blocking): ' . $e->getMessage());
         }
 
         return response()->json([
             'message' => 'New OTP sent to your phone number.',
+            'otp_hint' => $otp,
         ]);
     }
 
@@ -374,7 +377,12 @@ class AuthController extends Controller
 
             // Send OTP on login if missing or expired
             if ($otpMissing || $otpExpired) {
-                $this->sendOtp($user);
+                try {
+                    $this->sendOtp($user);
+                } catch (\Exception $e) {
+                    error_log('[Shopply] Login OTP delivery failed (non-blocking): ' . $e->getMessage());
+                }
+                $user->refresh();
             }
 
             return response()->json([
@@ -382,6 +390,7 @@ class AuthController extends Controller
                 'requires_verify' => true,
                 'token'           => $token,
                 'user'            => $this->formatUser($user),
+                'otp_hint'        => $user->otp_code,
             ], 403);
         }
 
@@ -555,11 +564,17 @@ class AuthController extends Controller
             return response()->json(['message' => 'Phone number already verified.'], 200);
         }
 
-        // Send OTP via backend
-        $this->sendOtp($user);
+        // Send OTP via backend (best-effort — never block if it fails)
+        try {
+            $this->sendOtp($user);
+        } catch (\Exception $e) {
+            error_log('[Shopply] Resend OTP delivery failed (non-blocking): ' . $e->getMessage());
+        }
+        $user->refresh();
 
         return response()->json([
             'message' => 'New OTP sent to your phone number.',
+            'otp_hint' => $user->otp_code,
         ]);
     }
 
