@@ -13,7 +13,7 @@ export default function VerifyPage() {
   const [resending, setResending] = useState(false);
   const [redirecting, setRedirecting] = useState(false);
   const [pendingPhone, setPendingPhone] = useState<string | null>(null);
-  const [timeLeft, setTimeLeft] = useState<number>(300);
+  const [timeLeft, setTimeLeft] = useState<number>(60);
 
   const API = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
   const getToken = () => typeof window !== "undefined" ? localStorage.getItem("token") : null;
@@ -34,9 +34,9 @@ export default function VerifyPage() {
         setError("Your verification code has expired. Please request a new one.");
       }
     } else {
-      const fallbackExpires = Date.now() + 300 * 1000;
+      const fallbackExpires = Date.now() + 60 * 1000;
       localStorage.setItem("otp_expires_at", fallbackExpires.toString());
-      setTimeLeft(300);
+      setTimeLeft(60);
     }
 
     console.log("[verify] Initial check. Token:", !!token, "Pending Email:", !!pendingEmail);
@@ -200,9 +200,9 @@ export default function VerifyPage() {
         throw new Error(data.message || "Failed to resend verification code.");
       }
 
-      const expiresAt = Date.now() + 300 * 1000;
+      const expiresAt = Date.now() + 60 * 1000;
       localStorage.setItem("otp_expires_at", expiresAt.toString());
-      setTimeLeft(300);
+      setTimeLeft(60);
       setSuccess("✓ A new verification code has been sent!");
     } catch (e: any) {
       setError(e?.message || "Resend failed.");
