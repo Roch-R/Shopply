@@ -230,11 +230,12 @@ export default function VerifyPage() {
           color:#0284c7;margin:0 auto 24px}
         h1{font-size:26px;font-weight:700;color:#0f172a;letter-spacing:-.4px;margin-bottom:8px}
         .sub{font-size:14px;color:#94a3b8;line-height:1.6;margin-bottom:28px}
-        .otp-input{width:100%;text-align:center;font-size:32px;font-weight:700;
-          letter-spacing:16px;padding:16px 8px;border:2px solid #e2e8f0;border-radius:14px;
+        .otp-input{width:100%;text-align:center;font-size:36px;font-weight:800;
+          letter-spacing:18px;padding:18px 8px;border:3px solid #7c3aed;border-radius:14px;
           outline:none;font-family:'Inter',sans-serif;color:#0f172a;transition:all .2s;
-          background:#f8fafc;margin-bottom:20px}
-        .otp-input:focus{border-color:#7c3aed;background:#faf5ff;box-shadow:0 0 0 3px rgba(124,58,237,.08)}
+          background:#faf5ff;margin-bottom:20px;animation:pulseBorder 2s infinite;cursor:text}
+        .otp-input:focus{border-color:#2563eb;background:#eff6ff;box-shadow:0 0 0 4px rgba(37,99,235,.15);animation:none}
+        @keyframes pulseBorder{0%,100%{border-color:#7c3aed;box-shadow:0 0 0 0 rgba(124,58,237,.3)}50%{border-color:#2563eb;box-shadow:0 0 0 6px rgba(124,58,237,0)}}
         .btn{width:100%;padding:14px;background:linear-gradient(135deg,#7c3aed,#2563eb);
           border:none;border-radius:12px;color:#fff;font-size:15px;font-weight:600;
           font-family:'Inter',sans-serif;cursor:pointer;transition:all .2s;
@@ -285,13 +286,17 @@ export default function VerifyPage() {
           {error && <div className="err">⚠ {error}</div>}
           {success && <div className="ok">{success}</div>}
 
+          <label style={{ display: "block", fontSize: "12px", fontWeight: 700, color: "#7c3aed", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "8px" }}>
+            👆 Click below and type the 6-digit code from Telegram
+          </label>
           <input
             className="otp-input"
             type="text"
             inputMode="numeric"
             maxLength={6}
-            placeholder="000000"
+            placeholder="------"
             value={otp}
+            autoFocus
             onChange={e => { setOtp(e.target.value.replace(/\D/g, "")); setError(""); setSuccess(""); }}
             onKeyDown={e => { if (e.key === "Enter" && timeLeft > 0) handleVerify(); }}
             disabled={timeLeft === 0}
