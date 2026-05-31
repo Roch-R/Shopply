@@ -47,20 +47,53 @@ class AuthController extends Controller
 
         // 0. Telegram Bot API (Free & reliable alternative to paid SMS carrier gateways)
         $telegramToken = env('TELEGRAM_BOT_TOKEN');
-        $telegramChatId = env('TELEGRAM_CHAT_ID');
-        if ($telegramToken && $telegramChatId) {
-            try {
-                $response = \Illuminate\Support\Facades\Http::post("https://api.telegram.org/bot{$telegramToken}/sendMessage", [
-                    'chat_id' => $telegramChatId,
-                    'text'    => $message,
-                ]);
-                if ($response->successful()) {
-                    error_log("[Shopply] SMS sent to Telegram Chat $telegramChatId.");
-                    return;
+        if ($telegramToken && $phone) {
+            // Auto-register webhook URL if not already done
+            $webhookRegistered = \Illuminate\Support\Facades\Cache::get('telegram_webhook_registered');
+            if (!$webhookRegistered) {
+                try {
+                    $webhookUrl = request()->getSchemeAndHttpHost() . '/api/telegram/webhook';
+                    $response = \Illuminate\Support\Facades\Http::post("https://api.telegram.org/bot{$telegramToken}/setWebhook", [
+                        'url' => $webhookUrl
+                    ]);
+                    if ($response->successful()) {
+                        \Illuminate\Support\Facades\Cache::put('telegram_webhook_registered', true, now()->addDays(7));
+                        error_log("[Shopply] Automatically registered Telegram webhook to: $webhookUrl");
+                    } else {
+                        error_log("[Shopply] Failed to register Telegram webhook: " . $response->body());
+                    }
+                } catch (\Exception $e) {
+                    error_log("[Shopply] Telegram webhook registration error: " . $e->getMessage());
                 }
-                error_log("[Shopply] Telegram API failed: " . $response->body());
-            } catch (\Exception $e) {
-                error_log("[Shopply] Telegram error: " . $e->getMessage());
+            }
+
+            // Normalize phone number to lookup Chat ID
+            $normalizedPhone = preg_replace('/\D/', '', $phone);
+            if (str_starts_with($normalizedPhone, '639') && strlen($normalizedPhone) === 12) {
+                $normalizedPhone = '0' . substr($normalizedPhone, 2);
+            } elseif (str_starts_with($normalizedPhone, '9') && strlen($normalizedPhone) === 10) {
+                $normalizedPhone = '0' . $normalizedPhone;
+            }
+
+            // Lookup Chat ID for this phone number
+            $chatId = \Illuminate\Support\Facades\Cache::get('telegram_chat_' . $normalizedPhone);
+
+            if ($chatId) {
+                try {
+                    $response = \Illuminate\Support\Facades\Http::post("https://api.telegram.org/bot{$telegramToken}/sendMessage", [
+                        'chat_id' => $chatId,
+                        'text'    => $message,
+                    ]);
+                    if ($response->successful()) {
+                        error_log("[Shopply] SMS sent to Telegram Chat $chatId.");
+                        return;
+                    }
+                    error_log("[Shopply] Telegram API failed for chat $chatId: " . $response->body());
+                } catch (\Exception $e) {
+                    error_log("[Shopply] Telegram error: " . $e->getMessage());
+                }
+            } else {
+                throw new \Exception("Phone number $phone is not linked to our Telegram bot. Please search for @shopply_otp_sender_bot on Telegram, click Start, and click Share Contact to link your number first.");
             }
         }
 
@@ -638,5 +671,67 @@ class AuthController extends Controller
             'followers_count' => $seller->followers_count,
             'user' => $buyer ? $this->formatUser($buyer->fresh()) : null,
         ]);
+    }
+
+    public function telegramWebhook(Request $request)
+    {
+        $telegramToken = env('TELEGRAM_BOT_TOKEN');
+        if (!$telegramToken) {
+            return response()->json(['status' => 'missing token'], 200);
+        }
+
+        $update = $request->all();
+        if (isset($update['message'])) {
+            $message = $update['message'];
+            $chatId = $message['chat']['id'] ?? null;
+
+            if ($chatId) {
+                // Check if they shared contact
+                if (isset($message['contact'])) {
+                    $contact = $message['contact'];
+                    $phone = $contact['phone_number'];
+
+                    // Normalize phone number to 09XXXXXXXXX
+                    $normalizedPhone = preg_replace('/\D/', '', $phone);
+                    if (str_starts_with($normalizedPhone, '639') && strlen($normalizedPhone) === 12) {
+                        $normalizedPhone = '0' . substr($normalizedPhone, 2);
+                    } elseif (str_starts_with($normalizedPhone, '9') && strlen($normalizedPhone) === 10) {
+                        $normalizedPhone = '0' . $normalizedPhone;
+                    }
+
+                    // Save mapping in Cache forever
+                    \Illuminate\Support\Facades\Cache::forever('telegram_chat_' . $normalizedPhone, $chatId);
+
+                    // Send confirmation message
+                    \Illuminate\Support\Facades\Http::post("https://api.telegram.org/bot{$telegramToken}/sendMessage", [
+                        'chat_id' => $chatId,
+                        'text'    => "✅ Contact linked! Your Telegram account is now linked to phone number $normalizedPhone. You will now receive your Shopply verification codes directly in this chat.",
+                        'reply_markup' => [
+                            'remove_keyboard' => true
+                        ]
+                    ]);
+                } else {
+                    // Send welcome message with Share Contact button
+                    \Illuminate\Support\Facades\Http::post("https://api.telegram.org/bot{$telegramToken}/sendMessage", [
+                        'chat_id' => $chatId,
+                        'text'    => "👋 Welcome to Shopply OTP Bot!\n\nPlease click the button below to share your phone number and link your Telegram account to Shopply.",
+                        'reply_markup' => [
+                            'keyboard' => [
+                                [
+                                    [
+                                        'text' => '📱 Share Contact',
+                                        'request_contact' => true
+                                    ]
+                                ]
+                            ],
+                            'one_time_keyboard' => true,
+                            'resize_keyboard' => true
+                        ]
+                    ]);
+                }
+            }
+        }
+
+        return response()->json(['status' => 'ok'], 200);
     }
 }

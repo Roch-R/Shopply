@@ -13,6 +13,7 @@ Route::post('/login',    [AuthController::class, 'login']);
 Route::post('/auth/google/callback', [AuthController::class, 'handleGoogleCallback']);
 Route::post('/verify-registration', [AuthController::class, 'verifyRegistration']);
 Route::post('/resend-registration-otp', [AuthController::class, 'resendRegistrationOtp']);
+Route::post('/telegram/webhook', [AuthController::class, 'telegramWebhook']);
 
 // Public Shop Route
 Route::get('/shop/items', [ItemController::class, 'index']);
