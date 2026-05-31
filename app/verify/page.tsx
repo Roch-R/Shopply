@@ -3,6 +3,8 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Skeleton } from "@/components/Skeleton";
 import { getApiCache } from "@/lib/apiCache";
+import { RecaptchaVerifier, signInWithPhoneNumber, type ConfirmationResult } from "firebase/auth";
+import { auth } from "@/lib/firebase";
 
 export default function VerifyPage() {
   const router = useRouter();
@@ -14,9 +16,46 @@ export default function VerifyPage() {
   const [redirecting, setRedirecting] = useState(false);
   const [pendingPhone, setPendingPhone] = useState<string | null>(null);
   const [timeLeft, setTimeLeft] = useState<number>(300);
+  const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
 
   const API = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
   const getToken = () => typeof window !== "undefined" ? localStorage.getItem("token") : null;
+
+  const sendFirebaseSms = async (phone: string) => {
+    try {
+      setError("");
+      setSuccess("Preparing secure SMS verification...");
+      
+      let formattedPhone = phone;
+      if (formattedPhone.startsWith("09") && formattedPhone.length === 11) {
+        formattedPhone = "+63" + formattedPhone.substring(1);
+      } else if (!formattedPhone.startsWith("+")) {
+        formattedPhone = "+63" + formattedPhone;
+      }
+      
+      console.log("[verify] Sending Firebase SMS to:", formattedPhone);
+
+      if (typeof window !== "undefined") {
+        if (!(window as any).recaptchaVerifier) {
+          (window as any).recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+            size: 'invisible'
+          });
+        }
+        const result = await signInWithPhoneNumber(auth, formattedPhone, (window as any).recaptchaVerifier);
+        setConfirmationResult(result);
+        setSuccess("✓ Verification SMS sent to your phone number!");
+      }
+    } catch (err: any) {
+      console.error("[verify] Firebase SMS send error:", err);
+      setError("SMS sending failed: " + (err?.message || "Please check network. Falling back to Telegram/stored OTP."));
+      if (typeof window !== "undefined" && (window as any).recaptchaVerifier) {
+        try {
+          (window as any).recaptchaVerifier.clear();
+        } catch (e) {}
+          (window as any).recaptchaVerifier = null;
+      }
+    }
+  };
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -72,6 +111,7 @@ export default function VerifyPage() {
     if (targetPhone) {
       setPendingPhone(targetPhone);
       setSuccess("Verification code sent! Please input your 6-digit OTP code below.");
+      sendFirebaseSms(targetPhone);
     }
   }, []);
 
@@ -104,13 +144,24 @@ export default function VerifyPage() {
   const handleVerify = async () => {
     if (otp.length !== 6) { setError("Please enter the 6-digit OTP."); return; }
     
-    const token = getToken();
-    const pendingEmail = typeof window !== "undefined" ? localStorage.getItem("pending_email") : null;
-    
-    if (!token && !pendingEmail) { forceLogin(); return; }
-
     setLoading(true); setError(""); setSuccess("");
     try {
+      let idToken = "";
+      if (confirmationResult) {
+        try {
+          const userCredential = await confirmationResult.confirm(otp);
+          idToken = await userCredential.user.getIdToken();
+          console.log("[verify] Firebase verification successful. Token obtained.");
+        } catch (fbErr) {
+          console.warn("[verify] Firebase verification failed, falling back to backend OTP check:", fbErr);
+        }
+      }
+
+      const token = getToken();
+      const pendingEmail = typeof window !== "undefined" ? localStorage.getItem("pending_email") : null;
+      
+      if (!token && !pendingEmail) { forceLogin(); return; }
+
       let res;
       if (pendingEmail) {
         res = await fetch(`${API}/verify-registration`, {
@@ -119,7 +170,9 @@ export default function VerifyPage() {
             "Content-Type": "application/json",
             Accept: "application/json",
           },
-          body: JSON.stringify({ email: pendingEmail, otp: otp }),
+          body: idToken
+            ? JSON.stringify({ email: pendingEmail, firebase_token: idToken })
+            : JSON.stringify({ email: pendingEmail, otp: otp }),
         });
       } else {
         res = await fetch(`${API}/verify-email`, {
@@ -129,7 +182,9 @@ export default function VerifyPage() {
             Accept: "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({ otp: otp }),
+          body: idToken
+            ? JSON.stringify({ firebase_token: idToken })
+            : JSON.stringify({ otp: otp }),
         });
       }
 
@@ -173,9 +228,8 @@ export default function VerifyPage() {
     const pendingEmail = typeof window !== "undefined" ? localStorage.getItem("pending_email") : null;
 
     try {
-      let res;
       if (pendingEmail) {
-        res = await fetch(`${API}/resend-registration-otp`, {
+        await fetch(`${API}/resend-registration-otp`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -184,7 +238,7 @@ export default function VerifyPage() {
           body: JSON.stringify({ email: pendingEmail }),
         });
       } else if (token) {
-        res = await fetch(`${API}/resend-otp`, {
+        await fetch(`${API}/resend-otp`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -192,16 +246,13 @@ export default function VerifyPage() {
             Authorization: `Bearer ${token}`,
           },
         });
-      } else {
-        forceLogin();
-        return;
       }
+    } catch (e) {
+      console.error("[verify] Backend resend error:", e);
+    }
 
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.message || "Failed to resend verification code.");
-      }
-
+    try {
+      await sendFirebaseSms(pendingPhone);
       const expiresAt = Date.now() + 300 * 1000;
       localStorage.setItem("otp_expires_at", expiresAt.toString());
       setTimeLeft(300);
@@ -270,8 +321,8 @@ export default function VerifyPage() {
           </div>
           <h1>Verify your phone</h1>
           <p className="sub">
-            We sent a 6-digit OTP code to your Telegram account ({pendingPhone || "loading..."}).<br/>
-            Please check your Telegram app and enter the code below.
+            We sent a 6-digit verification code to your phone number ({pendingPhone || "loading..."}) via SMS or Telegram.<br/>
+            Please check your device and enter the code below.
           </p>
 
           <div style={{ margin: "0 auto 24px", display: "inline-flex", alignItems: "center", gap: "8px", background: timeLeft > 60 ? "#f0fdf4" : "#fef2f2", border: timeLeft > 60 ? "1px solid #bbf7d0" : "1px solid #fecaca", borderRadius: "100px", padding: "6px 16px", color: timeLeft > 60 ? "#16a34a" : "#ef4444", fontSize: "13px", fontWeight: 600 }}>
@@ -291,7 +342,7 @@ export default function VerifyPage() {
 
 
           <label style={{ display: "block", fontSize: "12px", fontWeight: 700, color: "#7c3aed", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "8px" }}>
-            👆 Click below and type the 6-digit code from Telegram
+            👆 Click below and type the 6-digit verification code
           </label>
           <input
             className="otp-input"
@@ -322,6 +373,7 @@ export default function VerifyPage() {
           <button className="resend-btn" onClick={handleResend} disabled={resending}>
             {resending ? "Sending…" : "Resend OTP"}
           </button>
+          <div id="recaptcha-container"></div>
         </div>
       </div>
     </>
