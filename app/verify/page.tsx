@@ -14,7 +14,6 @@ export default function VerifyPage() {
   const [redirecting, setRedirecting] = useState(false);
   const [pendingPhone, setPendingPhone] = useState<string | null>(null);
   const [timeLeft, setTimeLeft] = useState<number>(300);
-  const [otpHint, setOtpHint] = useState<string>("");
 
   const API = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
   const getToken = () => typeof window !== "undefined" ? localStorage.getItem("token") : null;
@@ -40,12 +39,7 @@ export default function VerifyPage() {
       setTimeLeft(300);
     }
 
-    // Load OTP hint from localStorage (provided by backend in response)
-    const hint = localStorage.getItem("otp_hint");
-    if (hint) {
-      setOtpHint(hint);
-      setOtp(hint); // Auto-fill the input!
-    }
+
 
     console.log("[verify] Initial check. Token:", !!token, "Pending Email:", !!pendingEmail);
 
@@ -211,14 +205,6 @@ export default function VerifyPage() {
       const expiresAt = Date.now() + 300 * 1000;
       localStorage.setItem("otp_expires_at", expiresAt.toString());
       setTimeLeft(300);
-      if (data.otp_hint) {
-        localStorage.setItem("otp_hint", data.otp_hint);
-        setOtpHint(data.otp_hint);
-        setOtp(data.otp_hint);
-      } else {
-        localStorage.removeItem("otp_hint");
-        setOtpHint("");
-      }
       setSuccess("✓ A new verification code has been sent!");
     } catch (e: any) {
       setError(e?.message || "Resend failed.");
@@ -302,13 +288,7 @@ export default function VerifyPage() {
           {error && <div className="err">⚠ {error}</div>}
           {success && <div className="ok">{success}</div>}
 
-          {otpHint && (
-            <div style={{ margin: "20px 0", padding: "16px", background: "#f5f3ff", border: "1px solid #ddd6fe", borderRadius: "12px", textAlign: "center" }}>
-              <p style={{ fontSize: "14px", color: "#6d28d9", fontWeight: 600 }}>Your Demo OTP Code:</p>
-              <p style={{ fontSize: "32px", color: "#7c3aed", fontWeight: 800, letterSpacing: "4px", margin: "8px 0" }}>{otpHint}</p>
-              <p style={{ fontSize: "11px", color: "#8b5cf6" }}>Since this is a student project, we show the code here directly.</p>
-            </div>
-          )}
+
 
           <label style={{ display: "block", fontSize: "12px", fontWeight: 700, color: "#7c3aed", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "8px" }}>
             👆 Click below and type the 6-digit code from Telegram

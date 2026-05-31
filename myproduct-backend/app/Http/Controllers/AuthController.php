@@ -239,9 +239,6 @@ class AuthController extends Controller
             'message'         => 'OTP sent. Please verify to complete registration.',
             'requires_verify' => true,
             'pending_email'   => $request->phone,
-            // Always include OTP in response so frontend can show it on-screen
-            // (Telegram is optional; this guarantees user always gets their code)
-            'otp_hint'        => $otp,
             'telegram_sent'   => $telegramSent,
         ], 201);
     }
@@ -340,7 +337,6 @@ class AuthController extends Controller
 
         return response()->json([
             'message' => 'New OTP sent to your phone number.',
-            'otp_hint' => $otp,
         ]);
     }
 
@@ -390,7 +386,6 @@ class AuthController extends Controller
                 'requires_verify' => true,
                 'token'           => $token,
                 'user'            => $this->formatUser($user),
-                'otp_hint'        => $user->otp_code,
             ], 403);
         }
 
@@ -574,7 +569,6 @@ class AuthController extends Controller
 
         return response()->json([
             'message' => 'New OTP sent to your phone number.',
-            'otp_hint' => $user->otp_code,
         ]);
     }
 
