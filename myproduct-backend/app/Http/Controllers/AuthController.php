@@ -167,13 +167,11 @@ class AuthController extends Controller
                 'string',
                 'min:8',
                 'regex:/[a-z]/',
-                'regex:/[A-Z]/',
                 'regex:/[0-9]/',
-                'regex:/[@$!%*?&#]/',
             ],
         ], [
             'password.min'   => 'Password must be at least 8 characters.',
-            'password.regex' => 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.',
+            'password.regex' => 'Password must contain at least one letter and one number.',
         ]);
 
         if ($validator->fails()) {
