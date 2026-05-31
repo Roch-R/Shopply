@@ -47,8 +47,22 @@ export default function RegisterPage() {
     setOrigin(window.location.origin);
   }, []);
 
-  const strength =
-    password.length === 0 ? 0 : password.length < 6 ? 1 : password.length < 10 ? 2 : 3;
+  let strength = 0;
+  if (password.length > 0) {
+    strength = 1;
+    const hasLength = password.length >= 8;
+    const hasUpper = /[A-Z]/.test(password);
+    const hasLower = /[a-z]/.test(password);
+    const hasDigit = /\d/.test(password);
+    const hasSymbol = /[@$!%*?&#]/.test(password);
+    
+    const score = [hasLength, hasUpper, hasLower, hasDigit, hasSymbol].filter(Boolean).length;
+    if (score >= 5) {
+      strength = 3;
+    } else if (score >= 3) {
+      strength = 2;
+    }
+  }
   const strengthColor = ["transparent", "#ef4444", "#f59e0b", "#10b981"][strength];
   const strengthWidth = ["0%", "25%", "60%", "100%"][strength];
 
@@ -70,7 +84,11 @@ export default function RegisterPage() {
     if (phone.length !== 11) { setError("Phone number must be exactly 11 digits (e.g. 09XXXXXXXXX)."); return; }
     if (!phone.startsWith("09")) { setError("Phone number must start with 09."); return; }
     if (!password) { setError("Password is required."); return; }
-    if (password.length < 6) { setError("Password must be at least 6 characters."); return; }
+    if (password.length < 8) { setError("Password must be at least 8 characters."); return; }
+    if (!/[A-Z]/.test(password)) { setError("Password must contain at least one uppercase letter."); return; }
+    if (!/[a-z]/.test(password)) { setError("Password must contain at least one lowercase letter."); return; }
+    if (!/\d/.test(password)) { setError("Password must contain at least one number."); return; }
+    if (!/[@$!%*?&#]/.test(password)) { setError("Password must contain at least one special character (e.g. @$!%*?&#)."); return; }
     if (!confirm) { setError("Please confirm your password."); return; }
     if (password !== confirm) { setError("Passwords do not match."); return; }
 
@@ -302,7 +320,7 @@ export default function RegisterPage() {
                 <div className="bar">
                   <div className="fill" style={{ width: strengthWidth, background: strengthColor }}/>
                 </div>
-                <p className="hint">Min. 6 characters</p>
+                <p className="hint">Min. 8 chars (mixed case, number, symbol)</p>
               </div>
               <div className="field">
                 <label>Confirm</label>
