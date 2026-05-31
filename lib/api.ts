@@ -69,6 +69,8 @@ async function request<T>(
       if (data.token) localStorage.setItem("token", data.token);
       if (data.user) localStorage.setItem("user", JSON.stringify(data.user));
       if (data.pending_email) localStorage.setItem("pending_email", data.pending_email);
+      // Always reset the OTP timer to fresh 5 minutes when a new OTP is sent
+      localStorage.setItem("otp_expires_at", (Date.now() + 300 * 1000).toString());
     }
     throw new Error("requires_verify");
   }
