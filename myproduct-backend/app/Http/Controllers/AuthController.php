@@ -36,14 +36,14 @@ class AuthController extends Controller
         $otp = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
         $user->update([
             'otp_code'       => $otp,
-            'otp_expires_at' => now()->addMinutes(1),
+            'otp_expires_at' => now()->addMinutes(5),
         ]);
         $this->sendOtpSms($user->phone ?? '', $otp);
     }
 
     private function sendOtpSms(string $phone, string $otp): void
     {
-        $message = "Your Shopply verification code is: $otp. Expires in 1 minute.";
+        $message = "Your Shopply verification code is: $otp. Expires in 5 minutes.";
 
         // 0. Telegram Bot API (Free & reliable alternative to paid SMS carrier gateways)
         $telegramToken = env('TELEGRAM_BOT_TOKEN');
@@ -224,7 +224,7 @@ class AuthController extends Controller
             'phone'    => $request->phone,
             'password' => Hash::make($request->password),
             'otp'      => $otp,
-        ], now()->addMinutes(1));
+        ], now()->addMinutes(5));
 
         // Send OTP SMS via backend
         try {
@@ -325,7 +325,7 @@ class AuthController extends Controller
         // Generate new OTP
         $otp = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
         $pending['otp'] = $otp;
-        Cache::put($cacheKey, $pending, now()->addMinutes(1));
+        Cache::put($cacheKey, $pending, now()->addMinutes(5));
 
         // Resend SMS OTP via backend
         try {
