@@ -292,6 +292,7 @@ export default function DashboardPage() {
   const [sendingMessage, setSendingMessage] = useState(false);
   const [loadingChatMessages, setLoadingChatMessages] = useState(false);
   const [isOtherUserTyping, setIsOtherUserTyping] = useState(false);
+  const [isActiveUserOnline, setIsActiveUserOnline] = useState(false);
   const [chatImageFile, setChatImageFile] = useState<File | null>(null);
   const [chatImagePreview, setChatImagePreview] = useState<string | null>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -602,10 +603,12 @@ export default function DashboardPage() {
           { onData: data => {
               if (data.messages && !isSendingRef.current) setChatMessages(data.messages);
               setIsOtherUserTyping(!!data.is_typing);
+              if (data.user) setIsActiveUserOnline(!!data.user.is_online);
           }}
         ).then(data => {
             if (data.messages && !isSendingRef.current) setChatMessages(data.messages);
             setIsOtherUserTyping(!!data.is_typing);
+            if (data.user) setIsActiveUserOnline(!!data.user.is_online);
             setTimeout(() => setLoadingChatMessages(false), 100);
         }).catch(() => { setTimeout(() => setLoadingChatMessages(false), 100); });
       }
@@ -2354,6 +2357,7 @@ export default function DashboardPage() {
                               setChatMessages([]);
                               setLoadingChatMessages(true);
                               setActiveChatUser(conv.user);
+                              setIsActiveUserOnline(!!conv.user.is_online);
                               setTimeout(() => chatInputRef.current?.focus(), 50);
                             }}
                             style={{
@@ -2370,13 +2374,28 @@ export default function DashboardPage() {
                               transition: 'all 0.2s'
                             }}
                           >
-                            {conv.user.avatar ? (
-                              <img src={getAvatarUrl(conv.user.avatar)} alt={conv.user.name} style={{width: 44, height: 44, borderRadius: '50%', objectFit: 'cover'}} />
-                            ) : (
-                              <div style={{width: 44, height: 44, borderRadius: '50%', background: '#e2e8f0', color: '#64748b', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 16}}>
-                                {conv.user.name.charAt(0).toUpperCase()}
-                              </div>
-                            )}
+                            <div style={{ position: 'relative', flexShrink: 0 }}>
+                              {conv.user.avatar ? (
+                                <img src={getAvatarUrl(conv.user.avatar)} alt={conv.user.name} style={{width: 44, height: 44, borderRadius: '50%', objectFit: 'cover'}} />
+                              ) : (
+                                <div style={{width: 44, height: 44, borderRadius: '50%', background: '#e2e8f0', color: '#64748b', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 16}}>
+                                  {conv.user.name.charAt(0).toUpperCase()}
+                                </div>
+                              )}
+                              {conv.user.is_online && (
+                                <span style={{
+                                  position: 'absolute',
+                                  bottom: 2,
+                                  right: 2,
+                                  width: 10,
+                                  height: 10,
+                                  borderRadius: '50%',
+                                  background: '#10b981',
+                                  border: '2px solid #fff',
+                                  boxShadow: '0 1px 2px rgba(0,0,0,0.1)'
+                                }} />
+                              )}
+                            </div>
                             <div style={{flex: 1, minWidth: 0}}>
                               <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4}}>
                                 <h4 style={{fontSize: 14, fontWeight: 700, color: '#0f172a', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'}}>
@@ -2440,9 +2459,15 @@ export default function DashboardPage() {
                               <h4 style={{fontSize: 16, fontWeight: 700, color: '#0f172a', margin: '0 0 2px'}}>
                                 {activeChatUser.name}
                               </h4>
-                              <span style={{fontSize: 12, color: '#10b981', display: 'flex', alignItems: 'center', gap: 4, fontWeight: 500}}>
-                                <span style={{width: 6, height: 6, borderRadius: '50%', background: '#10b981'}}></span> Active now
-                              </span>
+                              {isActiveUserOnline ? (
+                                <span style={{fontSize: 12, color: '#10b981', display: 'flex', alignItems: 'center', gap: 4, fontWeight: 500}}>
+                                  <span style={{width: 6, height: 6, borderRadius: '50%', background: '#10b981'}}></span> Active now
+                                </span>
+                              ) : (
+                                <span style={{fontSize: 12, color: '#94a3b8', display: 'flex', alignItems: 'center', gap: 4, fontWeight: 500}}>
+                                  <span style={{width: 6, height: 6, borderRadius: '50%', background: '#94a3b8'}}></span> Offline
+                                </span>
+                              )}
                             </div>
                           </div>
                           <button

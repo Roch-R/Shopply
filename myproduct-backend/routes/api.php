@@ -21,7 +21,12 @@ Route::post('/telegram/register-webhook', [AuthController::class, 'telegramRegis
 Route::get('/shop/items', [ItemController::class, 'index']);
 Route::get('/items/{id}/reviews', [ReviewController::class, 'index']);
 
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware(['auth:sanctum', function ($request, $next) {
+    if (\Illuminate\Support\Facades\Auth::check()) {
+        \Illuminate\Support\Facades\Cache::put('user_online_' . \Illuminate\Support\Facades\Auth::id(), true, now()->addMinutes(2));
+    }
+    return $next($request);
+}])->group(function () {
     Route::post('/logout',       [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
     Route::post('/profile', [AuthController::class, 'updateProfile']);

@@ -35,8 +35,12 @@ class ChatController extends Controller
                 $otherUser = User::select('id', 'name', 'avatar')->find($otherUserId);
 
                 if ($otherUser) {
+                    $isOnline = \Illuminate\Support\Facades\Cache::get('user_online_' . $otherUser->id, false);
+                    $userData = $otherUser->toArray();
+                    $userData['is_online'] = (bool) $isOnline;
+
                     $conversations[] = [
-                        'user' => $otherUser,
+                        'user' => $userData,
                         'last_message' => [
                             'id' => $msg->id,
                             'message' => $msg->message,
@@ -85,9 +89,13 @@ class ChatController extends Controller
             ->get();
 
         $isTyping = \Illuminate\Support\Facades\Cache::get("typing_{$userId}_{$authUserId}", false);
+        $isOnline = \Illuminate\Support\Facades\Cache::get('user_online_' . $userId, false);
+
+        $otherUserArray = $otherUser->toArray();
+        $otherUserArray['is_online'] = (bool) $isOnline;
 
         return response()->json([
-            'user' => $otherUser,
+            'user' => $otherUserArray,
             'messages' => $messages,
             'is_typing' => $isTyping
         ]);
