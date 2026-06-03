@@ -1662,6 +1662,53 @@ export default function DashboardPage() {
           .order-search input{width:100% !important}
           .category-grid{grid-template-columns:repeat(2, 1fr) !important;gap:8px !important}
           .variant-form-grid{grid-template-columns:1fr !important;gap:16px !important}
+
+          /* Chats Responsive Styles */
+          .chat-card-container {
+            height: calc(100vh - 120px) !important;
+            border-radius: 16px !important;
+          }
+          .chat-left-pane {
+            width: 100% !important;
+            border-right: none !important;
+            display: flex !important;
+          }
+          .chat-left-pane.mobile-hidden {
+            display: none !important;
+          }
+          .chat-right-pane {
+            width: 100% !important;
+            display: flex !important;
+          }
+          .chat-right-pane.mobile-hidden {
+            display: none !important;
+          }
+          .chat-back-btn {
+            display: flex !important;
+          }
+          .chat-close-btn {
+            display: none !important;
+          }
+          .chat-messages-area {
+            padding: 12px !important;
+            gap: 12px !important;
+          }
+          .chat-message-row {
+            max-width: 85% !important;
+          }
+          .chat-message-bubble {
+            padding: 10px 14px !important;
+            font-size: 13.5px !important;
+          }
+          .chat-input-form {
+            padding: 10px 12px !important;
+            gap: 8px !important;
+          }
+          .chat-input-textarea {
+            padding: 10px 16px !important;
+            font-size: 13px !important;
+            min-height: 40px !important;
+          }
         }
 
         @media (max-width: 480px){
@@ -1708,6 +1755,100 @@ export default function DashboardPage() {
         .perf-actions-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:24px}
         .perf-tips-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
         .flex-responsive-row{display:flex;align-items:center;justify-content:space-between}
+
+        /* Chat styling classes */
+        .chat-card-container {
+          width: 100%;
+          height: 600px;
+          background: #fff;
+          border-radius: 24px;
+          box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+          border: 1px solid #f1f5f9;
+          display: flex;
+          overflow: hidden;
+          font-family: Inter, sans-serif;
+        }
+        .chat-left-pane {
+          width: 280px;
+          border-right: 1px solid #e2e8f0;
+          background: #f8fafc;
+          display: flex;
+          flex-direction: column;
+          flex-shrink: 0;
+        }
+        .chat-right-pane {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          background: #fff;
+          min-width: 0;
+        }
+        .chat-back-btn {
+          display: none !important;
+        }
+        .chat-close-btn {
+          display: flex !important;
+        }
+        .chat-messages-area {
+          flex: 1;
+          overflow-y: auto;
+          padding: 24px;
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+          background: #fff;
+        }
+        .chat-message-row {
+          display: flex;
+          align-items: flex-end;
+          gap: 8px;
+          max-width: 75%;
+        }
+        .chat-message-row.me {
+          align-self: flex-end;
+        }
+        .chat-message-row.them {
+          align-self: flex-start;
+        }
+        .chat-message-bubble {
+          padding: 12px 18px;
+          font-size: 14px;
+          line-height: 1.5;
+          word-break: break-word;
+          white-space: pre-wrap;
+        }
+        .chat-message-bubble.me {
+          background: linear-gradient(135deg, #7c3aed, #6d28d9);
+          color: #fff;
+          border-radius: 20px 20px 4px 20px;
+          box-shadow: 0 4px 12px rgba(124, 58, 237, 0.2);
+        }
+        .chat-message-bubble.them {
+          background: #f1f5f9;
+          color: #0f172a;
+          border-radius: 20px 20px 20px 4px;
+        }
+        .chat-input-form {
+          padding: 16px 24px;
+          display: flex;
+          gap: 12px;
+          align-items: center;
+        }
+        .chat-input-textarea {
+          flex: 1;
+          padding: 12px 20px;
+          border-radius: 20px;
+          border: 1px solid #cbd5e1;
+          background: #fff;
+          font-size: 14px;
+          outline: none;
+          color: #0f172a;
+          font-family: 'Inter', sans-serif;
+          resize: none;
+          min-height: 44px;
+          max-height: 120px;
+          line-height: 1.4;
+        }
       `}</style>
 
       <div className="root">
@@ -2184,26 +2325,9 @@ export default function DashboardPage() {
                   </div>
                 </div>
 
-                <div style={{
-                  width: '100%',
-                  height: 600,
-                  background: '#fff',
-                  borderRadius: 24,
-                  boxShadow: '0 4px 20px rgba(0,0,0,0.05)',
-                  border: '1px solid #f1f5f9',
-                  display: 'flex',
-                  overflow: 'hidden',
-                  fontFamily: 'Inter, sans-serif'
-                }}>
+                <div className="chat-card-container">
                   {/* LEFT PANE: CONVERSATIONS */}
-                  <div style={{
-                    width: 280,
-                    borderRight: '1px solid #e2e8f0',
-                    background: '#f8fafc',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    flexShrink: 0
-                  }}>
+                  <div className={`chat-left-pane ${activeChatUser ? 'mobile-hidden' : ''}`}>
                     <div style={{padding: '20px 20px 16px', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
                       <h3 style={{fontSize: 18, fontWeight: 800, color: '#0f172a', margin: 0}}>Chats</h3>
                       <span style={{fontSize: 12, fontWeight: 600, color: '#64748b', background: '#e2e8f0', padding: '4px 10px', borderRadius: 12}}>
@@ -2280,12 +2404,31 @@ export default function DashboardPage() {
                   </div>
 
                   {/* RIGHT PANE: ACTIVE CHAT */}
-                  <div style={{flex: 1, display: 'flex', flexDirection: 'column', background: '#fff', minWidth: 0}}>
+                  <div className={`chat-right-pane ${!activeChatUser ? 'mobile-hidden' : ''}`}>
                     {activeChatUser ? (
                       <>
                         {/* CHAT HEADER */}
                         <div style={{padding: '16px 24px', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
                           <div style={{display: 'flex', alignItems: 'center', gap: 12}}>
+                            {/* Back Button (Mobile only) */}
+                            <button
+                              onClick={() => setActiveChatUser(null)}
+                              className="chat-back-btn"
+                              style={{
+                                background: 'none',
+                                border: 'none',
+                                padding: '4px 8px 4px 0',
+                                cursor: 'pointer',
+                                color: '#64748b',
+                                alignItems: 'center',
+                                justifyContent: 'center'
+                              }}
+                              title="Back to chats"
+                            >
+                              <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                                <path d="M15 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round"/>
+                              </svg>
+                            </button>
                             {activeChatUser.avatar ? (
                               <img src={getAvatarUrl(activeChatUser.avatar)} alt={activeChatUser.name} style={{width: 40, height: 40, borderRadius: '50%', objectFit: 'cover'}} />
                             ) : (
@@ -2304,7 +2447,8 @@ export default function DashboardPage() {
                           </div>
                           <button
                             onClick={() => setActiveChatUser(null)}
-                            style={{background: '#f1f5f9', border: 'none', width: 32, height: 32, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b', cursor: 'pointer'}}
+                            className="chat-close-btn"
+                            style={{background: '#f1f5f9', border: 'none', width: 32, height: 32, borderRadius: '50%', alignItems: 'center', justifyContent: 'center', color: '#64748b', cursor: 'pointer'}}
                             title="Close conversation"
                           >
                             ✕
@@ -2312,7 +2456,7 @@ export default function DashboardPage() {
                         </div>
 
                         {/* CHAT MESSAGES AREA */}
-                        <div style={{flex: 1, overflowY: 'auto', padding: 24, display: 'flex', flexDirection: 'column', gap: 16, background: '#fff'}}>
+                        <div className="chat-messages-area">
                           {loadingChatMessages ? (
                             <>
                               <SkeletonChatMessage />
@@ -2326,13 +2470,7 @@ export default function DashboardPage() {
                               return (
                                 <div
                                   key={msg.id}
-                                  style={{
-                                    display: 'flex',
-                                    alignItems: 'flex-end',
-                                    gap: 8,
-                                    alignSelf: isMe ? 'flex-end' : 'flex-start',
-                                    maxWidth: '75%'
-                                  }}
+                                  className={`chat-message-row ${isMe ? 'me' : 'them'}`}
                                 >
                                   {!isMe && (
                                     activeChatUser.avatar ? (
@@ -2344,17 +2482,7 @@ export default function DashboardPage() {
                                     )
                                   )}
                                   <div style={{display: 'flex', flexDirection: 'column', alignItems: isMe ? 'flex-end' : 'flex-start'}}>
-                                    <div style={{
-                                      background: isMe ? 'linear-gradient(135deg, #7c3aed, #6d28d9)' : '#f1f5f9',
-                                      color: isMe ? '#fff' : '#0f172a',
-                                      padding: '12px 18px',
-                                      borderRadius: isMe ? '20px 20px 4px 20px' : '20px 20px 20px 4px',
-                                      fontSize: 14,
-                                      lineHeight: 1.5,
-                                      boxShadow: isMe ? '0 4px 12px rgba(124, 58, 237, 0.2)' : 'none',
-                                      wordBreak: 'break-word',
-                                      whiteSpace: 'pre-wrap'
-                                    }}>
+                                    <div className={`chat-message-bubble ${isMe ? 'me' : 'them'}`}>
                                       {msg.image && (
                                         <div style={{ marginBottom: msg.message ? 8 : 0 }}>
                                           <img
@@ -2375,7 +2503,7 @@ export default function DashboardPage() {
                             })
                           )}
                           {isOtherUserTyping && activeChatUser && (
-                            <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, alignSelf: 'flex-start', maxWidth: '75%', animation: 'slideIn 0.2s ease' }}>
+                            <div className="chat-message-row them" style={{ animation: 'slideIn 0.2s ease' }}>
                               {activeChatUser.avatar ? (
                                 <img src={getAvatarUrl(activeChatUser.avatar)} alt={activeChatUser.name} style={{ width: 28, height: 28, borderRadius: '50%', objectFit: 'cover', marginBottom: 4 }} />
                               ) : (
@@ -2383,7 +2511,7 @@ export default function DashboardPage() {
                                   {activeChatUser.name.charAt(0).toUpperCase()}
                                 </div>
                               )}
-                              <div style={{ background: '#d8b4fe', padding: '12px 18px', borderRadius: '20px 20px 20px 4px', display: 'flex', alignItems: 'center', gap: 6, boxShadow: '0 4px 12px rgba(216, 180, 254, 0.2)' }}>
+                              <div className="chat-message-bubble them" style={{ background: '#d8b4fe', display: 'flex', alignItems: 'center', gap: 6, boxShadow: '0 4px 12px rgba(216, 180, 254, 0.2)' }}>
                                 <span style={{ width: 8, height: 8, background: '#475569', borderRadius: '50%', animation: 'typingBounce 1.4s infinite ease-in-out both', animationDelay: '-0.32s' }}></span>
                                 <span style={{ width: 8, height: 8, background: '#475569', borderRadius: '50%', animation: 'typingBounce 1.4s infinite ease-in-out both', animationDelay: '-0.16s' }}></span>
                                 <span style={{ width: 8, height: 8, background: '#475569', borderRadius: '50%', animation: 'typingBounce 1.4s infinite ease-in-out both' }}></span>
@@ -2407,7 +2535,7 @@ export default function DashboardPage() {
                               </div>
                             </div>
                           )}
-                          <form onSubmit={handleSendMessage} style={{padding: '16px 24px', display: 'flex', gap: 12, alignItems: 'center'}}>
+                          <form onSubmit={handleSendMessage} className="chat-input-form">
                             <label style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', width: 44, height: 44, borderRadius: '50%', background: '#e2e8f0', color: '#64748b', transition: 'all 0.2s', flexShrink: 0 }}>
                               <input
                                 type="file"
@@ -2450,21 +2578,7 @@ export default function DashboardPage() {
                                   handleSendMessage(e as any);
                                 }
                               }}
-                              style={{
-                                flex: 1,
-                                padding: '12px 20px',
-                                borderRadius: 20,
-                                border: '1px solid #cbd5e1',
-                                background: '#fff',
-                                fontSize: 14,
-                                outline: 'none',
-                                color: '#0f172a',
-                                fontFamily: 'Inter, sans-serif',
-                                resize: 'none',
-                                minHeight: 44,
-                                maxHeight: 120,
-                                lineHeight: 1.4
-                              }}
+                              className="chat-input-textarea"
                             />
                             <button
                               type="submit"
