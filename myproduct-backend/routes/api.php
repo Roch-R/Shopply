@@ -158,6 +158,37 @@ Route::get('/debug-logs', function() {
     ]);
 });
 
+Route::get('/check-db', function() {
+    try {
+        $pdo = \DB::connection()->getPdo();
+        $tables = [];
+        $driver = \DB::connection()->getDriverName();
+        if ($driver === 'sqlite') {
+            $results = \DB::select("SELECT name FROM sqlite_master WHERE type='table'");
+            foreach ($results as $result) {
+                $tables[] = $result->name;
+            }
+        } else {
+            $results = \DB::select('SHOW TABLES');
+            foreach ($results as $result) {
+                $tables[] = array_values((array)$result)[0];
+            }
+        }
+        return response()->json([
+            'status' => 'success',
+            'driver' => $driver,
+            'database' => \DB::connection()->getDatabaseName(),
+            'tables' => $tables,
+        ]);
+    } catch (\Throwable $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => $e->getMessage(),
+            'trace' => $e->getTraceAsString(),
+        ], 500);
+    }
+});
+
 Route::get('/media/{filename}', function ($filename, \Illuminate\Http\Request $request) {
     $media = \DB::table('media')->where('filename', $filename)->first();
     if (!$media) {
