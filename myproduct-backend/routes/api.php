@@ -193,6 +193,9 @@ Route::get('/check-db', function() {
                 'SESSION_DRIVER' => env('SESSION_DRIVER'),
                 'CACHE_STORE' => env('CACHE_STORE'),
                 'REDIS_HOST' => env('REDIS_HOST') ? 'set' : 'not_set',
+                'APP_KEY_status' => config('app.key') ? 'set' : 'not_set',
+                'APP_KEY_length' => strlen(config('app.key') ?? ''),
+                'cipher' => config('app.cipher'),
             ],
         ]);
     } catch (\Throwable $e) {
