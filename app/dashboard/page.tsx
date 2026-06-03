@@ -2382,24 +2382,44 @@ export default function DashboardPage() {
                                   {conv.user.name.charAt(0).toUpperCase()}
                                 </div>
                               )}
-                              {conv.user.is_online && (
-                                <span style={{
-                                  position: 'absolute',
-                                  bottom: 2,
-                                  right: 2,
-                                  width: 10,
-                                  height: 10,
-                                  borderRadius: '50%',
-                                  background: '#10b981',
-                                  border: '2px solid #fff',
-                                  boxShadow: '0 1px 2px rgba(0,0,0,0.1)'
-                                }} />
-                              )}
+                              <span style={{
+                                position: 'absolute',
+                                bottom: 2,
+                                right: 2,
+                                width: 10,
+                                height: 10,
+                                borderRadius: '50%',
+                                background: conv.user.is_online ? '#10b981' : '#cbd5e1',
+                                border: '2px solid #fff',
+                                boxShadow: '0 1px 2px rgba(0,0,0,0.1)'
+                              }} />
                             </div>
                             <div style={{flex: 1, minWidth: 0}}>
                               <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4}}>
-                                <h4 style={{fontSize: 14, fontWeight: 700, color: '#0f172a', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'}}>
+                                <h4 style={{
+                                  fontSize: 14, 
+                                  fontWeight: 700, 
+                                  color: '#0f172a', 
+                                  margin: 0, 
+                                  whiteSpace: 'nowrap', 
+                                  overflow: 'hidden', 
+                                  textOverflow: 'ellipsis',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: 6
+                                }}>
                                   {conv.user.name}
+                                  <span style={{
+                                    fontSize: 10,
+                                    fontWeight: 500,
+                                    color: conv.user.is_online ? '#10b981' : '#94a3b8',
+                                    background: conv.user.is_online ? 'rgba(16,185,129,0.1)' : 'rgba(148,163,184,0.1)',
+                                    padding: '1px 6px',
+                                    borderRadius: 8,
+                                    flexShrink: 0
+                                  }}>
+                                    {conv.user.is_online ? "Active" : "Offline"}
+                                  </span>
                                 </h4>
                                 {conv.last_message && (
                                   <span style={{fontSize: 11, color: '#94a3b8'}}>
