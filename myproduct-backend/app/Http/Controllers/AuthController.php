@@ -402,107 +402,98 @@ class AuthController extends Controller
 
     public function handleGoogleCallback(Request $request)
     {
-        try {
-            $validator = Validator::make($request->all(), [
-                'code' => 'nullable|string',
-                'simulated_email' => 'nullable|email',
-                'simulated_name' => 'nullable|string',
-                'simulated_avatar' => 'nullable|string',
+        $validator = Validator::make($request->all(), [
+            'code' => 'nullable|string',
+            'simulated_email' => 'nullable|email',
+            'simulated_name' => 'nullable|string',
+            'simulated_avatar' => 'nullable|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => $validator->errors()->first(),
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $email = null;
+        $name = null;
+        $avatar = null;
+
+        if ($request->filled('code')) {
+            $clientId = config('services.google.client_id');
+            $clientSecret = config('services.google.client_secret');
+            $redirectUri = config('services.google.redirect_uri') ?: ($request->header('origin') . '/auth/google/callback');
+
+            if (!$clientId || !$clientSecret) {
+                return response()->json(['message' => 'Google OAuth credentials are not configured on the backend.'], 500);
+            }
+
+            $tokenResponse = \Illuminate\Support\Facades\Http::asForm()->post('https://oauth2.googleapis.com/token', [
+                'client_id' => $clientId,
+                'client_secret' => $clientSecret,
+                'redirect_uri' => $redirectUri,
+                'grant_type' => 'authorization_code',
+                'code' => $request->code,
             ]);
 
-            if ($validator->fails()) {
+            if ($tokenResponse->failed()) {
+                $errBody = json_encode($tokenResponse->json() ?? $tokenResponse->body());
                 return response()->json([
-                    'message' => $validator->errors()->first(),
-                    'errors' => $validator->errors(),
-                ], 422);
+                    'message' => 'Failed to exchange Google authorization code. Details: ' . $errBody,
+                ], 400);
             }
 
-            $email = null;
-            $name = null;
-            $avatar = null;
+            $accessToken = $tokenResponse->json('access_token');
+            $userResponse = \Illuminate\Support\Facades\Http::withToken($accessToken)->get('https://www.googleapis.com/oauth2/v3/userinfo');
 
-            if ($request->filled('code')) {
-                $clientId = config('services.google.client_id');
-                $clientSecret = config('services.google.client_secret');
-                $redirectUri = config('services.google.redirect_uri') ?: ($request->header('origin') . '/auth/google/callback');
-
-                if (!$clientId || !$clientSecret) {
-                    return response()->json(['message' => 'Google OAuth credentials are not configured on the backend.'], 500);
-                }
-
-                $tokenResponse = \Illuminate\Support\Facades\Http::asForm()->post('https://oauth2.googleapis.com/token', [
-                    'client_id' => $clientId,
-                    'client_secret' => $clientSecret,
-                    'redirect_uri' => $redirectUri,
-                    'grant_type' => 'authorization_code',
-                    'code' => $request->code,
-                ]);
-
-                if ($tokenResponse->failed()) {
-                    $errBody = json_encode($tokenResponse->json() ?? $tokenResponse->body());
-                    return response()->json([
-                        'message' => 'Failed to exchange Google authorization code. Details: ' . $errBody,
-                    ], 400);
-                }
-
-                $accessToken = $tokenResponse->json('access_token');
-                $userResponse = \Illuminate\Support\Facades\Http::withToken($accessToken)->get('https://www.googleapis.com/oauth2/v3/userinfo');
-
-                if ($userResponse->failed()) {
-                    return response()->json(['message' => 'Failed to fetch user info from Google.'], 400);
-                }
-
-                $googleUser = $userResponse->json();
-                $email = $googleUser['email'] ?? null;
-                $name = $googleUser['name'] ?? null;
-                $avatar = $googleUser['picture'] ?? null;
-            } elseif ($request->filled('simulated_email')) {
-                $email = $request->simulated_email;
-                $name = $request->simulated_name ?? 'Google User';
-                $avatar = $request->simulated_avatar ?? null;
-            } else {
-                return response()->json(['message' => 'No authorization code or simulated user provided.'], 400);
+            if ($userResponse->failed()) {
+                return response()->json(['message' => 'Failed to fetch user info from Google.'], 400);
             }
 
-            if (!$email) {
-                return response()->json(['message' => 'Unable to retrieve email address from Google.'], 400);
-            }
-
-            $user = User::where('username', $email)->first();
-
-            if (!$user) {
-                $user = User::create([
-                    'name' => $name ?? 'Google User',
-                    'username' => $email,
-                    'password' => Hash::make(\Illuminate\Support\Str::random(24)),
-                    'avatar' => $avatar,
-                    'email_verified_at' => now(),
-                ]);
-            } else {
-                if (!$user->email_verified_at) {
-                    $user->update(['email_verified_at' => now()]);
-                }
-                if (!$user->avatar && $avatar) {
-                    $user->update(['avatar' => $avatar]);
-                }
-            }
-
-            $user->tokens()->delete();
-            $token = $user->createToken('auth_token')->plainTextToken;
-
-            return response()->json([
-                'message' => 'Google login successful.',
-                'token' => $token,
-                'user' => $this->formatUser($user->fresh()),
-            ], 200);
-        } catch (\Throwable $e) {
-            return response()->json([
-                'message' => 'Exception: ' . $e->getMessage(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-                'trace' => $e->getTraceAsString(),
-            ], 500);
+            $googleUser = $userResponse->json();
+            $email = $googleUser['email'] ?? null;
+            $name = $googleUser['name'] ?? null;
+            $avatar = $googleUser['picture'] ?? null;
+        } elseif ($request->filled('simulated_email')) {
+            $email = $request->simulated_email;
+            $name = $request->simulated_name ?? 'Google User';
+            $avatar = $request->simulated_avatar ?? null;
+        } else {
+            return response()->json(['message' => 'No authorization code or simulated user provided.'], 400);
         }
+
+        if (!$email) {
+            return response()->json(['message' => 'Unable to retrieve email address from Google.'], 400);
+        }
+
+        $user = User::where('username', $email)->first();
+
+        if (!$user) {
+            $user = User::create([
+                'name' => $name ?? 'Google User',
+                'username' => $email,
+                'password' => Hash::make(\Illuminate\Support\Str::random(24)),
+                'avatar' => $avatar,
+                'email_verified_at' => now(),
+            ]);
+        } else {
+            if (!$user->email_verified_at) {
+                $user->update(['email_verified_at' => now()]);
+            }
+            if (!$user->avatar && $avatar) {
+                $user->update(['avatar' => $avatar]);
+            }
+        }
+
+        $user->tokens()->delete();
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        return response()->json([
+            'message' => 'Google login successful.',
+            'token' => $token,
+            'user' => $this->formatUser($user->fresh()),
+        ], 200);
     }
 
 
