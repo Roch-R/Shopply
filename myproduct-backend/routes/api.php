@@ -88,6 +88,22 @@ Route::get('/debug-logs', function() {
         return implode("\n", $arr);
     };
 
+    // Auto-create framework directories if missing
+    $dirsToCreate = [
+        storage_path('framework/views'),
+        storage_path('framework/sessions'),
+        storage_path('framework/cache'),
+    ];
+    $creationStatus = [];
+    foreach ($dirsToCreate as $dir) {
+        if (!file_exists($dir)) {
+            $created = @mkdir($dir, 0775, true);
+            $creationStatus[$dir] = $created ? 'created' : 'failed_to_create';
+        } else {
+            $creationStatus[$dir] = 'exists';
+        }
+    }
+
     $logFiles = [];
     if (file_exists(storage_path('logs'))) {
         foreach (scandir(storage_path('logs')) as $file) {
@@ -110,6 +126,19 @@ Route::get('/debug-logs', function() {
         'log_status' => $logStatus,
         'log_files' => $logFiles,
         'logs_dir_writable' => is_writable(storage_path('logs')),
+        'storage_diagnostics' => [
+            'storage_exists' => file_exists(storage_path()),
+            'storage_writable' => is_writable(storage_path()),
+            'framework_exists' => file_exists(storage_path('framework')),
+            'framework_writable' => is_writable(storage_path('framework')),
+            'framework_views_exists' => file_exists(storage_path('framework/views')),
+            'framework_views_writable' => is_writable(storage_path('framework/views')),
+            'framework_sessions_exists' => file_exists(storage_path('framework/sessions')),
+            'framework_sessions_writable' => is_writable(storage_path('framework/sessions')),
+            'framework_cache_exists' => file_exists(storage_path('framework/cache')),
+            'framework_cache_writable' => is_writable(storage_path('framework/cache')),
+            'creation_status' => $creationStatus,
+        ],
         'php_ini' => [
             'upload_max_filesize' => ini_get('upload_max_filesize'),
             'post_max_size' => ini_get('post_max_size'),
