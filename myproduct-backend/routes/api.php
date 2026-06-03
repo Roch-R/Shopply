@@ -71,7 +71,17 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::get('/debug-logs', function() {
     $nginxError = @file_get_contents('/var/log/nginx/error.log') ?: 'Nginx error log is empty or unreadable';
     $nginxAccess = @file_get_contents('/var/log/nginx/access.log') ?: 'Nginx access log is empty or unreadable';
-    $laravelLog = @file_get_contents(storage_path('logs/laravel.log')) ?: 'Laravel log is empty or unreadable';
+    
+    // Log a test message to trigger log file creation
+    try {
+        \Illuminate\Support\Facades\Log::info("Debug logs route was accessed.");
+        $logStatus = "Logged successfully";
+    } catch (\Throwable $e) {
+        $logStatus = "Log error: " . $e->getMessage() . " in " . $e->getFile() . ":" . $e->getLine();
+    }
+
+    $laravelLogPath = storage_path('logs/laravel.log');
+    $laravelLog = @file_get_contents($laravelLogPath) ?: 'Laravel log is empty or unreadable';
     
     $tail = function($content, $lines = 100) {
         $arr = explode("\n", $content);
@@ -79,10 +89,28 @@ Route::get('/debug-logs', function() {
         return implode("\n", $arr);
     };
 
+    $logFiles = [];
+    if (file_exists(storage_path('logs'))) {
+        foreach (scandir(storage_path('logs')) as $file) {
+            if ($file !== '.' && $file !== '..') {
+                $path = storage_path("logs/$file");
+                $logFiles[$file] = [
+                    'size' => filesize($path),
+                    'writable' => is_writable($path),
+                    'owner' => function_exists('posix_getpwuid') ? posix_getpwuid(fileowner($path))['name'] : fileowner($path),
+                    'perms' => substr(sprintf('%o', fileperms($path)), -4),
+                ];
+            }
+        }
+    }
+
     return response()->json([
         'nginx_error' => $tail($nginxError),
         'nginx_access' => $tail($nginxAccess),
         'laravel_log' => $tail($laravelLog),
+        'log_status' => $logStatus,
+        'log_files' => $logFiles,
+        'logs_dir_writable' => is_writable(storage_path('logs')),
         'php_ini' => [
             'upload_max_filesize' => ini_get('upload_max_filesize'),
             'post_max_size' => ini_get('post_max_size'),
