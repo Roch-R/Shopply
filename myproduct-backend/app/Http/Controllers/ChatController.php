@@ -32,10 +32,10 @@ class ChatController extends Controller
                 $seenUsers[] = $otherUserId;
 
                 // Get the other user details
-                $otherUser = User::select('id', 'name', 'avatar')->find($otherUserId);
+                $otherUser = User::select('id', 'name', 'avatar', 'last_seen_at')->find($otherUserId);
 
                 if ($otherUser) {
-                    $isOnline = \Illuminate\Support\Facades\Cache::get('user_online_' . $otherUser->id, false);
+                    $isOnline = $otherUser->last_seen_at && $otherUser->last_seen_at->gt(now()->subMinutes(2));
                     $userData = $otherUser->toArray();
                     $userData['is_online'] = (bool) $isOnline;
 
@@ -67,7 +67,7 @@ class ChatController extends Controller
     {
         $authUserId = Auth::id();
 
-        $otherUser = User::select('id', 'name', 'avatar')->find($userId);
+        $otherUser = User::select('id', 'name', 'avatar', 'last_seen_at')->find($userId);
         if (!$otherUser) {
             return response()->json(['message' => 'User not found.'], 404);
         }
@@ -89,7 +89,7 @@ class ChatController extends Controller
             ->get();
 
         $isTyping = \Illuminate\Support\Facades\Cache::get("typing_{$userId}_{$authUserId}", false);
-        $isOnline = \Illuminate\Support\Facades\Cache::get('user_online_' . $userId, false);
+        $isOnline = $otherUser->last_seen_at && $otherUser->last_seen_at->gt(now()->subMinutes(2));
 
         $otherUserArray = $otherUser->toArray();
         $otherUserArray['is_online'] = (bool) $isOnline;

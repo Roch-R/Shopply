@@ -22,6 +22,7 @@ class User extends Authenticatable
     'avatar',
     'followers_count',
     'following_count',
+    'last_seen_at',
 ];
 
     protected $hidden = [
@@ -54,6 +55,7 @@ class User extends Authenticatable
     'email_verified_at' => 'datetime',
     'otp_expires_at'    => 'datetime',
     'password'          => 'hashed',
+    'last_seen_at'      => 'datetime',
 ];
 
     public function items()
