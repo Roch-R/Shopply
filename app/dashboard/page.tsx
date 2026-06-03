@@ -862,6 +862,20 @@ export default function DashboardPage() {
   };
 
   const handleLogout = async () => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      try {
+        await fetch(`${API}/logout`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: "application/json",
+          },
+        });
+      } catch (err) {
+        console.error("Logout request failed:", err);
+      }
+    }
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     getApiCache().invalidateAll();

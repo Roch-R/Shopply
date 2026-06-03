@@ -32,6 +32,17 @@ export default function AboutPage() {
   }, []); // intentional empty deps — runs once on mount
 
   function handleLogout() {
+    const token = localStorage.getItem("token");
+    if (token) {
+      const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
+      fetch(`${API}/logout`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
+        },
+      }).catch(err => console.error("Logout failed:", err));
+    }
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     getApiCache().invalidateAll();
