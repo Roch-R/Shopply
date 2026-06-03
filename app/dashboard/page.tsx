@@ -1759,98 +1759,100 @@ export default function DashboardPage() {
         .perf-tips-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
         .flex-responsive-row{display:flex;align-items:center;justify-content:space-between}
 
-        /* Chat styling classes */
-        .chat-card-container {
-          width: 100%;
-          height: 600px;
-          background: #fff;
-          border-radius: 24px;
-          box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-          border: 1px solid #f1f5f9;
-          display: flex;
-          overflow: hidden;
-          font-family: Inter, sans-serif;
-        }
-        .chat-left-pane {
-          width: 280px;
-          border-right: 1px solid #e2e8f0;
-          background: #f8fafc;
-          display: flex;
-          flex-direction: column;
-          flex-shrink: 0;
-        }
-        .chat-right-pane {
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-          background: #fff;
-          min-width: 0;
-        }
-        .chat-back-btn {
-          display: none !important;
-        }
-        .chat-close-btn {
-          display: flex !important;
-        }
-        .chat-messages-area {
-          flex: 1;
-          overflow-y: auto;
-          padding: 24px;
-          display: flex;
-          flex-direction: column;
-          gap: 16px;
-          background: #fff;
-        }
-        .chat-message-row {
-          display: flex;
-          align-items: flex-end;
-          gap: 8px;
-          max-width: 75%;
-        }
-        .chat-message-row.me {
-          align-self: flex-end;
-        }
-        .chat-message-row.them {
-          align-self: flex-start;
-        }
-        .chat-message-bubble {
-          padding: 12px 18px;
-          font-size: 14px;
-          line-height: 1.5;
-          word-break: break-word;
-          white-space: pre-wrap;
-        }
-        .chat-message-bubble.me {
-          background: linear-gradient(135deg, #7c3aed, #6d28d9);
-          color: #fff;
-          border-radius: 20px 20px 4px 20px;
-          box-shadow: 0 4px 12px rgba(124, 58, 237, 0.2);
-        }
-        .chat-message-bubble.them {
-          background: #f1f5f9;
-          color: #0f172a;
-          border-radius: 20px 20px 20px 4px;
-        }
-        .chat-input-form {
-          padding: 16px 24px;
-          display: flex;
-          gap: 12px;
-          align-items: center;
-        }
-        .chat-input-textarea {
-          flex: 1;
-          padding: 12px 20px;
-          border-radius: 20px;
-          border: 1px solid #cbd5e1;
-          background: #fff;
-          font-size: 14px;
-          outline: none;
-          color: #0f172a;
-          font-family: 'Inter', sans-serif;
-          resize: none;
-          min-height: 44px;
-          max-height: 120px;
-          line-height: 1.4;
+        @media (min-width: 769px) {
+          /* Chat styling classes */
+          .chat-card-container {
+            width: 100%;
+            height: 600px;
+            background: #fff;
+            border-radius: 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            border: 1px solid #f1f5f9;
+            display: flex;
+            overflow: hidden;
+            font-family: Inter, sans-serif;
+          }
+          .chat-left-pane {
+            width: 280px;
+            border-right: 1px solid #e2e8f0;
+            background: #f8fafc;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+          }
+          .chat-right-pane {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #fff;
+            min-width: 0;
+          }
+          .chat-back-btn {
+            display: none !important;
+          }
+          .chat-close-btn {
+            display: flex !important;
+          }
+          .chat-messages-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            background: #fff;
+          }
+          .chat-message-row {
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            max-width: 75%;
+          }
+          .chat-message-row.me {
+            align-self: flex-end;
+          }
+          .chat-message-row.them {
+            align-self: flex-start;
+          }
+          .chat-message-bubble {
+            padding: 12px 18px;
+            font-size: 14px;
+            line-height: 1.5;
+            word-break: break-word;
+            white-space: pre-wrap;
+          }
+          .chat-message-bubble.me {
+            background: linear-gradient(135deg, #7c3aed, #6d28d9);
+            color: #fff;
+            border-radius: 20px 20px 4px 20px;
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.2);
+          }
+          .chat-message-bubble.them {
+            background: #f1f5f9;
+            color: #0f172a;
+            border-radius: 20px 20px 20px 4px;
+          }
+          .chat-input-form {
+            padding: 16px 24px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+          }
+          .chat-input-textarea {
+            flex: 1;
+            padding: 12px 20px;
+            border-radius: 20px;
+            border: 1px solid #cbd5e1;
+            background: #fff;
+            font-size: 14px;
+            outline: none;
+            color: #0f172a;
+            font-family: 'Inter', sans-serif;
+            resize: none;
+            min-height: 44px;
+            max-height: 120px;
+            line-height: 1.4;
+          }
         }
       `}</style>
 
@@ -2395,20 +2397,20 @@ export default function DashboardPage() {
                               }} />
                             </div>
                             <div style={{flex: 1, minWidth: 0}}>
-                              <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4}}>
-                                <h4 style={{
-                                  fontSize: 14, 
-                                  fontWeight: 700, 
-                                  color: '#0f172a', 
-                                  margin: 0, 
-                                  whiteSpace: 'nowrap', 
-                                  overflow: 'hidden', 
-                                  textOverflow: 'ellipsis',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  gap: 6
-                                }}>
-                                  {conv.user.name}
+                              <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4, minWidth: 0, gap: 12}}>
+                                <div style={{display: 'flex', alignItems: 'center', gap: 6, minWidth: 0, flex: 1}}>
+                                  <h4 style={{
+                                    fontSize: 14, 
+                                    fontWeight: 700, 
+                                    color: '#0f172a', 
+                                    margin: 0, 
+                                    whiteSpace: 'nowrap', 
+                                    overflow: 'hidden', 
+                                    textOverflow: 'ellipsis',
+                                    flex: '0 1 auto'
+                                  }}>
+                                    {conv.user.name}
+                                  </h4>
                                   <span style={{
                                     fontSize: 10,
                                     fontWeight: 500,
@@ -2420,9 +2422,9 @@ export default function DashboardPage() {
                                   }}>
                                     {conv.user.is_online ? "Active" : "Offline"}
                                   </span>
-                                </h4>
+                                </div>
                                 {conv.last_message && (
-                                  <span style={{fontSize: 11, color: '#94a3b8'}}>
+                                  <span style={{fontSize: 11, color: '#94a3b8', flexShrink: 0, marginLeft: 8}}>
                                     {new Date(conv.last_message.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
                                   </span>
                                 )}
