@@ -179,6 +179,21 @@ Route::get('/check-db', function() {
             'driver' => $driver,
             'database' => \DB::connection()->getDatabaseName(),
             'tables' => $tables,
+            'session_config' => [
+                'driver' => config('session.driver'),
+                'connection' => config('session.connection'),
+                'table' => config('session.table'),
+            ],
+            'cache_config' => [
+                'default' => config('cache.default'),
+            ],
+            'env_vars' => [
+                'APP_ENV' => env('APP_ENV'),
+                'APP_DEBUG' => env('APP_DEBUG') ? 'true' : 'false',
+                'SESSION_DRIVER' => env('SESSION_DRIVER'),
+                'CACHE_STORE' => env('CACHE_STORE'),
+                'REDIS_HOST' => env('REDIS_HOST') ? 'set' : 'not_set',
+            ],
         ]);
     } catch (\Throwable $e) {
         return response()->json([
