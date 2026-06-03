@@ -393,6 +393,9 @@ class AuthController extends Controller
         $user->tokens()->delete();
         $token = $user->createToken('auth_token')->plainTextToken;
 
+        // Set online status in Cache
+        Cache::put('user_online_' . $user->id, true, now()->addMinutes(2));
+
         return response()->json([
             'message' => 'Login successful.',
             'token'   => $token,
@@ -488,6 +491,7 @@ class AuthController extends Controller
 
         $user->tokens()->delete();
         $token = $user->createToken('auth_token')->plainTextToken;
+        Cache::put('user_online_' . $user->id, true, now()->addMinutes(2));
 
         return response()->json([
             'message' => 'Google login successful.',
@@ -543,6 +547,7 @@ class AuthController extends Controller
     // ✅ Clear ALL old tokens, issue ONE clean verified token
     $user->tokens()->delete();
     $freshToken = $user->createToken('auth_token')->plainTextToken;
+    Cache::put('user_online_' . $user->id, true, now()->addMinutes(2));
 
     return response()->json([
         'message' => 'Phone number verified successfully!',
@@ -574,6 +579,10 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
+        $user = $request->user();
+        if ($user) {
+            Cache::forget('user_online_' . $user->id);
+        }
         $request->user()->currentAccessToken()->delete();
         return response()->json(['message' => 'Logged out successfully.']);
     }

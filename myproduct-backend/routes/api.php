@@ -22,8 +22,8 @@ Route::get('/shop/items', [ItemController::class, 'index']);
 Route::get('/items/{id}/reviews', [ReviewController::class, 'index']);
 
 Route::middleware(['auth:sanctum', function ($request, $next) {
-    if (\Illuminate\Support\Facades\Auth::check()) {
-        \Illuminate\Support\Facades\Cache::put('user_online_' . \Illuminate\Support\Facades\Auth::id(), true, now()->addMinutes(2));
+    if ($user = $request->user()) {
+        \Illuminate\Support\Facades\Cache::put('user_online_' . $user->id, true, now()->addMinutes(2));
     }
     return $next($request);
 }])->group(function () {
