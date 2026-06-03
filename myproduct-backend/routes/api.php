@@ -158,55 +158,6 @@ Route::get('/debug-logs', function() {
     ]);
 });
 
-Route::get('/check-db', function() {
-    try {
-        $pdo = \DB::connection()->getPdo();
-        $tables = [];
-        $driver = \DB::connection()->getDriverName();
-        if ($driver === 'sqlite') {
-            $results = \DB::select("SELECT name FROM sqlite_master WHERE type='table'");
-            foreach ($results as $result) {
-                $tables[] = $result->name;
-            }
-        } else {
-            $results = \DB::select('SHOW TABLES');
-            foreach ($results as $result) {
-                $tables[] = array_values((array)$result)[0];
-            }
-        }
-        return response()->json([
-            'status' => 'success',
-            'driver' => $driver,
-            'database' => \DB::connection()->getDatabaseName(),
-            'tables' => $tables,
-            'session_config' => [
-                'driver' => config('session.driver'),
-                'connection' => config('session.connection'),
-                'table' => config('session.table'),
-            ],
-            'cache_config' => [
-                'default' => config('cache.default'),
-            ],
-            'env_vars' => [
-                'APP_ENV' => env('APP_ENV'),
-                'APP_DEBUG' => env('APP_DEBUG') ? 'true' : 'false',
-                'SESSION_DRIVER' => env('SESSION_DRIVER'),
-                'CACHE_STORE' => env('CACHE_STORE'),
-                'REDIS_HOST' => env('REDIS_HOST') ? 'set' : 'not_set',
-                'APP_KEY_status' => config('app.key') ? 'set' : 'not_set',
-                'APP_KEY_length' => strlen(config('app.key') ?? ''),
-                'cipher' => config('app.cipher'),
-            ],
-        ]);
-    } catch (\Throwable $e) {
-        return response()->json([
-            'status' => 'error',
-            'message' => $e->getMessage(),
-            'trace' => $e->getTraceAsString(),
-        ], 500);
-    }
-});
-
 Route::get('/media/{filename}', function ($filename, \Illuminate\Http\Request $request) {
     $media = \DB::table('media')->where('filename', $filename)->first();
     if (!$media) {
