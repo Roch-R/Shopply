@@ -16,6 +16,7 @@ Route::post('/resend-registration-otp', [AuthController::class, 'resendRegistrat
 Route::post('/telegram/webhook', [AuthController::class, 'telegramWebhook']);
 Route::post('/telegram/link-phone', [AuthController::class, 'telegramLinkPhone']);
 Route::post('/telegram/register-webhook', [AuthController::class, 'telegramRegisterWebhook']);
+Route::get('/check-deploy', function() { return response()->json(['status' => 'deployed_v2']); });
 
 // Public Shop Route
 Route::get('/shop/items', [ItemController::class, 'index']);
