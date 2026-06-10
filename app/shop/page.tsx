@@ -983,14 +983,14 @@ export default function ShopPage() {
           .item-image-placeholder{height:130px !important}
           .item-name{font-size:13px !important}
         }
-        @media (max-width: 400px) {
-          .grid{grid-template-columns:repeat(2, 1fr) !important;gap:8px !important}
+        @media (max-width: 480px) {
+          .grid{grid-template-columns:1fr !important;gap:16px !important}
           .main{padding:12px 10px !important}
-          .item-card-img{height:110px !important}
-          .item-image-placeholder{height:110px !important}
-          .item-content{padding:8px !important}
-          .item-name{font-size:12px !important}
-          .item-price{font-size:13px !important}
+          .item-card-img{height:180px !important}
+          .item-image-placeholder{height:180px !important}
+          .item-content{padding:16px !important}
+          .item-name{font-size:15px !important}
+          .item-price{font-size:16px !important}
           .title{font-size:22px !important}
           .subtitle{font-size:14px !important}
           .detail-name{font-size:18px !important}
@@ -999,16 +999,19 @@ export default function ShopPage() {
           .main-detail-img{max-height:220px !important;aspect-ratio:unset !important}
           .modal-actions-container .buy-btn, .modal-actions-container .add-cart-btn{font-size:12px !important;height:44px !important}
           .size-btn{padding:5px 8px !important;font-size:11px !important}
+          .item-meta-row{flex-direction:row !important;align-items:center !important;gap:8px !important}
+          .item-stock-row{flex-direction:row !important;align-items:center !important;gap:8px !important}
+          .item-footer > div{flex-direction:row !important;gap:10px !important}
         }
-        @media (max-width: 320px) {
-          .grid{grid-template-columns:1fr !important}
+        @media (max-width: 325px) {
           .main{padding:10px 8px !important}
-          .item-card-img{height:160px !important}
-          .item-image-placeholder{height:160px !important}
+          .item-card-img{height:150px !important}
+          .item-image-placeholder{height:150px !important}
           .item-name{font-size:14px !important}
           .title{font-size:20px !important}
           .nav{padding:0 6px !important}
           .main-detail-img{max-height:180px !important;aspect-ratio:unset !important}
+          .item-footer > div{flex-direction:column !important;gap:6px !important}
         }
         
         .similar-products-section{border-top:1px solid #f1f5f9;padding:48px;background:#fff}
