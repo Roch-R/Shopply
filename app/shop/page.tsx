@@ -140,6 +140,7 @@ export default function ShopPage() {
     }
     return false;
   });
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     const handleStorageChange = (e: StorageEvent) => {
@@ -160,6 +161,14 @@ export default function ShopPage() {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chatMessages, isChatOpen]);
+
+  // Track mobile viewport for inline-style overrides
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth <= 480);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const handleToggleFollow = async (userId: number) => {
     const token = localStorage.getItem("token");
@@ -1226,7 +1235,7 @@ export default function ShopPage() {
         </nav>
 
         <main className="main">
-          <div className="header" style={{ position: 'relative', overflow: 'hidden', padding: '64px 20px', marginBottom: '40px', borderRadius: '24px', background: 'linear-gradient(135deg, #faf5ff 0%, #f0f4ff 100%)', border: '1px solid rgba(124, 58, 237, 0.1)', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+          <div className="header" style={{ position: 'relative', overflow: 'hidden', padding: isMobile ? '28px 16px' : '64px 20px', marginBottom: isMobile ? '20px' : '40px', borderRadius: isMobile ? '16px' : '24px', background: 'linear-gradient(135deg, #faf5ff 0%, #f0f4ff 100%)', border: '1px solid rgba(124, 58, 237, 0.1)', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
             {/* Background decorative blobs */}
             <div style={{ position: 'absolute', top: '-50%', left: '-10%', width: '300px', height: '300px', background: 'rgba(124, 58, 237, 0.15)', filter: 'blur(60px)', borderRadius: '50%' }}></div>
             <div style={{ position: 'absolute', bottom: '-50%', right: '-10%', width: '300px', height: '300px', background: 'rgba(37, 99, 235, 0.15)', filter: 'blur(60px)', borderRadius: '50%' }}></div>
