@@ -310,6 +310,228 @@ export default function DashboardPage() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const sellerOrdersRef = useRef(sellerOrders);
 
+  // Video Call States
+  const [activeCall, setActiveCall] = useState<{
+    user: { id: number; name: string; avatar?: string | null };
+    status: 'ringing' | 'connected' | 'ended';
+    localStream: MediaStream | null;
+  } | null>(null);
+  const [isCallMuted, setIsCallMuted] = useState(false);
+  const [isCallVideoOff, setIsCallVideoOff] = useState(false);
+  const [callDuration, setCallDuration] = useState(0);
+
+  const ringtoneRef = useRef<{ stop: () => void } | null>(null);
+  const localVideoRef = useRef<HTMLVideoElement | null>(null);
+  const callTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const startRingTone = () => {
+    if (typeof window === 'undefined') return null;
+    const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+    if (!AudioContextClass) return null;
+    const ctx = new AudioContextClass();
+    let isRinging = true;
+    let intervalId: any = null;
+
+    const playBeep = () => {
+      if (!isRinging || ctx.state === 'closed') return;
+      const osc1 = ctx.createOscillator();
+      const osc2 = ctx.createOscillator();
+      const gainNode = ctx.createGain();
+
+      osc1.frequency.value = 440;
+      osc2.frequency.value = 480;
+      gainNode.gain.setValueAtTime(0, ctx.currentTime);
+      gainNode.gain.linearRampToValueAtTime(0.08, ctx.currentTime + 0.1);
+      gainNode.gain.setValueAtTime(0.08, ctx.currentTime + 1.8);
+      gainNode.gain.linearRampToValueAtTime(0, ctx.currentTime + 2.0);
+
+      osc1.connect(gainNode);
+      osc2.connect(gainNode);
+      gainNode.connect(ctx.destination);
+
+      osc1.start();
+      osc2.start();
+
+      setTimeout(() => {
+        try {
+          osc1.stop();
+          osc2.stop();
+        } catch (e) {}
+      }, 2000);
+    };
+
+    playBeep();
+    intervalId = setInterval(playBeep, 4000);
+
+    return {
+      stop: () => {
+        isRinging = false;
+        clearInterval(intervalId);
+        ctx.close();
+      }
+    };
+  };
+
+  const playConnectSound = () => {
+    if (typeof window === 'undefined') return;
+    const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+    if (!AudioContextClass) return;
+    const ctx = new AudioContextClass();
+    const osc = ctx.createOscillator();
+    const gainNode = ctx.createGain();
+
+    osc.frequency.setValueAtTime(660, ctx.currentTime);
+    osc.frequency.setValueAtTime(880, ctx.currentTime + 0.1);
+    gainNode.gain.setValueAtTime(0, ctx.currentTime);
+    gainNode.gain.linearRampToValueAtTime(0.08, ctx.currentTime + 0.05);
+    gainNode.gain.setValueAtTime(0.08, ctx.currentTime + 0.2);
+    gainNode.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.25);
+
+    osc.connect(gainNode);
+    gainNode.connect(ctx.destination);
+
+    osc.start();
+    setTimeout(() => {
+      try {
+        osc.stop();
+        ctx.close();
+      } catch (e) {}
+    }, 300);
+  };
+
+  const playDisconnectSound = () => {
+    if (typeof window === 'undefined') return;
+    const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+    if (!AudioContextClass) return;
+    const ctx = new AudioContextClass();
+    const osc = ctx.createOscillator();
+    const gainNode = ctx.createGain();
+
+    osc.frequency.setValueAtTime(660, ctx.currentTime);
+    osc.frequency.setValueAtTime(440, ctx.currentTime + 0.12);
+    gainNode.gain.setValueAtTime(0, ctx.currentTime);
+    gainNode.gain.linearRampToValueAtTime(0.08, ctx.currentTime + 0.05);
+    gainNode.gain.setValueAtTime(0.08, ctx.currentTime + 0.24);
+    gainNode.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.3);
+
+    osc.connect(gainNode);
+    gainNode.connect(ctx.destination);
+
+    osc.start();
+    setTimeout(() => {
+      try {
+        osc.stop();
+        ctx.close();
+      } catch (e) {}
+    }, 400);
+  };
+
+  const handleStartVideoCall = async () => {
+    if (!activeChatUser) return;
+
+    if (callTimerRef.current) clearInterval(callTimerRef.current);
+    if (ringtoneRef.current) ringtoneRef.current.stop();
+    setCallDuration(0);
+    setIsCallMuted(false);
+    setIsCallVideoOff(false);
+
+    let stream: MediaStream | null = null;
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+    } catch (err) {
+      console.warn("Camera/mic access failed or denied, using mock stream mode.", err);
+      showToast("Camera access failed. Running call in Demo Mode.", "error");
+    }
+
+    setActiveCall({
+      user: activeChatUser,
+      status: 'ringing',
+      localStream: stream
+    });
+
+    const ring = startRingTone();
+    ringtoneRef.current = ring;
+
+    setTimeout(() => {
+      setActiveCall(prev => {
+        if (!prev || prev.status !== 'ringing') return prev;
+
+        if (ringtoneRef.current) {
+          ringtoneRef.current.stop();
+          ringtoneRef.current = null;
+        }
+
+        playConnectSound();
+
+        callTimerRef.current = setInterval(() => {
+          setCallDuration(d => d + 1);
+        }, 1000);
+
+        return {
+          ...prev,
+          status: 'connected'
+        };
+      });
+    }, 3500);
+  };
+
+  const handleEndVideoCall = () => {
+    if (callTimerRef.current) {
+      clearInterval(callTimerRef.current);
+      callTimerRef.current = null;
+    }
+    if (ringtoneRef.current) {
+      ringtoneRef.current.stop();
+      ringtoneRef.current = null;
+    }
+
+    playDisconnectSound();
+
+    if (activeCall?.localStream) {
+      activeCall.localStream.getTracks().forEach(track => track.stop());
+    }
+
+    setActiveCall(null);
+    setCallDuration(0);
+  };
+
+  const handleToggleCallMute = () => {
+    if (activeCall?.localStream) {
+      const audioTrack = activeCall.localStream.getAudioTracks()[0];
+      if (audioTrack) {
+        audioTrack.enabled = !audioTrack.enabled;
+        setIsCallMuted(!audioTrack.enabled);
+      }
+    } else {
+      setIsCallMuted(prev => !prev);
+    }
+  };
+
+  const handleToggleCallVideo = () => {
+    if (activeCall?.localStream) {
+      const videoTrack = activeCall.localStream.getVideoTracks()[0];
+      if (videoTrack) {
+        videoTrack.enabled = !videoTrack.enabled;
+        setIsCallVideoOff(!videoTrack.enabled);
+      }
+    } else {
+      setIsCallVideoOff(prev => !prev);
+    }
+  };
+
+  useEffect(() => {
+    if (activeCall?.localStream && localVideoRef.current) {
+      localVideoRef.current.srcObject = activeCall.localStream;
+    }
+  }, [activeCall?.localStream, activeCall?.status]);
+
+  useEffect(() => {
+    return () => {
+      if (callTimerRef.current) clearInterval(callTimerRef.current);
+      if (ringtoneRef.current) ringtoneRef.current.stop();
+    };
+  }, []);
+
   useEffect(() => {
     sellerOrdersRef.current = sellerOrders;
   }, [sellerOrders]);
@@ -1870,6 +2092,24 @@ export default function DashboardPage() {
             min-height: 40px !important;
           }
         }
+
+        @keyframes pulse {
+          0% { transform: scale(0.95); opacity: 0.5; }
+          50% { transform: scale(1.05); opacity: 0.8; }
+          100% { transform: scale(0.95); opacity: 0.5; }
+        }
+        .pulse-ring {
+          animation: pulse 1.8s infinite ease-in-out;
+        }
+        @keyframes callingDot {
+          0% { opacity: .2; }
+          20% { opacity: 1; }
+          100% { opacity: .2; }
+        }
+        .calling-dots::after {
+          content: ' . . .';
+          animation: callingDot 1.4s infinite both;
+        }
       `}</style>
 
       <div className="root">
@@ -2508,14 +2748,41 @@ export default function DashboardPage() {
                               )}
                             </div>
                           </div>
-                          <button
-                            onClick={() => setActiveChatUser(null)}
-                            className="chat-close-btn"
-                            style={{background: '#f1f5f9', border: 'none', width: 32, height: 32, borderRadius: '50%', alignItems: 'center', justifyContent: 'center', color: '#64748b', cursor: 'pointer'}}
-                            title="Close conversation"
-                          >
-                            ✕
-                          </button>
+                          <div style={{display: 'flex', alignItems: 'center', gap: 12}}>
+                            <button
+                              onClick={handleStartVideoCall}
+                              style={{
+                                background: 'linear-gradient(135deg, #7c3aed, #4f46e5)',
+                                border: 'none',
+                                width: 36,
+                                height: 36,
+                                borderRadius: '50%',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                color: '#fff',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s',
+                                boxShadow: '0 4px 10px rgba(124, 58, 237, 0.25)'
+                              }}
+                              onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.08)'}
+                              onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+                              title="Start Video Call"
+                            >
+                              <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                                <path d="M23 7l-7 5 7 5V7z" strokeLinecap="round" strokeLinejoin="round"/>
+                                <rect x="1" y="5" width="15" height="14" rx="2" ry="2" strokeLinecap="round" strokeLinejoin="round"/>
+                              </svg>
+                            </button>
+                            <button
+                              onClick={() => setActiveChatUser(null)}
+                              className="chat-close-btn"
+                              style={{background: '#f1f5f9', border: 'none', width: 32, height: 32, borderRadius: '50%', alignItems: 'center', justifyContent: 'center', color: '#64748b', cursor: 'pointer'}}
+                              title="Close conversation"
+                            >
+                              ✕
+                            </button>
+                          </div>
                         </div>
 
                         {/* CHAT MESSAGES AREA */}
@@ -4319,6 +4586,273 @@ export default function DashboardPage() {
                 Cancel Scanning
               </button>
             </div>
+          </div>
+        )}
+
+        {/* VIDEO CALL MODAL OVERLAY */}
+        {activeCall && (
+          <div 
+            style={{
+              position: 'fixed',
+              inset: 0,
+              background: 'rgba(15, 23, 42, 0.95)',
+              backdropFilter: 'blur(16px)',
+              zIndex: 9999,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#fff',
+              fontFamily: "'Inter', sans-serif"
+            }}
+          >
+            {activeCall.status === 'ringing' ? (
+              // RINGING VIEW
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 24, textAlign: 'center' }}>
+                <div style={{ position: 'relative' }}>
+                  {/* Pulsing Ring Animation */}
+                  <div 
+                    className="pulse-ring"
+                    style={{
+                      position: 'absolute',
+                      inset: -20,
+                      borderRadius: '50%',
+                      border: '2px solid #7c3aed',
+                      animation: 'pulse 1.8s infinite'
+                    }}
+                  />
+                  {activeCall.user.avatar ? (
+                    <img 
+                      src={getAvatarUrl(activeCall.user.avatar)} 
+                      alt={activeCall.user.name} 
+                      style={{ width: 120, height: 120, borderRadius: '50%', objectFit: 'cover', border: '4px solid #fff', position: 'relative', zIndex: 10 }}
+                    />
+                  ) : (
+                    <div style={{ width: 120, height: 120, borderRadius: '50%', background: '#7c3aed', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 44, border: '4px solid #fff', position: 'relative', zIndex: 10 }}>
+                      {activeCall.user.name.charAt(0).toUpperCase()}
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <h3 style={{ fontSize: 24, fontWeight: 700, margin: '0 0 8px' }}>{activeCall.user.name}</h3>
+                  <p style={{ color: '#94a3b8', fontSize: 16, margin: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                    <span className="calling-dots">Calling</span>
+                  </p>
+                </div>
+                <button
+                  onClick={handleEndVideoCall}
+                  style={{
+                    marginTop: 40,
+                    width: 64,
+                    height: 64,
+                    borderRadius: '50%',
+                    background: '#ef4444',
+                    border: 'none',
+                    color: '#fff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    boxShadow: '0 8px 20px rgba(239, 68, 68, 0.4)',
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.1)'}
+                  onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+                  title="Decline Call"
+                >
+                  <svg width="28" height="28" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ transform: 'rotate(135deg)' }}>
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M3 10h18" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </button>
+              </div>
+            ) : (
+              // CONNECTED VIEW
+              <div style={{ position: 'relative', width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
+                
+                {/* Main Video Stream Container (covers viewport) */}
+                <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', background: '#000' }}>
+                  {activeCall.localStream && !isCallVideoOff ? (
+                    <video 
+                      ref={localVideoRef}
+                      autoPlay
+                      muted
+                      playsInline
+                      style={{ width: '100%', height: '100%', objectFit: 'cover', transform: 'scaleX(-1)' }}
+                    />
+                  ) : (
+                    // Video off background or placeholder
+                    <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#0f172a', gap: 16 }}>
+                      {activeCall.user.avatar ? (
+                        <img 
+                          src={getAvatarUrl(activeCall.user.avatar)} 
+                          alt={activeCall.user.name} 
+                          style={{ width: 100, height: 100, borderRadius: '50%', objectFit: 'cover', filter: 'blur(4px) opacity(0.3)' }}
+                        />
+                      ) : null}
+                      <span style={{ fontSize: 16, color: '#64748b' }}>Camera is turned off</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Picture in Picture Remote Thumbnail (Recipient) */}
+                <div 
+                  style={{
+                    position: 'absolute',
+                    top: 24,
+                    right: 24,
+                    width: 120,
+                    height: 160,
+                    borderRadius: 16,
+                    overflow: 'hidden',
+                    border: '2px solid rgba(255, 255, 255, 0.2)',
+                    boxShadow: '0 10px 25px rgba(0, 0, 0, 0.3)',
+                    background: '#1e293b',
+                    zIndex: 20,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                >
+                  {/* Remote user avatar / animated preview */}
+                  {activeCall.user.avatar ? (
+                    <img 
+                      src={getAvatarUrl(activeCall.user.avatar)} 
+                      alt={activeCall.user.name} 
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
+                  ) : (
+                    <div style={{ width: '100%', height: '100%', background: '#4f46e5', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 28 }}>
+                      {activeCall.user.name.charAt(0).toUpperCase()}
+                    </div>
+                  )}
+                  {/* Label overlay */}
+                  <div style={{ position: 'absolute', bottom: 8, left: 8, right: 8, background: 'rgba(0,0,0,0.5)', borderRadius: 4, padding: '2px 4px', fontSize: 10, color: '#fff', backdropFilter: 'blur(4px)', zIndex: 10 }}>
+                    {activeCall.user.name}
+                  </div>
+                </div>
+
+                {/* Call Overlay Info (Top Left) */}
+                <div style={{ position: 'absolute', top: 24, left: 24, zIndex: 20, display: 'flex', flexDirection: 'column', gap: 4, textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>
+                  <h4 style={{ fontSize: 18, fontWeight: 700, margin: 0 }}>{activeCall.user.name}</h4>
+                  <span style={{ fontSize: 14, color: '#a7f3d0', display: 'flex', alignItems: 'center', gap: 6, fontWeight: 500 }}>
+                    <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#10b981', display: 'inline-block', animation: 'pulse 1s infinite' }}></span>
+                    Connected - {Math.floor(callDuration / 60).toString().padStart(2, '0')}:{(callDuration % 60).toString().padStart(2, '0')}
+                  </span>
+                </div>
+
+                {/* Controls Bar (Bottom Center) */}
+                <div 
+                  style={{
+                    position: 'absolute',
+                    bottom: 40,
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 20,
+                    padding: '12px 28px',
+                    borderRadius: 30,
+                    background: 'rgba(15, 23, 42, 0.75)',
+                    backdropFilter: 'blur(12px)',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    boxShadow: '0 10px 30px rgba(0, 0, 0, 0.25)',
+                    zIndex: 20
+                  }}
+                >
+                  {/* Mic Toggle Button */}
+                  <button
+                    onClick={handleToggleCallMute}
+                    style={{
+                      width: 48,
+                      height: 48,
+                      borderRadius: '50%',
+                      background: isCallMuted ? '#ef4444' : 'rgba(255, 255, 255, 0.15)',
+                      border: 'none',
+                      color: '#fff',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s'
+                    }}
+                    title={isCallMuted ? "Unmute Microphone" : "Mute Microphone"}
+                  >
+                    {isCallMuted ? (
+                      <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                        <path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/>
+                        <path d="M19 10v1a7 7 0 01-14 0v-1M12 19v4M8 23h8M1 1l22 22" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    ) : (
+                      <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                        <path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M19 10v1a7 7 0 01-14 0v-1M12 19v4M8 23h8" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    )}
+                  </button>
+
+                  {/* Hang Up Button */}
+                  <button
+                    onClick={handleEndVideoCall}
+                    style={{
+                      width: 56,
+                      height: 56,
+                      borderRadius: '50%',
+                      background: '#ef4444',
+                      border: 'none',
+                      color: '#fff',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                      boxShadow: '0 4px 15px rgba(239, 68, 68, 0.4)'
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.08)'}
+                    onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+                    title="Hang Up"
+                  >
+                    <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ transform: 'rotate(135deg)' }}>
+                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" strokeLinecap="round" strokeLinejoin="round"/>
+                      <path d="M3 10h18" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </button>
+
+                  {/* Video Toggle Button */}
+                  <button
+                    onClick={handleToggleCallVideo}
+                    style={{
+                      width: 48,
+                      height: 48,
+                      borderRadius: '50%',
+                      background: isCallVideoOff ? '#ef4444' : 'rgba(255, 255, 255, 0.15)',
+                      border: 'none',
+                      color: '#fff',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s'
+                    }}
+                    title={isCallVideoOff ? "Turn Video On" : "Turn Video Off"}
+                  >
+                    {isCallVideoOff ? (
+                      <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                        <path d="M23 7l-7 5 7 5V7z" strokeLinecap="round"/>
+                        <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+                        <path d="M1 1l22 22" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    ) : (
+                      <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                        <path d="M23 7l-7 5 7 5V7z" strokeLinecap="round" strokeLinejoin="round"/>
+                        <rect x="1" y="5" width="15" height="14" rx="2" ry="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    )}
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
