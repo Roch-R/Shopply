@@ -327,6 +327,8 @@ export default function DashboardPage() {
   const localVideoRef = useRef<HTMLVideoElement | null>(null);
   const remoteVideoRef = useRef<HTMLVideoElement | null>(null);
   const callTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const ringingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const incomingCallTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const peerInstanceRef = useRef<any>(null);
   const peerCallInstanceRef = useRef<any>(null);
@@ -376,6 +378,52 @@ export default function DashboardPage() {
 
           if (ringtoneRef.current) ringtoneRef.current.stop();
           ringtoneRef.current = startRingTone(true);
+
+          // Listen for caller hanging up before we answer
+          incCall.on('close', () => {
+            console.log('[PeerJS] Incoming call closed by caller before answer');
+            setIncomingCall(null);
+            if (ringtoneRef.current) {
+              ringtoneRef.current.stop();
+              ringtoneRef.current = null;
+            }
+            if (incomingCallTimeoutRef.current) {
+              clearTimeout(incomingCallTimeoutRef.current);
+              incomingCallTimeoutRef.current = null;
+            }
+          });
+
+          incCall.on('error', (err: any) => {
+            console.error('[PeerJS] Incoming call error before answer:', err);
+            setIncomingCall(null);
+            if (ringtoneRef.current) {
+              ringtoneRef.current.stop();
+              ringtoneRef.current = null;
+            }
+            if (incomingCallTimeoutRef.current) {
+              clearTimeout(incomingCallTimeoutRef.current);
+              incomingCallTimeoutRef.current = null;
+            }
+          });
+
+          // Auto-timeout incoming call after 30 seconds of no action
+          if (incomingCallTimeoutRef.current) clearTimeout(incomingCallTimeoutRef.current);
+          incomingCallTimeoutRef.current = setTimeout(() => {
+            setIncomingCall(prev => {
+              if (prev) {
+                console.log('[PeerJS] Incoming call timed out (no action)');
+                if (ringtoneRef.current) {
+                  ringtoneRef.current.stop();
+                  ringtoneRef.current = null;
+                }
+                playDisconnectSound();
+                try {
+                  incCall.close();
+                } catch (e) {}
+              }
+              return null;
+            });
+          }, 30000);
         });
 
         peerInstanceRef.current = peer;
@@ -545,17 +593,33 @@ export default function DashboardPage() {
     setRemoteStream(null);
 
     let stream: MediaStream | null = null;
+    let videoDisabled = false;
+
     try {
       stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
     } catch (err) {
-      console.warn("Camera/mic access failed or denied, using mock stream mode.", err);
-      showToast("Camera access failed. Running call in Demo Mode.", "error");
+      console.warn("Camera and mic access failed, trying audio only...", err);
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        videoDisabled = true;
+        setIsCallVideoOff(true);
+        showToast("Camera access failed. Starting call with audio only.", "error");
+      } catch (err2) {
+        console.error("Audio access also failed:", err2);
+        showToast("Camera and microphone access denied. Please enable permission in your browser settings to make calls.", "error");
+        return;
+      }
+    }
+
+    if (!stream) {
+      showToast("Failed to capture media. Cannot start call.", "error");
+      return;
     }
 
     const recipientPeerId = `shopply-user-${activeChatUser.id}`;
     console.log('[PeerJS] Calling:', recipientPeerId);
 
-    const peerCall = peerInstanceRef.current.call(recipientPeerId, stream || new MediaStream());
+    const peerCall = peerInstanceRef.current.call(recipientPeerId, stream);
     peerCallInstanceRef.current = peerCall;
 
     setActiveCall({
@@ -566,12 +630,29 @@ export default function DashboardPage() {
 
     ringtoneRef.current = startRingTone(false);
 
+    // Auto-timeout ringing after 30 seconds of no answer
+    if (ringingTimeoutRef.current) clearTimeout(ringingTimeoutRef.current);
+    ringingTimeoutRef.current = setTimeout(() => {
+      setActiveCall(prev => {
+        if (prev && prev.status === 'ringing') {
+          showToast("No answer from user.", "error");
+          handleEndVideoCall();
+        }
+        return prev;
+      });
+    }, 30000);
+
     peerCall.on('stream', (rStream: MediaStream) => {
       console.log('[PeerJS] Outgoing call accepted, received remote stream');
 
       if (ringtoneRef.current) {
         ringtoneRef.current.stop();
         ringtoneRef.current = null;
+      }
+
+      if (ringingTimeoutRef.current) {
+        clearTimeout(ringingTimeoutRef.current);
+        ringingTimeoutRef.current = null;
       }
 
       playConnectSound();
@@ -610,22 +691,41 @@ export default function DashboardPage() {
       ringtoneRef.current = null;
     }
 
+    if (incomingCallTimeoutRef.current) {
+      clearTimeout(incomingCallTimeoutRef.current);
+      incomingCallTimeoutRef.current = null;
+    }
+
     let stream: MediaStream | null = null;
+    let videoDisabled = false;
+
     try {
       stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
     } catch (err) {
-      console.warn("Camera/mic access failed or denied, answering in Demo Mode.", err);
-      showToast("Camera access failed. Answering in Demo Mode.", "error");
+      console.warn("Camera/mic access failed, trying audio only...", err);
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        videoDisabled = true;
+        setIsCallVideoOff(true);
+        showToast("Camera access failed. Answering call with audio only.", "error");
+      } catch (err2) {
+        console.error("Audio access also failed:", err2);
+        showToast("Camera and microphone access denied. Please enable permission to answer calls.", "error");
+        handleDeclineIncomingCall();
+        return;
+      }
+    }
+
+    if (!stream) {
+      showToast("Failed to capture media. Cannot answer call.", "error");
+      handleDeclineIncomingCall();
+      return;
     }
 
     const peerCall = incomingCall.call;
     peerCallInstanceRef.current = peerCall;
 
-    if (stream) {
-      peerCall.answer(stream);
-    } else {
-      peerCall.answer(new MediaStream());
-    }
+    peerCall.answer(stream);
 
     playConnectSound();
 
@@ -667,6 +767,11 @@ export default function DashboardPage() {
       ringtoneRef.current = null;
     }
 
+    if (incomingCallTimeoutRef.current) {
+      clearTimeout(incomingCallTimeoutRef.current);
+      incomingCallTimeoutRef.current = null;
+    }
+
     playDisconnectSound();
 
     try {
@@ -684,6 +789,14 @@ export default function DashboardPage() {
     if (ringtoneRef.current) {
       ringtoneRef.current.stop();
       ringtoneRef.current = null;
+    }
+    if (ringingTimeoutRef.current) {
+      clearTimeout(ringingTimeoutRef.current);
+      ringingTimeoutRef.current = null;
+    }
+    if (incomingCallTimeoutRef.current) {
+      clearTimeout(incomingCallTimeoutRef.current);
+      incomingCallTimeoutRef.current = null;
     }
 
     playDisconnectSound();
