@@ -916,6 +916,10 @@ export default function ShopPage() {
           .detail-price{font-size:32px}
           .modal-close-btn{position:absolute;top:16px;right:16px;width:40px;height:40px;z-index:110}
           .modal-actions-container{flex-direction:row;gap:16px}
+          .description-section{padding:48px}
+          .description-card-body{border-radius:20px;padding:28px;margin-bottom:32px}
+          .rating-section{padding:48px}
+          .seller-header-bar{padding:32px 48px;flex-direction:row;align-items:center;gap:32px}
         }
         
         @media (max-width: 768px) {
@@ -995,7 +999,7 @@ export default function ShopPage() {
         .spec-label{font-size:11px;color:#94a3b8;font-weight:700;text-transform:uppercase}
         .spec-val{font-size:14px;color:#334155;font-weight:600}
         
-        .description-section{border-top:1px solid #f1f5f9;padding:48px;background:#fff}
+        .description-section{border-top:1px solid #f1f5f9;padding:24px 16px;background:#fff}
         .description-header {
           margin-bottom: 24px;
         }
@@ -1008,11 +1012,11 @@ export default function ShopPage() {
         }
         .description-card-body {
           background: #f8fafc;
-          border-radius: 20px;
-          padding: 28px;
+          border-radius: 16px;
+          padding: 16px;
           border: 1px solid #f1f5f9;
           box-shadow: 0 4px 20px rgba(0,0,0,0.01);
-          margin-bottom: 32px;
+          margin-bottom: 24px;
         }
         .detail-desc-premium {
           white-space: pre-wrap;
@@ -1106,7 +1110,7 @@ export default function ShopPage() {
           color: #fff;
           border-color: #0f172a;
         }
-        .rating-section{border-top:1px solid #f1f5f9;padding:48px;background:#fdfdfd}
+        .rating-section{border-top:1px solid #f1f5f9;padding:24px 16px;background:#fdfdfd}
         .reviews-scroll-container{
           max-height:420px;
           overflow-y:auto;
@@ -1150,15 +1154,8 @@ export default function ShopPage() {
         .back-to-top.visible{opacity:1;visibility:visible;transform:translateY(0)}
         .back-to-top:hover{transform:translateY(-4px);background:#1e293b;box-shadow:0 12px 30px rgba(0,0,0,.2)}
  
-        .modal-close-btn{position:absolute;top:16px;right:16px;width:40px;height:40px;
-          border-radius:50%;background:rgba(255,255,255,0.92);backdrop-filter:blur(12px);
-          display:flex;align-items:center;justify-content:center;cursor:pointer;
-          border:1px solid #e2e8f0;color:#0f172a;z-index:110;transition:all .25s ease;
-          box-shadow:0 2px 8px rgba(0,0,0,.06)}
-        .modal-close-btn:hover{background:#fff;transform:scale(1.1);box-shadow:0 6px 16px rgba(0,0,0,.12);
-          color:#ef4444;border-color:#fecaca}
- 
-        .seller-header-bar{background:#fff;border-top:1px solid #f1f5f9;border-bottom:1px solid #f1f5f9;padding:32px 48px;display:flex;align-items:center;justify-content:space-between;gap:32px;flex-wrap:wrap}
+
+        .seller-header-bar{background:#fff;border-top:1px solid #f1f5f9;border-bottom:1px solid #f1f5f9;padding:16px;display:flex;align-items:flex-start;flex-direction:column;justify-content:space-between;gap:20px;flex-wrap:wrap}
         @media (max-width: 950px) { .seller-header-bar{padding:24px;flex-direction:column;align-items:flex-start} }
         .seller-left-side{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
         .seller-avatar-wrapper{position:relative}
