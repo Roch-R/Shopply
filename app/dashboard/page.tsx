@@ -303,28 +303,98 @@ export default function DashboardPage() {
   const fetchMessagesRef = useRef<() => void>(() => {});
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chatMessages, activeTab]);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const sellerOrdersRef = useRef(sellerOrders);
-
-  // Video Call States
   const [activeCall, setActiveCall] = useState<{
     user: { id: number; name: string; avatar?: string | null };
     status: 'ringing' | 'connected' | 'ended';
     localStream: MediaStream | null;
   } | null>(null);
+  const [incomingCall, setIncomingCall] = useState<{
+    call: any;
+    user: { id: number; name: string; avatar?: string | null };
+  } | null>(null);
+  const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
   const [isCallMuted, setIsCallMuted] = useState(false);
   const [isCallVideoOff, setIsCallVideoOff] = useState(false);
   const [callDuration, setCallDuration] = useState(0);
 
   const ringtoneRef = useRef<{ stop: () => void } | null>(null);
   const localVideoRef = useRef<HTMLVideoElement | null>(null);
+  const remoteVideoRef = useRef<HTMLVideoElement | null>(null);
   const callTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  const startRingTone = () => {
+  const peerInstanceRef = useRef<any>(null);
+  const peerCallInstanceRef = useRef<any>(null);
+  const chatConversationsRef = useRef(chatConversations);
+
+  useEffect(() => {
+    chatConversationsRef.current = chatConversations;
+  }, [chatConversations]);
+
+  // Initialize PeerJS
+  useEffect(() => {
+    if (!user || typeof window === 'undefined') return;
+
+    let peer: any = null;
+    const initPeer = async () => {
+      try {
+        const PeerClass = (await import('peerjs')).default;
+        // Connect to default public PeerJS server with user ID
+        peer = new PeerClass(`shopply-user-${user.id}`);
+
+        peer.on('open', (id: string) => {
+          console.log('[PeerJS] Opened with ID:', id);
+        });
+
+        peer.on('error', (err: any) => {
+          console.error('[PeerJS] Error:', err);
+          if (err.type === 'peer-unavailable') {
+            showToast("The user is offline or not available for calls.", "error");
+            handleEndVideoCall();
+          }
+        });
+
+        // Listen for incoming calls
+        peer.on('call', (incCall: any) => {
+          console.log('[PeerJS] Incoming call from:', incCall.peer);
+
+          const callerIdStr = incCall.peer.replace('shopply-user-', '');
+          const callerId = parseInt(callerIdStr, 10);
+
+          const callerConv = chatConversationsRef.current.find(c => c.user.id === callerId);
+          const callerUser = callerConv ? callerConv.user : { id: callerId, name: `User #${callerId}`, avatar: null };
+
+          setIncomingCall({
+            call: incCall,
+            user: callerUser
+          });
+
+          if (ringtoneRef.current) ringtoneRef.current.stop();
+          ringtoneRef.current = startRingTone(true);
+        });
+
+        peerInstanceRef.current = peer;
+      } catch (err) {
+        console.error('[PeerJS] Init failed:', err);
+      }
+    };
+
+    initPeer();
+
+    return () => {
+      if (peer) {
+        peer.destroy();
+        peerInstanceRef.current = null;
+      }
+    };
+  }, [user?.id]);
+
+  const startRingTone = (isIncoming = false) => {
     if (typeof window === 'undefined') return null;
     const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
     if (!AudioContextClass) return null;
@@ -334,34 +404,68 @@ export default function DashboardPage() {
 
     const playBeep = () => {
       if (!isRinging || ctx.state === 'closed') return;
-      const osc1 = ctx.createOscillator();
-      const osc2 = ctx.createOscillator();
-      const gainNode = ctx.createGain();
 
-      osc1.frequency.value = 440;
-      osc2.frequency.value = 480;
-      gainNode.gain.setValueAtTime(0, ctx.currentTime);
-      gainNode.gain.linearRampToValueAtTime(0.08, ctx.currentTime + 0.1);
-      gainNode.gain.setValueAtTime(0.08, ctx.currentTime + 1.8);
-      gainNode.gain.linearRampToValueAtTime(0, ctx.currentTime + 2.0);
+      if (isIncoming) {
+        const playSingleRing = (delay: number) => {
+          const osc1 = ctx.createOscillator();
+          const osc2 = ctx.createOscillator();
+          const gainNode = ctx.createGain();
 
-      osc1.connect(gainNode);
-      osc2.connect(gainNode);
-      gainNode.connect(ctx.destination);
+          osc1.frequency.value = 400;
+          osc2.frequency.value = 450;
 
-      osc1.start();
-      osc2.start();
+          gainNode.gain.setValueAtTime(0, ctx.currentTime + delay);
+          gainNode.gain.linearRampToValueAtTime(0.08, ctx.currentTime + delay + 0.05);
+          gainNode.gain.setValueAtTime(0.08, ctx.currentTime + delay + 0.35);
+          gainNode.gain.linearRampToValueAtTime(0, ctx.currentTime + delay + 0.4);
 
-      setTimeout(() => {
-        try {
-          osc1.stop();
-          osc2.stop();
-        } catch (e) {}
-      }, 2000);
+          osc1.connect(gainNode);
+          osc2.connect(gainNode);
+          gainNode.connect(ctx.destination);
+
+          osc1.start(ctx.currentTime + delay);
+          osc2.start(ctx.currentTime + delay);
+
+          setTimeout(() => {
+            try {
+              osc1.stop();
+              osc2.stop();
+            } catch (e) {}
+          }, (delay + 0.5) * 1000);
+        };
+
+        playSingleRing(0);
+        playSingleRing(0.6);
+      } else {
+        const osc1 = ctx.createOscillator();
+        const osc2 = ctx.createOscillator();
+        const gainNode = ctx.createGain();
+
+        osc1.frequency.value = 440;
+        osc2.frequency.value = 480;
+        gainNode.gain.setValueAtTime(0, ctx.currentTime);
+        gainNode.gain.linearRampToValueAtTime(0.08, ctx.currentTime + 0.1);
+        gainNode.gain.setValueAtTime(0.08, ctx.currentTime + 1.8);
+        gainNode.gain.linearRampToValueAtTime(0, ctx.currentTime + 2.0);
+
+        osc1.connect(gainNode);
+        osc2.connect(gainNode);
+        gainNode.connect(ctx.destination);
+
+        osc1.start();
+        osc2.start();
+
+        setTimeout(() => {
+          try {
+            osc1.stop();
+            osc2.stop();
+          } catch (e) {}
+        }, 2000);
+      }
     };
 
     playBeep();
-    intervalId = setInterval(playBeep, 4000);
+    intervalId = setInterval(playBeep, isIncoming ? 3000 : 4000);
 
     return {
       stop: () => {
@@ -428,12 +532,17 @@ export default function DashboardPage() {
 
   const handleStartVideoCall = async () => {
     if (!activeChatUser) return;
+    if (!peerInstanceRef.current) {
+      showToast("Video call system is initializing. Please try again.", "error");
+      return;
+    }
 
     if (callTimerRef.current) clearInterval(callTimerRef.current);
     if (ringtoneRef.current) ringtoneRef.current.stop();
     setCallDuration(0);
     setIsCallMuted(false);
     setIsCallVideoOff(false);
+    setRemoteStream(null);
 
     let stream: MediaStream | null = null;
     try {
@@ -443,36 +552,128 @@ export default function DashboardPage() {
       showToast("Camera access failed. Running call in Demo Mode.", "error");
     }
 
+    const recipientPeerId = `shopply-user-${activeChatUser.id}`;
+    console.log('[PeerJS] Calling:', recipientPeerId);
+
+    const peerCall = peerInstanceRef.current.call(recipientPeerId, stream || new MediaStream());
+    peerCallInstanceRef.current = peerCall;
+
     setActiveCall({
       user: activeChatUser,
       status: 'ringing',
       localStream: stream
     });
 
-    const ring = startRingTone();
-    ringtoneRef.current = ring;
+    ringtoneRef.current = startRingTone(false);
 
-    setTimeout(() => {
+    peerCall.on('stream', (rStream: MediaStream) => {
+      console.log('[PeerJS] Outgoing call accepted, received remote stream');
+
+      if (ringtoneRef.current) {
+        ringtoneRef.current.stop();
+        ringtoneRef.current = null;
+      }
+
+      playConnectSound();
+
       setActiveCall(prev => {
-        if (!prev || prev.status !== 'ringing') return prev;
+        if (!prev || prev.status === 'connected') return prev;
 
-        if (ringtoneRef.current) {
-          ringtoneRef.current.stop();
-          ringtoneRef.current = null;
-        }
-
-        playConnectSound();
-
+        if (callTimerRef.current) clearInterval(callTimerRef.current);
         callTimerRef.current = setInterval(() => {
           setCallDuration(d => d + 1);
         }, 1000);
 
-        return {
-          ...prev,
-          status: 'connected'
-        };
+        return { ...prev, status: 'connected' };
       });
-    }, 3500);
+
+      setRemoteStream(rStream);
+    });
+
+    peerCall.on('close', () => {
+      console.log('[PeerJS] Call ended by recipient');
+      handleEndVideoCall();
+    });
+
+    peerCall.on('error', (err: any) => {
+      console.error('[PeerJS] Outgoing call error:', err);
+      showToast("Call failed. Recipient may be offline.", "error");
+      handleEndVideoCall();
+    });
+  };
+
+  const handleAcceptIncomingCall = async () => {
+    if (!incomingCall) return;
+
+    if (ringtoneRef.current) {
+      ringtoneRef.current.stop();
+      ringtoneRef.current = null;
+    }
+
+    let stream: MediaStream | null = null;
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+    } catch (err) {
+      console.warn("Camera/mic access failed or denied, answering in Demo Mode.", err);
+      showToast("Camera access failed. Answering in Demo Mode.", "error");
+    }
+
+    const peerCall = incomingCall.call;
+    peerCallInstanceRef.current = peerCall;
+
+    if (stream) {
+      peerCall.answer(stream);
+    } else {
+      peerCall.answer(new MediaStream());
+    }
+
+    playConnectSound();
+
+    setActiveCall({
+      user: incomingCall.user,
+      status: 'connected',
+      localStream: stream
+    });
+
+    peerCall.on('stream', (rStream: MediaStream) => {
+      console.log('[PeerJS] Incoming call connected, received remote stream');
+      setRemoteStream(rStream);
+    });
+
+    peerCall.on('close', () => {
+      console.log('[PeerJS] Call ended by caller');
+      handleEndVideoCall();
+    });
+
+    peerCall.on('error', (err: any) => {
+      console.error('[PeerJS] Call error:', err);
+      handleEndVideoCall();
+    });
+
+    if (callTimerRef.current) clearInterval(callTimerRef.current);
+    setCallDuration(0);
+    callTimerRef.current = setInterval(() => {
+      setCallDuration(d => d + 1);
+    }, 1000);
+
+    setIncomingCall(null);
+  };
+
+  const handleDeclineIncomingCall = () => {
+    if (!incomingCall) return;
+
+    if (ringtoneRef.current) {
+      ringtoneRef.current.stop();
+      ringtoneRef.current = null;
+    }
+
+    playDisconnectSound();
+
+    try {
+      incomingCall.call.close();
+    } catch (e) {}
+
+    setIncomingCall(null);
   };
 
   const handleEndVideoCall = () => {
@@ -487,11 +688,20 @@ export default function DashboardPage() {
 
     playDisconnectSound();
 
+    if (peerCallInstanceRef.current) {
+      try {
+        peerCallInstanceRef.current.close();
+      } catch (e) {}
+      peerCallInstanceRef.current = null;
+    }
+
     if (activeCall?.localStream) {
       activeCall.localStream.getTracks().forEach(track => track.stop());
     }
 
     setActiveCall(null);
+    setIncomingCall(null);
+    setRemoteStream(null);
     setCallDuration(0);
   };
 
@@ -523,7 +733,13 @@ export default function DashboardPage() {
     if (activeCall?.localStream && localVideoRef.current) {
       localVideoRef.current.srcObject = activeCall.localStream;
     }
-  }, [activeCall?.localStream, activeCall?.status]);
+  }, [activeCall?.localStream, activeCall?.status, isCallVideoOff]);
+
+  useEffect(() => {
+    if (remoteStream && remoteVideoRef.current) {
+      remoteVideoRef.current.srcObject = remoteStream;
+    }
+  }, [remoteStream, activeCall?.status]);
 
   useEffect(() => {
     return () => {
@@ -4589,6 +4805,98 @@ export default function DashboardPage() {
           </div>
         )}
 
+        {/* INCOMING CALL OVERLAY */}
+        {incomingCall && (
+          <div 
+            style={{
+              position: 'fixed',
+              inset: 0,
+              background: 'rgba(15, 23, 42, 0.95)',
+              backdropFilter: 'blur(16px)',
+              zIndex: 9999,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#fff',
+              fontFamily: "'Inter', sans-serif"
+            }}
+          >
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 24, textAlign: 'center' }}>
+              <div style={{ position: 'relative' }}>
+                <div className="pulse-ring" style={{ position: 'absolute', inset: -20, borderRadius: '50%', border: '2px solid #10b981', animation: 'pulse 1.8s infinite' }} />
+                {incomingCall.user.avatar ? (
+                  <img 
+                    src={getAvatarUrl(incomingCall.user.avatar)} 
+                    alt={incomingCall.user.name} 
+                    style={{ width: 120, height: 120, borderRadius: '50%', objectFit: 'cover', border: '4px solid #fff', position: 'relative', zIndex: 10 }}
+                  />
+                ) : (
+                  <div style={{ width: 120, height: 120, borderRadius: '50%', background: '#10b981', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 44, border: '4px solid #fff', position: 'relative', zIndex: 10 }}>
+                    {incomingCall.user.name.charAt(0).toUpperCase()}
+                  </div>
+                )}
+              </div>
+              <div>
+                <h3 style={{ fontSize: 24, fontWeight: 700, margin: '0 0 8px' }}>{incomingCall.user.name}</h3>
+                <p style={{ color: '#94a3b8', fontSize: 16, margin: 0 }}>Incoming Video Call...</p>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 32, marginTop: 24 }}>
+                <button
+                  onClick={handleDeclineIncomingCall}
+                  style={{
+                    width: 64,
+                    height: 64,
+                    borderRadius: '50%',
+                    background: '#ef4444',
+                    border: 'none',
+                    color: '#fff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    boxShadow: '0 8px 20px rgba(239, 68, 68, 0.4)',
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.1)'}
+                  onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+                  title="Decline Call"
+                >
+                  <svg width="28" height="28" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ transform: 'rotate(135deg)' }}>
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M3 10h18" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </button>
+                <button
+                  onClick={handleAcceptIncomingCall}
+                  style={{
+                    width: 64,
+                    height: 64,
+                    borderRadius: '50%',
+                    background: '#10b981',
+                    border: 'none',
+                    color: '#fff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    boxShadow: '0 8px 20px rgba(16, 185, 129, 0.4)',
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.1)'}
+                  onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+                  title="Accept Call"
+                >
+                  <svg width="28" height="28" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M3 10h18" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* VIDEO CALL MODAL OVERLAY */}
         {activeCall && (
           <div 
@@ -4670,32 +4978,36 @@ export default function DashboardPage() {
               // CONNECTED VIEW
               <div style={{ position: 'relative', width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
                 
-                {/* Main Video Stream Container (covers viewport) */}
-                <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', background: '#000' }}>
-                  {activeCall.localStream && !isCallVideoOff ? (
+                {/* Main Video Stream Container (covers viewport) - Remote User */}
+                <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', background: '#0f172a' }}>
+                  {remoteStream ? (
                     <video 
-                      ref={localVideoRef}
+                      ref={remoteVideoRef}
                       autoPlay
-                      muted
                       playsInline
-                      style={{ width: '100%', height: '100%', objectFit: 'cover', transform: 'scaleX(-1)' }}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                     />
                   ) : (
-                    // Video off background or placeholder
-                    <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#0f172a', gap: 16 }}>
+                    // Video loading placeholder
+                    <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #1e1b4b, #0f172a)', gap: 20 }}>
+                      <div className="pulse-ring" style={{ position: 'absolute', width: 160, height: 160, borderRadius: '50%', border: '2px solid rgba(124, 58, 237, 0.4)', animation: 'pulse 2s infinite' }} />
                       {activeCall.user.avatar ? (
                         <img 
                           src={getAvatarUrl(activeCall.user.avatar)} 
                           alt={activeCall.user.name} 
-                          style={{ width: 100, height: 100, borderRadius: '50%', objectFit: 'cover', filter: 'blur(4px) opacity(0.3)' }}
+                          style={{ width: 120, height: 120, borderRadius: '50%', objectFit: 'cover', border: '4px solid rgba(255,255,255,0.1)', position: 'relative', zIndex: 10 }}
                         />
-                      ) : null}
-                      <span style={{ fontSize: 16, color: '#64748b' }}>Camera is turned off</span>
+                      ) : (
+                        <div style={{ width: 120, height: 120, borderRadius: '50%', background: '#7c3aed', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 44, border: '4px solid rgba(255,255,255,0.1)', position: 'relative', zIndex: 10 }}>
+                          {activeCall.user.name.charAt(0).toUpperCase()}
+                        </div>
+                      )}
+                      <span style={{ fontSize: 16, color: '#94a3b8', zIndex: 10, fontWeight: 500 }}>Connecting video feed...</span>
                     </div>
                   )}
                 </div>
 
-                {/* Picture in Picture Remote Thumbnail (Recipient) */}
+                {/* Picture in Picture Local Thumbnail (Self) */}
                 <div 
                   style={{
                     position: 'absolute',
@@ -4707,7 +5019,7 @@ export default function DashboardPage() {
                     overflow: 'hidden',
                     border: '2px solid rgba(255, 255, 255, 0.2)',
                     boxShadow: '0 10px 25px rgba(0, 0, 0, 0.3)',
-                    background: '#1e293b',
+                    background: '#0f172a',
                     zIndex: 20,
                     display: 'flex',
                     flexDirection: 'column',
@@ -4715,21 +5027,22 @@ export default function DashboardPage() {
                     justifyContent: 'center'
                   }}
                 >
-                  {/* Remote user avatar / animated preview */}
-                  {activeCall.user.avatar ? (
-                    <img 
-                      src={getAvatarUrl(activeCall.user.avatar)} 
-                      alt={activeCall.user.name} 
-                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  {activeCall.localStream && !isCallVideoOff ? (
+                    <video 
+                      ref={localVideoRef}
+                      autoPlay
+                      muted
+                      playsInline
+                      style={{ width: '100%', height: '100%', objectFit: 'cover', transform: 'scaleX(-1)' }}
                     />
                   ) : (
-                    <div style={{ width: '100%', height: '100%', background: '#4f46e5', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 28 }}>
-                      {activeCall.user.name.charAt(0).toUpperCase()}
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, color: '#64748b', fontSize: 11 }}>
+                      👤 <span style={{ fontSize: 10 }}>Camera Off</span>
                     </div>
                   )}
                   {/* Label overlay */}
-                  <div style={{ position: 'absolute', bottom: 8, left: 8, right: 8, background: 'rgba(0,0,0,0.5)', borderRadius: 4, padding: '2px 4px', fontSize: 10, color: '#fff', backdropFilter: 'blur(4px)', zIndex: 10 }}>
-                    {activeCall.user.name}
+                  <div style={{ position: 'absolute', bottom: 8, left: 8, right: 8, background: 'rgba(0,0,0,0.5)', borderRadius: 4, padding: '2px 4px', fontSize: 10, color: '#fff', backdropFilter: 'blur(4px)', zIndex: 10, textAlign: 'center' }}>
+                    You
                   </div>
                 </div>
 
