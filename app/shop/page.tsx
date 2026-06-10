@@ -115,6 +115,7 @@ export default function ShopPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [activeImageIdx, setActiveImageIdx] = useState<number>(0);
   const [followedSellers, setFollowedSellers] = useState<Record<number, boolean>>({});
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Chat States
   const [isChatOpen, setIsChatOpen] = useState(false);
@@ -802,6 +803,13 @@ export default function ShopPage() {
     }
   };
 
+  const filteredItems = items.filter(i => {
+    const matchesCategory = selectedCategory === "All" || i.category === selectedCategory;
+    const matchesSearch = i.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          (i.description || "").toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
+
   return (
     <>
       <style>{`
@@ -1282,7 +1290,7 @@ export default function ShopPage() {
         </nav>
 
         <main className="main">
-          <div className="header" style={{ position: 'relative', overflow: 'hidden', padding: isMobile ? '28px 16px' : '64px 20px', marginBottom: isMobile ? '20px' : '40px', borderRadius: isMobile ? '16px' : '24px', background: 'linear-gradient(135deg, #faf5ff 0%, #f0f4ff 100%)', border: '1px solid rgba(124, 58, 237, 0.1)', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+          <div className="header" style={{ position: 'relative', overflow: 'hidden', padding: isMobile ? '32px 16px' : '72px 20px', marginBottom: isMobile ? '24px' : '48px', borderRadius: isMobile ? '20px' : '32px', background: 'linear-gradient(135deg, #faf5ff 0%, #f0f4ff 100%)', border: '1px solid rgba(124, 58, 237, 0.12)', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', boxShadow: '0 20px 40px -15px rgba(124, 58, 237, 0.05)' }}>
             {/* Background decorative blobs */}
             <div style={{ position: 'absolute', top: '-50%', left: '-10%', width: '300px', height: '300px', background: 'rgba(124, 58, 237, 0.15)', filter: 'blur(60px)', borderRadius: '50%' }}></div>
             <div style={{ position: 'absolute', bottom: '-50%', right: '-10%', width: '300px', height: '300px', background: 'rgba(37, 99, 235, 0.15)', filter: 'blur(60px)', borderRadius: '50%' }}></div>
@@ -1296,6 +1304,80 @@ export default function ShopPage() {
             <p className="subtitle" style={{ position: 'relative', fontSize: '17px', maxWidth: '600px', color: '#475569' }}>
               Browse the latest premium products published by our community. Find exactly what you&apos;re looking for, seamlessly and beautifully.
             </p>
+            
+            {/* SEARCH INPUT BAR */}
+            <div 
+              style={{
+                position: 'relative',
+                marginTop: '28px',
+                width: '100%',
+                maxWidth: '480px',
+                height: '48px',
+                borderRadius: '24px',
+                background: '#fff',
+                border: '1px solid #e2e8f0',
+                padding: '0 12px 0 16px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                boxShadow: '0 4px 20px rgba(0,0,0,0.03)',
+                transition: 'all 0.25s ease',
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = '#7c3aed';
+                e.currentTarget.style.boxShadow = '0 8px 30px rgba(124,58,237,0.08)';
+                e.currentTarget.style.transform = 'translateY(-1px)';
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = '#e2e8f0';
+                e.currentTarget.style.boxShadow = '0 4px 20px rgba(0,0,0,0.03)';
+                e.currentTarget.style.transform = 'none';
+              }}
+            >
+              <svg width="18" height="18" fill="none" stroke="#64748b" strokeWidth="2.5" viewBox="0 0 24 24" style={{ flexShrink: 0 }}>
+                <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+              </svg>
+              <input
+                type="text"
+                placeholder="Search premium products..."
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                style={{
+                  border: 'none',
+                  outline: 'none',
+                  background: 'transparent',
+                  width: '100%',
+                  fontSize: '14px',
+                  color: '#0f172a',
+                  fontFamily: 'Inter, sans-serif'
+                }}
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery("")}
+                  style={{
+                    background: '#f1f5f9',
+                    border: 'none',
+                    width: '24px',
+                    height: '24px',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#64748b',
+                    fontSize: '11px',
+                    cursor: 'pointer',
+                    flexShrink: 0,
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.background = '#e2e8f0'}
+                  onMouseLeave={(e) => e.currentTarget.style.background = '#f1f5f9'}
+                >
+                  ✕
+                </button>
+              )}
+            </div>
           </div>
 
           <div className="categories-wrapper" style={{display: 'flex', gap: '12px', marginBottom: '32px', overflowX: 'auto', paddingBottom: '8px', WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none'}}>
@@ -1322,23 +1404,35 @@ export default function ShopPage() {
             ))}
           </div>
 
+          {searchQuery && (
+            <div style={{ fontSize: '14px', color: '#64748b', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '8px', animation: 'fadeIn 0.25s ease' }}>
+              <span>Found <strong>{filteredItems.length}</strong> items matching &ldquo;{searchQuery}&rdquo;</span>
+              <button 
+                onClick={() => setSearchQuery("")} 
+                style={{ background: 'transparent', border: 'none', color: '#7c3aed', fontWeight: 600, cursor: 'pointer', fontSize: '13px', padding: 0 }}
+              >
+                Clear search
+              </button>
+            </div>
+          )}
+
           {loading ? (
             <div className="grid">
               {Array.from({ length: 8 }).map((_, i) => (
                 <SkeletonShopCard key={i} />
               ))}
             </div>
-          ) : items.filter(i => selectedCategory === "All" || i.category === selectedCategory).length === 0 ? (
+          ) : filteredItems.length === 0 ? (
             <div className="empty-state">
               <div className="empty-icon">
                 <svg width="48" height="48" fill="none" stroke="#94a3b8" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M6 2L3 7v13a2 2 0 002 2h14a2 2 0 002-2V7l-3-5H6z"/><line x1="3" y1="7" x2="21" y2="7"/><path d="M16 11a4 4 0 01-8 0"/></svg>
               </div>
               <div className="empty-text">No items found.</div>
-              <p className="subtitle" style={{marginTop: '8px'}}>Try changing the category or check back later!</p>
+              <p className="subtitle" style={{marginTop: '8px'}}>Try changing the category or search query!</p>
             </div>
           ) : (
             <div className="grid">
-              {items.filter(i => selectedCategory === "All" || i.category === selectedCategory).map((item) => (
+              {filteredItems.map((item) => (
                 <div key={item.id} className="item-card" onClick={() => handleViewItem(item)} style={{cursor:'pointer'}}>
                   {item.image ? (
                     <img
