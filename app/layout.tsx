@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import CookieBanner from "@/components/CookieBanner";
 import "./globals.css";
@@ -6,6 +6,13 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Shopply",
   description: "Premium E-Commerce Platform",
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
 };
 
 export default function RootLayout({
@@ -20,6 +27,8 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head>
+        {/* Viewport meta tag for mobile responsiveness */}
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
         {/* Preconnect to Google Fonts for faster font loading */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
