@@ -894,7 +894,7 @@ export default function ShopPage() {
         .detail-content{display:grid;grid-template-columns:1fr;gap:20px;padding:12px}
         
         .detail-img-side{display:flex;flex-direction:column;gap:16px}
-        .main-detail-img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:20px;background:#f8fafc;border:1px solid #f1f5f9}
+        .main-detail-img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:20px;background:#f8fafc;border:1px solid #f1f5f9}
         .variant-thumbs{display:flex;gap:12px;overflow-x:auto;padding:4px;scrollbar-width:none;-ms-overflow-style:none}
         .variant-thumbs::-webkit-scrollbar{display:none}
         .v-thumb{width:56px;height:56px;border-radius:12px;object-fit:cover;cursor:pointer;
@@ -995,6 +995,7 @@ export default function ShopPage() {
           .detail-name{font-size:18px !important}
           .detail-price{font-size:18px !important}
           .detail-content{padding:10px !important;gap:14px !important}
+          .main-detail-img{max-height:220px !important;aspect-ratio:unset !important}
           .modal-actions-container .buy-btn, .modal-actions-container .add-cart-btn{font-size:12px !important;height:44px !important}
         }
         @media (max-width: 320px) {
@@ -1005,6 +1006,7 @@ export default function ShopPage() {
           .item-name{font-size:14px !important}
           .title{font-size:20px !important}
           .nav{padding:0 6px !important}
+          .main-detail-img{max-height:180px !important;aspect-ratio:unset !important}
         }
         
         .similar-products-section{border-top:1px solid #f1f5f9;padding:48px;background:#fff}
