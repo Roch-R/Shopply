@@ -876,28 +876,47 @@ export default function ShopPage() {
         @keyframes slideIn{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}}
 
         .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(8px);
-          display:flex;align-items:center;justify-content:center;z-index:500;padding:20px}
-        .detail-modal{position:relative;background:#fff;border-radius:24px;max-width:1100px;width:100%;max-height:90vh;
-          overflow-y:auto;display:flex;flex-direction:column;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);animation:scaleUp .3s ease}
+          display:flex;align-items:center;justify-content:center;z-index:500;padding:0}
+        .detail-modal{position:relative;background:#fff;border-radius:0;max-width:100%;width:100%;max-height:100vh;height:100%;
+          overflow-y:auto;display:flex;flex-direction:column;box-shadow:none;animation:scaleUp .3s ease}
         @keyframes scaleUp{from{opacity:0;transform:scale(0.95)}to{opacity:1;transform:scale(1)}}
         
-        .detail-content{display:grid;grid-template-columns:1fr 1fr;gap:48px;padding:48px}
-        @media (max-width: 950px) { .detail-content{grid-template-columns:1fr;padding:24px} }
+        .detail-content{display:grid;grid-template-columns:1fr;gap:20px;padding:12px}
         
         .detail-img-side{display:flex;flex-direction:column;gap:16px}
         .main-detail-img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:20px;background:#f8fafc;border:1px solid #f1f5f9}
         .variant-thumbs{display:flex;gap:12px;overflow-x:auto;padding:4px;scrollbar-width:none;-ms-overflow-style:none}
         .variant-thumbs::-webkit-scrollbar{display:none}
-        .v-thumb{width:70px;height:70px;border-radius:12px;object-fit:cover;cursor:pointer;
+        .v-thumb{width:56px;height:56px;border-radius:12px;object-fit:cover;cursor:pointer;
           border:2px solid transparent;transition:all .2s;flex-shrink:0;background:#f8fafc}
         .v-thumb.active{border-color:#7c3aed;transform:scale(1.05);box-shadow:0 4px 12px rgba(124,58,237,.2)}
         
-        .detail-info-side{display:flex;flex-direction:column;gap:28px}
-        .detail-category{font-size:12px;font-weight:700;color:#7c3aed;text-transform:uppercase;letter-spacing:1.5px}
-        .detail-name{font-size:36px;font-weight:800;color:#0f172a;letter-spacing:-1px;line-height:1.1}
-        .detail-price{font-size:32px;font-weight:800;color:#10b981}
+        .detail-info-side{display:flex;flex-direction:column;gap:16px}
+        .detail-category{font-size:11px;font-weight:700;color:#7c3aed;text-transform:uppercase;letter-spacing:1.5px}
+        .detail-name{font-size:22px;font-weight:800;color:#0f172a;letter-spacing:-1px;line-height:1.1}
+        .detail-price{font-size:22px;font-weight:800;color:#10b981}
         .detail-desc{font-size:15px;color:#64748b;line-height:1.7}
-        .modal-actions-container{display:flex;gap:16px;margin-top:12px}
+        .modal-actions-container{display:flex;flex-direction:column;gap:12px;margin-top:12px}
+        .modal-close-btn{position:fixed;top:12px;right:12px;width:36px;height:36px;
+          border-radius:50%;background:rgba(255,255,255,0.92);backdrop-filter:blur(12px);
+          display:flex;align-items:center;justify-content:center;cursor:pointer;
+          border:1px solid #e2e8f0;color:#0f172a;z-index:9999;transition:all .25s ease;
+          box-shadow:0 2px 8px rgba(0,0,0,.06)}
+        .modal-close-btn:hover{background:#fff;transform:scale(1.1);box-shadow:0 6px 16px rgba(0,0,0,.12);
+          color:#ef4444;border-color:#fecaca}
+
+        @media (min-width: 769px) {
+          .modal-overlay{padding:20px}
+          .detail-modal{border-radius:24px;max-width:1100px;max-height:90vh;height:auto;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25)}
+          .detail-content{grid-template-columns:1fr 1fr;gap:48px;padding:48px}
+          .v-thumb{width:70px;height:70px}
+          .detail-info-side{gap:28px}
+          .detail-category{font-size:12px}
+          .detail-name{font-size:36px}
+          .detail-price{font-size:32px}
+          .modal-close-btn{position:absolute;top:16px;right:16px;width:40px;height:40px;z-index:110}
+          .modal-actions-container{flex-direction:row;gap:16px}
+        }
         
         @media (max-width: 768px) {
           .rating-summary{display:flex;flex-direction:column;gap:20px;padding:20px;align-items:center;text-align:center}
@@ -911,15 +930,7 @@ export default function ShopPage() {
           .login-icon-span{display:inline-flex !important;color:#fff}
           .login-btn{width:36px !important;height:36px !important;padding:0 !important;border-radius:50% !important;min-width:36px !important;background:linear-gradient(135deg,#7c3aed,#2563eb) !important;display:inline-flex !important;align-items:center !important;justify-content:center !important}
           .cart-nav-icon{width:36px !important;height:36px !important;margin-right:0 !important;display:inline-flex !important;align-items:center !important;justify-content:center !important}
-          .modal-overlay{padding:0 !important}
-          .detail-modal{border-radius:0 !important;max-height:100vh !important;height:100% !important;width:100% !important;max-width:100% !important;overflow-y:auto !important;display:flex !important;flex-direction:column !important}
-          .detail-content{padding:12px !important;gap:20px !important;grid-template-columns:1fr !important}
-          .detail-info-side{gap:16px !important}
-          .detail-name{font-size:22px !important}
-          .detail-price{font-size:22px !important}
-          .detail-category{font-size:11px !important}
-          .modal-close-btn{position:fixed !important;top:12px !important;right:12px !important;width:36px !important;height:36px !important;z-index:9999 !important}
-          .modal-actions-container{flex-direction:column !important;gap:12px !important}
+          
           .buy-btn, .add-cart-btn{width:100% !important;height:48px !important}
           .spec-grid{grid-template-columns:1fr;padding:16px}
           .description-section{padding:24px 16px}
