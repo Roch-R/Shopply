@@ -2152,11 +2152,13 @@ export default function ShopPage() {
         {isChatOpen && (
           <div style={{
             position: 'fixed',
-            bottom: 85,
-            right: 24,
-            width: 720,
-            maxWidth: 'calc(100vw - 48px)',
-            height: 540,
+            bottom: isMobile ? 70 : 85,
+            right: isMobile ? 12 : 24,
+            left: isMobile ? 12 : 'auto',
+            width: isMobile ? 'auto' : 720,
+            maxWidth: isMobile ? 'calc(100vw - 24px)' : 'calc(100vw - 48px)',
+            height: isMobile ? 480 : 540,
+            maxHeight: isMobile ? 'calc(100dvh - 100px)' : 'none',
             background: '#fff',
             borderRadius: 24,
             boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25), 0 0 0 1px rgba(0,0,0,0.05)',
@@ -2168,17 +2170,29 @@ export default function ShopPage() {
           }}>
             {/* LEFT PANE: CONVERSATIONS */}
             <div style={{
-              width: 260,
+              width: isMobile ? '100%' : 260,
+              display: isMobile && activeChatUser ? 'none' : 'flex',
               borderRight: '1px solid #e2e8f0',
               background: '#f8fafc',
-              display: 'flex',
-              flexDirection: 'column'
+              flexDirection: 'column',
+              flexShrink: 0
             }}>
               <div style={{padding: '20px 20px 16px', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
                 <h3 style={{fontSize: 18, fontWeight: 800, color: '#0f172a', margin: 0}}>Chats</h3>
-                <span style={{fontSize: 12, fontWeight: 600, color: '#64748b', background: '#e2e8f0', padding: '4px 10px', borderRadius: 12}}>
-                  {chatConversations.length}
-                </span>
+                <div style={{display: 'flex', alignItems: 'center', gap: 10}}>
+                  <span style={{fontSize: 12, fontWeight: 600, color: '#64748b', background: '#e2e8f0', padding: '4px 10px', borderRadius: 12}}>
+                    {chatConversations.length}
+                  </span>
+                  {isMobile && (
+                    <button
+                      type="button"
+                      onClick={() => setIsChatOpen(false)}
+                      style={{background: '#e2e8f0', border: 'none', width: 28, height: 28, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b', cursor: 'pointer'}}
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
               </div>
               <div style={{flex: 1, overflowY: 'auto', padding: 12}}>
                 {chatConversations.length === 0 ? (
@@ -2240,25 +2254,53 @@ export default function ShopPage() {
             </div>
 
             {/* RIGHT PANE: ACTIVE CHAT */}
-            <div style={{flex: 1, display: 'flex', flexDirection: 'column', background: '#fff'}}>
+            <div style={{
+              flex: 1,
+              display: isMobile && !activeChatUser ? 'none' : 'flex',
+              flexDirection: 'column',
+              background: '#fff',
+              minWidth: 0
+            }}>
               {activeChatUser ? (
                 <>
                   {/* CHAT HEADER */}
-                  <div style={{padding: '16px 24px', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
-                    <div style={{display: 'flex', alignItems: 'center', gap: 12}}>
+                  <div style={{padding: isMobile ? '12px 16px' : '16px 24px', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
+                    <div style={{display: 'flex', alignItems: 'center', gap: isMobile ? 8 : 12}}>
+                      {isMobile && (
+                        <button
+                          type="button"
+                          onClick={() => setActiveChatUser(null)}
+                          style={{
+                            background: 'transparent',
+                            border: 'none',
+                            padding: '4px',
+                            cursor: 'pointer',
+                            color: '#64748b',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            marginRight: 4
+                          }}
+                          title="Back to Chats"
+                        >
+                          <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                            <path d="M15 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                        </button>
+                      )}
                       {activeChatUser.avatar ? (
-                        <img src={getAvatarUrl(activeChatUser.avatar)} alt={activeChatUser.name} style={{width: 40, height: 40, borderRadius: '50%', objectFit: 'cover'}} />
+                        <img src={getAvatarUrl(activeChatUser.avatar)} alt={activeChatUser.name} style={{width: isMobile ? 32 : 40, height: isMobile ? 32 : 40, borderRadius: '50%', objectFit: 'cover'}} />
                       ) : (
-                        <div style={{width: 40, height: 40, borderRadius: '50%', background: '#e2e8f0', color: '#64748b', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 16}}>
+                        <div style={{width: isMobile ? 32 : 40, height: isMobile ? 32 : 40, borderRadius: '50%', background: '#e2e8f0', color: '#64748b', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: isMobile ? 14 : 16}}>
                           {activeChatUser.name.charAt(0).toUpperCase()}
                         </div>
                       )}
                       <div>
-                        <h4 style={{fontSize: 16, fontWeight: 700, color: '#0f172a', margin: '0 0 2px'}}>
+                        <h4 style={{fontSize: isMobile ? 14 : 16, fontWeight: 700, color: '#0f172a', margin: '0 0 2px'}}>
                           {activeChatUser.name}
                         </h4>
-                        <span style={{fontSize: 12, color: '#10b981', display: 'flex', alignItems: 'center', gap: 4, fontWeight: 500}}>
-                          <span style={{width: 6, height: 6, borderRadius: '50%', background: '#10b981'}}></span> Active now
+                        <span style={{fontSize: isMobile ? 11 : 12, color: '#10b981', display: 'flex', alignItems: 'center', gap: 4, fontWeight: 500}}>
+                          <span style={{width: 5, height: 5, borderRadius: '50%', background: '#10b981'}}></span> Active now
                         </span>
                       </div>
                     </div>
@@ -2271,7 +2313,7 @@ export default function ShopPage() {
                   </div>
 
                   {/* CHAT MESSAGES AREA */}
-                  <div style={{flex: 1, overflowY: 'auto', padding: 24, display: 'flex', flexDirection: 'column', gap: 16, background: '#fff'}}>
+                  <div style={{flex: 1, overflowY: 'auto', padding: isMobile ? 12 : 24, display: 'flex', flexDirection: 'column', gap: isMobile ? 12 : 16, background: '#fff'}}>
                     {loadingChatMessages ? (
                       <>
                         <SkeletonChatMessage />
@@ -2293,7 +2335,7 @@ export default function ShopPage() {
                               alignItems: 'flex-end',
                               gap: 8,
                               alignSelf: isMe ? 'flex-end' : 'flex-start',
-                              maxWidth: '75%'
+                              maxWidth: isMobile ? '85%' : '75%'
                             }}
                           >
                             {!isMe && (
@@ -2310,8 +2352,8 @@ export default function ShopPage() {
                                 background: isMe ? 'linear-gradient(135deg, #7c3aed, #6d28d9)' : '#f1f5f9',
                                 color: isMe ? '#fff' : '#0f172a',
                                 borderRadius: isMe ? '20px 20px 4px 20px' : '20px 20px 20px 4px',
-                                padding: '12px 18px',
-                                fontSize: 14,
+                                padding: isMobile ? '8px 12px' : '12px 18px',
+                                fontSize: isMobile ? 13 : 14,
                                 lineHeight: 1.5,
                                 boxShadow: isMe ? '0 4px 12px rgba(124, 58, 237, 0.2)' : 'none',
                                 wordBreak: 'break-word',
@@ -2337,7 +2379,7 @@ export default function ShopPage() {
                       })
                     )}
                     {isOtherUserTyping && activeChatUser && (
-                      <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, alignSelf: 'flex-start', maxWidth: '75%', animation: 'slideIn 0.2s ease' }}>
+                      <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, alignSelf: 'flex-start', maxWidth: isMobile ? '85%' : '75%', animation: 'slideIn 0.2s ease' }}>
                         {activeChatUser.avatar ? (
                           <img src={getAvatarUrl(activeChatUser.avatar)} alt={activeChatUser.name} style={{ width: 28, height: 28, borderRadius: '50%', objectFit: 'cover', marginBottom: 4 }} />
                         ) : (
@@ -2369,8 +2411,8 @@ export default function ShopPage() {
                         </div>
                       </div>
                     )}
-                    <form onSubmit={handleSendMessage} style={{padding: '16px 24px', display: 'flex', gap: 12, alignItems: 'center'}}>
-                      <label style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', width: 44, height: 44, borderRadius: '50%', background: '#e2e8f0', color: '#64748b', transition: 'all 0.2s', flexShrink: 0 }}>
+                    <form onSubmit={handleSendMessage} style={{padding: isMobile ? '10px 12px' : '16px 24px', display: 'flex', gap: isMobile ? 8 : 12, alignItems: 'center'}}>
+                      <label style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', width: isMobile ? 32 : 44, height: isMobile ? 32 : 44, borderRadius: '50%', background: '#e2e8f0', color: '#64748b', transition: 'all 0.2s', flexShrink: 0 }}>
                         <input
                           type="file"
                           accept="image/*"
@@ -2385,7 +2427,7 @@ export default function ShopPage() {
                           }}
                           style={{ display: 'none' }}
                         />
-                        <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>
+                        <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>
                       </label>
                       <textarea
                         placeholder={`Message ${activeChatUser.name}...`}
@@ -2413,16 +2455,16 @@ export default function ShopPage() {
                         }}
                         style={{
                           flex: 1,
-                          padding: '12px 20px',
+                          padding: isMobile ? '8px 14px' : '12px 20px',
                           borderRadius: 20,
                           border: '1px solid #cbd5e1',
                           background: '#fff',
-                          fontSize: 14,
+                          fontSize: isMobile ? 13 : 14,
                           outline: 'none',
                           color: '#0f172a',
                           fontFamily: 'Inter, sans-serif',
                           resize: 'none',
-                          minHeight: 44,
+                          minHeight: isMobile ? 36 : 44,
                           maxHeight: 120,
                           lineHeight: 1.4
                         }}
@@ -2434,8 +2476,8 @@ export default function ShopPage() {
                           background: 'linear-gradient(135deg, #7c3aed, #6d28d9)',
                           color: '#fff',
                           border: 'none',
-                          width: 46,
-                          height: 46,
+                          width: isMobile ? 36 : 46,
+                          height: isMobile ? 36 : 46,
                           borderRadius: '50%',
                           display: 'flex',
                           alignItems: 'center',
