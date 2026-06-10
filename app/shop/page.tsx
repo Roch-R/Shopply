@@ -888,7 +888,7 @@ export default function ShopPage() {
         .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(8px);
           display:flex;align-items:center;justify-content:center;z-index:500;padding:0}
         .detail-modal{position:relative;background:#fff;border-radius:0;max-width:100%;width:100%;max-height:100vh;height:100%;
-          overflow-y:auto;display:flex;flex-direction:column;box-shadow:none;animation:scaleUp .3s ease}
+          overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column;box-shadow:none;animation:scaleUp .3s ease}
         .detail-modal > div{flex-shrink:0}
         @keyframes scaleUp{from{opacity:0;transform:scale(0.95)}to{opacity:1;transform:scale(1)}}
         
@@ -953,7 +953,7 @@ export default function ShopPage() {
           .spec-grid{grid-template-columns:1fr;padding:16px}
           .description-section{padding:24px 16px}
           .seller-header-bar{padding:16px;gap:20px}
-          .seller-stats-grid{grid-template-columns:repeat(2, 1fr) !important;gap:8px !important;width:100%}
+          .seller-stats-grid{grid-template-columns:repeat(2, minmax(0, 1fr)) !important;gap:8px !important;width:100%}
           .seller-left-side{width:100%}
           .title{font-size:28px}
           .main{padding:24px 16px}
@@ -994,6 +994,9 @@ export default function ShopPage() {
           }
           .detail-modal {
             padding-bottom: 80px !important;
+          }
+          .back-to-top {
+            bottom: 90px !important;
           }
         }
         @media (max-width: 500px) {
@@ -1221,9 +1224,9 @@ export default function ShopPage() {
         .seller-btn-chat{padding:8px 16px;background:#f3e8ff;border:1px solid #7c3aed;color:#7c3aed;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .2s}
         .seller-btn-chat:hover{background:#e9d5ff;transform:translateY(-1px)}
         .seller-btn-shop{padding:8px 16px;background:#fff;border:1px solid #cbd5e1;color:#475569;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .2s}
-        .seller-stats-grid{display:grid;grid-template-columns:repeat(3, 1fr);gap:12px;flex-grow:1;max-width:600px}
+        .seller-stats-grid{display:grid;grid-template-columns:repeat(3, minmax(0, 1fr));gap:12px;flex-grow:1;max-width:600px}
         @media (max-width: 650px) {
-          .seller-stats-grid{grid-template-columns:repeat(2, 1fr);gap:8px}
+          .seller-stats-grid{grid-template-columns:repeat(2, minmax(0, 1fr));gap:8px}
         }
         .seller-stat-box{
           display:flex;
