@@ -28,6 +28,15 @@ export default function ChangelogPage() {
         .card-icon{width:48px;height:48px;border-radius:12px;background:rgba(124,58,237,.1);color:#7c3aed;display:flex;align-items:center;justify-content:center;margin-bottom:20px;font-size:24px;}
         .card h3{font-size:18px;font-weight:700;color:#0f172a;margin-bottom:12px;}
         .card p{font-size:14px;color:#64748b;line-height:1.6;}
+        @media(max-width:768px){
+          .nav{padding:0 12px; gap:8px}
+          .nav-logo-text{display:none}
+          .nav-right{gap:8px}
+          .nav-link{padding:6px 8px; font-size:12px}
+          .container{padding:0 16px; margin:40px auto}
+          h1{font-size:32px}
+          .subtitle{font-size:15px}
+        }
       `}</style>
       <div className="page">
         <nav className="nav">

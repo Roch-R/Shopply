@@ -1681,7 +1681,7 @@ export default function DashboardPage() {
           .variant-form-grid{grid-template-columns:1fr !important;gap:16px !important}
         }
 
-        @media (max-width: 480px){
+        @media (max-width: 768px){
           .dashboard-layout{padding:8px !important;gap:0 !important}
           .content{width:100% !important}
           .profile-header{flex-direction:column !important;text-align:center !important;

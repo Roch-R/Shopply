@@ -351,7 +351,7 @@ export default function CartPage() {
           }
         }
 
-        @media (max-width: 480px) {
+        @media (max-width: 768px) {
           .nav{padding:0 8px !important}
           .nav-right{gap:4px !important}
           .logo-text{display:none !important}

@@ -59,6 +59,17 @@ export default function BlogPostPage() {
         .article-content li{margin-bottom:12px;}
         .article-content strong{color:#0f172a;font-weight:700;}
         .article-content em{color:#7c3aed;font-style:normal;font-weight:600;}
+        @media(max-width:768px){
+          .nav{padding:0 12px; gap:8px}
+          .nav-logo-text{display:none}
+          .nav-right{gap:8px}
+          .nav-link{padding:6px 8px; font-size:12px}
+          .article-title{font-size:28px; margin-bottom:16px}
+          .article-body{padding:32px 16px 60px; border-radius:16px; top:-20px}
+          .article-content{font-size:16px}
+          .article-content h2{font-size:24px}
+          .article-header{height:320px; padding-bottom:40px}
+        }
       `}</style>
 
       <nav className="nav">

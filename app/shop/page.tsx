@@ -804,7 +804,7 @@ export default function ShopPage() {
         
         .main{max-width:1200px;margin:0 auto;padding:40px 24px}
         .header{text-align:center;margin-bottom:48px}
-        .title{font-size:36px;font-weight:800;color:#0f172a;letter-spacing:-1px;margin-bottom:16px}
+        .title{font-size:46px;font-weight:800;color:#0f172a;letter-spacing:-1px;margin-bottom:16px}
         .subtitle{font-size:16px;color:#64748b;max-width:600px;margin:0 auto;line-height:1.6}
         
         .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:24px}
@@ -889,9 +889,7 @@ export default function ShopPage() {
         @media (max-width: 768px) {
           .rating-summary{display:flex;flex-direction:column;gap:20px;padding:20px;align-items:center;text-align:center}
           .review-filters{justify-content:center;margin-bottom:0}
-        }
-        
-        @media (max-width: 480px) {
+          
           .nav{padding:0 8px !important}
           .nav-right{gap:4px !important}
           .logo-text{display:none !important}
@@ -915,6 +913,8 @@ export default function ShopPage() {
           .seller-header-bar{padding:16px;gap:20px}
           .seller-stats-grid{grid-template-columns:repeat(2, 1fr) !important;gap:8px !important;width:100%}
           .seller-left-side{width:100%}
+          .title{font-size:28px}
+          .main{padding:24px 16px}
         }
         
         .variant-section-label{font-size:13px;font-weight:700;color:#0f172a;margin-bottom:12px;display:block}
@@ -1175,7 +1175,7 @@ export default function ShopPage() {
             <span style={{ position: 'relative', display: 'inline-block', padding: '6px 16px', background: '#fff', border: '1px solid #e2e8f0', borderRadius: '100px', fontSize: '12px', fontWeight: 800, color: '#7c3aed', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '20px', boxShadow: '0 4px 12px rgba(124,58,237,0.05)' }}>
               Shopply Marketplace
             </span>
-            <h1 className="title" style={{ position: 'relative', fontSize: '46px', margin: '0 0 16px 0', background: 'linear-gradient(135deg, #0f172a, #475569)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', lineHeight: 1.2 }}>
+            <h1 className="title" style={{ position: 'relative', margin: '0 0 16px 0', background: 'linear-gradient(135deg, #0f172a, #475569)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', lineHeight: 1.2 }}>
               Discover Amazing Items
             </h1>
             <p className="subtitle" style={{ position: 'relative', fontSize: '17px', maxWidth: '600px', color: '#475569' }}>

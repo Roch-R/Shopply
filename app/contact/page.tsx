@@ -59,6 +59,19 @@ export default function ContactPage() {
         .card-icon{width:48px;height:48px;border-radius:12px;background:rgba(124,58,237,.1);color:#7c3aed;display:flex;align-items:center;justify-content:center;margin-bottom:20px;font-size:24px;}
         .card h3{font-size:18px;font-weight:700;color:#0f172a;margin-bottom:12px;}
         .card p{font-size:14px;color:#64748b;line-height:1.6;}
+        .contact-card{display:flex;gap:48px;background:#fff;padding:48px;border-radius:24px;box-shadow:0 10px 40px rgba(0,0,0,.03);border:1px solid #f1f5f9;text-align:left}
+        .contact-info-side{width:300px;flex-shrink:0}
+        @media(max-width:768px){
+          .nav{padding:0 12px; gap:8px}
+          .nav-logo-text{display:none}
+          .nav-right{gap:8px}
+          .nav-link{padding:6px 8px; font-size:12px}
+          .container{padding:0 16px; margin:40px auto}
+          h1{font-size:32px}
+          .subtitle{font-size:15px}
+          .contact-card{flex-direction:column; padding:24px; gap:32px}
+          .contact-info-side{width:100%}
+        }
       `}</style>
       <div className="page">
         <nav className="nav">
@@ -90,7 +103,7 @@ export default function ContactPage() {
             <h1>Contact Us</h1>
             <p className="subtitle">Have a question or need support? Our team is here to help you succeed.</p>
           </div>
-          <div style={{display:'flex',gap:'48px',background:'#fff',padding:'48px',borderRadius:'24px',boxShadow:'0 10px 40px rgba(0,0,0,.03)',border:'1px solid #f1f5f9',textAlign:'left'}}>
+          <div className="contact-card">
             <div style={{flex:1}}>
               <h2 style={{fontSize:'24px',fontWeight:800,color:'#0f172a',marginBottom:'24px'}}>Send us a message</h2>
               {isSuccess ? (
@@ -123,7 +136,7 @@ export default function ContactPage() {
                 </form>
               )}
             </div>
-            <div style={{width:'300px',flexShrink:0}}>
+            <div className="contact-info-side">
               <h3 style={{fontSize:'18px',fontWeight:700,color:'#0f172a',marginBottom:'24px'}}>Other ways to connect</h3>
               <div style={{marginBottom:'24px'}}>
                 <h4 style={{fontSize:'14px',fontWeight:700,color:'#475569',marginBottom:'4px'}}>Support Email</h4>

@@ -195,8 +195,13 @@ export default function AboutPage() {
         .footer-bottom-links a {font-size:13px;color:#94a3b8;text-decoration:none;transition:color .2s;}
         .footer-bottom-links a:hover {color:#7c3aed;}
         @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-        @media(max-width:700px){
-          .nav{padding:0 20px}
+        @media(max-width:768px){
+          .nav{padding:0 12px; gap:8px}
+          .nav-logo-text{display:none}
+          .nav-user{display:none}
+          .nav-right{gap:8px}
+          .nav-link{padding:6px 8px; font-size:12px}
+          .nav-btn{padding:8px 12px; font-size:12px}
           .hero,.stats,.section,.cta-banner{padding-left:20px;padding-right:20px}
           .hero{padding-top:60px}
           .features,.stats,.team-grid{grid-template-columns:1fr}

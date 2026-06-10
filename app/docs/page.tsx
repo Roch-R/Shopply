@@ -32,6 +32,21 @@ export default function DocsPage() {
         .card-icon{width:48px;height:48px;border-radius:12px;background:rgba(124,58,237,.1);color:#7c3aed;display:flex;align-items:center;justify-content:center;margin-bottom:20px;font-size:24px;}
         .card h3{font-size:18px;font-weight:700;color:#0f172a;margin-bottom:12px;}
         .card p{font-size:14px;color:#64748b;line-height:1.6;}
+        .docs-layout{display:flex;gap:48px;align-items:flex-start}
+        .docs-sidebar{width:250px;flex-shrink:0;background:#fff;padding:24px;border-radius:16px;border:1px solid #f1f5f9}
+        .docs-content{flex:1;background:#fff;padding:48px;border-radius:24px;border:1px solid #f1f5f9;box-shadow:0 10px 40px rgba(0,0,0,.03)}
+        @media(max-width:768px){
+          .nav{padding:0 12px; gap:8px}
+          .nav-logo-text{display:none}
+          .nav-right{gap:8px}
+          .nav-link{padding:6px 8px; font-size:12px}
+          .container{padding:0 16px; margin:40px auto}
+          h1{font-size:32px}
+          .subtitle{font-size:15px}
+          .docs-layout{flex-direction:column; width:100%; gap:24px}
+          .docs-sidebar{width:100%}
+          .docs-content{padding:24px; width:100%}
+        }
       `}</style>
       <div className="page">
         <nav className="nav">
@@ -62,8 +77,8 @@ export default function DocsPage() {
             <h1>Documentation</h1>
             <p className="subtitle">Everything you need to set up, manage, and customize your Shopply experience.</p>
           </div>
-          <div style={{display:'flex',gap:'48px',alignItems:'flex-start'}}>
-            <div style={{width:'250px',flexShrink:0,background:'#fff',padding:'24px',borderRadius:'16px',border:'1px solid #f1f5f9'}}>
+          <div className="docs-layout">
+            <div className="docs-sidebar">
               <h4 style={{fontSize:'12px',fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:'1px',marginBottom:'16px'}}>Getting Started</h4>
               <ul style={{listStyle:'none',margin:0,padding:0,display:'flex',flexDirection:'column',gap:'12px'}}>
                 <li onClick={() => setActiveSection('introduction')} style={{color:activeSection === 'introduction' ? '#7c3aed' : '#64748b',fontWeight:activeSection === 'introduction' ? 600 : 400,fontSize:'14px',cursor:'pointer',transition:'color .2s'}}>Introduction</li>
@@ -77,7 +92,7 @@ export default function DocsPage() {
                 <li onClick={() => setActiveSection('payments-and-payouts')} style={{color:activeSection === 'payments-and-payouts' ? '#7c3aed' : '#64748b',fontWeight:activeSection === 'payments-and-payouts' ? 600 : 400,fontSize:'14px',cursor:'pointer',transition:'color .2s'}}>Payments & Payouts</li>
               </ul>
             </div>
-            <div style={{flex:1,background:'#fff',padding:'48px',borderRadius:'24px',border:'1px solid #f1f5f9',boxShadow:'0 10px 40px rgba(0,0,0,.03)'}}>
+            <div className="docs-content">
               <h2 style={{fontSize:'32px',fontWeight:800,color:'#0f172a',marginBottom:'24px'}}>{activeDoc.title}</h2>
               <div dangerouslySetInnerHTML={{ __html: activeDoc.content }} />
             </div>
