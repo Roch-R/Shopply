@@ -830,7 +830,7 @@ export default function ShopPage() {
         .title{font-size:46px;font-weight:800;color:#0f172a;letter-spacing:-1px;margin-bottom:16px}
         .subtitle{font-size:16px;color:#64748b;max-width:600px;margin:0 auto;line-height:1.6}
         
-        .grid{display:grid;grid-template-columns:repeat(5, 1fr);gap:20px}
+        .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:20px}
         .item-card{background:#fff;border-radius:16px;overflow:hidden;
           box-shadow:0 4px 20px rgba(0,0,0,.05);border:1px solid #f1f5f9;transition:all .3s;
           display:flex;flex-direction:column}
@@ -840,15 +840,11 @@ export default function ShopPage() {
           display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:48px}
         .item-content{padding:16px;flex-grow:1;display:flex;flex-direction:column}
         .item-name{font-size:15px;font-weight:700;color:#0f172a;margin-bottom:8px}
-        .item-desc{font-size:13px;color:#64748b;line-height:1.5;margin-bottom:16px;
-          display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;
-          height:4.5em}
+        .item-desc{display:none}
         .item-footer{display:flex;align-items:center;justify-content:space-between;
           padding-top:12px;border-top:1px solid #f1f5f9}
         .item-price{font-size:18px;font-weight:700;color:#10b981}
-        .item-seller{font-size:12px;color:#94a3b8;display:flex;align-items:center;gap:6px}
-        .seller-avatar{width:24px;height:24px;border-radius:50%;background:#e2e8f0;
-          display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#64748b}
+        .item-seller{display:none}
         
         .buy-btn{padding:8px 10px;background:linear-gradient(135deg,#7c3aed,#4f46e5);
           border:none;border-radius:8px;color:#fff;font-size:12px;font-weight:600;
