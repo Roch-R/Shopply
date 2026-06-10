@@ -917,6 +917,17 @@ export default function ShopPage() {
           .main{padding:24px 16px}
           .similar-products-section{padding:24px 16px !important}
           .similar-products-grid{grid-template-columns:repeat(2, 1fr) !important;gap:16px !important}
+          
+          .grid{grid-template-columns:repeat(2, 1fr) !important;gap:12px !important}
+          .item-card-img{height:150px !important}
+          .item-content{padding:12px !important}
+          .item-name{font-size:14px !important;margin-bottom:4px !important}
+          .item-desc{display:none !important}
+          .item-seller{display:none !important}
+          .item-price{font-size:15px !important}
+          .item-footer{padding-top:8px !important}
+          .item-footer > div{flex-direction:column !important;gap:6px !important}
+          .item-footer .add-cart-btn, .item-footer .buy-btn{width:100% !important;padding:6px 8px !important;font-size:11px !important;height:32px !important}
         }
         
         .similar-products-section{border-top:1px solid #f1f5f9;padding:48px;background:#fff}
