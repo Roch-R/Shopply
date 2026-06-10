@@ -775,8 +775,22 @@ export default function DashboardPage() {
     playDisconnectSound();
 
     try {
-      incomingCall.call.close();
-    } catch (e) {}
+      // Workaround for PeerJS design limitation: close() on an unanswered call 
+      // doesn't send a signaling message to notify the caller. We answer 
+      // with an empty stream first, then close immediately. This transmits 
+      // the ANSWER signaling message to establish the peer connection, 
+      // and then closes it, firing the 'close' handler on the caller.
+      incomingCall.call.answer(new MediaStream());
+      setTimeout(() => {
+        try {
+          incomingCall.call.close();
+        } catch (e) {}
+      }, 150);
+    } catch (e) {
+      try {
+        incomingCall.call.close();
+      } catch (err) {}
+    }
 
     setIncomingCall(null);
   };
