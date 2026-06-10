@@ -806,6 +806,7 @@ export default function ShopPage() {
     <>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        html, body{max-width:100%;overflow-x:hidden}
         *{box-sizing:border-box;margin:0;padding:0}
         body{background:#f5f7ff;font-family:'Inter',sans-serif}
         input, textarea { color: #0f172a !important; font-family: 'Inter', sans-serif; }
@@ -829,7 +830,7 @@ export default function ShopPage() {
         .title{font-size:46px;font-weight:800;color:#0f172a;letter-spacing:-1px;margin-bottom:16px}
         .subtitle{font-size:16px;color:#64748b;max-width:600px;margin:0 auto;line-height:1.6}
         
-        .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:24px}
+        .grid{display:grid;grid-template-columns:repeat(4, 1fr);gap:24px}
         .item-card{background:#fff;border-radius:16px;overflow:hidden;
           box-shadow:0 4px 20px rgba(0,0,0,.05);border:1px solid #f1f5f9;transition:all .3s;
           display:flex;flex-direction:column}
@@ -931,6 +932,9 @@ export default function ShopPage() {
           .seller-header-bar{padding:32px 48px;flex-direction:row;align-items:center;gap:32px}
         }
         
+        @media (max-width: 1100px) {
+          .grid{grid-template-columns:repeat(3, 1fr) !important;gap:20px !important}
+        }
         @media (max-width: 768px) {
           .rating-summary{display:flex;flex-direction:column;gap:20px;padding:20px;align-items:center;text-align:center}
           .review-filters{justify-content:center;margin-bottom:0}
@@ -967,27 +971,40 @@ export default function ShopPage() {
           .item-footer > div{flex-direction:column !important;gap:6px !important}
           .item-footer .add-cart-btn, .item-footer .buy-btn{width:100% !important;padding:6px 8px !important;font-size:11px !important;height:32px !important}
         }
-        
-        .categories-wrapper::-webkit-scrollbar{display:none}
-        
         @media (max-width: 500px) {
-          .item-meta-row {
-            flex-direction: column !important;
-            align-items: flex-start !important;
-            gap: 6px !important;
-          }
-          .item-stock-row {
-            flex-direction: column !important;
-            align-items: flex-start !important;
-            gap: 4px !important;
-          }
-          .v-thumb {
-            width: 56px !important;
-            height: 56px !important;
-          }
-          .title {
-            font-size: 24px !important;
-          }
+          .item-meta-row{flex-direction:column !important;align-items:flex-start !important;gap:6px !important}
+          .item-stock-row{flex-direction:column !important;align-items:flex-start !important;gap:4px !important}
+          .v-thumb{width:56px !important;height:56px !important}
+          .title{font-size:24px !important}
+          .grid{grid-template-columns:repeat(2, 1fr) !important;gap:10px !important}
+          .main{padding:16px 12px !important}
+          .item-card-img{height:130px !important}
+          .item-image-placeholder{height:130px !important}
+          .item-name{font-size:13px !important}
+        }
+        @media (max-width: 400px) {
+          .grid{grid-template-columns:repeat(2, 1fr) !important;gap:8px !important}
+          .main{padding:12px 10px !important}
+          .item-card-img{height:110px !important}
+          .item-image-placeholder{height:110px !important}
+          .item-content{padding:8px !important}
+          .item-name{font-size:12px !important}
+          .item-price{font-size:13px !important}
+          .title{font-size:22px !important}
+          .subtitle{font-size:14px !important}
+          .detail-name{font-size:18px !important}
+          .detail-price{font-size:18px !important}
+          .detail-content{padding:10px !important;gap:14px !important}
+          .modal-actions-container .buy-btn, .modal-actions-container .add-cart-btn{font-size:12px !important;height:44px !important}
+        }
+        @media (max-width: 320px) {
+          .grid{grid-template-columns:1fr !important}
+          .main{padding:10px 8px !important}
+          .item-card-img{height:160px !important}
+          .item-image-placeholder{height:160px !important}
+          .item-name{font-size:14px !important}
+          .title{font-size:20px !important}
+          .nav{padding:0 6px !important}
         }
         
         .similar-products-section{border-top:1px solid #f1f5f9;padding:48px;background:#fff}
