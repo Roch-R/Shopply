@@ -1679,6 +1679,8 @@ export default function DashboardPage() {
           .order-search input{width:100% !important}
           .category-grid{grid-template-columns:repeat(2, 1fr) !important;gap:8px !important}
           .variant-form-grid{grid-template-columns:1fr !important;gap:16px !important}
+          .store-orders-header{flex-direction:column !important;align-items:stretch !important;gap:16px !important}
+          .store-orders-header button{width:100% !important;justify-content:center !important;height:48px !important}
         }
 
         @media (max-width: 768px){
@@ -2685,7 +2687,7 @@ export default function DashboardPage() {
             {/* ——— STORE ORDERS TAB ——— */}
             {activeTab === "store-orders" && (
               <div className="orders-container">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+                <div className="store-orders-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
                   <div>
                     <h2 style={{ fontSize: 20, color: '#0f172a' }}>Store Orders</h2>
                     <p style={{ color: '#64748b', fontSize: 14 }}>Manage incoming orders for your products.</p>
