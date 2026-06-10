@@ -346,8 +346,31 @@ export default function DashboardPage() {
     const initPeer = async () => {
       try {
         const PeerClass = (await import('peerjs')).default;
-        // Connect to default public PeerJS server with user ID
-        peer = new PeerClass(`shopply-user-${user.id}`);
+        // Connect to PeerJS server with custom STUN/TURN configurations to support cellular/mobile calling
+        peer = new PeerClass(`shopply-user-${user.id}`, {
+          config: {
+            iceServers: [
+              { urls: 'stun:stun.l.google.com:19302' },
+              { urls: 'stun:global.stun.twilio.com:3478' },
+              { urls: 'stun:stun.metered.ca:80' },
+              {
+                urls: 'turn:openrelay.metered.ca:80',
+                username: 'openrelayproject',
+                credential: 'openrelayproject'
+              },
+              {
+                urls: 'turn:openrelay.metered.ca:443',
+                username: 'openrelayproject',
+                credential: 'openrelayproject'
+              },
+              {
+                urls: 'turn:openrelay.metered.ca:443?transport=tcp',
+                username: 'openrelayproject',
+                credential: 'openrelayproject'
+              }
+            ]
+          }
+        });
 
         peer.on('open', (id: string) => {
           console.log('[PeerJS] Opened with ID:', id);
