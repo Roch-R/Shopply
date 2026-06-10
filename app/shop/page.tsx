@@ -1843,6 +1843,46 @@ export default function ShopPage() {
                 </div>
               </div>
 
+              {/* PRODUCT DESCRIPTION SECTION */}
+              <div className="description-section">
+                <div className="description-header">
+                  <span className="variant-section-label" style={{ fontSize: '18px', fontWeight: 800, letterSpacing: '-0.02em', background: 'linear-gradient(to right, #7c3aed, #4f46e5)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', marginBottom: '8px', display: 'inline-block' }}>
+                    Product Description
+                  </span>
+                  <div className="description-header-divider" />
+                </div>
+                
+                <div className="description-card-body">
+                  <p className="detail-desc-premium">
+                    {viewItem.description || "This item has no description yet. Explore its quality and features below."}
+                  </p>
+                </div>
+                
+                {viewItem.attributes?.description_images && viewItem.attributes.description_images.length > 0 && (
+                  <div className="description-images-gallery">
+                    {viewItem.attributes.description_images.map((path: string, index: number) => (
+                      <div key={index} className="desc-image-card">
+                        <div className="desc-image-badge">Gallery Image {index + 1}</div>
+                        <img 
+                          src={getImageUrl(path)} 
+                          alt={`Description Image ${index + 1}`}
+                          className="desc-gallery-img"
+                          onError={(e) => {
+                            e.currentTarget.onerror = null;
+                            e.currentTarget.src = "https://placehold.co/600x400/f8fafc/cbd5e1?text=Image+Not+Found";
+                          }}
+                        />
+                        <div className="desc-image-actions">
+                          <a href={getImageUrl(path)} target="_blank" rel="noopener noreferrer" className="desc-zoom-btn">
+                            🔍 Expand Full Resolution
+                          </a>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
               {/* SELLER PROFILE HEADER BAR */}
               <div className="seller-header-bar">
                 <div className="seller-left-side">
@@ -2047,45 +2087,6 @@ export default function ShopPage() {
                             ))}
                           </div>
                         )}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              <div className="description-section">
-                <div className="description-header">
-                  <span className="variant-section-label" style={{ fontSize: '18px', fontWeight: 800, letterSpacing: '-0.02em', background: 'linear-gradient(to right, #7c3aed, #4f46e5)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', marginBottom: '8px', display: 'inline-block' }}>
-                    Product Description
-                  </span>
-                  <div className="description-header-divider" />
-                </div>
-                
-                <div className="description-card-body">
-                  <p className="detail-desc-premium">
-                    {viewItem.description || "This item has no description yet. Explore its quality and features below."}
-                  </p>
-                </div>
-                
-                {viewItem.attributes?.description_images && viewItem.attributes.description_images.length > 0 && (
-                  <div className="description-images-gallery">
-                    {viewItem.attributes.description_images.map((path: string, index: number) => (
-                      <div key={index} className="desc-image-card">
-                        <div className="desc-image-badge">Gallery Image {index + 1}</div>
-                        <img 
-                          src={getImageUrl(path)} 
-                          alt={`Description Image ${index + 1}`}
-                          className="desc-gallery-img"
-                          onError={(e) => {
-                            e.currentTarget.onerror = null;
-                            e.currentTarget.src = "https://placehold.co/600x400/f8fafc/cbd5e1?text=Image+Not+Found";
-                          }}
-                        />
-                        <div className="desc-image-actions">
-                          <a href={getImageUrl(path)} target="_blank" rel="noopener noreferrer" className="desc-zoom-btn">
-                            🔍 Expand Full Resolution
-                          </a>
-                        </div>
                       </div>
                     ))}
                   </div>
