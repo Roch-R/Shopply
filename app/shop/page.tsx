@@ -1840,25 +1840,27 @@ export default function ShopPage() {
                       ))}
                     </div>
                   )}
+
+                  {/* PRODUCT DESCRIPTION TEXT (ALIGNED IN RIGHT COLUMN) */}
+                  <div style={{ marginTop: 24, borderTop: '1px solid #f1f5f9', paddingTop: 20 }}>
+                    <span className="variant-section-label" style={{ fontSize: '13px', fontWeight: 700, color: '#0f172a', marginBottom: 8, display: 'block', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                      Description
+                    </span>
+                    <p style={{ fontSize: '14px', color: '#475569', lineHeight: 1.6, margin: 0, whiteSpace: 'pre-wrap' }}>
+                      {viewItem.description || "This item has no description yet."}
+                    </p>
+                  </div>
                 </div>
               </div>
 
-              {/* PRODUCT DESCRIPTION SECTION */}
-              <div className="description-section">
-                <div className="description-header">
-                  <span className="variant-section-label" style={{ fontSize: '18px', fontWeight: 800, letterSpacing: '-0.02em', background: 'linear-gradient(to right, #7c3aed, #4f46e5)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', marginBottom: '8px', display: 'inline-block' }}>
-                    Product Description
-                  </span>
-                  <div className="description-header-divider" />
-                </div>
-                
-                <div className="description-card-body">
-                  <p className="detail-desc-premium">
-                    {viewItem.description || "This item has no description yet. Explore its quality and features below."}
-                  </p>
-                </div>
-                
-                {viewItem.attributes?.description_images && viewItem.attributes.description_images.length > 0 && (
+              {/* DESCRIPTION IMAGES GALLERY (FULL WIDTH BELOW IMAGE/INFO GRID) */}
+              {viewItem.attributes?.description_images && viewItem.attributes.description_images.length > 0 && (
+                <div className="description-section" style={{ borderTop: '1px solid #f1f5f9', padding: isMobile ? '24px 16px' : '48px', background: '#fff' }}>
+                  <div className="description-header" style={{ marginBottom: 24 }}>
+                    <span className="variant-section-label" style={{ fontSize: '16px', fontWeight: 800, color: '#0f172a' }}>
+                      Product Gallery
+                    </span>
+                  </div>
                   <div className="description-images-gallery">
                     {viewItem.attributes.description_images.map((path: string, index: number) => (
                       <div key={index} className="desc-image-card">
@@ -1880,8 +1882,8 @@ export default function ShopPage() {
                       </div>
                     ))}
                   </div>
-                )}
-              </div>
+                </div>
+              )}
 
               {/* SELLER PROFILE HEADER BAR */}
               <div className="seller-header-bar">
