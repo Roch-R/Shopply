@@ -891,6 +891,7 @@ export default function ShopPage() {
           overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column;box-shadow:none;animation:scaleUp .3s ease}
         .detail-modal > div{flex-shrink:0}
         @keyframes scaleUp{from{opacity:0;transform:scale(0.95)}to{opacity:1;transform:scale(1)}}
+        @keyframes fadeIn{from{opacity:0}to{opacity:1}}
         
         .detail-content{display:grid;grid-template-columns:minmax(0,1fr);gap:20px;padding:12px}
         
@@ -2150,7 +2151,21 @@ export default function ShopPage() {
 
         {/* PREMIUM FLOATING CHAT DRAWER / BOX */}
         {isChatOpen && (
-          <div style={{
+          <>
+            {/* BLURRED BACKGROUND OVERLAY TO PREVENT BACKGROUND INTERACTIONS */}
+            <div 
+              onClick={() => setIsChatOpen(false)}
+              style={{
+                position: 'fixed',
+                inset: 0,
+                background: 'rgba(15, 23, 42, 0.3)',
+                backdropFilter: 'blur(4px)',
+                WebkitBackdropFilter: 'blur(4px)',
+                zIndex: 999,
+                animation: 'fadeIn 0.2s ease'
+              }}
+            />
+            <div style={{
             position: 'fixed',
             bottom: isMobile ? 70 : 85,
             right: isMobile ? 12 : 24,
@@ -2507,6 +2522,7 @@ export default function ShopPage() {
               )}
             </div>
           </div>
+          </>
         )}
       </div>
     </>
