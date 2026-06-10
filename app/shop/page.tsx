@@ -892,9 +892,9 @@ export default function ShopPage() {
         .detail-modal > div{flex-shrink:0}
         @keyframes scaleUp{from{opacity:0;transform:scale(0.95)}to{opacity:1;transform:scale(1)}}
         
-        .detail-content{display:grid;grid-template-columns:1fr;gap:20px;padding:12px}
+        .detail-content{display:grid;grid-template-columns:minmax(0,1fr);gap:20px;padding:12px}
         
-        .detail-img-side{display:flex;flex-direction:column;gap:16px}
+        .detail-img-side{display:flex;flex-direction:column;gap:16px;min-width:0}
         .main-detail-img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:20px;background:#f8fafc;border:1px solid #f1f5f9}
         .variant-thumbs{display:flex;gap:12px;overflow-x:auto;padding:4px;scrollbar-width:none;-ms-overflow-style:none}
         .variant-thumbs::-webkit-scrollbar{display:none}
@@ -902,7 +902,7 @@ export default function ShopPage() {
           border:2px solid transparent;transition:all .2s;flex-shrink:0;background:#f8fafc}
         .v-thumb.active{border-color:#7c3aed;transform:scale(1.05);box-shadow:0 4px 12px rgba(124,58,237,.2)}
         
-        .detail-info-side{display:flex;flex-direction:column;gap:16px}
+        .detail-info-side{display:flex;flex-direction:column;gap:16px;min-width:0}
         .detail-category{font-size:11px;font-weight:700;color:#7c3aed;text-transform:uppercase;letter-spacing:1.5px}
         .detail-name{font-size:22px;font-weight:800;color:#0f172a;letter-spacing:-1px;line-height:1.1}
         .detail-price{font-size:22px;font-weight:800;color:#10b981}
@@ -919,7 +919,7 @@ export default function ShopPage() {
         @media (min-width: 769px) {
           .modal-overlay{padding:20px}
           .detail-modal{border-radius:24px;max-width:1100px;max-height:90vh;height:auto;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25)}
-          .detail-content{grid-template-columns:1fr 1fr;gap:48px;padding:48px}
+          .detail-content{grid-template-columns:minmax(0, 1fr) minmax(0, 1fr);gap:48px;padding:48px}
           .v-thumb{width:70px;height:70px}
           .detail-info-side{gap:28px}
           .detail-category{font-size:12px}
