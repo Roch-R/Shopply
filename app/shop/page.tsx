@@ -889,6 +889,7 @@ export default function ShopPage() {
           display:flex;align-items:center;justify-content:center;z-index:500;padding:0}
         .detail-modal{position:relative;background:#fff;border-radius:0;max-width:100%;width:100%;max-height:100vh;height:100%;
           overflow-y:auto;display:flex;flex-direction:column;box-shadow:none;animation:scaleUp .3s ease}
+        .detail-modal > div{flex-shrink:0}
         @keyframes scaleUp{from{opacity:0;transform:scale(0.95)}to{opacity:1;transform:scale(1)}}
         
         .detail-content{display:grid;grid-template-columns:1fr;gap:20px;padding:12px}
@@ -997,6 +998,7 @@ export default function ShopPage() {
           .detail-content{padding:10px !important;gap:14px !important}
           .main-detail-img{max-height:220px !important;aspect-ratio:unset !important}
           .modal-actions-container .buy-btn, .modal-actions-container .add-cart-btn{font-size:12px !important;height:44px !important}
+          .size-btn{padding:5px 8px !important;font-size:11px !important}
         }
         @media (max-width: 320px) {
           .grid{grid-template-columns:1fr !important}
@@ -1172,7 +1174,7 @@ export default function ShopPage() {
         .r-date{font-size:11px;color:#94a3b8}
         .r-text{font-size:14px;color:#334155;line-height:1.6;margin:8px 0}
         .r-variation{font-size:11px;color:#94a3b8;margin-bottom:12px;display:block}
-        .r-images{display:flex;gap:12px}
+        .r-images{display:flex;gap:12px;flex-wrap:wrap}
         .r-img{width:80px;height:80px;border-radius:10px;object-fit:cover;cursor:pointer;border:1px solid #f1f5f9}
         
         .back-to-top{position:fixed;bottom:32px;right:32px;width:50px;height:50px;
@@ -1192,7 +1194,7 @@ export default function ShopPage() {
         .seller-info-col{display:flex;flex-direction:column;gap:4px}
         .seller-title-name{font-size:18px;font-weight:700;color:#0f172a;display:flex;align-items:center;gap:6px}
         .seller-active-status{font-size:12px;color:#64748b;margin-bottom:8px}
-        .seller-actions-row{display:flex;gap:10px}
+        .seller-actions-row{display:flex;gap:10px;flex-wrap:wrap}
         .seller-btn-chat{padding:8px 16px;background:#f3e8ff;border:1px solid #7c3aed;color:#7c3aed;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .2s}
         .seller-btn-chat:hover{background:#e9d5ff;transform:translateY(-1px)}
         .seller-btn-shop{padding:8px 16px;background:#fff;border:1px solid #cbd5e1;color:#475569;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .2s}
@@ -1593,7 +1595,7 @@ export default function ShopPage() {
                   <div>
                     <span className="detail-category">{viewItem.category || "General"}</span>
                     <h2 className="detail-name">{viewItem.name}</h2>
-                    <div style={{display:'flex',alignItems:'center',gap:12,marginTop:12}}>
+                    <div style={{display:'flex',alignItems:'center',gap:12,marginTop:12,flexWrap:'wrap',rowGap:6}}>
                       <div style={{display:'flex',alignItems:'center',gap:4}}>
                         <span style={{fontSize:16,fontWeight:800,color:'#7c3aed',textDecoration:'underline'}}>
                           {reviews.length > 0 
