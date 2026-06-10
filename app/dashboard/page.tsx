@@ -2453,6 +2453,48 @@ export default function DashboardPage() {
           content: ' . . .';
           animation: callingDot 1.4s infinite both;
         }
+
+        /* Video Call Responsive Styling */
+        @media (max-width: 768px) {
+          .call-overlay-container {
+            padding: 16px !important;
+          }
+          .call-pip-thumbnail {
+            top: 12px !important;
+            right: 12px !important;
+            width: 80px !important;
+            height: 110px !important;
+            border-radius: 12px !important;
+          }
+          .call-info-overlay {
+            top: 12px !important;
+            left: 12px !important;
+          }
+          .call-info-overlay h4 {
+            font-size: 15px !important;
+          }
+          .call-info-overlay span {
+            font-size: 12px !important;
+          }
+          .call-controls-bar {
+            bottom: 24px !important;
+            gap: 12px !important;
+            padding: 8px 16px !important;
+            border-radius: 20px !important;
+          }
+          .call-control-btn {
+            width: 40px !important;
+            height: 40px !important;
+          }
+          .call-control-btn-large {
+            width: 48px !important;
+            height: 48px !important;
+          }
+          .call-control-btn svg, .call-control-btn-large svg {
+            width: 18px !important;
+            height: 18px !important;
+          }
+        }
       `}</style>
 
       <div className="root">
@@ -4935,6 +4977,7 @@ export default function DashboardPage() {
         {/* INCOMING CALL OVERLAY */}
         {incomingCall && (
           <div 
+            className="call-overlay-container"
             style={{
               position: 'fixed',
               inset: 0,
@@ -4971,6 +5014,7 @@ export default function DashboardPage() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 32, marginTop: 24 }}>
                 <button
                   onClick={handleDeclineIncomingCall}
+                  className="call-control-btn-large"
                   style={{
                     width: 64,
                     height: 64,
@@ -4995,6 +5039,7 @@ export default function DashboardPage() {
                 </button>
                 <button
                   onClick={handleAcceptIncomingCall}
+                  className="call-control-btn-large"
                   style={{
                     width: 64,
                     height: 64,
@@ -5025,6 +5070,7 @@ export default function DashboardPage() {
         {/* VIDEO CALL MODAL OVERLAY */}
         {activeCall && (
           <div 
+            className="call-overlay-container"
             style={{
               position: 'fixed',
               inset: 0,
@@ -5074,6 +5120,7 @@ export default function DashboardPage() {
                 </div>
                 <button
                   onClick={handleEndVideoCall}
+                  className="call-control-btn-large"
                   style={{
                     marginTop: 40,
                     width: 64,
@@ -5133,6 +5180,7 @@ export default function DashboardPage() {
 
                 {/* Picture in Picture Local Thumbnail (Self) */}
                 <div 
+                  className="call-pip-thumbnail"
                   style={{
                     position: 'absolute',
                     top: 24,
@@ -5171,7 +5219,7 @@ export default function DashboardPage() {
                 </div>
 
                 {/* Call Overlay Info (Top Left) */}
-                <div style={{ position: 'absolute', top: 24, left: 24, zIndex: 20, display: 'flex', flexDirection: 'column', gap: 4, textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>
+                <div className="call-info-overlay" style={{ position: 'absolute', top: 24, left: 24, zIndex: 20, display: 'flex', flexDirection: 'column', gap: 4, textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>
                   <h4 style={{ fontSize: 18, fontWeight: 700, margin: 0 }}>{activeCall.user.name}</h4>
                   <span style={{ fontSize: 14, color: '#a7f3d0', display: 'flex', alignItems: 'center', gap: 6, fontWeight: 500 }}>
                     <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#10b981', display: 'inline-block', animation: 'pulse 1s infinite' }}></span>
@@ -5181,6 +5229,7 @@ export default function DashboardPage() {
 
                 {/* Controls Bar (Bottom Center) */}
                 <div 
+                  className="call-controls-bar"
                   style={{
                     position: 'absolute',
                     bottom: 40,
@@ -5201,6 +5250,7 @@ export default function DashboardPage() {
                   {/* Mic Toggle Button */}
                   <button
                     onClick={handleToggleCallMute}
+                    className="call-control-btn"
                     style={{
                       width: 48,
                       height: 48,
@@ -5232,6 +5282,7 @@ export default function DashboardPage() {
                   {/* Hang Up Button */}
                   <button
                     onClick={handleEndVideoCall}
+                    className="call-control-btn-large"
                     style={{
                       width: 56,
                       height: 56,
@@ -5258,6 +5309,7 @@ export default function DashboardPage() {
                   {/* Video Toggle Button */}
                   <button
                     onClick={handleToggleCallVideo}
+                    className="call-control-btn"
                     style={{
                       width: 48,
                       height: 48,
