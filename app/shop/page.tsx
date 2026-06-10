@@ -1392,7 +1392,11 @@ export default function ShopPage() {
                           <video 
                             src={mediaItems[activeImageIdx].url} 
                             controls 
-                            preload="none"
+                            autoPlay
+                            muted
+                            loop
+                            playsInline
+                            preload="auto"
                             poster={viewItem.image ? getImageUrl(viewItem.image) : undefined}
                             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                           />
