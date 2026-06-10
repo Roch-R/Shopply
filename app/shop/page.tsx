@@ -915,8 +915,12 @@ export default function ShopPage() {
           .seller-left-side{width:100%}
           .title{font-size:28px}
           .main{padding:24px 16px}
+          .similar-products-section{padding:24px 16px !important}
+          .similar-products-grid{grid-template-columns:repeat(2, 1fr) !important;gap:16px !important}
         }
         
+        .similar-products-section{border-top:1px solid #f1f5f9;padding:48px;background:#fff}
+        .similar-products-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:24px;justify-content:start}
         .variant-section-label{font-size:13px;font-weight:700;color:#0f172a;margin-bottom:12px;display:block}
         .size-grid{display:flex;gap:10px;flex-wrap:wrap}
         .size-btn{padding:6px 12px;border:1px solid #e2e8f0;border-radius:4px;background:#fff;
@@ -1878,7 +1882,7 @@ export default function ShopPage() {
               </div>
 
               {/* SIMILAR PRODUCTS SECTION */}
-              <div className="similar-products-section" style={{ borderTop: '1px solid #f1f5f9', padding: '48px', background: '#fff' }}>
+              <div className="similar-products-section">
                 <span className="variant-section-label" style={{ fontSize: '16px', marginBottom: '24px' }}>Similar Products</span>
                 {(() => {
                   const similarItems = items
@@ -1894,7 +1898,7 @@ export default function ShopPage() {
                   }
 
                   return (
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 220px))', gap: '24px', justifyContent: 'start' }}>
+                    <div className="similar-products-grid">
                       {displayItems.map(item => (
                         <div 
                           key={item.id} 
