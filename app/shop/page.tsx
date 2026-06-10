@@ -1340,7 +1340,7 @@ export default function ShopPage() {
                       </div>
                     </div>
                     <p className="item-desc">{item.description || "No description provided."}</p>
-                    <div className="item-stock-row" style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}>
+                    <div className="item-stock-row" style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom: isMobile ? 8 : 16}}>
                       <div style={{fontSize: 13, color: '#64748b'}}>
                         {calculateTotalStock(item) > 0 ? (
                           <>Stock: <strong style={{color: '#0f172a'}}>{calculateTotalStock(item)} left</strong></>
@@ -1350,7 +1350,7 @@ export default function ShopPage() {
                       </div>
                       <span style={{fontSize:11,color:'#94a3b8'}}>{item.reviews_count || 0} Reviews</span>
                     </div>
-                    <div className="item-footer" style={{display:'flex', flexDirection:'column', gap:10}} onClick={e => e.stopPropagation()}>
+                    <div className="item-footer" style={{display:'flex', flexDirection:'column', gap: isMobile ? 6 : 10}} onClick={e => e.stopPropagation()}>
                       <span className="item-price" style={{alignSelf:'flex-start'}}>{formatPriceDisplay(item)}</span>
                       <div style={{display:'flex', gap:8, width:'100%'}}>
                         {calculateTotalStock(item) > 0 ? (
@@ -1459,7 +1459,7 @@ export default function ShopPage() {
                   </button>
                   <div className="detail-content">
                     <div className="detail-img-side">
-                      <div style={{ position: 'relative', width: '100%', aspectRatio: '1/1', borderRadius: 20, overflow: 'hidden', background: '#f8fafc', border: '1px solid #f1f5f9', boxShadow: '0 4px 20px rgba(0,0,0,0.04)' }}>
+                      <div style={{ position: 'relative', width: '100%', aspectRatio: isMobile ? '4/3' : '1/1', maxHeight: isMobile ? 220 : 'none', borderRadius: isMobile ? 12 : 20, overflow: 'hidden', background: '#f8fafc', border: '1px solid #f1f5f9', boxShadow: '0 4px 20px rgba(0,0,0,0.04)' }}>
                         {mediaItems[activeImageIdx]?.type === 'video' ? (
                           <video 
                             src={mediaItems[activeImageIdx].url} 
@@ -1492,8 +1492,8 @@ export default function ShopPage() {
                                 left: 0,
                                 top: '50%',
                                 transform: 'translateY(-50%)',
-                                width: 48,
-                                height: 80,
+                                width: isMobile ? 36 : 48,
+                                height: isMobile ? 56 : 80,
                                 background: 'rgba(0,0,0,0.55)',
                                 backdropFilter: 'blur(4px)',
                                 border: 'none',
@@ -1521,8 +1521,8 @@ export default function ShopPage() {
                                 right: 0,
                                 top: '50%',
                                 transform: 'translateY(-50%)',
-                                width: 48,
-                                height: 80,
+                                width: isMobile ? 36 : 48,
+                                height: isMobile ? 56 : 80,
                                 background: 'rgba(0,0,0,0.55)',
                                 backdropFilter: 'blur(4px)',
                                 border: 'none',
