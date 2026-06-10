@@ -920,6 +920,7 @@ export default function ShopPage() {
           
           .grid{grid-template-columns:repeat(2, 1fr) !important;gap:12px !important}
           .item-card-img{height:150px !important}
+          .item-image-placeholder{height:150px !important}
           .item-content{padding:12px !important}
           .item-name{font-size:14px !important;margin-bottom:4px !important}
           .item-desc{display:none !important}
@@ -928,6 +929,21 @@ export default function ShopPage() {
           .item-footer{padding-top:8px !important}
           .item-footer > div{flex-direction:column !important;gap:6px !important}
           .item-footer .add-cart-btn, .item-footer .buy-btn{width:100% !important;padding:6px 8px !important;font-size:11px !important;height:32px !important}
+        }
+        
+        .categories-wrapper::-webkit-scrollbar{display:none}
+        
+        @media (max-width: 500px) {
+          .item-meta-row {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 6px !important;
+          }
+          .item-stock-row {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 4px !important;
+          }
         }
         
         .similar-products-section{border-top:1px solid #f1f5f9;padding:48px;background:#fff}
@@ -1260,7 +1276,7 @@ export default function ShopPage() {
                     <svg width="48" height="48" fill="none" stroke="#cbd5e1" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
                   </div>
                   <div className="item-content">
-                    <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:8}}>
+                    <div className="item-meta-row" style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:8}}>
                       <h3 className="item-name">{item.name}</h3>
                       <div style={{display:'flex',alignItems:'center',gap:4}}>
                         <StarRating rating={Math.round(Number(item.reviews_avg_rating || 0))} size={12} />
@@ -1268,7 +1284,7 @@ export default function ShopPage() {
                       </div>
                     </div>
                     <p className="item-desc">{item.description || "No description provided."}</p>
-                    <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}>
+                    <div className="item-stock-row" style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}>
                       <div style={{fontSize: 13, color: '#64748b'}}>
                         {calculateTotalStock(item) > 0 ? (
                           <>Stock: <strong style={{color: '#0f172a'}}>{calculateTotalStock(item)} left</strong></>
