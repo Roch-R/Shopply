@@ -596,6 +596,19 @@ export default function ShopPage() {
     }
   }, [viewItem, API]);
 
+  // Lock body scrolling when detail modal is open
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (viewItem) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [viewItem]);
+
   const handleViewItem = (item: ShopItem) => {
     setViewItem(item);
     setSelectedVariant(null);
@@ -898,16 +911,16 @@ export default function ShopPage() {
           .login-icon-span{display:inline-flex !important;color:#fff}
           .login-btn{width:36px !important;height:36px !important;padding:0 !important;border-radius:50% !important;min-width:36px !important;background:linear-gradient(135deg,#7c3aed,#2563eb) !important;display:inline-flex !important;align-items:center !important;justify-content:center !important}
           .cart-nav-icon{width:36px !important;height:36px !important;margin-right:0 !important;display:inline-flex !important;align-items:center !important;justify-content:center !important}
-          .modal-overlay{padding:0}
-          .detail-modal{border-radius:0;max-height:100vh;height:100%;width:100%;max-width:100%}
-          .detail-content{padding:12px;gap:20px}
-          .detail-info-side{gap:16px}
-          .detail-name{font-size:24px}
-          .detail-price{font-size:24px}
-          .detail-category{font-size:11px}
-          .modal-close-btn{top:12px;right:12px;width:36px;height:36px}
-          .modal-actions-container{flex-direction:column;gap:12px}
-          .buy-btn, .add-cart-btn{width:100%;height:48px !important}
+          .modal-overlay{padding:0 !important}
+          .detail-modal{border-radius:0 !important;max-height:100vh !important;height:100% !important;width:100% !important;max-width:100% !important;overflow-y:auto !important;display:flex !important;flex-direction:column !important}
+          .detail-content{padding:12px !important;gap:20px !important;grid-template-columns:1fr !important}
+          .detail-info-side{gap:16px !important}
+          .detail-name{font-size:22px !important}
+          .detail-price{font-size:22px !important}
+          .detail-category{font-size:11px !important}
+          .modal-close-btn{position:fixed !important;top:12px !important;right:12px !important;width:36px !important;height:36px !important;z-index:9999 !important}
+          .modal-actions-container{flex-direction:column !important;gap:12px !important}
+          .buy-btn, .add-cart-btn{width:100% !important;height:48px !important}
           .spec-grid{grid-template-columns:1fr;padding:16px}
           .description-section{padding:24px 16px}
           .seller-header-bar{padding:16px;gap:20px}
@@ -943,6 +956,13 @@ export default function ShopPage() {
             flex-direction: column !important;
             align-items: flex-start !important;
             gap: 4px !important;
+          }
+          .v-thumb {
+            width: 56px !important;
+            height: 56px !important;
+          }
+          .title {
+            font-size: 24px !important;
           }
         }
         
