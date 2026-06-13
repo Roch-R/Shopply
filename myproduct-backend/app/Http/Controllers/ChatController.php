@@ -19,7 +19,8 @@ class ChatController extends Controller
         // We can get all messages where sender is auth user OR receiver is auth user
         $messages = Message::where('sender_id', $userId)
             ->orWhere('receiver_id', $userId)
-            ->latest()
+            ->orderBy('created_at', 'desc')
+            ->orderBy('id', 'desc')
             ->get();
 
         $conversations = [];
@@ -85,7 +86,8 @@ class ChatController extends Controller
             ->orWhere(function ($q) use ($authUserId, $userId) {
                 $q->where('sender_id', $userId)->where('receiver_id', $authUserId);
             })
-            ->oldest()
+            ->orderBy('created_at', 'asc')
+            ->orderBy('id', 'asc')
             ->get();
 
         $isTyping = \Illuminate\Support\Facades\Cache::get("typing_{$userId}_{$authUserId}", false);

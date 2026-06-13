@@ -203,6 +203,44 @@ const calculateTotalStock = (item: any) => {
   return item.stock || 0;
 };
 
+const formatLastMessageTime = (dateString: string) => {
+  if (!dateString) return "";
+  const date = new Date(dateString);
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+  const msgDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  
+  if (msgDate.getTime() === today.getTime()) {
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  } else if (msgDate.getTime() === yesterday.getTime()) {
+    return "Yesterday";
+  } else if (now.getTime() - date.getTime() < 7 * 24 * 60 * 60 * 1000) {
+    return date.toLocaleDateString([], { weekday: 'short' });
+  } else {
+    return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+  }
+};
+
+const formatDividerDate = (dateString: string) => {
+  if (!dateString) return "";
+  const date = new Date(dateString);
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+  const msgDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  
+  if (msgDate.getTime() === today.getTime()) {
+    return "Today";
+  } else if (msgDate.getTime() === yesterday.getTime()) {
+    return "Yesterday";
+  } else {
+    return date.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' });
+  }
+};
+
 export default function DashboardPage() {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
@@ -3089,7 +3127,7 @@ export default function DashboardPage() {
                                 </div>
                                 {conv.last_message && (
                                   <span style={{fontSize: 11, color: '#94a3b8', flexShrink: 0, marginLeft: 8}}>
-                                    {new Date(conv.last_message.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                                    {formatLastMessageTime(conv.last_message.created_at)}
                                   </span>
                                 )}
                               </div>
@@ -3203,38 +3241,69 @@ export default function DashboardPage() {
                           ) : chatMessages.length === 0 ? (
                             <div style={{ margin: 'auto 0' }}></div>
                           ) : (
-                            chatMessages.map(msg => {
+                            chatMessages.map((msg, index) => {
                               const isMe = user ? msg.sender_id === user.id : msg.sender_id !== activeChatUser.id;
+                              const prevMsg = index > 0 ? chatMessages[index - 1] : null;
+                              const showDivider = !prevMsg || 
+                                new Date(msg.created_at).toDateString() !== new Date(prevMsg.created_at).toDateString();
+
                               return (
-                                <div
-                                  key={msg.id}
-                                  className={`chat-message-row ${isMe ? 'me' : 'them'}`}
-                                >
-                                  {!isMe && (
-                                    activeChatUser.avatar ? (
-                                      <img src={getAvatarUrl(activeChatUser.avatar)} alt={activeChatUser.name} style={{width: 28, height: 28, borderRadius: '50%', objectFit: 'cover', marginBottom: 4}} />
-                                    ) : (
-                                      <div style={{width: 28, height: 28, borderRadius: '50%', background: '#e2e8f0', color: '#64748b', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 12, marginBottom: 4}}>
-                                        {activeChatUser.name.charAt(0).toUpperCase()}
-                                      </div>
-                                    )
-                                  )}
-                                  <div style={{display: 'flex', flexDirection: 'column', alignItems: isMe ? 'flex-end' : 'flex-start'}}>
-                                    <div className={`chat-message-bubble ${isMe ? 'me' : 'them'}`}>
-                                      {msg.image && (
-                                        <div style={{ marginBottom: msg.message ? 8 : 0 }}>
-                                          <img
-                                            src={msg.optimistic_preview || getImageUrl(msg.image)}
-                                            alt="Attachment"
-                                            style={{ borderRadius: 12, maxWidth: '100%', maxHeight: 240, objectFit: 'cover', display: 'block' }}
-                                          />
-                                        </div>
-                                      )}
-                                      {msg.message && <div>{msg.message}</div>}
+                                <div key={msg.id} style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
+                                  {showDivider && (
+                                    <div style={{
+                                      display: 'flex',
+                                      justifyContent: 'center',
+                                      margin: '16px 0 8px',
+                                      width: '100%'
+                                    }}>
+                                      <span style={{
+                                        background: '#f8fafc',
+                                        border: '1px solid #e2e8f0',
+                                        color: '#64748b',
+                                        fontSize: '11px',
+                                        fontWeight: 700,
+                                        padding: '6px 16px',
+                                        borderRadius: '20px',
+                                        textTransform: 'uppercase',
+                                        letterSpacing: '0.5px',
+                                        boxShadow: '0 2px 6px rgba(0,0,0,0.02)'
+                                      }}>
+                                        {formatDividerDate(msg.created_at)}
+                                      </span>
                                     </div>
-                                    <span style={{fontSize: 10, color: '#94a3b8', margin: '4px 4px 0'}}>
-                                      {new Date(msg.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
-                                    </span>
+                                  )}
+                                  <div
+                                    className={`chat-message-row ${isMe ? 'me' : 'them'}`}
+                                    style={{
+                                      marginBottom: 4
+                                    }}
+                                  >
+                                    {!isMe && (
+                                      activeChatUser.avatar ? (
+                                        <img src={getAvatarUrl(activeChatUser.avatar)} alt={activeChatUser.name} style={{width: 28, height: 28, borderRadius: '50%', objectFit: 'cover', marginBottom: 4}} />
+                                      ) : (
+                                        <div style={{width: 28, height: 28, borderRadius: '50%', background: '#e2e8f0', color: '#64748b', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 12, marginBottom: 4}}>
+                                          {activeChatUser.name.charAt(0).toUpperCase()}
+                                        </div>
+                                      )
+                                    )}
+                                    <div style={{display: 'flex', flexDirection: 'column', alignItems: isMe ? 'flex-end' : 'flex-start'}}>
+                                      <div className={`chat-message-bubble ${isMe ? 'me' : 'them'}`}>
+                                        {msg.image && (
+                                          <div style={{ marginBottom: msg.message ? 8 : 0 }}>
+                                            <img
+                                              src={msg.optimistic_preview || getImageUrl(msg.image)}
+                                              alt="Attachment"
+                                              style={{ borderRadius: 12, maxWidth: '100%', maxHeight: 240, objectFit: 'cover', display: 'block' }}
+                                            />
+                                          </div>
+                                        )}
+                                        {msg.message && <div>{msg.message}</div>}
+                                      </div>
+                                      <span style={{fontSize: 10, color: '#94a3b8', margin: '4px 4px 0'}}>
+                                        {new Date(msg.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                                      </span>
+                                    </div>
                                   </div>
                                 </div>
                               );
