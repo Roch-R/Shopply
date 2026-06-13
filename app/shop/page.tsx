@@ -36,6 +36,7 @@ interface ShopItem {
     followers_count?: number;
     total_orders?: number;
     accepted_orders?: number;
+    is_online?: boolean | number;
   };
   created_at: string;
 }
@@ -120,6 +121,7 @@ export default function ShopPage() {
   // Chat States
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [activeChatUser, setActiveChatUser] = useState<{ id: number; name: string; avatar?: string | null } | null>(null);
+  const [isActiveUserOnline, setIsActiveUserOnline] = useState(false);
   const [chatMessages, setChatMessages] = useState<any[]>([]);
   const [chatConversations, setChatConversations] = useState<any[]>([]);
   const [newChatMessage, setNewChatMessage] = useState("");
@@ -484,10 +486,12 @@ export default function ShopPage() {
             { onData: data => {
               if (data.messages && !isSendingRef.current) setChatMessages(data.messages);
               setIsOtherUserTyping(!!data.is_typing);
+              if (data.user) setIsActiveUserOnline(!!data.user.is_online);
             }}
           ).then(data => {
               if (data.messages && !isSendingRef.current) setChatMessages(data.messages);
               setIsOtherUserTyping(!!data.is_typing);
+              if (data.user) setIsActiveUserOnline(!!data.user.is_online);
               setLoadingChatMessages(false);
           }).catch(() => { setLoadingChatMessages(false); });
         }
@@ -1947,6 +1951,7 @@ export default function ShopPage() {
                           return;
                         }
                         setActiveChatUser(viewItem.user);
+                        setIsActiveUserOnline(!!viewItem.user.is_online);
                         setIsChatOpen(true);
                       }}>
                         <IconChat /> Chat Now
@@ -2353,7 +2358,10 @@ export default function ShopPage() {
                     <div
                       key={conv.user.id}
                       onClick={() => {
+                        setChatMessages([]);
+                        setLoadingChatMessages(true);
                         setActiveChatUser(conv.user);
+                        setIsActiveUserOnline(!!conv.user.is_online);
                       }}
                       style={{
                         display: 'flex',
@@ -2369,20 +2377,55 @@ export default function ShopPage() {
                         transition: 'all 0.2s'
                       }}
                     >
-                      {conv.user.avatar ? (
-                        <img src={getAvatarUrl(conv.user.avatar)} alt={conv.user.name} style={{width: 44, height: 44, borderRadius: '50%', objectFit: 'cover'}} />
-                      ) : (
-                        <div style={{width: 44, height: 44, borderRadius: '50%', background: '#e2e8f0', color: '#64748b', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 16}}>
-                          {conv.user.name.charAt(0).toUpperCase()}
-                        </div>
-                      )}
+                      <div style={{ position: 'relative', flexShrink: 0 }}>
+                        {conv.user.avatar ? (
+                          <img src={getAvatarUrl(conv.user.avatar)} alt={conv.user.name} style={{width: 44, height: 44, borderRadius: '50%', objectFit: 'cover'}} />
+                        ) : (
+                          <div style={{width: 44, height: 44, borderRadius: '50%', background: '#e2e8f0', color: '#64748b', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 16}}>
+                            {conv.user.name.charAt(0).toUpperCase()}
+                          </div>
+                        )}
+                        <span style={{
+                          position: 'absolute',
+                          bottom: 2,
+                          right: 2,
+                          width: 10,
+                          height: 10,
+                          borderRadius: '50%',
+                          background: conv.user.is_online ? '#10b981' : '#cbd5e1',
+                          border: '2px solid #fff',
+                          boxShadow: '0 1px 2px rgba(0,0,0,0.1)'
+                        }} />
+                      </div>
                       <div style={{flex: 1, minWidth: 0}}>
-                        <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4}}>
-                          <h4 style={{fontSize: 14, fontWeight: 700, color: '#0f172a', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'}}>
-                            {conv.user.name}
-                          </h4>
+                        <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4, minWidth: 0, gap: 12}}>
+                          <div style={{display: 'flex', alignItems: 'center', gap: 6, minWidth: 0, flex: 1}}>
+                            <h4 style={{
+                              fontSize: 14, 
+                              fontWeight: 700, 
+                              color: '#0f172a', 
+                              margin: 0, 
+                              whiteSpace: 'nowrap', 
+                              overflow: 'hidden', 
+                              textOverflow: 'ellipsis',
+                              flex: '0 1 auto'
+                            }}>
+                              {conv.user.name}
+                            </h4>
+                            <span style={{
+                              fontSize: 10,
+                              fontWeight: 500,
+                              color: conv.user.is_online ? '#10b981' : '#94a3b8',
+                              background: conv.user.is_online ? 'rgba(16,185,129,0.1)' : 'rgba(148,163,184,0.1)',
+                              padding: '1px 6px',
+                              borderRadius: 8,
+                              flexShrink: 0
+                            }}>
+                              {conv.user.is_online ? "Active" : "Offline"}
+                            </span>
+                          </div>
                           {conv.last_message && (
-                            <span style={{fontSize: 11, color: '#94a3b8'}}>
+                            <span style={{fontSize: 11, color: '#94a3b8', flexShrink: 0, marginLeft: 8}}>
                               {formatLastMessageTime(conv.last_message.created_at)}
                             </span>
                           )}
@@ -2448,9 +2491,15 @@ export default function ShopPage() {
                         <h4 style={{fontSize: isMobile ? 14 : 16, fontWeight: 700, color: '#0f172a', margin: '0 0 2px'}}>
                           {activeChatUser.name}
                         </h4>
-                        <span style={{fontSize: isMobile ? 11 : 12, color: '#10b981', display: 'flex', alignItems: 'center', gap: 4, fontWeight: 500}}>
-                          <span style={{width: 5, height: 5, borderRadius: '50%', background: '#10b981'}}></span> Active now
-                        </span>
+                        {isActiveUserOnline ? (
+                          <span style={{fontSize: isMobile ? 11 : 12, color: '#10b981', display: 'flex', alignItems: 'center', gap: 4, fontWeight: 500}}>
+                            <span style={{width: 5, height: 5, borderRadius: '50%', background: '#10b981'}}></span> Active now
+                          </span>
+                        ) : (
+                          <span style={{fontSize: isMobile ? 11 : 12, color: '#94a3b8', display: 'flex', alignItems: 'center', gap: 4, fontWeight: 500}}>
+                            <span style={{width: 5, height: 5, borderRadius: '50%', background: '#94a3b8'}}></span> Offline
+                          </span>
+                        )}
                       </div>
                     </div>
                     <button
