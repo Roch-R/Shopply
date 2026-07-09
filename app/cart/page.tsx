@@ -35,8 +35,8 @@ export default function CartPage() {
   const [checkingOut, setCheckingOut] = useState(false);
   const [toast, setToast] = useState<{message: string, type: 'success'|'error'} | null>(null);
 
-  const API = process.env.NEXT_PUBLIC_API_URL || "/api";
-  const STORAGE_URL = process.env.NEXT_PUBLIC_API_URL ? process.env.NEXT_PUBLIC_API_URL.replace('/api', '/storage') : "/storage";
+  const API = "/api";
+  const STORAGE_URL = "/storage";
 
   const getImageUrl = (path?: string | null) => {
     if (!path) return "";

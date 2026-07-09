@@ -333,8 +333,8 @@ export default function ShopPage() {
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [reviewFilter, setReviewFilter] = useState<'all' | 'comment' | 'media'>('all');
 
-  const API = process.env.NEXT_PUBLIC_API_URL || "/api";
-  const STORAGE_URL = process.env.NEXT_PUBLIC_API_URL ? process.env.NEXT_PUBLIC_API_URL.replace('/api', '/storage') : "/storage";
+  const API = "/api";
+  const STORAGE_URL = "/storage";
 
   const getAvatarUrl = (path?: string | null) => {
     if (!path) return "";

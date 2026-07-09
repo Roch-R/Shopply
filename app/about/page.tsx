@@ -34,7 +34,7 @@ export default function AboutPage() {
   function handleLogout() {
     const token = localStorage.getItem("token");
     if (token) {
-      const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
+      const API = "/api";
       fetch(`${API}/logout`, {
         method: "POST",
         headers: {

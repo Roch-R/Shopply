@@ -8,7 +8,7 @@
  * - API calls: Network-only (handled by client-side apiCache)
  */
 
-const CACHE_VERSION = 'shopply-v5';
+const CACHE_VERSION = 'shopply-v6';
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const IMAGE_CACHE = `${CACHE_VERSION}-images`;
 const PAGE_CACHE = `${CACHE_VERSION}-pages`;

@@ -1039,8 +1039,8 @@ export default function DashboardPage() {
   const [rejectOrderModal, setRejectOrderModal] = useState<number | null>(null);
   const [cartCount, setCartCount] = useState(0);
 
-  const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
-  const STORAGE_URL = process.env.NEXT_PUBLIC_API_URL ? process.env.NEXT_PUBLIC_API_URL.replace('/api', '/storage') : "http://localhost:8000/storage";
+  const API = "/api";
+  const STORAGE_URL = "/storage";
   const lastFetchedRef = useRef<number>(0);
 
   const getAvatarUrl = (path?: string | null) => {
