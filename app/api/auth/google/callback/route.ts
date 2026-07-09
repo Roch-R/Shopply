@@ -3,8 +3,8 @@ import { db } from "@/lib/firebase";
 import { collection, query, where, getDocs, doc, setDoc, updateDoc } from "firebase/firestore";
 import { generateToken, formatUser, hashPassword } from "@/lib/db";
 
-const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || "122708277958-fb7dieiil7t1999nigiide18fauk1d31.apps.googleusercontent.com";
-const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET || "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";
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || "10342567270-6b7rfni3mbil5anjo1fk1u9c9eo4mp6l.apps.googleusercontent.com";
+const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET || "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";
 
 export async function POST(req: Request) {
   try {

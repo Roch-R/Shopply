@@ -49,7 +49,7 @@ export default function LoginPage() {
   };
 
   const handleGoogleLogin = () => {
-    const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "122708277958-fb7dieiil7t1999nigiide18fauk1d31.apps.googleusercontent.com";
+    const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "10342567270-6b7rfni3mbil5anjo1fk1u9c9eo4mp6l.apps.googleusercontent.com";
     if (!clientId || clientId === "your_google_client_id_here") {
       setShowGoogleModal(true);
       return;
