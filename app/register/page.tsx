@@ -65,7 +65,7 @@ export default function RegisterPage() {
   const strengthWidth = ["0%", "25%", "60%", "100%"][strength];
 
   const handleGoogleLogin = () => {
-    const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "10342567270-6b7rfni3mbil5anjo1fk1u9c9eo4mp6l.apps.googleusercontent.com";
+    const clientId = "10342567270-6b7rfni3mbil5anjo1fk1u9c9eo4mp6l.apps.googleusercontent.com" as string;
     if (!clientId || clientId === "your_google_client_id_here") {
       setShowGoogleModal(true);
       return;
