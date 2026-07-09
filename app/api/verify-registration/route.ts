@@ -5,7 +5,12 @@ import { generateToken, formatUser } from "@/lib/db";
 
 const FIREBASE_API_KEY = "AIzaSyBwACrZ_RlcOvsrJ7nb4HZDcMFKSJ2gMww";
 
-async function verifyFirebaseToken(idToken: string): Promise<string | null> {
+interface TokenVerificationResult {
+  phone: string | null;
+  error?: string;
+}
+
+async function verifyFirebaseToken(idToken: string): Promise<TokenVerificationResult> {
   try {
     const res = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${FIREBASE_API_KEY}`, {
       method: "POST",
@@ -14,8 +19,9 @@ async function verifyFirebaseToken(idToken: string): Promise<string | null> {
     });
     
     if (!res.ok) {
-      console.error("[verify-registration] Firebase ID token lookup failed:", await res.text());
-      return null;
+      const errorText = await res.text();
+      console.error("[verify-registration] Firebase ID token lookup failed:", errorText);
+      return { phone: null, error: errorText };
     }
 
     const data = await res.json();
@@ -23,19 +29,20 @@ async function verifyFirebaseToken(idToken: string): Promise<string | null> {
     if (users && users.length > 0 && users[0].phoneNumber) {
       const phoneNumber = users[0].phoneNumber; // e.g. "+639857982340"
       
+      let normalized = phoneNumber;
       // Normalize to 09XXXXXXXXX
       if (phoneNumber.startsWith("+639") && phoneNumber.length === 13) {
-        return "09" + phoneNumber.substring(4);
+        normalized = "09" + phoneNumber.substring(4);
+      } else if (phoneNumber.startsWith("639") && phoneNumber.length === 12) {
+        normalized = "09" + phoneNumber.substring(3);
       }
-      if (phoneNumber.startsWith("639") && phoneNumber.length === 12) {
-        return "09" + phoneNumber.substring(3);
-      }
-      return phoneNumber;
+      return { phone: normalized };
     }
-  } catch (err) {
+    return { phone: null, error: "No user/phone found in token." };
+  } catch (err: any) {
     console.error("[verify-registration] Firebase token verification exception:", err);
+    return { phone: null, error: err?.message || String(err) };
   }
-  return null;
 }
 
 export async function POST(req: Request) {
@@ -63,9 +70,11 @@ export async function POST(req: Request) {
     }
 
     if (firebase_token) {
-      const verifiedPhone = await verifyFirebaseToken(firebase_token);
+      const { phone: verifiedPhone, error: verificationError } = await verifyFirebaseToken(firebase_token);
       if (!verifiedPhone) {
-        return NextResponse.json({ message: "Invalid or expired Firebase verification token." }, { status: 422 });
+        return NextResponse.json({ 
+          message: `Firebase token verification failed: ${verificationError || "Unknown error"}` 
+        }, { status: 422 });
       }
       if (verifiedPhone !== phone) {
         return NextResponse.json({ 
