@@ -3,7 +3,7 @@ import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBwACrZ_RlcovsrJ7nb4HZDcMFKSJ2gMww",
+  apiKey: "AIzaSyBwACrZ_RlcOvsrJ7nb4HZDcMFKSJ2gMww",
   authDomain: "roch-fdba7.firebaseapp.com",
   projectId: "roch-fdba7",
   storageBucket: "roch-fdba7.firebasestorage.app",

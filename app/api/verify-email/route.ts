@@ -3,7 +3,7 @@ import { db } from "@/lib/firebase";
 import { doc, updateDoc } from "firebase/firestore";
 import { getAuthUser, formatUser } from "@/lib/db";
 
-const FIREBASE_API_KEY = "AIzaSyBwACrZ_RlcovsrJ7nb4HZDcMFKSJ2gMww";
+const FIREBASE_API_KEY = "AIzaSyBwACrZ_RlcOvsrJ7nb4HZDcMFKSJ2gMww";
 
 async function verifyFirebaseToken(idToken: string): Promise<string | null> {
   try {
