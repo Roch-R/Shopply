@@ -47,7 +47,7 @@ export default function VerifyPage() {
       }
     } catch (err: any) {
       console.error("[verify] Firebase SMS send error:", err);
-      setError("SMS sending failed: " + (err?.message || "Please check network. Falling back to Telegram/stored OTP."));
+      setError("SMS sending failed: " + (err?.message || "Please check your network connection and try again."));
       if (typeof window !== "undefined" && (window as any).recaptchaVerifier) {
         try {
           (window as any).recaptchaVerifier.clear();
@@ -315,32 +315,16 @@ export default function VerifyPage() {
       <div className="root">
         <div className="card">
            <div className="icon-wrap">
-            <svg viewBox="0 0 24 24" width="36" height="36" fill="currentColor">
-              <path d="M12 0C5.37 0 0 5.37 0 12s5.37 12 12 12 12-5.37 12-12S18.63 0 12 0zm5.56 8.61l-1.91 9c-.14.65-.53.81-1.08.5l-2.92-2.15-1.41 1.36c-.16.16-.29.29-.59.29l.21-3 5.46-4.93c.24-.22-.05-.34-.37-.13L8.2 14.39l-2.91-.91c-.63-.2-1.12-.2-1.12-.76.03-.5.55-.74 1.63-1.16 3.16-1.33 5.27-2.21 6.33-2.66 3.02-1.28 3.65-1.5 4.06-1.5.09 0 .29.02.42.12.11.09.14.21.15.3l.03.35z"/>
+            <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="5" y="2" width="14" height="20" rx="2" ry="2" />
+              <line x1="12" y1="18" x2="12.01" y2="18" />
             </svg>
           </div>
           <h1>Verify your phone</h1>
           <p className="sub">
-            We sent a 6-digit verification code to your phone number ({pendingPhone || "loading..."}) via SMS or Telegram.<br/>
+            We sent a 6-digit verification code to your phone number ({pendingPhone || "loading..."}) via SMS.<br/>
             Please check your device and enter the code below.
           </p>
-
-          <div style={{ margin: "16px 0 24px" }}>
-            <a 
-              href="https://t.me/shopply_otp_sender_bot" 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              style={{ display: "inline-flex", alignItems: "center", gap: "8px", background: "linear-gradient(135deg, #0088cc, #00a2ed)", color: "#fff", padding: "12px 24px", borderRadius: "12px", textDecoration: "none", fontSize: "14px", fontWeight: 600, boxShadow: "0 4px 12px rgba(0,136,204,0.3)", transition: "transform 0.2s" }}
-            >
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
-                <path d="M12 0C5.37 0 0 5.37 0 12s5.37 12 12 12 12-5.37 12-12S18.63 0 12 0zm5.56 8.61l-1.91 9c-.14.65-.53.81-1.08.5l-2.92-2.15-1.41 1.36c-.16.16-.29.29-.59.29l.21-3 5.46-4.93c.24-.22-.05-.34-.37-.13L8.2 14.39l-2.91-.91c-.63-.2-1.12-.2-1.12-.76.03-.5.55-.74 1.63-1.16 3.16-1.33 5.27-2.21 6.33-2.66 3.02-1.28 3.65-1.5 4.06-1.5.09 0 .29.02.42.12.11.09.14.21.15.3l.03.35z"/>
-              </svg>
-              Open Telegram Bot & Start
-            </a>
-            <p style={{ fontSize: "11px", color: "#64748b", marginTop: "8px", lineHeight: "1.4" }}>
-              ⚠️ To receive codes, click above, press <b>START</b> and click <b>Share Contact</b>.
-            </p>
-          </div>
 
           <div style={{ margin: "0 auto 24px", display: "inline-flex", alignItems: "center", gap: "8px", background: timeLeft > 60 ? "#f0fdf4" : "#fef2f2", border: timeLeft > 60 ? "1px solid #bbf7d0" : "1px solid #fecaca", borderRadius: "100px", padding: "6px 16px", color: timeLeft > 60 ? "#16a34a" : "#ef4444", fontSize: "13px", fontWeight: 600 }}>
             <span>⏳</span>
