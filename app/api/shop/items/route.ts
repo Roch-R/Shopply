@@ -131,8 +131,8 @@ export async function POST(req: Request) {
       sold_count: 0,
       user: {
         id: user.id,
-        name: user.name,
-        avatar: user.avatar,
+        name: user.name || "",
+        avatar: user.avatar || "",
         is_online: true
       },
       created_at: new Date().toISOString()
