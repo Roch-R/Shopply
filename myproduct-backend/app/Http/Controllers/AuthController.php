@@ -158,7 +158,7 @@ class AuthController extends Controller
 
     private function verifyFirebaseToken(string $idToken): ?string
     {
-        $apiKey = env('FIREBASE_API_KEY', 'AIzaSyDesMBn0S2_mKQwT-dcHP6oSanntLrlsn8');
+        $apiKey = env('FIREBASE_API_KEY', 'AIzaSyCpnHKz0UAcvny-UgAaOfsxVWIbFKfOKW8');
         try {
             $response = \Illuminate\Support\Facades\Http::post("https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=$apiKey", [
                 'idToken' => $idToken,
