@@ -96,14 +96,17 @@ export async function GET() {
     // If database is empty, seed initial data so the shop is not blank
     if (snap.empty) {
       console.log("[shop/items] Seeding default products...");
-      for (const item of seededItems) {
+      const publishedSeeded = seededItems.map(item => ({ ...item, is_published: true }));
+      for (const item of publishedSeeded) {
         await setDoc(doc(db, "items", String(item.id)), item);
       }
-      return NextResponse.json(seededItems, { status: 200 });
+      return NextResponse.json({ items: publishedSeeded }, { status: 200 });
     }
 
-    const items = snap.docs.map(doc => doc.data());
-    return NextResponse.json(items, { status: 200 });
+    const items = snap.docs
+      .map(doc => doc.data())
+      .filter(item => item.is_published === true);
+    return NextResponse.json({ items }, { status: 200 });
 
   } catch (err: any) {
     console.error("[shop/items] GET API error:", err);
