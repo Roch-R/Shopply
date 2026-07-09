@@ -18,7 +18,7 @@ export default function VerifyPage() {
   const [timeLeft, setTimeLeft] = useState<number>(300);
   const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
 
-  const API = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
+  const API = process.env.NEXT_PUBLIC_API_URL || "/api";
   const getToken = () => typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
   const sendFirebaseSms = async (phone: string) => {

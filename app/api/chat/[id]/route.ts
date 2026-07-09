@@ -1,0 +1,115 @@
+import { NextResponse } from "next/server";
+import { db } from "@/lib/firebase";
+import { collection, query, where, getDocs, doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
+import { getAuthUser } from "@/lib/db";
+
+export async function GET(
+  req: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const user = await getAuthUser(req);
+    if (!user) {
+      return NextResponse.json({ message: "Unauthenticated." }, { status: 401 });
+    }
+
+    const { id } = await params;
+    const otherUserId = Number(id);
+
+    const otherUserDoc = await getDoc(doc(db, "users", String(otherUserId)));
+    if (!otherUserDoc.exists()) {
+      return NextResponse.json({ message: "User not found." }, { status: 404 });
+    }
+
+    const otherUser = otherUserDoc.data();
+
+    // Fetch messages between auth user and this user
+    const messagesRef = collection(db, "messages");
+    
+    const q1 = query(messagesRef, where("sender_id", "==", user.id), where("receiver_id", "==", otherUserId));
+    const q2 = query(messagesRef, where("sender_id", "==", otherUserId), where("receiver_id", "==", user.id));
+
+    const [snap1, snap2] = await Promise.all([
+      getDocs(q1),
+      getDocs(q2)
+    ]);
+
+    const messages = [
+      ...snap1.docs.map(doc => ({ ...doc.data(), id: doc.id } as any)),
+      ...snap2.docs.map(doc => ({ ...doc.data(), id: doc.id } as any))
+    ];
+
+    // Sort by created_at asc
+    messages.sort((a: any, b: any) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+
+    // Mark unread messages as read
+    for (const msg of messages) {
+      if (msg.sender_id === otherUserId && !msg.is_read) {
+        await updateDoc(doc(db, "messages", msg.id), { is_read: true });
+        msg.is_read = true;
+      }
+    }
+
+    return NextResponse.json({
+      user: {
+        id: otherUser.id,
+        name: otherUser.name,
+        avatar: otherUser.avatar || null,
+        is_online: true
+      },
+      messages,
+      is_typing: false
+    }, { status: 200 });
+
+  } catch (err: any) {
+    console.error("[chat/[id]] GET error:", err);
+    return NextResponse.json({ message: err?.message || "Internal server error." }, { status: 500 });
+  }
+}
+
+export async function POST(
+  req: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const user = await getAuthUser(req);
+    if (!user) {
+      return NextResponse.json({ message: "Unauthenticated." }, { status: 401 });
+    }
+
+    const { id } = await params;
+    const otherUserId = Number(id);
+
+    const { message: text, image } = await req.json();
+
+    if (!text && !image) {
+      return NextResponse.json({ message: "Message or image is required." }, { status: 422 });
+    }
+
+    const otherUserDoc = await getDoc(doc(db, "users", String(otherUserId)));
+    if (!otherUserDoc.exists()) {
+      return NextResponse.json({ message: "User not found." }, { status: 404 });
+    }
+
+    const messageId = String(Date.now());
+    const messageDocRef = doc(db, "messages", messageId);
+
+    const newMessage = {
+      id: messageId,
+      sender_id: user.id,
+      receiver_id: otherUserId,
+      message: text || null,
+      image: image || null,
+      is_read: false,
+      created_at: new Date().toISOString()
+    };
+
+    await setDoc(messageDocRef, newMessage);
+
+    return NextResponse.json({ message: newMessage }, { status: 201 });
+
+  } catch (err: any) {
+    console.error("[chat/[id]] POST error:", err);
+    return NextResponse.json({ message: err?.message || "Internal server error." }, { status: 500 });
+  }
+}
