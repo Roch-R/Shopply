@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/firebase";
-import { collection, query, where, getDocs, doc, getDoc, orderBy } from "firebase/firestore";
+import { collection, query, where, getDocs, doc, getDoc } from "firebase/firestore";
 import { getAuthUser } from "@/lib/db";
 
 export async function GET(req: Request) {
@@ -13,7 +13,6 @@ export async function GET(req: Request) {
     const messagesRef = collection(db, "messages");
     
     // Find all distinct users the current user has chatted with
-    // For simple serverless implementation, query where sender is user or receiver is user
     const qSender = query(messagesRef, where("sender_id", "==", user.id));
     const qReceiver = query(messagesRef, where("receiver_id", "==", user.id));
     
@@ -55,7 +54,7 @@ export async function GET(req: Request) {
               id: otherUser.id,
               name: otherUser.name,
               avatar: otherUser.avatar || null,
-              is_online: true // simple default
+              is_online: true
             },
             last_message: {
               id: msg.id,
@@ -75,7 +74,7 @@ export async function GET(req: Request) {
     return NextResponse.json({ conversations }, { status: 200 });
 
   } catch (err: any) {
-    console.error("[chat] GET conversations error:", err);
+    console.error("[chat/conversations] GET conversations error:", err);
     return NextResponse.json({ message: err?.message || "Internal server error." }, { status: 500 });
   }
 }
