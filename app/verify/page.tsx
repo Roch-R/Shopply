@@ -95,22 +95,28 @@ export default function VerifyPage() {
     }
     
     let targetPhone = "";
-    if (token && raw) {
+    let isVerified = false;
+
+    if (raw) {
       try {
         const parsed = JSON.parse(raw);
-        if (parsed.email_verified_at) {
-          console.log("[verify] Email already verified, redirecting to dashboard");
-          setRedirecting(true);
-          window.location.href = "/dashboard";
-          return;
+        if (parsed?.email_verified_at) {
+          isVerified = true;
         }
-        targetPhone = parsed.phone || "";
+        targetPhone = parsed?.phone || "";
       } catch (e) {
         console.error("[verify] Parse error:", e);
-        window.location.href = "/login";
-        return;
       }
-    } else if (pendingEmail) {
+    }
+
+    if (isVerified) {
+      console.log("[verify] Email already verified, redirecting to dashboard");
+      setRedirecting(true);
+      window.location.href = "/dashboard";
+      return;
+    }
+
+    if (!targetPhone && pendingEmail) {
       targetPhone = pendingEmail;
     }
 
