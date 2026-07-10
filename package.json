@@ -9,8 +9,10 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@types/leaflet": "^1.9.21",
     "firebase": "^12.14.0",
     "jsqr": "^1.4.0",
+    "leaflet": "^1.9.4",
     "mongodb": "^7.2.0",
     "next": "16.2.4",
     "peerjs": "^1.5.5",

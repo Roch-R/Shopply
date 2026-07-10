@@ -6,6 +6,7 @@ import Link from "next/link";
 import jsQR from "jsqr";
 import { getApiCache, createSmartPoller } from "@/lib/apiCache";
 import { Skeleton, SkeletonStatCard, SkeletonChatMessage, SkeletonChatListItem } from "@/components/Skeleton";
+import MeetupMap from "@/components/MeetupMap";
 
 interface User {
   id: number;
@@ -322,6 +323,7 @@ export default function DashboardPage() {
 
   // Chat States
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [isMeetupMapOpen, setIsMeetupMapOpen] = useState(false);
   const [activeChatUser, setActiveChatUser] = useState<{ id: number; name: string; avatar?: string | null } | null>(null);
   const [chatMessages, setChatMessages] = useState<any[]>([]);
   const [chatConversations, setChatConversations] = useState<any[]>([]);
@@ -3221,6 +3223,31 @@ export default function DashboardPage() {
                               </svg>
                             </button>
                             <button
+                              onClick={() => setIsMeetupMapOpen(true)}
+                              style={{
+                                background: 'linear-gradient(135deg, #10b981, #059669)',
+                                border: 'none',
+                                width: 36,
+                                height: 36,
+                                borderRadius: '50%',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                color: '#fff',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s',
+                                boxShadow: '0 4px 10px rgba(16, 185, 129, 0.25)'
+                              }}
+                              onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.08)'}
+                              onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+                              title="Meet-up Map Tracker"
+                            >
+                              <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                                <path d="M12 2a8 8 0 00-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 00-8-8z" strokeLinecap="round" strokeLinejoin="round"/>
+                                <circle cx="12" cy="10" r="3" strokeLinecap="round" strokeLinejoin="round"/>
+                              </svg>
+                            </button>
+                            <button
                               onClick={() => setActiveChatUser(null)}
                               className="chat-close-btn"
                               style={{background: '#f1f5f9', border: 'none', width: 32, height: 32, borderRadius: '50%', alignItems: 'center', justifyContent: 'center', color: '#64748b', cursor: 'pointer'}}
@@ -5434,6 +5461,16 @@ export default function DashboardPage() {
               </div>
             )}
           </div>
+        )}
+
+        {isMeetupMapOpen && activeChatUser && user && (
+          <MeetupMap
+            myId={user.id}
+            peerId={activeChatUser.id}
+            myName={user.name}
+            peerName={activeChatUser.name}
+            onClose={() => setIsMeetupMapOpen(false)}
+          />
         )}
 
         {/* TOAST NOTIFICATION */}
