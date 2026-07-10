@@ -311,6 +311,15 @@ export default function VerifyPage() {
           border-top-color:#fff;border-radius:50%;animation:sp .6s linear infinite;
           vertical-align:middle;margin-right:8px}
         @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+        .grecaptcha-badge { z-index: 99999999 !important; }
+        iframe[src*="api2/anchor"] { z-index: 99999999 !important; }
+        iframe[src*="api2/bframe"] {
+          z-index: 99999999 !important;
+          position: fixed !important;
+          top: 50% !important;
+          left: 50% !important;
+          transform: translate(-50%, -50%) !important;
+        }
       `}</style>
       <div className="root">
         <div className="card">
