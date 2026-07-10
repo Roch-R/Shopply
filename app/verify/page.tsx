@@ -36,6 +36,12 @@ export default function VerifyPage() {
       console.log("[verify] Sending Firebase SMS to:", formattedPhone);
 
       if (typeof window !== "undefined") {
+        const container = document.getElementById('recaptcha-container');
+        if (!container) {
+          console.warn("[verify] recaptcha-container not in DOM, waiting...");
+          setTimeout(() => sendFirebaseSms(phone), 150);
+          return;
+        }
         if (!(window as any).recaptchaVerifier) {
           (window as any).recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
             size: 'invisible'
