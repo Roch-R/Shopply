@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/firebase";
 import { collection, query, where, getDocs, doc, setDoc } from "firebase/firestore";
-import { hashPassword } from "@/lib/db";
+import { hashPassword, generateToken, formatUser } from "@/lib/db";
 
 export async function POST(req: Request) {
   try {
@@ -26,26 +26,33 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: "Phone number is already registered." }, { status: 422 });
     }
 
-    // Generate random 6-digit OTP code
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    // Create user doc directly in Firestore (bypass SMS verification)
+    const userId = Date.now();
+    const userDocRef = doc(db, "users", String(userId));
 
-    // Save pending registration in Firestore
-    const pendingRef = doc(db, "pending_registrations", phone);
-    await setDoc(pendingRef, {
+    const newUser = {
+      id: userId,
       name,
       username,
       phone,
       password: hashPassword(password),
-      otp,
-      expires_at: Date.now() + 5 * 60 * 1000 // 5 minutes
-    });
+      email: "",
+      avatar: "",
+      email_verified_at: new Date().toISOString(), // Directly verified
+      created_at: new Date().toISOString()
+    };
 
-    console.log(`[register] Pending registration saved for ${phone}. OTP: ${otp}`);
+    await setDoc(userDocRef, newUser);
+
+    // Generate JWT token for automatic session login
+    const token = generateToken({ userId });
+
+    console.log(`[register] User registered directly and logged in: ${username} (ID: ${userId})`);
 
     return NextResponse.json({
-      message: "OTP sent. Please verify to complete registration.",
-      requires_verify: true,
-      pending_email: phone
+      message: "Registration successful.",
+      token,
+      user: formatUser(newUser)
     }, { status: 201 });
 
   } catch (err: any) {
