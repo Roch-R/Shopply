@@ -30,9 +30,16 @@ export async function POST(req: Request) {
 
     // Generate token
     const token = generateToken({ userId: user.id });
-
-
-
+    // Check if phone number is verified
+    if (!user.email_verified_at) {
+      return NextResponse.json({
+        message: "Please verify your account first.",
+        requires_verify: true,
+        token,
+        user: formatUser(user),
+        pending_email: user.phone
+      }, { status: 403 });
+    }
     return NextResponse.json({
       message: "Login successful.",
       token,
