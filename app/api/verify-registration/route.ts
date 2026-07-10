@@ -3,7 +3,7 @@ import { db } from "@/lib/firebase";
 import { doc, getDoc, setDoc, deleteDoc } from "firebase/firestore";
 import { generateToken, formatUser } from "@/lib/db";
 
-const FIREBASE_API_KEY = "AIzaSyCpnHKz0UAcvNY-UgaAOfsxVWlbFKfOKW8";
+const FIREBASE_API_KEY = "AIzaSyBwACrZ_RlcOvsrJ7nb4HZDcMFKSJ2gMww";
 
 interface TokenVerificationResult {
   phone: string | null;
