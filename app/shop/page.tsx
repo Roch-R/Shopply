@@ -3,6 +3,8 @@ import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import { getApiCache, createSmartPoller } from "@/lib/apiCache";
 import { SkeletonShopCard, SkeletonChatMessage } from "@/components/Skeleton";
+import { collection, query, where, onSnapshot, doc, updateDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
 interface ShopItem {
   id: number;
@@ -517,26 +519,108 @@ export default function ShopPage() {
       let cleanConvPoller: (() => void) | null = null;
       let cleanMsgPoller: (() => void) | null = null;
 
+      // Conversations list still uses lightweight polling
       if (smoothMode) {
         cleanConvPoller = createSmartPoller(fetchConversations, 5000, {
           idleIntervalMs: 15000,
           idleAfterMs: 30000
         });
-        if (activeChatUser) {
-          cleanMsgPoller = createSmartPoller(fetchMessages, 1000, {
-            idleIntervalMs: 5000,
-            idleAfterMs: 15000
-          });
-        }
       } else {
         fetchConversations();
-        fetchMessages();
         const convInterval = setInterval(fetchConversations, 2500);
         cleanConvPoller = () => clearInterval(convInterval);
-        if (activeChatUser) {
-          const msgInterval = setInterval(fetchMessages, 500);
-          cleanMsgPoller = () => clearInterval(msgInterval);
-        }
+      }
+
+      // Active chat messages and typing status are now fully real-time via Firestore listeners
+      if (activeChatUser && currentUser) {
+        const userId = Number(currentUser.id);
+        const otherUserId = Number(activeChatUser.id);
+
+        // Simple index-free queries to avoid composite index requirements in Firestore
+        const qSent = query(collection(db, "messages"), where("sender_id", "==", userId));
+        const qReceived = query(collection(db, "messages"), where("receiver_id", "==", userId));
+
+        let sentMsgs: any[] = [];
+        let receivedMsgs: any[] = [];
+
+        const mergeAndSet = () => {
+          const all = [...sentMsgs, ...receivedMsgs];
+          const filtered = all.filter(msg => 
+            (msg.sender_id === userId && msg.receiver_id === otherUserId) ||
+            (msg.sender_id === otherUserId && msg.receiver_id === userId)
+          );
+          const unique: any[] = [];
+          const seenIds = new Set();
+          for (const m of filtered) {
+            if (!seenIds.has(m.id)) {
+              seenIds.add(m.id);
+              unique.push(m);
+            }
+          }
+          unique.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+          
+          if (!isSendingRef.current) {
+            setChatMessages(unique);
+            setLoadingChatMessages(false);
+          }
+
+          // Mark incoming unread messages as read
+          filtered.forEach(async (msg) => {
+            if (msg.sender_id === otherUserId && !msg.is_read) {
+              try {
+                await updateDoc(doc(db, "messages", msg.id), { is_read: true });
+              } catch (err) {
+                console.warn("Failed to mark message as read:", err);
+              }
+            }
+          });
+        };
+
+        const unsubMessages1 = onSnapshot(qSent, (snap) => {
+          sentMsgs = snap.docs.map(d => ({ ...d.data(), id: d.id }));
+          mergeAndSet();
+        }, (err) => {
+          console.error("[onSnapshot] qSent failed:", err);
+        });
+
+        const unsubMessages2 = onSnapshot(qReceived, (snap) => {
+          receivedMsgs = snap.docs.map(d => ({ ...d.data(), id: d.id }));
+          mergeAndSet();
+        }, (err) => {
+          console.error("[onSnapshot] qReceived failed:", err);
+        });
+
+        // Direct document listener for instant typing status updates
+        const chatId = userId < otherUserId ? `${userId}_${otherUserId}` : `${otherUserId}_${userId}`;
+        const typingDocRef = doc(db, "typing", `${chatId}_${otherUserId}`);
+        const lastTypedRef = { current: 0 };
+
+        const unsubTyping = onSnapshot(typingDocRef, (snap) => {
+          if (snap.exists()) {
+            const data = snap.data();
+            lastTypedRef.current = data.last_typed_at || 0;
+            setIsOtherUserTyping(Date.now() - lastTypedRef.current < 3500);
+          } else {
+            setIsOtherUserTyping(false);
+          }
+        });
+
+        // Clock tick to gracefully fade out typing bubble when they stop typing
+        const typingInterval = setInterval(() => {
+          if (lastTypedRef.current) {
+            setIsOtherUserTyping(Date.now() - lastTypedRef.current < 3500);
+          }
+        }, 1000);
+
+        cleanMsgPoller = () => {
+          unsubMessages1();
+          unsubMessages2();
+          unsubTyping();
+          clearInterval(typingInterval);
+        };
+      } else {
+        // Fallback if no active user
+        fetchMessages();
       }
 
       return () => {
