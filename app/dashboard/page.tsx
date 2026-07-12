@@ -2781,14 +2781,6 @@ export default function DashboardPage() {
               <IconCart />
               {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
             </Link>
-            <button className="logout-btn" onClick={handleLogout} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
-              <span className="logout-text">Logout</span>
-              <span className="logout-icon-span" style={{ display: 'none', alignItems: 'center', justifyContent: 'center' }}>
-                <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                  <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </span>
-            </button>
           </div>
         </nav>
 
