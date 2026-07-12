@@ -2871,47 +2871,53 @@ export default function ShopPage() {
                           style={{
                             position: 'absolute',
                             bottom: '100%',
-                            left: 12,
-                            background: '#fff',
-                            border: '1px solid #cbd5e1',
-                            borderRadius: 16,
-                            boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
-                            padding: 12,
-                            display: 'grid',
-                            gridTemplateColumns: 'repeat(7, 1fr)',
-                            gap: 6,
+                            left: 0,
+                            right: 0,
+                            background: 'rgba(255, 255, 255, 0.95)',
+                            backdropFilter: 'blur(8px)',
+                            WebkitBackdropFilter: 'blur(8px)',
+                            borderTop: '1px solid #cbd5e1',
+                            borderBottom: '1px solid #cbd5e1',
+                            padding: '8px 16px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 12,
+                            overflowX: 'auto',
                             zIndex: 50,
-                            width: 250,
-                            animation: 'scaleUp 0.15s cubic-bezier(0.16, 1, 0.3, 1)'
+                            scrollbarWidth: 'none',
+                            animation: 'slideUp 0.18s cubic-bezier(0.16, 1, 0.3, 1)'
                           }}
                         >
-                          <style>{`@keyframes scaleUp { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }`}</style>
+                          <style>{`
+                            @keyframes slideUp { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+                            .emoji-bar-btn {
+                              background: none;
+                              border: none;
+                              font-size: 22px;
+                              cursor: pointer;
+                              padding: 4px 8px;
+                              border-radius: 8px;
+                              transition: all 0.2s ease;
+                              flex-shrink: 0;
+                              display: flex;
+                              align-items: center;
+                              justifyContent: center;
+                            }
+                            .emoji-bar-btn:hover {
+                              background: #f1f5f9;
+                              transform: scale(1.22) translateY(-2px);
+                            }
+                            .emoji-bar-btn:active {
+                              transform: scale(0.95);
+                            }
+                          `}</style>
                           {["😀", "😂", "🤣", "😊", "😍", "😘", "😜", "😎", "😭", "👍", "👎", "🔥", "🎉", "❤️", "📍", "🤝", "💬", "🚗", "📦", "💰", "⭐"].map(emoji => (
                             <button
                               key={emoji}
                               type="button"
+                              className="emoji-bar-btn"
                               onClick={() => {
                                 setNewChatMessage(prev => prev + emoji);
-                              }}
-                              style={{
-                                background: 'none',
-                                border: 'none',
-                                fontSize: 20,
-                                cursor: 'pointer',
-                                padding: 6,
-                                borderRadius: 8,
-                                transition: 'all 0.2s',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center'
-                              }}
-                              onMouseEnter={e => {
-                                e.currentTarget.style.background = '#f1f5f9';
-                                e.currentTarget.style.transform = 'scale(1.15)';
-                              }}
-                              onMouseLeave={e => {
-                                e.currentTarget.style.background = 'none';
-                                e.currentTarget.style.transform = 'scale(1)';
                               }}
                             >
                               {emoji}
