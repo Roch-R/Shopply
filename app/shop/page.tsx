@@ -139,6 +139,7 @@ export default function ShopPage() {
   const [isMeetupMapOpen, setIsMeetupMapOpen] = useState(false);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const incomingTypingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const emojiPickerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const isSendingRef = useRef(false);
   const fetchConversationsRef = useRef<() => void>(() => {});
@@ -470,6 +471,19 @@ export default function ShopPage() {
         .catch(() => {});
     }
   }, []);
+
+  // Close emoji picker when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (isEmojiPickerOpen && emojiPickerRef.current && !emojiPickerRef.current.contains(event.target as Node)) {
+        setIsEmojiPickerOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isEmojiPickerOpen]);
 
   // Poll chat conversations & active chat messages
   useEffect(() => {
@@ -2849,8 +2863,64 @@ export default function ShopPage() {
                         </div>
                       </div>
                     )}
-                    <form onSubmit={handleSendMessage} style={{padding: isMobile ? '10px 12px' : '16px 24px', display: 'flex', gap: isMobile ? 8 : 12, alignItems: 'center'}}>
-                      <label style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', width: isMobile ? 32 : 44, height: isMobile ? 32 : 44, borderRadius: '50%', background: '#e2e8f0', color: '#64748b', transition: 'all 0.2s', flexShrink: 0 }}>
+                    <form onSubmit={handleSendMessage} style={{padding: isMobile ? '10px 12px' : '16px 24px', display: 'flex', gap: isMobile ? 8 : 12, alignItems: 'center', position: 'relative'}}>
+                      {/* Emoji Picker Popup */}
+                      {isEmojiPickerOpen && (
+                        <div 
+                          ref={emojiPickerRef}
+                          style={{
+                            position: 'absolute',
+                            bottom: '100%',
+                            left: 12,
+                            background: '#fff',
+                            border: '1px solid #cbd5e1',
+                            borderRadius: 16,
+                            boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
+                            padding: 12,
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(7, 1fr)',
+                            gap: 6,
+                            zIndex: 50,
+                            width: 250,
+                            animation: 'scaleUp 0.15s cubic-bezier(0.16, 1, 0.3, 1)'
+                          }}
+                        >
+                          <style>{`@keyframes scaleUp { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }`}</style>
+                          {["😀", "😂", "🤣", "😊", "😍", "😘", "😜", "😎", "😭", "👍", "👎", "🔥", "🎉", "❤️", "📍", "🤝", "💬", "🚗", "📦", "💰", "⭐"].map(emoji => (
+                            <button
+                              key={emoji}
+                              type="button"
+                              onClick={() => {
+                                setNewChatMessage(prev => prev + emoji);
+                              }}
+                              style={{
+                                background: 'none',
+                                border: 'none',
+                                fontSize: 20,
+                                cursor: 'pointer',
+                                padding: 6,
+                                borderRadius: 8,
+                                transition: 'all 0.2s',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center'
+                              }}
+                              onMouseEnter={e => {
+                                e.currentTarget.style.background = '#f1f5f9';
+                                e.currentTarget.style.transform = 'scale(1.15)';
+                              }}
+                              onMouseLeave={e => {
+                                e.currentTarget.style.background = 'none';
+                                e.currentTarget.style.transform = 'scale(1)';
+                              }}
+                            >
+                              {emoji}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+
+                      <label style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', width: isMobile ? 32 : 44, height: isMobile ? 32 : 44, borderRadius: '50%', background: '#e2e8f0', color: '#64748b', transition: 'all 0.2s', flexShrink: 0 }} title="Upload Image">
                         <input
                           type="file"
                           accept="image/*"
@@ -2867,6 +2937,72 @@ export default function ShopPage() {
                         />
                         <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>
                       </label>
+
+                      {/* Emoji Picker Toggle Button */}
+                      <button
+                        type="button"
+                        onClick={() => setIsEmojiPickerOpen(prev => !prev)}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          width: isMobile ? 32 : 44,
+                          height: isMobile ? 32 : 44,
+                          borderRadius: '50%',
+                          background: isEmojiPickerOpen ? '#ddd6fe' : '#e2e8f0',
+                          color: isEmojiPickerOpen ? '#6d28d9' : '#64748b',
+                          border: 'none',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s',
+                          flexShrink: 0
+                        }}
+                        title="Pick Emoji"
+                      >
+                        <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M15.182 15.182a4.5 4.5 0 01-6.364 0M21 12a9 9 0 11-18 0 9 9 0 0118 0zM9.75 9.75c0 .414-.168.75-.375.75s-.375-.336-.375-.75.168-.75.375-.75.375.336.375.75zm6 0c0 .414-.168.75-.375.75s-.375-.336-.375-.75.168-.75.375-.75.375.336.375.75z" />
+                        </svg>
+                      </button>
+
+                      {/* Share Location Button */}
+                      <button
+                        type="button"
+                        onClick={handleShareLocation}
+                        disabled={sharingLocation}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          width: isMobile ? 32 : 44,
+                          height: isMobile ? 32 : 44,
+                          borderRadius: '50%',
+                          background: sharingLocation ? '#d1fae5' : '#e2e8f0',
+                          color: sharingLocation ? '#059669' : '#64748b',
+                          border: 'none',
+                          cursor: sharingLocation ? 'not-allowed' : 'pointer',
+                          transition: 'all 0.2s',
+                          flexShrink: 0
+                        }}
+                        title="Share Location"
+                      >
+                        {sharingLocation ? (
+                          <>
+                            <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+                            <div style={{
+                              width: 16,
+                              height: 16,
+                              border: '2px solid #059669',
+                              borderTopColor: 'transparent',
+                              borderRadius: '50%',
+                              animation: 'spin 0.8s linear infinite'
+                            }} />
+                          </>
+                        ) : (
+                          <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25s-7.5-4.108-7.5-11.25a7.5 7.5 0 1115 0z" />
+                          </svg>
+                        )}
+                      </button>
                       <textarea
                         placeholder={`Message ${activeChatUser.name}...`}
                         value={newChatMessage}

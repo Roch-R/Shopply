@@ -341,6 +341,7 @@ export default function DashboardPage() {
   const [sharingLocation, setSharingLocation] = useState(false);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const incomingTypingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const emojiPickerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatInputRef = useRef<HTMLTextAreaElement>(null);
   const isSendingRef = useRef(false);
@@ -1211,6 +1212,19 @@ export default function DashboardPage() {
       window.removeEventListener('storage', handleStorageChange);
     };
   }, [activeTab, API, smoothMode]);
+
+  // Close emoji picker when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (isEmojiPickerOpen && emojiPickerRef.current && !emojiPickerRef.current.contains(event.target as Node)) {
+        setIsEmojiPickerOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isEmojiPickerOpen]);
 
   // Poll chat conversations & active chat messages
   useEffect(() => {
@@ -3570,28 +3584,32 @@ export default function DashboardPage() {
                           <form onSubmit={handleSendMessage} className="chat-input-form" style={{ position: 'relative' }}>
                             {/* Emoji Picker Popup */}
                             {isEmojiPickerOpen && (
-                              <div style={{
-                                position: 'absolute',
-                                bottom: '100%',
-                                left: 12,
-                                background: '#fff',
-                                border: '1px solid #cbd5e1',
-                                borderRadius: 16,
-                                boxShadow: '0 8px 30px rgba(0,0,0,0.12)',
-                                padding: 12,
-                                display: 'grid',
-                                gridTemplateColumns: 'repeat(7, 1fr)',
-                                gap: 8,
-                                zIndex: 50,
-                                width: 250
-                              }}>
+                              <div 
+                                ref={emojiPickerRef}
+                                style={{
+                                  position: 'absolute',
+                                  bottom: '100%',
+                                  left: 12,
+                                  background: '#fff',
+                                  border: '1px solid #cbd5e1',
+                                  borderRadius: 16,
+                                  boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
+                                  padding: 12,
+                                  display: 'grid',
+                                  gridTemplateColumns: 'repeat(7, 1fr)',
+                                  gap: 6,
+                                  zIndex: 50,
+                                  width: 250,
+                                  animation: 'scaleUp 0.15s cubic-bezier(0.16, 1, 0.3, 1)'
+                                }}
+                              >
+                                <style>{`@keyframes scaleUp { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }`}</style>
                                 {["😀", "😂", "🤣", "😊", "😍", "😘", "😜", "😎", "😭", "👍", "👎", "🔥", "🎉", "❤️", "📍", "🤝", "💬", "🚗", "📦", "💰", "⭐"].map(emoji => (
                                   <button
                                     key={emoji}
                                     type="button"
                                     onClick={() => {
                                       setNewChatMessage(prev => prev + emoji);
-                                      setIsEmojiPickerOpen(false);
                                       chatInputRef.current?.focus();
                                     }}
                                     style={{
@@ -3599,15 +3617,21 @@ export default function DashboardPage() {
                                       border: 'none',
                                       fontSize: 20,
                                       cursor: 'pointer',
-                                      padding: 4,
+                                      padding: 6,
                                       borderRadius: 8,
-                                      transition: 'background 0.2s',
+                                      transition: 'all 0.2s',
                                       display: 'flex',
                                       alignItems: 'center',
                                       justifyContent: 'center'
                                     }}
-                                    onMouseEnter={e => e.currentTarget.style.background = '#f1f5f9'}
-                                    onMouseLeave={e => e.currentTarget.style.background = 'none'}
+                                    onMouseEnter={e => {
+                                      e.currentTarget.style.background = '#f1f5f9';
+                                      e.currentTarget.style.transform = 'scale(1.15)';
+                                    }}
+                                    onMouseLeave={e => {
+                                      e.currentTarget.style.background = 'none';
+                                      e.currentTarget.style.transform = 'scale(1)';
+                                    }}
                                   >
                                     {emoji}
                                   </button>
