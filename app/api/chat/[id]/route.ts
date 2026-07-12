@@ -62,6 +62,22 @@ export async function GET(
       }
     }
 
+    // Check if the other user has typed recently in this chat
+    const chatId = user.id < otherUserId ? `${user.id}_${otherUserId}` : `${otherUserId}_${user.id}`;
+    const typingDocRef = doc(db, "typing", `${chatId}_${otherUserId}`);
+    let isTyping = false;
+    try {
+      const typingDoc = await getDoc(typingDocRef);
+      if (typingDoc.exists()) {
+        const typingData = typingDoc.data();
+        if (Date.now() - typingData.last_typed_at < 3500) { // Active typing timeout threshold: 3.5 seconds
+          isTyping = true;
+        }
+      }
+    } catch (e) {
+      console.warn("[chat/[id]] Failed to fetch typing status:", e);
+    }
+
     return NextResponse.json({
       user: {
         id: otherUser.id,
@@ -70,7 +86,7 @@ export async function GET(
         is_online: true
       },
       messages,
-      is_typing: false
+      is_typing: isTyping
     }, { status: 200 });
 
   } catch (err: any) {
