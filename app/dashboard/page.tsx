@@ -54,7 +54,7 @@ interface Order {
   buyer?: { id: number; name: string; };
 }
 
-type SidebarTab = "profile" | "my-items" | "add-item" | "orders" | "store-orders" | "shop" | "notifications" | "messages" | "settings";
+type SidebarTab = "profile" | "my-items" | "add-item" | "orders" | "store-orders" | "shop" | "notifications" | "messages" | "settings" | "logout";
 
 const COLOR_PALETTE = [
   { name: 'White', r: 255, g: 255, b: 255 },
@@ -2080,6 +2080,11 @@ export default function DashboardPage() {
     { id: "add-item", icon: <IconPlus />, label: "Add New Item" },
     { id: "settings", icon: <IconSettings />, label: "Settings" },
     { id: "shop", icon: <IconShop />, label: "Public Shop" },
+    { id: "logout", icon: (
+      <svg width="18" height="18" fill="none" stroke="#ef4444" strokeWidth="2.2" viewBox="0 0 24 24">
+        <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+    ), label: "Logout" },
   ];
 
   return (
@@ -2835,7 +2840,7 @@ export default function DashboardPage() {
                 },
                 {
                   title: "Application",
-                  items: ["notifications", "messages", "settings"]
+                  items: ["notifications", "messages", "settings", "logout"]
                 }
               ].map((section, idx) => {
                 const visibleItems = sidebarItemsList.filter(item => section.items.includes(item.id));
@@ -2854,6 +2859,8 @@ export default function DashboardPage() {
                           onClick={() => {
                             if (si.id === "shop") {
                               router.push("/shop");
+                            } else if (si.id === "logout") {
+                              handleLogout();
                             } else if (si.id === 'orders') {
                               if (isSidebarCollapsed) {
                                 toggleSidebar();
@@ -2870,9 +2877,10 @@ export default function DashboardPage() {
                               setActiveTab(si.id);
                             }
                           }}
+                          style={si.id === 'logout' ? { color: '#ef4444' } : undefined}
                         >
                           <span className="sidebar-icon">{si.icon}</span>
-                          {!isSidebarCollapsed && <span style={{ flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{si.label}</span>}
+                          {!isSidebarCollapsed && <span style={{ flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', color: si.id === 'logout' ? '#ef4444' : undefined, fontWeight: si.id === 'logout' ? 600 : undefined }}>{si.label}</span>}
                           {si.id === 'notifications' && pendingSellerOrdersCount > 0 && (
                             <span className="sidebar-badge">{pendingSellerOrdersCount}</span>
                           )}
@@ -3599,13 +3607,29 @@ export default function DashboardPage() {
                                   gridTemplateColumns: 'repeat(7, 1fr)',
                                   gap: 6,
                                   zIndex: 50,
-                                  width: 250,
-                                  overflow: 'hidden',
+                                  width: 280,
+                                  height: 240,
+                                  overflowY: 'auto',
                                   animation: 'scaleUp 0.15s cubic-bezier(0.16, 1, 0.3, 1)'
                                 }}
+                                className="emoji-grid-container"
                               >
                                 <style>{`
                                   @keyframes scaleUp { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+                                  .emoji-grid-container {
+                                    scrollbar-width: thin;
+                                    scrollbar-color: #cbd5e1 transparent;
+                                  }
+                                  .emoji-grid-container::-webkit-scrollbar {
+                                    width: 6px;
+                                  }
+                                  .emoji-grid-container::-webkit-scrollbar-track {
+                                    background: transparent;
+                                  }
+                                  .emoji-grid-container::-webkit-scrollbar-thumb {
+                                    background-color: #cbd5e1;
+                                    border-radius: 20px;
+                                  }
                                   .emoji-grid-btn {
                                     background: none;
                                     border: none;
@@ -3626,7 +3650,17 @@ export default function DashboardPage() {
                                     transform: scale(0.95);
                                   }
                                 `}</style>
-                                {["😀", "😂", "🤣", "😊", "😍", "😘", "😜", "😎", "😭", "👍", "👎", "🔥", "🎉", "❤️", "📍", "🤝", "💬", "🚗", "📦", "💰", "⭐"].map(emoji => (
+                                {[
+                                  "😀", "😃", "😄", "😁", "😆", "😅", "😂", "🤣", "😊", "😇", "🙂", "🙃", "😉", "😌",
+                                  "😍", "🥰", "😘", "😗", "😙", "😚", "😋", "😛", "😝", "😜", "🤪", "🤨", "🧐", "🤓",
+                                  "😎", "🥸", "🤩", "🥳", "😏", "😒", "😞", "😔", "😟", "😕", "🙁", "☹️", "😣", "😖",
+                                  "😫", "😩", "🥺", "😢", "😭", "😤", "😠", "😡", "🤬", "🤯", "😳", "🥵", "🥶", "😱",
+                                  "👍", "👎", "👊", "✊", "🤛", "🤜", "🤞", "✌️", "🤟", "🤘", "👌", "🤌", "🤏", "👈",
+                                  "👉", "👆", "👇", "☝️", "✋", "🤚", "🖐️", "🖖", "👋", "🤙", "💪", "🦾", "🖕", "✍️",
+                                  "🙏", "🤝", "🙌", "👏", "👋", "❤️", "🧡", "💛", "💚", "💙", "💜", "🖤", "🤍", "💔",
+                                  "❣️", "💕", "💞", "💓", "💗", "💖", "💘", "💝", "💟", "💬", "💭", "✨", "⭐", "🔥",
+                                  "💥", "❄️", "☀️", "🌈", "📍", "🗺️", "🚗", "📦", "💰", "🎁"
+                                ].map(emoji => (
                                   <button
                                     key={emoji}
                                     type="button"

@@ -2881,13 +2881,29 @@ export default function ShopPage() {
                             gridTemplateColumns: 'repeat(7, 1fr)',
                             gap: 6,
                             zIndex: 50,
-                            width: 250,
-                            overflow: 'hidden',
+                            width: 280,
+                            height: 240,
+                            overflowY: 'auto',
                             animation: 'scaleUp 0.15s cubic-bezier(0.16, 1, 0.3, 1)'
                           }}
+                          className="emoji-grid-container"
                         >
                           <style>{`
                             @keyframes scaleUp { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+                            .emoji-grid-container {
+                              scrollbar-width: thin;
+                              scrollbar-color: #cbd5e1 transparent;
+                            }
+                            .emoji-grid-container::-webkit-scrollbar {
+                              width: 6px;
+                            }
+                            .emoji-grid-container::-webkit-scrollbar-track {
+                              background: transparent;
+                            }
+                            .emoji-grid-container::-webkit-scrollbar-thumb {
+                              background-color: #cbd5e1;
+                              border-radius: 20px;
+                            }
                             .emoji-grid-btn {
                               background: none;
                               border: none;
@@ -2908,7 +2924,17 @@ export default function ShopPage() {
                               transform: scale(0.95);
                             }
                           `}</style>
-                          {["😀", "😂", "🤣", "😊", "😍", "😘", "😜", "😎", "😭", "👍", "👎", "🔥", "🎉", "❤️", "📍", "🤝", "💬", "🚗", "📦", "💰", "⭐"].map(emoji => (
+                          {[
+                            "😀", "😃", "😄", "😁", "😆", "😅", "😂", "🤣", "😊", "😇", "🙂", "🙃", "😉", "😌",
+                            "😍", "🥰", "😘", "😗", "😙", "😚", "😋", "😛", "😝", "😜", "🤪", "🤨", "🧐", "🤓",
+                            "😎", "🥸", "🤩", "🥳", "😏", "😒", "😞", "😔", "😟", "😕", "🙁", "☹️", "😣", "😖",
+                            "😫", "😩", "🥺", "😢", "😭", "😤", "😠", "😡", "🤬", "🤯", "😳", "🥵", "🥶", "😱",
+                            "👍", "👎", "👊", "✊", "🤛", "🤜", "🤞", "✌️", "🤟", "🤘", "👌", "🤌", "🤏", "👈",
+                            "👉", "👆", "👇", "☝️", "✋", "🤚", "🖐️", "🖖", "👋", "🤙", "💪", "🦾", "🖕", "✍️",
+                            "🙏", "🤝", "🙌", "👏", "👋", "❤️", "🧡", "💛", "💚", "💙", "💜", "🖤", "🤍", "💔",
+                            "❣️", "💕", "💞", "💓", "💗", "💖", "💘", "💝", "💟", "💬", "💭", "✨", "⭐", "🔥",
+                            "💥", "❄️", "☀️", "🌈", "📍", "🗺️", "🚗", "📦", "💰", "🎁"
+                          ].map(emoji => (
                             <button
                               key={emoji}
                               type="button"
