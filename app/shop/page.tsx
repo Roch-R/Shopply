@@ -2,6 +2,7 @@
 import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import { getApiCache, createSmartPoller } from "@/lib/apiCache";
+import MeetupMap from "@/components/MeetupMap";
 import { SkeletonShopCard, SkeletonChatMessage } from "@/components/Skeleton";
 import { collection, query, where, onSnapshot, doc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
@@ -133,6 +134,9 @@ export default function ShopPage() {
   const [isOtherUserTyping, setIsOtherUserTyping] = useState(false);
   const [chatImageFile, setChatImageFile] = useState<File | null>(null);
   const [chatImagePreview, setChatImagePreview] = useState<string | null>(null);
+  const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false);
+  const [sharingLocation, setSharingLocation] = useState(false);
+  const [isMeetupMapOpen, setIsMeetupMapOpen] = useState(false);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const incomingTypingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -643,6 +647,68 @@ export default function ShopPage() {
       };
     }
   }, [isChatOpen, activeChatUser, API, smoothMode]);
+
+  const handleShareLocation = () => {
+    if (!navigator.geolocation) {
+      alert("Geolocation is not supported by your browser.");
+      return;
+    }
+    setSharingLocation(true);
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+        const messageText = `[LOCATION]${lat},${lng}`;
+        const token = localStorage.getItem("token");
+        if (!token || !activeChatUser) {
+          setSharingLocation(false);
+          return;
+        }
+
+        const optimisticMsg = {
+          id: Date.now(),
+          sender_id: currentUser ? currentUser.id : 999999,
+          receiver_id: activeChatUser.id,
+          message: messageText,
+          image: null,
+          is_read: false,
+          created_at: new Date().toISOString(),
+        };
+        setChatMessages(prev => [...prev, optimisticMsg]);
+
+        try {
+          const formData = new FormData();
+          formData.append("message", messageText);
+          
+          const res = await fetch(`${API}/chat/${activeChatUser.id}`, {
+            method: "POST",
+            headers: {
+              Accept: "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: formData,
+          });
+          if (res.ok) {
+            const data = await res.json();
+            getApiCache().invalidate(`/chat/${activeChatUser.id}`);
+            getApiCache().invalidate(`/chat/conversations`);
+            setChatMessages(prev => prev.map(m => m.id === optimisticMsg.id ? data.message : m));
+            localStorage.setItem('shopply_chat_update', Date.now().toString());
+          }
+        } catch (err) {
+          console.error("Failed to share location:", err);
+        } finally {
+          setSharingLocation(false);
+        }
+      },
+      (error) => {
+        console.error("Geolocation error:", error);
+        alert("Unable to retrieve location. Please check your browser permissions.");
+        setSharingLocation(false);
+      },
+      { enableHighAccuracy: true }
+    );
+  };
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -2668,7 +2734,18 @@ export default function ShopPage() {
                                 )
                               )}
                               <div style={{display: 'flex', flexDirection: 'column', alignItems: isMe ? 'flex-end' : 'flex-start'}}>
-                                <div style={{
+                                 <div style={msg.message?.startsWith("[LOCATION]") ? {
+                                  background: '#f8fafc',
+                                  border: '1px solid #cbd5e1',
+                                  color: '#0f172a',
+                                  borderRadius: isMe ? '20px 20px 4px 20px' : '20px 20px 20px 4px',
+                                  padding: 0,
+                                  overflow: 'hidden',
+                                  fontSize: isMobile ? 13 : 14,
+                                  lineHeight: 1.5,
+                                  wordBreak: 'break-word',
+                                  whiteSpace: 'pre-wrap'
+                                } : {
                                   background: isMe ? 'linear-gradient(135deg, #7c3aed, #6d28d9)' : '#f1f5f9',
                                   color: isMe ? '#fff' : '#0f172a',
                                   borderRadius: isMe ? '20px 20px 4px 20px' : '20px 20px 20px 4px',
@@ -2688,7 +2765,47 @@ export default function ShopPage() {
                                       />
                                     </div>
                                   )}
-                                  {msg.message && <div>{msg.message}</div>}
+                                  {msg.message && (
+                                    msg.message.startsWith("[LOCATION]") ? (() => {
+                                      const coords = msg.message.replace("[LOCATION]", "").split(",");
+                                      const lat = Number(coords[0]) || 0;
+                                      const lng = Number(coords[1]) || 0;
+                                      return (
+                                        <div style={{ padding: 12, display: 'flex', flexDirection: 'column', gap: 10, width: 220 }}>
+                                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                            <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#dcfce7', color: '#16a34a', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>
+                                              📍
+                                            </div>
+                                            <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                              <span style={{ fontSize: 12, fontWeight: 700, color: '#1e293b' }}>Shared Location</span>
+                                              <span style={{ fontSize: 10, color: '#64748b' }}>{lat.toFixed(4)}, {lng.toFixed(4)}</span>
+                                            </div>
+                                          </div>
+                                          <div style={{ display: 'flex', gap: 6 }}>
+                                            <a
+                                              href={`https://www.google.com/maps?q=${lat},${lng}`}
+                                              target="_blank"
+                                              rel="noopener noreferrer"
+                                              style={{ flex: 1, textAlign: 'center', background: '#3b82f6', color: '#fff', fontSize: 11, fontWeight: 600, padding: '6px 0', borderRadius: 8, textDecoration: 'none' }}
+                                            >
+                                              Google Maps
+                                            </a>
+                                            <button
+                                              type="button"
+                                              onClick={() => {
+                                                setIsMeetupMapOpen(true);
+                                              }}
+                                              style={{ flex: 1, background: '#10b981', color: '#fff', border: 'none', fontSize: 11, fontWeight: 600, padding: '6px 0', borderRadius: 8, cursor: 'pointer' }}
+                                            >
+                                              Meetup Map
+                                            </button>
+                                          </div>
+                                        </div>
+                                      );
+                                    })() : (
+                                      <div>{msg.message}</div>
+                                    )
+                                  )}
                                 </div>
                                 <span style={{fontSize: 10, color: '#94a3b8', margin: '4px 4px 0'}}>
                                   {new Date(msg.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
@@ -2829,6 +2946,15 @@ export default function ShopPage() {
             </div>
           </div>
           </>
+        )}
+        {isMeetupMapOpen && activeChatUser && currentUser && (
+          <MeetupMap
+            myId={currentUser.id}
+            peerId={activeChatUser.id}
+            myName={currentUser.name}
+            peerName={activeChatUser.name}
+            onClose={() => setIsMeetupMapOpen(false)}
+          />
         )}
       </div>
     </>

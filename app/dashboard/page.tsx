@@ -337,6 +337,8 @@ export default function DashboardPage() {
   const [isActiveUserOnline, setIsActiveUserOnline] = useState(false);
   const [chatImageFile, setChatImageFile] = useState<File | null>(null);
   const [chatImagePreview, setChatImagePreview] = useState<string | null>(null);
+  const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false);
+  const [sharingLocation, setSharingLocation] = useState(false);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const incomingTypingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -1387,6 +1389,68 @@ export default function DashboardPage() {
       if (cleanMsgPoller) cleanMsgPoller();
     };
   }, [activeTab, activeChatUser, API, smoothMode]);
+
+  const handleShareLocation = () => {
+    if (!navigator.geolocation) {
+      alert("Geolocation is not supported by your browser.");
+      return;
+    }
+    setSharingLocation(true);
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+        const messageText = `[LOCATION]${lat},${lng}`;
+        const token = localStorage.getItem("token");
+        if (!token || !activeChatUser) {
+          setSharingLocation(false);
+          return;
+        }
+
+        const optimisticMsg = {
+          id: Date.now(),
+          sender_id: user ? user.id : 999999,
+          receiver_id: activeChatUser.id,
+          message: messageText,
+          image: null,
+          is_read: false,
+          created_at: new Date().toISOString(),
+        };
+        setChatMessages(prev => [...prev, optimisticMsg]);
+
+        try {
+          const formData = new FormData();
+          formData.append("message", messageText);
+          
+          const res = await fetch(`${API}/chat/${activeChatUser.id}`, {
+            method: "POST",
+            headers: {
+              Accept: "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: formData,
+          });
+          if (res.ok) {
+            const data = await res.json();
+            getApiCache().invalidate(`/chat/${activeChatUser.id}`);
+            getApiCache().invalidate(`/chat/conversations`);
+            setChatMessages(prev => prev.map(m => m.id === optimisticMsg.id ? data.message : m));
+            localStorage.setItem('shopply_chat_update', Date.now().toString());
+          }
+        } catch (err) {
+          console.error("Failed to share location:", err);
+        } finally {
+          setSharingLocation(false);
+        }
+      },
+      (error) => {
+        console.error("Geolocation error:", error);
+        alert("Unable to retrieve location. Please check your browser permissions.");
+        setSharingLocation(false);
+      },
+      { enableHighAccuracy: true }
+    );
+  };
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -3409,7 +3473,7 @@ export default function DashboardPage() {
                                       )
                                     )}
                                     <div style={{display: 'flex', flexDirection: 'column', alignItems: isMe ? 'flex-end' : 'flex-start'}}>
-                                      <div className={`chat-message-bubble ${isMe ? 'me' : 'them'}`}>
+                                      <div className={`chat-message-bubble ${isMe ? 'me' : 'them'}`} style={msg.message?.startsWith("[LOCATION]") ? { background: '#f8fafc', border: '1px solid #cbd5e1', color: '#0f172a', padding: 0, overflow: 'hidden' } : {}}>
                                         {msg.image && (
                                           <div style={{ marginBottom: msg.message ? 8 : 0 }}>
                                             <img
@@ -3419,7 +3483,47 @@ export default function DashboardPage() {
                                             />
                                           </div>
                                         )}
-                                        {msg.message && <div>{msg.message}</div>}
+                                        {msg.message && (
+                                          msg.message.startsWith("[LOCATION]") ? (() => {
+                                            const coords = msg.message.replace("[LOCATION]", "").split(",");
+                                            const lat = Number(coords[0]) || 0;
+                                            const lng = Number(coords[1]) || 0;
+                                            return (
+                                              <div style={{ padding: 12, display: 'flex', flexDirection: 'column', gap: 10, width: 220 }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                                  <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#dcfce7', color: '#16a34a', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>
+                                                    📍
+                                                  </div>
+                                                  <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                                    <span style={{ fontSize: 12, fontWeight: 700, color: '#1e293b' }}>Shared Location</span>
+                                                    <span style={{ fontSize: 10, color: '#64748b' }}>{lat.toFixed(4)}, {lng.toFixed(4)}</span>
+                                                  </div>
+                                                </div>
+                                                <div style={{ display: 'flex', gap: 6 }}>
+                                                  <a
+                                                    href={`https://www.google.com/maps?q=${lat},${lng}`}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    style={{ flex: 1, textAlign: 'center', background: '#3b82f6', color: '#fff', fontSize: 11, fontWeight: 600, padding: '6px 0', borderRadius: 8, textDecoration: 'none' }}
+                                                  >
+                                                    Google Maps
+                                                  </a>
+                                                  <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                      setIsMeetupMapOpen(true);
+                                                    }}
+                                                    style={{ flex: 1, background: '#10b981', color: '#fff', border: 'none', fontSize: 11, fontWeight: 600, padding: '6px 0', borderRadius: 8, cursor: 'pointer' }}
+                                                  >
+                                                    Meetup Map
+                                                  </button>
+                                                </div>
+                                              </div>
+                                            );
+                                          })() : (
+                                            <div>{msg.message}</div>
+                                          )
+                                        )}
                                       </div>
                                       <span style={{fontSize: 10, color: '#94a3b8', margin: '4px 4px 0'}}>
                                         {new Date(msg.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
@@ -3463,8 +3567,55 @@ export default function DashboardPage() {
                               </div>
                             </div>
                           )}
-                          <form onSubmit={handleSendMessage} className="chat-input-form">
-                            <label style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', width: 44, height: 44, borderRadius: '50%', background: '#e2e8f0', color: '#64748b', transition: 'all 0.2s', flexShrink: 0 }}>
+                          <form onSubmit={handleSendMessage} className="chat-input-form" style={{ position: 'relative' }}>
+                            {/* Emoji Picker Popup */}
+                            {isEmojiPickerOpen && (
+                              <div style={{
+                                position: 'absolute',
+                                bottom: '100%',
+                                left: 12,
+                                background: '#fff',
+                                border: '1px solid #cbd5e1',
+                                borderRadius: 16,
+                                boxShadow: '0 8px 30px rgba(0,0,0,0.12)',
+                                padding: 12,
+                                display: 'grid',
+                                gridTemplateColumns: 'repeat(7, 1fr)',
+                                gap: 8,
+                                zIndex: 50,
+                                width: 250
+                              }}>
+                                {["😀", "😂", "🤣", "😊", "😍", "😘", "😜", "😎", "😭", "👍", "👎", "🔥", "🎉", "❤️", "📍", "🤝", "💬", "🚗", "📦", "💰", "⭐"].map(emoji => (
+                                  <button
+                                    key={emoji}
+                                    type="button"
+                                    onClick={() => {
+                                      setNewChatMessage(prev => prev + emoji);
+                                      setIsEmojiPickerOpen(false);
+                                      chatInputRef.current?.focus();
+                                    }}
+                                    style={{
+                                      background: 'none',
+                                      border: 'none',
+                                      fontSize: 20,
+                                      cursor: 'pointer',
+                                      padding: 4,
+                                      borderRadius: 8,
+                                      transition: 'background 0.2s',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'center'
+                                    }}
+                                    onMouseEnter={e => e.currentTarget.style.background = '#f1f5f9'}
+                                    onMouseLeave={e => e.currentTarget.style.background = 'none'}
+                                  >
+                                    {emoji}
+                                  </button>
+                                ))}
+                              </div>
+                            )}
+
+                            <label style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', width: 44, height: 44, borderRadius: '50%', background: '#e2e8f0', color: '#64748b', transition: 'all 0.2s', flexShrink: 0 }} title="Upload Image">
                               <input
                                 type="file"
                                 accept="image/*"
@@ -3481,6 +3632,72 @@ export default function DashboardPage() {
                               />
                               <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>
                             </label>
+
+                            {/* Emoji Picker Toggle Button */}
+                            <button
+                              type="button"
+                              onClick={() => setIsEmojiPickerOpen(prev => !prev)}
+                              style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                width: 44,
+                                height: 44,
+                                borderRadius: '50%',
+                                background: isEmojiPickerOpen ? '#ddd6fe' : '#e2e8f0',
+                                color: isEmojiPickerOpen ? '#6d28d9' : '#64748b',
+                                border: 'none',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s',
+                                flexShrink: 0
+                              }}
+                              title="Pick Emoji"
+                            >
+                              <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M15.182 15.182a4.5 4.5 0 01-6.364 0M21 12a9 9 0 11-18 0 9 9 0 0118 0zM9.75 9.75c0 .414-.168.75-.375.75s-.375-.336-.375-.75.168-.75.375-.75.375.336.375.75zm6 0c0 .414-.168.75-.375.75s-.375-.336-.375-.75.168-.75.375-.75.375.336.375.75z" />
+                              </svg>
+                            </button>
+
+                            {/* Share Location Button */}
+                            <button
+                              type="button"
+                              onClick={handleShareLocation}
+                              disabled={sharingLocation}
+                              style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                width: 44,
+                                height: 44,
+                                borderRadius: '50%',
+                                background: sharingLocation ? '#d1fae5' : '#e2e8f0',
+                                color: sharingLocation ? '#059669' : '#64748b',
+                                border: 'none',
+                                cursor: sharingLocation ? 'not-allowed' : 'pointer',
+                                transition: 'all 0.2s',
+                                flexShrink: 0
+                              }}
+                              title="Share Location"
+                            >
+                              {sharingLocation ? (
+                                <>
+                                  <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+                                  <div style={{
+                                    width: 18,
+                                    height: 18,
+                                    border: '2px solid #059669',
+                                    borderTopColor: 'transparent',
+                                    borderRadius: '50%',
+                                    animation: 'spin 0.8s linear infinite'
+                                  }} />
+                                </>
+                              ) : (
+                                <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25s-7.5-4.108-7.5-11.25a7.5 7.5 0 1115 0z" />
+                                </svg>
+                              )}
+                            </button>
                             <textarea
                               ref={chatInputRef}
                               placeholder={`Message ${activeChatUser.name}...`}
