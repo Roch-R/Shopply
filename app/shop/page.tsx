@@ -134,6 +134,7 @@ export default function ShopPage() {
   const [chatImageFile, setChatImageFile] = useState<File | null>(null);
   const [chatImagePreview, setChatImagePreview] = useState<string | null>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const incomingTypingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const isSendingRef = useRef(false);
   const fetchConversationsRef = useRef<() => void>(() => {});
@@ -593,30 +594,39 @@ export default function ShopPage() {
         // Direct document listener for instant typing status updates
         const chatId = userId < otherUserId ? `${userId}_${otherUserId}` : `${otherUserId}_${userId}`;
         const typingDocRef = doc(db, "typing", `${chatId}_${otherUserId}`);
-        const lastTypedRef = { current: 0 };
 
         const unsubTyping = onSnapshot(typingDocRef, (snap) => {
           if (snap.exists()) {
             const data = snap.data();
-            lastTypedRef.current = data.last_typed_at || 0;
-            setIsOtherUserTyping(Date.now() - lastTypedRef.current < 3500);
+            const age = Date.now() - (data.last_typed_at || 0);
+            
+            if (incomingTypingTimeoutRef.current) {
+              clearTimeout(incomingTypingTimeoutRef.current);
+            }
+
+            // Trigger typing state if timestamp is fresh (allows up to 10 seconds of clock drift)
+            if (age < 10000) {
+              setIsOtherUserTyping(true);
+              incomingTypingTimeoutRef.current = setTimeout(() => {
+                setIsOtherUserTyping(false);
+                incomingTypingTimeoutRef.current = null;
+              }, 3500);
+            } else {
+              setIsOtherUserTyping(false);
+            }
           } else {
             setIsOtherUserTyping(false);
           }
         });
 
-        // Clock tick to gracefully fade out typing bubble when they stop typing
-        const typingInterval = setInterval(() => {
-          if (lastTypedRef.current) {
-            setIsOtherUserTyping(Date.now() - lastTypedRef.current < 3500);
-          }
-        }, 1000);
-
         cleanMsgPoller = () => {
           unsubMessages1();
           unsubMessages2();
           unsubTyping();
-          clearInterval(typingInterval);
+          if (incomingTypingTimeoutRef.current) {
+            clearTimeout(incomingTypingTimeoutRef.current);
+            incomingTypingTimeoutRef.current = null;
+          }
         };
       } else {
         // Fallback if no active user
