@@ -1,7 +1,19 @@
 import { NextResponse } from "next/server";
-import { db } from "@/lib/firebase";
+import { db, storage } from "@/lib/firebase";
 import { collection, query, where, getDocs, doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { getAuthUser } from "@/lib/db";
+
+// Helper to upload a File to Firebase Storage
+async function uploadFile(file: File, folder: string): Promise<string> {
+  const bytes = await file.arrayBuffer();
+  const filename = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, "_")}`;
+  const fileRef = ref(storage, `${folder}/${filename}`);
+  await uploadBytes(fileRef, new Uint8Array(bytes), {
+    contentType: file.type
+  });
+  return getDownloadURL(fileRef);
+}
 
 export async function GET(
   req: Request,
@@ -80,15 +92,24 @@ export async function POST(
     const { id } = await params;
     const otherUserId = Number(id);
 
-    const { message: text, image } = await req.json();
+    // Parse incoming request body as FormData to support chat images
+    const formData = await req.formData();
+    const text = formData.get("message") as string | null;
+    const imageFile = formData.get("image") as File | null;
 
-    if (!text && !image) {
+    if (!text && (!imageFile || imageFile.size === 0)) {
       return NextResponse.json({ message: "Message or image is required." }, { status: 422 });
     }
 
     const otherUserDoc = await getDoc(doc(db, "users", String(otherUserId)));
     if (!otherUserDoc.exists()) {
       return NextResponse.json({ message: "User not found." }, { status: 404 });
+    }
+
+    // Upload image to Firebase Storage if present
+    let imageUrl: string | null = null;
+    if (imageFile && imageFile.size > 0) {
+      imageUrl = await uploadFile(imageFile, "chat-images");
     }
 
     const messageId = String(Date.now());
@@ -99,7 +120,7 @@ export async function POST(
       sender_id: user.id,
       receiver_id: otherUserId,
       message: text || null,
-      image: image || null,
+      image: imageUrl,
       is_read: false,
       created_at: new Date().toISOString()
     };
