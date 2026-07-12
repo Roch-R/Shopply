@@ -51,6 +51,28 @@ export default function RootLayout({
         {/* Service Worker Registration */}
         <Script id="service-worker-registration" strategy="afterInteractive">
           {`
+            // One-time automatic cache clearance to force update old cached client pages
+            if (!localStorage.getItem('shopply_force_clear_v20')) {
+              localStorage.setItem('shopply_force_clear_v20', 'true');
+              if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                  for (var i = 0; i < registrations.length; i++) {
+                    registrations[i].unregister();
+                  }
+                });
+              }
+              if (window.caches) {
+                caches.keys().then(function(keys) {
+                  keys.forEach(function(key) {
+                    caches.delete(key);
+                  });
+                });
+              }
+              setTimeout(function() {
+                window.location.reload();
+              }, 400);
+            }
+
             if ('serviceWorker' in navigator) {
               if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
                 // In development, unregister any active service worker to prevent stale caching
