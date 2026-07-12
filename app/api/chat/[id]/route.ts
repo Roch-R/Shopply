@@ -92,24 +92,34 @@ export async function POST(
     const { id } = await params;
     const otherUserId = Number(id);
 
-    // Parse incoming request body as FormData to support chat images
-    const formData = await req.formData();
-    const text = formData.get("message") as string | null;
-    const imageFile = formData.get("image") as File | null;
+    let text: string | null = null;
+    let imageUrl: string | null = null;
 
-    if (!text && (!imageFile || imageFile.size === 0)) {
+    const contentType = req.headers.get("content-type") || "";
+
+    if (contentType.includes("multipart/form-data")) {
+      // Parse request body as FormData for modern/image-enabled client calls
+      const formData = await req.formData();
+      text = formData.get("message") as string | null;
+      const imageFile = formData.get("image") as File | null;
+      
+      if (imageFile && imageFile.size > 0) {
+        imageUrl = await uploadFile(imageFile, "chat-images");
+      }
+    } else {
+      // Fallback parsing as JSON for older cached clients on user browsers
+      const body = await req.json();
+      text = body.message || null;
+      imageUrl = body.image || null;
+    }
+
+    if (!text && !imageUrl) {
       return NextResponse.json({ message: "Message or image is required." }, { status: 422 });
     }
 
     const otherUserDoc = await getDoc(doc(db, "users", String(otherUserId)));
     if (!otherUserDoc.exists()) {
       return NextResponse.json({ message: "User not found." }, { status: 404 });
-    }
-
-    // Upload image to Firebase Storage if present
-    let imageUrl: string | null = null;
-    if (imageFile && imageFile.size > 0) {
-      imageUrl = await uploadFile(imageFile, "chat-images");
     }
 
     const messageId = String(Date.now());
