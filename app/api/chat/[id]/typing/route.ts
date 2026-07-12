@@ -16,8 +16,9 @@ export async function POST(
     const { id } = await params;
     const otherUserId = Number(id);
 
-    const chatId = user.id < otherUserId ? `${user.id}_${otherUserId}` : `${otherUserId}_${user.id}`;
-    const typingDocRef = doc(db, "typing", `${chatId}_${user.id}`);
+    const userId = Number(user.id);
+    const chatId = userId < otherUserId ? `${userId}_${otherUserId}` : `${otherUserId}_${userId}`;
+    const typingDocRef = doc(db, "typing", `${chatId}_${userId}`);
 
     await setDoc(typingDocRef, {
       last_typed_at: Date.now()

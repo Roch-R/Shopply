@@ -343,8 +343,8 @@ export default function DashboardPage() {
   const fetchMessagesRef = useRef<() => void>(() => {});
 
   useEffect(() => {
-  messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [chatMessages, activeTab]);
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [chatMessages, activeTab, isOtherUserTyping]);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);

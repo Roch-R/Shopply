@@ -63,7 +63,8 @@ export async function GET(
     }
 
     // Check if the other user has typed recently in this chat
-    const chatId = user.id < otherUserId ? `${user.id}_${otherUserId}` : `${otherUserId}_${user.id}`;
+    const userId = Number(user.id);
+    const chatId = userId < otherUserId ? `${userId}_${otherUserId}` : `${otherUserId}_${userId}`;
     const typingDocRef = doc(db, "typing", `${chatId}_${otherUserId}`);
     let isTyping = false;
     try {

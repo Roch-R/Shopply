@@ -163,7 +163,7 @@ export default function ShopPage() {
   }, []);
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [chatMessages, isChatOpen]);
+  }, [chatMessages, isChatOpen, isOtherUserTyping]);
 
   // Track mobile viewport for inline-style overrides
   useEffect(() => {
