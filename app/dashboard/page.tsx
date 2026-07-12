@@ -3588,44 +3588,41 @@ export default function DashboardPage() {
                                 ref={emojiPickerRef}
                                 style={{
                                   position: 'absolute',
-                                  bottom: '100%',
-                                  left: 0,
-                                  right: 0,
-                                  background: 'rgba(255, 255, 255, 0.95)',
-                                  backdropFilter: 'blur(8px)',
-                                  WebkitBackdropFilter: 'blur(8px)',
-                                  borderTop: '1px solid #cbd5e1',
-                                  borderBottom: '1px solid #cbd5e1',
-                                  padding: '8px 16px',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  gap: 12,
-                                  overflowX: 'auto',
+                                  bottom: 'calc(100% + 12px)',
+                                  left: 12,
+                                  background: '#fff',
+                                  border: '1px solid #cbd5e1',
+                                  borderRadius: 16,
+                                  boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
+                                  padding: 12,
+                                  display: 'grid',
+                                  gridTemplateColumns: 'repeat(7, 1fr)',
+                                  gap: 6,
                                   zIndex: 50,
-                                  scrollbarWidth: 'none',
-                                  animation: 'slideUp 0.18s cubic-bezier(0.16, 1, 0.3, 1)'
+                                  width: 250,
+                                  overflow: 'hidden',
+                                  animation: 'scaleUp 0.15s cubic-bezier(0.16, 1, 0.3, 1)'
                                 }}
                               >
                                 <style>{`
-                                  @keyframes slideUp { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-                                  .emoji-bar-btn {
+                                  @keyframes scaleUp { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+                                  .emoji-grid-btn {
                                     background: none;
                                     border: none;
-                                    font-size: 22px;
+                                    font-size: 20px;
                                     cursor: pointer;
-                                    padding: 4px 8px;
+                                    padding: 6px;
                                     border-radius: 8px;
                                     transition: all 0.2s ease;
-                                    flex-shrink: 0;
                                     display: flex;
                                     align-items: center;
                                     justify-content: center;
                                   }
-                                  .emoji-bar-btn:hover {
+                                  .emoji-grid-btn:hover {
                                     background: #f1f5f9;
-                                    transform: scale(1.22) translateY(-2px);
+                                    transform: scale(1.22);
                                   }
-                                  .emoji-bar-btn:active {
+                                  .emoji-grid-btn:active {
                                     transform: scale(0.95);
                                   }
                                 `}</style>
@@ -3633,7 +3630,7 @@ export default function DashboardPage() {
                                   <button
                                     key={emoji}
                                     type="button"
-                                    className="emoji-bar-btn"
+                                    className="emoji-grid-btn"
                                     onClick={() => {
                                       setNewChatMessage(prev => prev + emoji);
                                       chatInputRef.current?.focus();
