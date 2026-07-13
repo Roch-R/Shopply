@@ -3,8 +3,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Skeleton } from "@/components/Skeleton";
 import { getApiCache } from "@/lib/apiCache";
-import { RecaptchaVerifier, signInWithPhoneNumber, type ConfirmationResult } from "firebase/auth";
-import { auth } from "@/lib/firebase";
+// Native backend OTP flow
 
 export default function VerifyPage() {
   const router = useRouter();
@@ -16,50 +15,47 @@ export default function VerifyPage() {
   const [redirecting, setRedirecting] = useState(false);
   const [pendingPhone, setPendingPhone] = useState<string | null>(null);
   const [timeLeft, setTimeLeft] = useState<number>(300);
-  const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
 
   const API = "/api";
   const getToken = () => typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
-  const sendFirebaseSms = async (phone: string) => {
+  const sendBackendSms = async (phone: string) => {
     try {
       setError("");
-      setSuccess("Preparing secure SMS verification...");
-      
-      let formattedPhone = phone;
-      if (formattedPhone.startsWith("09") && formattedPhone.length === 11) {
-        formattedPhone = "+63" + formattedPhone.substring(1);
-      } else if (!formattedPhone.startsWith("+")) {
-        formattedPhone = "+63" + formattedPhone;
-      }
-      
-      console.log("[verify] Sending Firebase SMS to:", formattedPhone);
+      setSuccess("Sending verification SMS to your phone...");
+      const token = getToken();
+      const pendingEmail = typeof window !== "undefined" ? localStorage.getItem("pending_email") : null;
 
-      if (typeof window !== "undefined") {
-        const container = document.getElementById('recaptcha-container');
-        if (!container) {
-          console.warn("[verify] recaptcha-container not in DOM, waiting...");
-          setTimeout(() => sendFirebaseSms(phone), 150);
-          return;
-        }
-        if (!(window as any).recaptchaVerifier) {
-          (window as any).recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-            size: 'invisible'
-          });
-        }
-        const result = await signInWithPhoneNumber(auth, formattedPhone, (window as any).recaptchaVerifier);
-        setConfirmationResult(result);
+      let res;
+      if (pendingEmail) {
+        res = await fetch(`${API}/resend-registration-otp`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify({ email: pendingEmail }),
+        });
+      } else if (token) {
+        res = await fetch(`${API}/resend-otp`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+      }
+
+      if (res && res.ok) {
         setSuccess("✓ Verification SMS sent to your phone number!");
+      } else {
+        const data = await res?.json();
+        setError(data?.message || "Failed to send verification SMS. Please check your config.");
       }
     } catch (err: any) {
-      console.error("[verify] Firebase SMS send error:", err);
-      setError("SMS sending failed: " + (err?.message || "Please check your network connection and try again."));
-      if (typeof window !== "undefined" && (window as any).recaptchaVerifier) {
-        try {
-          (window as any).recaptchaVerifier.clear();
-        } catch (e) {}
-          (window as any).recaptchaVerifier = null;
-      }
+      console.error("[verify] SMS send error:", err);
+      setError("SMS sending failed: " + (err?.message || "Please check your connection and try again."));
     }
   };
 
@@ -122,8 +118,7 @@ export default function VerifyPage() {
 
     if (targetPhone) {
       setPendingPhone(targetPhone);
-      setSuccess("Verification code sent! Please input your 6-digit OTP code below.");
-      sendFirebaseSms(targetPhone);
+      sendBackendSms(targetPhone);
     }
   }, []);
 
@@ -158,17 +153,6 @@ export default function VerifyPage() {
     
     setLoading(true); setError(""); setSuccess("");
     try {
-      let idToken = "";
-      if (confirmationResult) {
-        try {
-          const userCredential = await confirmationResult.confirm(otp);
-          idToken = await userCredential.user.getIdToken();
-          console.log("[verify] Firebase verification successful. Token obtained.");
-        } catch (fbErr) {
-          console.warn("[verify] Firebase verification failed, falling back to backend OTP check:", fbErr);
-        }
-      }
-
       const token = getToken();
       const pendingEmail = typeof window !== "undefined" ? localStorage.getItem("pending_email") : null;
       
@@ -182,9 +166,7 @@ export default function VerifyPage() {
             "Content-Type": "application/json",
             Accept: "application/json",
           },
-          body: idToken
-            ? JSON.stringify({ email: pendingEmail, firebase_token: idToken })
-            : JSON.stringify({ email: pendingEmail, otp: otp }),
+          body: JSON.stringify({ email: pendingEmail, otp: otp }),
         });
       } else {
         res = await fetch(`${API}/verify-email`, {
@@ -194,9 +176,7 @@ export default function VerifyPage() {
             Accept: "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: idToken
-            ? JSON.stringify({ firebase_token: idToken })
-            : JSON.stringify({ otp: otp }),
+          body: JSON.stringify({ otp: otp }),
         });
       }
 
@@ -235,40 +215,11 @@ export default function VerifyPage() {
   const handleResend = async () => {
     if (!pendingPhone) { setError("No phone number to resend to."); return; }
     setResending(true); setError(""); setSuccess("");
-    
-    const token = getToken();
-    const pendingEmail = typeof window !== "undefined" ? localStorage.getItem("pending_email") : null;
-
     try {
-      if (pendingEmail) {
-        await fetch(`${API}/resend-registration-otp`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-          body: JSON.stringify({ email: pendingEmail }),
-        });
-      } else if (token) {
-        await fetch(`${API}/resend-otp`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
-      }
-    } catch (e) {
-      console.error("[verify] Backend resend error:", e);
-    }
-
-    try {
-      await sendFirebaseSms(pendingPhone);
+      await sendBackendSms(pendingPhone);
       const expiresAt = Date.now() + 300 * 1000;
       localStorage.setItem("otp_expires_at", expiresAt.toString());
       setTimeLeft(300);
-      setSuccess("✓ A new verification code has been sent!");
     } catch (e: any) {
       setError(e?.message || "Resend failed.");
     }
@@ -345,9 +296,7 @@ export default function VerifyPage() {
           <p className="sub">
             We sent a 6-digit verification code to your phone number ({pendingPhone || "loading..."}) via SMS.<br/>
             Please check your device and enter the code below.
-            <span style={{ display: "block", marginTop: "12px", padding: "8px 12px", background: "#f8fafc", border: "1px dashed #cbd5e1", borderRadius: "10px", fontSize: "12px", color: "#64748b", fontWeight: 500 }}>
-              💡 <strong>Testing Code:</strong> If you do not receive the SMS on your mobile due to carrier delays, enter <strong>123456</strong> as a testing bypass.
-            </span>
+
           </p>
 
           <div style={{ margin: "0 auto 24px", display: "inline-flex", alignItems: "center", gap: "8px", background: timeLeft > 60 ? "#f0fdf4" : "#fef2f2", border: timeLeft > 60 ? "1px solid #bbf7d0" : "1px solid #fecaca", borderRadius: "100px", padding: "6px 16px", color: timeLeft > 60 ? "#16a34a" : "#ef4444", fontSize: "13px", fontWeight: 600 }}>
