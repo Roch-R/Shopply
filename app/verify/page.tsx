@@ -44,7 +44,7 @@ export default function VerifyPage() {
         }
         if (!(window as any).recaptchaVerifier) {
           (window as any).recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-            size: 'invisible'
+            size: 'normal'
           });
         }
         const result = await signInWithPhoneNumber(auth, formattedPhone, (window as any).recaptchaVerifier);
@@ -395,7 +395,7 @@ export default function VerifyPage() {
           <button className="resend-btn" onClick={handleResend} disabled={resending}>
             {resending ? "Sending…" : "Resend OTP"}
           </button>
-          <div id="recaptcha-container"></div>
+          <div id="recaptcha-container" style={{ display: 'flex', justifyContent: 'center', marginTop: 16 }}></div>
         </div>
       </div>
     </>
