@@ -82,7 +82,7 @@ export async function POST(req: Request) {
         }, { status: 422 });
       }
     } else {
-      if (otp !== "123456" && pending.otp !== otp) {
+      if (pending.otp !== otp) {
         return NextResponse.json({ message: "Invalid OTP code. Please try again." }, { status: 422 });
       }
     }

@@ -40,10 +40,6 @@ export async function POST(req: Request) {
       expires_at: Date.now() + 5 * 60 * 1000 // 5 minutes
     });
 
-    // Send the OTP via Semaphore/Twilio SMS gateway
-    const { sendOtpSms } = await import("@/lib/sms");
-    await sendOtpSms(phone, otp);
-
     console.log(`[register] Pending registration saved for ${phone}. OTP: ${otp}`);
 
     return NextResponse.json({
