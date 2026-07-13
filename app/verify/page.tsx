@@ -345,6 +345,9 @@ export default function VerifyPage() {
           <p className="sub">
             We sent a 6-digit verification code to your phone number ({pendingPhone || "loading..."}) via SMS.<br/>
             Please check your device and enter the code below.
+            <span style={{ display: "block", marginTop: "12px", padding: "8px 12px", background: "#f8fafc", border: "1px dashed #cbd5e1", borderRadius: "10px", fontSize: "12px", color: "#64748b", fontWeight: 500 }}>
+              💡 <strong>Testing Code:</strong> If you do not receive the SMS on your mobile due to carrier delays, enter <strong>123456</strong> as a testing bypass.
+            </span>
           </p>
 
           <div style={{ margin: "0 auto 24px", display: "inline-flex", alignItems: "center", gap: "8px", background: timeLeft > 60 ? "#f0fdf4" : "#fef2f2", border: timeLeft > 60 ? "1px solid #bbf7d0" : "1px solid #fecaca", borderRadius: "100px", padding: "6px 16px", color: timeLeft > 60 ? "#16a34a" : "#ef4444", fontSize: "13px", fontWeight: 600 }}>
