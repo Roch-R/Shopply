@@ -8,7 +8,8 @@ import { getApiCache, createSmartPoller } from "@/lib/apiCache";
 import { Skeleton, SkeletonStatCard, SkeletonChatMessage, SkeletonChatListItem } from "@/components/Skeleton";
 import MeetupMap from "@/components/MeetupMap";
 import { collection, query, where, onSnapshot, doc, updateDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
+import { db, storage } from "@/lib/firebase";
 
 interface User {
   id: number;
@@ -1736,11 +1737,22 @@ export default function DashboardPage() {
         if (v.file) formData.append("variant_images[]", v.file);
       });
     }
-    // Showcase Video
+    // Showcase Video — Upload directly from client to bypass serverless 4.5MB payload limit
+    let uploadedVideoUrl = existingVideoPath || null;
     if (newVideoFile) {
-      formData.append("video", newVideoFile);
+      try {
+        const filename = `${Date.now()}_${newVideoFile.name.replace(/[^a-zA-Z0-9.]/g, "_")}`;
+        const videoRef = storageRef(storage, `item-videos/${filename}`);
+        const bytes = await newVideoFile.arrayBuffer();
+        await uploadBytes(videoRef, new Uint8Array(bytes), {
+          contentType: newVideoFile.type || "video/mp4"
+        });
+        uploadedVideoUrl = await getDownloadURL(videoRef);
+      } catch (videoUploadErr: any) {
+        console.warn("[handleCreateItem] Direct video storage upload failed:", videoUploadErr);
+      }
     }
-    attributes.existing_video_path = existingVideoPath;
+    attributes.existing_video_path = uploadedVideoUrl;
 
     // Description Images
     attributes.existing_description_images = descImagesState.filter(d => d.path).map(d => d.path);
