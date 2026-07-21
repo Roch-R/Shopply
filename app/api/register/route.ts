@@ -6,7 +6,25 @@ import { sendOtpEmail } from "@/lib/email";
 
 export async function POST(req: Request) {
   try {
-    const { name, username, email, password } = await req.json();
+    const { name, username, email, password, recaptchaToken } = await req.json();
+
+    // Verify Official Google reCAPTCHA v2 token
+    if (recaptchaToken) {
+      try {
+        const verifyRes = await fetch("https://www.google.com/recaptcha/api/siteverify", {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: `secret=6LcORV4tAAAAAK4dJKQ6UgGahdcQtMqG5hZD3sp1&response=${encodeURIComponent(recaptchaToken)}`
+        });
+        const verifyData = await verifyRes.json();
+        if (!verifyData.success) {
+          console.warn("[register] Google reCAPTCHA verification failed:", verifyData);
+          return NextResponse.json({ message: "Google reCAPTCHA verification failed. Please try again." }, { status: 400 });
+        }
+      } catch (captchaErr) {
+        console.warn("[register] Could not reach Google siteverify API:", captchaErr);
+      }
+    }
 
     if (!name || !username || !email || !password) {
       return NextResponse.json({ message: "All fields are required." }, { status: 422 });

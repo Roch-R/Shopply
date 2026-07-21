@@ -42,9 +42,27 @@ export default function RegisterPage() {
   const [showGoogleModal, setShowGoogleModal] = useState(false);
   const [copied, setCopied] = useState(false);
   const [origin, setOrigin] = useState("");
+  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
 
   useEffect(() => {
     setOrigin(window.location.origin);
+
+    (window as any).onRecaptchaSuccess = (token: string) => {
+      setRecaptchaToken(token);
+      setError("");
+    };
+    (window as any).onRecaptchaExpired = () => {
+      setRecaptchaToken(null);
+    };
+
+    if (!document.getElementById("google-recaptcha-script")) {
+      const script = document.createElement("script");
+      script.id = "google-recaptcha-script";
+      script.src = "https://www.google.com/recaptcha/api.js";
+      script.async = true;
+      script.defer = true;
+      document.body.appendChild(script);
+    }
   }, []);
 
   let strength = 0;
@@ -87,9 +105,14 @@ export default function RegisterPage() {
     if (!confirm) { setError("Please confirm your password."); return; }
     if (password !== confirm) { setError("Passwords do not match."); return; }
 
+    if (!recaptchaToken) {
+      setError("Please complete the Google reCAPTCHA verification.");
+      return;
+    }
+
     setLoading(true);
     try {
-      const data = await apiRegister({ name: username.trim(), username: username.trim(), email: email.trim(), password });
+      const data = await apiRegister({ name: username.trim(), username: username.trim(), email: email.trim(), password, recaptchaToken });
       getApiCache().invalidateAll();
       localStorage.setItem("token", data.token!);
       localStorage.setItem("user", JSON.stringify(data.user));
@@ -323,6 +346,16 @@ export default function RegisterPage() {
                   </button>
                 </div>
               </div>
+            </div>
+
+            {/* Official Google reCAPTCHA v2 Checkbox Widget */}
+            <div style={{ display: "flex", justifyContent: "center", margin: "20px 0" }}>
+              <div
+                className="g-recaptcha"
+                data-sitekey="6LcORV4tAAAAAFG8MkXdmNJ0Bs9pX8_ML7dwtcpM"
+                data-callback="onRecaptchaSuccess"
+                data-expired-callback="onRecaptchaExpired"
+              />
             </div>
 
             <button className="btn" disabled={loading} onClick={handleSubmit}>
