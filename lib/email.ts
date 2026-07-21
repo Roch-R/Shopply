@@ -1,38 +1,24 @@
 import nodemailer from "nodemailer";
 
 /**
- * Send an OTP code to a user's email address using Gmail SMTP.
+ * Send a real OTP code to a user's Gmail address using Gmail SMTP.
+ * Tries Port 587 (STARTTLS) first, and falls back to Port 465 (SSL).
  */
 export async function sendOtpEmail(to: string, otp: string): Promise<boolean> {
   const gmailUser = process.env.GMAIL_USER?.trim();
   const rawPass = process.env.GMAIL_APP_PASSWORD;
 
   if (!gmailUser || !rawPass) {
-    console.error("[email] Missing GMAIL_USER or GMAIL_APP_PASSWORD env vars.");
-    console.log(`[email] Fallback OTP for ${to}: ${otp}`);
-    return false;
+    throw new Error("GMAIL_USER or GMAIL_APP_PASSWORD environment variable is not configured in Vercel.");
   }
 
-  // Strip any spaces from app password (e.g. "abcd efgh ijkl mnop" -> "abcdefghijklmnop")
+  // Clean app password (remove any spaces)
   const gmailPass = rawPass.replace(/\s+/g, "");
 
-  const transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 465,
-    secure: true,
-    auth: {
-      user: gmailUser,
-      pass: gmailPass,
-    },
-    connectionTimeout: 10000,
-    greetingTimeout: 10000,
-    socketTimeout: 10000,
-  });
-
   const mailOptions = {
-    from: `"Shopply Support" <${gmailUser}>`,
+    from: `"Shopply" <${gmailUser}>`,
     to,
-    subject: `Your Shopply Verification Code: ${otp}`,
+    subject: `Your Shopply Verification Code is ${otp}`,
     html: `
       <div style="font-family:'Segoe UI',Arial,sans-serif;max-width:480px;margin:0 auto;padding:32px;background:#ffffff;border-radius:16px;border:1px solid #e2e8f0;box-shadow:0 4px 12px rgba(0,0,0,0.05);">
         <div style="text-align:center;margin-bottom:24px;">
@@ -45,17 +31,52 @@ export async function sendOtpEmail(to: string, otp: string): Promise<boolean> {
             ${otp}
           </div>
         </div>
-        <p style="font-size:13px;color:#94a3b8;text-align:center;margin:0;">This code expires in <strong>5 minutes</strong>. If you didn't request this, please ignore this email.</p>
+        <p style="font-size:13px;color:#94a3b8;text-align:center;margin:0;">This code expires in <strong>5 minutes</strong>. If you didn't request this code, please ignore this email.</p>
       </div>
     `,
   };
 
+  // Attempt 1: Port 587 (Standard STARTTLS for serverless Vercel)
   try {
+    const transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      port: 587,
+      secure: false,
+      auth: {
+        user: gmailUser,
+        pass: gmailPass,
+      },
+      tls: {
+        rejectUnauthorized: false
+      },
+      connectionTimeout: 8000,
+    });
+
     const info = await transporter.sendMail(mailOptions);
-    console.log(`[email] OTP email successfully sent to ${to}. MessageId: ${info.messageId}`);
+    console.log(`[email] OTP email sent via Port 587 to ${to}. MessageId: ${info.messageId}`);
     return true;
-  } catch (err: any) {
-    console.error(`[email] SMTP sendMail error for ${to}:`, err?.message || err);
-    throw new Error(`Failed to send email: ${err?.message || "SMTP connection failed"}`);
+  } catch (err1: any) {
+    console.warn(`[email] Port 587 failed (${err1?.message}), trying Port 465 fallback...`);
+
+    // Attempt 2: Port 465 (SSL fallback)
+    try {
+      const transporter465 = nodemailer.createTransport({
+        host: "smtp.gmail.com",
+        port: 465,
+        secure: true,
+        auth: {
+          user: gmailUser,
+          pass: gmailPass,
+        },
+        connectionTimeout: 8000,
+      });
+
+      const info465 = await transporter465.sendMail(mailOptions);
+      console.log(`[email] OTP email sent via Port 465 to ${to}. MessageId: ${info465.messageId}`);
+      return true;
+    } catch (err2: any) {
+      console.error(`[email] All SMTP attempts failed for ${to}:`, err2?.message || err2);
+      throw new Error(`Gmail SMTP delivery failed: ${err2?.message || err1?.message || "Connection refused"}`);
+    }
   }
 }

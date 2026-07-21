@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/firebase";
 import { collection, query, where, getDocs, doc, setDoc } from "firebase/firestore";
-import { hashPassword, generateToken, formatUser } from "@/lib/db";
+import { hashPassword } from "@/lib/db";
+import { sendOtpEmail } from "@/lib/email";
 
 export async function POST(req: Request) {
   try {
@@ -31,33 +32,36 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: "Email is already registered." }, { status: 422 });
     }
 
-    // Create user directly in Firestore as active/verified
-    const userId = Date.now();
-    const userDocRef = doc(db, "users", String(userId));
+    // Generate real random 6-digit OTP code
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
-    const newUser = {
-      id: userId,
+    // Save pending registration in Firestore
+    const pendingRef = doc(db, "pending_registrations", email);
+    await setDoc(pendingRef, {
       name,
       username,
       email,
-      phone: null,
       password: hashPassword(password),
-      email_verified_at: new Date().toISOString(),
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    };
+      otp,
+      expires_at: Date.now() + 5 * 60 * 1000 // 5 minutes
+    });
 
-    await setDoc(userDocRef, newUser);
+    // Send real OTP email via Gmail SMTP
+    try {
+      await sendOtpEmail(email, otp);
+    } catch (emailErr: any) {
+      console.error("[register] Email delivery failed:", emailErr);
+      return NextResponse.json({
+        message: `Could not send OTP email: ${emailErr?.message || "Check server credentials."}`
+      }, { status: 500 });
+    }
 
-    // Generate JWT token
-    const token = generateToken({ userId: newUser.id });
-
-    console.log(`[register] User registered and auto-verified: ${username} (${email})`);
+    console.log(`[register] Real OTP email sent to ${email}.`);
 
     return NextResponse.json({
-      message: "Registration successful!",
-      token,
-      user: formatUser(newUser)
+      message: "A 6-digit verification code has been sent to your email.",
+      requires_verify: true,
+      pending_email: email
     }, { status: 201 });
 
   } catch (err: any) {

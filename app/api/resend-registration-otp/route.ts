@@ -29,26 +29,19 @@ export async function POST(req: Request) {
     });
 
     // Send OTP to email
-    let emailSent = false;
-    let emailError = "";
     try {
-      emailSent = await sendOtpEmail(email, otp);
+      await sendOtpEmail(email, otp);
     } catch (emailErr: any) {
       console.error("[resend-registration-otp] Failed to send OTP email:", emailErr);
-      emailError = emailErr?.message || "Email delivery failed";
-    }
-
-    console.log(`[resend-registration-otp] New OTP for ${email}: ${otp} (sent: ${emailSent})`);
-
-    if (!emailSent && emailError) {
       return NextResponse.json({
-        message: `Email could not be delivered: ${emailError}. Check server settings.`,
-        otp_debug: otp // Fallback so testing is never blocked
-      }, { status: 200 });
+        message: `Failed to send email: ${emailErr?.message || "Check server SMTP settings."}`
+      }, { status: 500 });
     }
+
+    console.log(`[resend-registration-otp] New real OTP sent to ${email}.`);
 
     return NextResponse.json({
-      message: "New verification code sent to your email."
+      message: "A new verification code has been sent to your email."
     }, { status: 200 });
 
   } catch (err: any) {

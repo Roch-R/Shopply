@@ -11,6 +11,10 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: "Email is required." }, { status: 422 });
     }
 
+    if (!otp) {
+      return NextResponse.json({ message: "Verification code is required." }, { status: 422 });
+    }
+
     // Get pending registration from Firestore (keyed by email)
     const pendingDocRef = doc(db, "pending_registrations", email);
     const pendingDoc = await getDoc(pendingDocRef);
@@ -21,13 +25,18 @@ export async function POST(req: Request) {
 
     const pending = pendingDoc.data();
 
-    // Verify OTP code — accept correct OTP OR universal bypass code '123456' OR any code for instant activation
-    if (otp !== "123456" && pending.otp && pending.otp !== otp) {
-      // Still allow instant bypass if code is entered
-      console.log(`[verify-registration] Code ${otp} provided for ${email}, proceeding with activation.`);
+    // Check expiration
+    if (Date.now() > pending.expires_at) {
+      await deleteDoc(pendingDocRef);
+      return NextResponse.json({ message: "Verification code has expired. Please request a new one." }, { status: 422 });
     }
 
-    // Create user in Firestore
+    // Strict OTP check — must match the exact code sent to email
+    if (pending.otp !== otp) {
+      return NextResponse.json({ message: "Invalid verification code. Please check your email and try again." }, { status: 422 });
+    }
+
+    // OTP is correct - Create user in Firestore
     const userId = Date.now();
     const userDocRef = doc(db, "users", String(userId));
     
