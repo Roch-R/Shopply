@@ -44,7 +44,62 @@ export default function RegisterPage() {
   const [origin, setOrigin] = useState("");
   const [recaptchaChecked, setRecaptchaChecked] = useState(false);
   const [recaptchaLoading, setRecaptchaLoading] = useState(false);
+  const [showPuzzleModal, setShowPuzzleModal] = useState(false);
+  const [puzzleTopicIndex, setPuzzleTopicIndex] = useState(0);
+  const [selectedTiles, setSelectedTiles] = useState<number[]>([]);
+  const [puzzleError, setPuzzleError] = useState("");
   const [honeypot, setHoneypot] = useState("");
+
+  const PUZZLE_TOPICS = [
+    {
+      target: "bus",
+      instruction: "Select all images with a",
+      subInstruction: "Click verify once there are none left.",
+      images: [
+        { id: 0, label: "bus", icon: "🚌", title: "Bus Stop", isTarget: true, bg: "linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%)" },
+        { id: 1, label: "tree", icon: "🌳", title: "Park Tree", isTarget: false, bg: "linear-gradient(135deg, #dcfce7 0%, #86efac 100%)" },
+        { id: 2, label: "road", icon: "🛣️", title: "Highway", isTarget: false, bg: "linear-gradient(135deg, #f1f5f9 0%, #cbd5e1 100%)" },
+        { id: 3, label: "traffic_light", icon: "🚦", title: "Signal", isTarget: false, bg: "linear-gradient(135deg, #fef3c7 0%, #fde047 100%)" },
+        { id: 4, label: "bus", icon: "🚍", title: "Metro Bus", isTarget: true, bg: "linear-gradient(135deg, #ddd6fe 0%, #c084fc 100%)" },
+        { id: 5, label: "car", icon: "🚗", title: "Red Sedan", isTarget: false, bg: "linear-gradient(135deg, #fee2e2 0%, #fca5a5 100%)" },
+        { id: 6, label: "bus", icon: "🚐", title: "Shuttle Van", isTarget: true, bg: "linear-gradient(135deg, #e0e7ff 0%, #a5b4fc 100%)" },
+        { id: 7, label: "bicycle", icon: "🚲", title: "Bicycle", isTarget: false, bg: "linear-gradient(135deg, #ccfbf1 0%, #5eead4 100%)" },
+        { id: 8, label: "building", icon: "🏢", title: "Tower", isTarget: false, bg: "linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%)" }
+      ]
+    },
+    {
+      target: "traffic light",
+      instruction: "Select all images with a",
+      subInstruction: "Click verify once there are none left.",
+      images: [
+        { id: 0, label: "traffic_light", icon: "🚦", title: "Traffic Light", isTarget: true, bg: "linear-gradient(135deg, #fef3c7 0%, #fcd34d 100%)" },
+        { id: 1, label: "car", icon: "🚘", title: "White Sedan", isTarget: false, bg: "linear-gradient(135deg, #f1f5f9 0%, #cbd5e1 100%)" },
+        { id: 2, label: "traffic_light", icon: "🚥", title: "Cross Signal", isTarget: true, bg: "linear-gradient(135deg, #fed7aa 0%, #fb923c 100%)" },
+        { id: 3, label: "tree", icon: "🌲", title: "Pine Tree", isTarget: false, bg: "linear-gradient(135deg, #dcfce7 0%, #4ade80 100%)" },
+        { id: 4, label: "bus", icon: "🚌", title: "Yellow Bus", isTarget: false, bg: "linear-gradient(135deg, #e0f2fe 0%, #38bdf8 100%)" },
+        { id: 5, label: "traffic_light", icon: "🚦", title: "Main Signal", isTarget: true, bg: "linear-gradient(135deg, #fef9c3 0%, #facc15 100%)" },
+        { id: 6, label: "street", icon: "🏙️", title: "City Street", isTarget: false, bg: "linear-gradient(135deg, #f3e8ff 0%, #c084fc 100%)" },
+        { id: 7, label: "hydrant", icon: "🚰", title: "Water Hydrant", isTarget: false, bg: "linear-gradient(135deg, #fae8ff 0%, #f0abfc 100%)" },
+        { id: 8, label: "bicycle", icon: "🚲", title: "Bike Path", isTarget: false, bg: "linear-gradient(135deg, #ccfbf1 0%, #2dd4bf 100%)" }
+      ]
+    },
+    {
+      target: "crosswalk",
+      instruction: "Select all images with a",
+      subInstruction: "Click verify once there are none left.",
+      images: [
+        { id: 0, label: "car", icon: "🚙", title: "Blue SUV", isTarget: false, bg: "linear-gradient(135deg, #e0f2fe 0%, #60a5fa 100%)" },
+        { id: 1, label: "crosswalk", icon: "🦓", title: "Zebra Crossing", isTarget: true, bg: "linear-gradient(135deg, #f1f5f9 0%, #94a3b8 100%)" },
+        { id: 2, label: "tree", icon: "🌴", title: "Palm Tree", isTarget: false, bg: "linear-gradient(135deg, #dcfce7 0%, #4ade80 100%)" },
+        { id: 3, label: "crosswalk", icon: "🚸", title: "School Crossing", isTarget: true, bg: "linear-gradient(135deg, #fef3c7 0%, #facc15 100%)" },
+        { id: 4, label: "building", icon: "🏠", title: "Residential House", isTarget: false, bg: "linear-gradient(135deg, #ffedd5 0%, #fb923c 100%)" },
+        { id: 5, label: "crosswalk", icon: "🚶‍♂️", title: "Pedestrian Walk", isTarget: true, bg: "linear-gradient(135deg, #e0e7ff 0%, #818cf8 100%)" },
+        { id: 6, label: "motorcycle", icon: "🏍️", title: "Motorbike", isTarget: false, bg: "linear-gradient(135deg, #f3e8ff 0%, #a855f7 100%)" },
+        { id: 7, label: "bus", icon: "🚌", title: "City Bus", isTarget: false, bg: "linear-gradient(135deg, #dbeafe 0%, #3b82f6 100%)" },
+        { id: 8, label: "car", icon: "🚕", title: "Yellow Taxi", isTarget: false, bg: "linear-gradient(135deg, #fef9c3 0%, #eab308 100%)" }
+      ]
+    }
+  ];
 
   useEffect(() => {
     setOrigin(window.location.origin);
@@ -363,8 +418,10 @@ export default function RegisterPage() {
                     setError("");
                     setTimeout(() => {
                       setRecaptchaLoading(false);
-                      setRecaptchaChecked(true);
-                    }, 1200);
+                      setSelectedTiles([]);
+                      setPuzzleError("");
+                      setShowPuzzleModal(true);
+                    }, 400);
                   }}
                   style={{
                     width: 28,
@@ -527,6 +584,200 @@ export default function RegisterPage() {
             </div>
           </div>
         )}
+        {/* Authentic Google reCAPTCHA Image Challenge Puzzle Modal */}
+        {showPuzzleModal && (() => {
+          const currentTopic = PUZZLE_TOPICS[puzzleTopicIndex];
+          return (
+            <div 
+              style={{
+                position: 'fixed',
+                inset: 0,
+                background: 'rgba(0,0,0,0.45)',
+                backdropFilter: 'blur(2px)',
+                zIndex: 99999,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontFamily: 'Roboto, Arial, sans-serif'
+              }}
+              onClick={() => setShowPuzzleModal(false)}
+            >
+              <div 
+                onClick={e => e.stopPropagation()}
+                style={{
+                  background: '#ffffff',
+                  width: 380,
+                  borderRadius: 4,
+                  boxShadow: '0 12px 36px rgba(0,0,0,0.3)',
+                  overflow: 'hidden',
+                  position: 'relative',
+                  border: '1px solid #d3d3d3'
+                }}
+              >
+                {/* Blue reCAPTCHA Puzzle Header */}
+                <div style={{ background: '#1a73e8', color: '#ffffff', padding: '16px 20px 14px' }}>
+                  <div style={{ fontSize: 14, opacity: 0.9, fontWeight: 400 }}>
+                    {currentTopic.instruction}
+                  </div>
+                  <div style={{ fontSize: 26, fontWeight: 800, textTransform: 'lowercase', letterSpacing: '-0.3px', margin: '2px 0 4px' }}>
+                    {currentTopic.target}
+                  </div>
+                  <div style={{ fontSize: 13, opacity: 0.9 }}>
+                    {currentTopic.subInstruction}
+                  </div>
+                </div>
+
+                {/* 3x3 Image Grid */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 4, padding: 8, background: '#f5f5f5' }}>
+                  {currentTopic.images.map((tile) => {
+                    const isSelected = selectedTiles.includes(tile.id);
+                    return (
+                      <div
+                        key={tile.id}
+                        onClick={() => {
+                          setSelectedTiles(prev => 
+                            prev.includes(tile.id) ? prev.filter(i => i !== tile.id) : [...prev, tile.id]
+                          );
+                          setPuzzleError("");
+                        }}
+                        style={{
+                          aspectRatio: '1',
+                          background: tile.bg,
+                          borderRadius: 2,
+                          cursor: 'pointer',
+                          position: 'relative',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          transition: 'all 0.15s ease',
+                          transform: isSelected ? 'scale(0.92)' : 'scale(1)',
+                          border: isSelected ? '3px solid #1a73e8' : '1px solid rgba(0,0,0,0.08)',
+                          boxSizing: 'border-box'
+                        }}
+                      >
+                        <span style={{ fontSize: 36, filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.15))' }}>{tile.icon}</span>
+                        <span style={{ fontSize: 10, fontWeight: 600, color: '#334155', marginTop: 2, background: 'rgba(255,255,255,0.75)', padding: '1px 6px', borderRadius: 4 }}>
+                          {tile.title}
+                        </span>
+
+                        {isSelected && (
+                          <div style={{
+                            position: 'absolute',
+                            top: 4,
+                            right: 4,
+                            width: 22,
+                            height: 22,
+                            borderRadius: '50%',
+                            background: '#1a73e8',
+                            color: '#fff',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: 12,
+                            fontWeight: 900,
+                            boxShadow: '0 2px 6px rgba(0,0,0,0.2)'
+                          }}>
+                            ✓
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Error Banner */}
+                {puzzleError && (
+                  <div style={{ padding: '6px 14px', background: '#fef2f2', color: '#dc2626', fontSize: 12, fontWeight: 600, borderTop: '1px solid #fee2e2' }}>
+                    ⚠️ {puzzleError}
+                  </div>
+                )}
+
+                {/* Bottom Action Controls Bar */}
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '12px 16px',
+                  background: '#ffffff',
+                  borderTop: '1px solid #e5e7eb'
+                }}>
+                  {/* Left Icon Controls */}
+                  <div style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
+                    <button
+                      type="button"
+                      title="Reload new challenge"
+                      onClick={() => {
+                        setPuzzleTopicIndex((prev) => (prev + 1) % PUZZLE_TOPICS.length);
+                        setSelectedTiles([]);
+                        setPuzzleError("");
+                      }}
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 18, color: '#5f6368', padding: 2 }}
+                    >
+                      🔄
+                    </button>
+                    <button
+                      type="button"
+                      title="Audio challenge"
+                      onClick={() => alert("Audio challenge is currently unavailable. Please solve the visual puzzle.")}
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 18, color: '#5f6368', padding: 2 }}
+                    >
+                      🎧
+                    </button>
+                    <button
+                      type="button"
+                      title="reCAPTCHA Info"
+                      onClick={() => alert("reCAPTCHA protects websites from spam and abuse.")}
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 18, color: '#5f6368', padding: 2 }}
+                    >
+                      ℹ️
+                    </button>
+                  </div>
+
+                  {/* VERIFY Button */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (selectedTiles.length === 0) {
+                        setPuzzleError("Please select all matching images.");
+                        return;
+                      }
+                      // Verify selected tiles contain target items
+                      const targetTileIds = currentTopic.images.filter(img => img.isTarget).map(img => img.id);
+                      const hasSelectedTarget = selectedTiles.some(id => targetTileIds.includes(id));
+
+                      if (hasSelectedTarget) {
+                        setShowPuzzleModal(false);
+                        setRecaptchaChecked(true);
+                        setError("");
+                      } else {
+                        setPuzzleError(`Incorrect answer. Please select all images with a ${currentTopic.target}.`);
+                        setSelectedTiles([]);
+                      }
+                    }}
+                    style={{
+                      background: '#1a73e8',
+                      color: '#ffffff',
+                      border: 'none',
+                      borderRadius: 3,
+                      padding: '10px 24px',
+                      fontSize: 14,
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      letterSpacing: '0.5px',
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
+                      transition: 'background 0.15s'
+                    }}
+                    onMouseOver={e => e.currentTarget.style.background = '#1557b0'}
+                    onMouseOut={e => e.currentTarget.style.background = '#1a73e8'}
+                  >
+                    VERIFY
+                  </button>
+                </div>
+              </div>
+            </div>
+          );
+        })()}
       </div>
     </>
   );
