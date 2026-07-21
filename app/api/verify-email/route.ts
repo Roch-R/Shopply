@@ -3,48 +3,6 @@ import { db } from "@/lib/firebase";
 import { doc, updateDoc } from "firebase/firestore";
 import { getAuthUser, formatUser } from "@/lib/db";
 
-const FIREBASE_API_KEY = "AIzaSyBwACrZ_RlcOvsrJ7nb4HZDcMFKSJ2gMww";
-
-interface TokenVerificationResult {
-  phone: string | null;
-  error?: string;
-}
-
-async function verifyFirebaseToken(idToken: string): Promise<TokenVerificationResult> {
-  try {
-    const res = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${FIREBASE_API_KEY}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ idToken })
-    });
-    
-    if (!res.ok) {
-      const errorText = await res.text();
-      console.error("[verify-email] Firebase ID token lookup failed:", errorText);
-      return { phone: null, error: errorText };
-    }
-
-    const data = await res.json();
-    const users = data?.users;
-    if (users && users.length > 0 && users[0].phoneNumber) {
-      const phoneNumber = users[0].phoneNumber;
-      
-      let normalized = phoneNumber;
-      // Normalize to 09XXXXXXXXX
-      if (phoneNumber.startsWith("+639") && phoneNumber.length === 13) {
-        normalized = "09" + phoneNumber.substring(4);
-      } else if (phoneNumber.startsWith("639") && phoneNumber.length === 12) {
-        normalized = "09" + phoneNumber.substring(3);
-      }
-      return { phone: normalized };
-    }
-    return { phone: null, error: "No user/phone found in token." };
-  } catch (err: any) {
-    console.error("[verify-email] Firebase token verification exception:", err);
-    return { phone: null, error: err?.message || String(err) };
-  }
-}
-
 export async function POST(req: Request) {
   try {
     const user = await getAuthUser(req);
@@ -52,25 +10,11 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: "Unauthenticated." }, { status: 401 });
     }
 
-    const { otp, firebase_token } = await req.json();
+    const { otp } = await req.json();
 
-    if (firebase_token) {
-      const { phone: verifiedPhone, error: verificationError } = await verifyFirebaseToken(firebase_token);
-      if (!verifiedPhone) {
-        return NextResponse.json({ 
-          message: `Firebase token verification failed: ${verificationError || "Unknown error"}` 
-        }, { status: 422 });
-      }
-      if (verifiedPhone !== user.phone) {
-        return NextResponse.json({ 
-          message: `Firebase verified number (${verifiedPhone}) does not match account phone number (${user.phone}).` 
-        }, { status: 422 });
-      }
-    } else {
-      // Fallback verification code check (mocked for testing)
-      if (otp !== "123456" && user.otp_code !== otp) {
-        return NextResponse.json({ message: "Invalid verification code. Please try again." }, { status: 422 });
-      }
+    // Verify OTP code against the user's stored OTP
+    if (user.otp_code !== otp) {
+      return NextResponse.json({ message: "Invalid verification code. Please try again." }, { status: 422 });
     }
 
     // Update user verified status in Firestore
@@ -88,7 +32,7 @@ export async function POST(req: Request) {
     };
 
     return NextResponse.json({
-      message: "Phone number verified successfully!",
+      message: "Email verified successfully!",
       user: formatUser(updatedUser)
     }, { status: 200 });
 

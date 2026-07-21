@@ -51,7 +51,7 @@ export function formatUser(userData: any): any {
     id: userData.id,
     name: userData.name,
     username: userData.username,
-    email: userData.username,
+    email: userData.email || null,
     phone: userData.phone || null,
     avatar: userData.avatar || null,
     followers_count: userData.followers_count || 0,

@@ -32,7 +32,7 @@ const GoogleIcon = () => (
 export default function RegisterPage() {
   const router = useRouter();
   const [username, setUsername] = useState("");
-  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [error, setError] = useState("");
@@ -78,9 +78,8 @@ export default function RegisterPage() {
   const handleSubmit = async () => {
     setError("");
     if (!username.trim()) { setError("Username is required."); return; }
-    if (!phone.trim()) { setError("Phone number is required."); return; }
-    if (phone.length !== 11) { setError("Phone number must be exactly 11 digits (e.g. 09XXXXXXXXX)."); return; }
-    if (!phone.startsWith("09")) { setError("Phone number must start with 09."); return; }
+    if (!email.trim()) { setError("Email is required."); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) { setError("Please enter a valid email address."); return; }
     if (!password) { setError("Password is required."); return; }
     if (password.length < 8) { setError("Password must be at least 8 characters."); return; }
     if (!/[a-z]/.test(password)) { setError("Password must contain at least one letter."); return; }
@@ -90,7 +89,7 @@ export default function RegisterPage() {
 
     setLoading(true);
     try {
-      const data = await apiRegister({ name: username.trim(), username: username.trim(), phone: phone.trim(), password });
+      const data = await apiRegister({ name: username.trim(), username: username.trim(), email: email.trim(), password });
       getApiCache().invalidateAll();
       localStorage.setItem("token", data.token!);
       localStorage.setItem("user", JSON.stringify(data.user));
@@ -265,29 +264,19 @@ export default function RegisterPage() {
 
 
             <div className="field">
-              <label>Phone Number</label>
+              <label>Email Address</label>
               <input
-                type="tel" placeholder="09xxxxxxxxx"
-                value={phone}
-                maxLength={11}
+                type="email" placeholder="you@gmail.com"
+                value={email}
                 onChange={e => {
-                  // Only allow digits, max 11 characters
-                  const digits = e.target.value.replace(/\D/g, "").slice(0, 11);
-                  setPhone(digits);
+                  setEmail(e.target.value);
                   setError("");
                 }}
-                autoComplete="tel"
+                autoComplete="email"
               />
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 2 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '11px', color: '#64748b', marginTop: '4px', fontWeight: 500 }}>
-                  <span style={{ fontSize: '12px' }}>📱</span>
-                  <span>SMS OTP will be sent to verify your number</span>
-                </div>
-                {phone.length > 0 && phone.length < 11 && (
-                  <span style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 500, marginTop: 4 }}>
-                    {phone.length}/11 digits
-                  </span>
-                )}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '11px', color: '#64748b', marginTop: '4px', fontWeight: 500 }}>
+                <span style={{ fontSize: '12px' }}>📧</span>
+                <span>OTP verification code will be sent to your email</span>
               </div>
             </div>
 
