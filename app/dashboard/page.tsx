@@ -8,7 +8,7 @@ import { getApiCache, createSmartPoller } from "@/lib/apiCache";
 import { Skeleton, SkeletonStatCard, SkeletonChatMessage, SkeletonChatListItem } from "@/components/Skeleton";
 import MeetupMap from "@/components/MeetupMap";
 import { collection, query, where, onSnapshot, doc, updateDoc } from "firebase/firestore";
-import { ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
+import { ref as storageRef, uploadBytes, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { db, storage } from "@/lib/firebase";
 
 interface User {
@@ -1026,6 +1026,8 @@ export default function DashboardPage() {
   const [newVideoFile, setNewVideoFile] = useState<File | null>(null);
   const [newVideoPreview, setNewVideoPreview] = useState<string | null>(null);
   const [existingVideoPath, setExistingVideoPath] = useState<string | null>(null);
+  const [videoUploadProgress, setVideoUploadProgress] = useState<number | null>(null);
+  const [videoUploadStatus, setVideoUploadStatus] = useState<string>("");
   const [descImagesState, setDescImagesState] = useState<{ file: File | null, preview: string, path: string | null }[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [newItemCategory, setNewItemCategory] = useState("General");
@@ -1737,19 +1739,40 @@ export default function DashboardPage() {
         if (v.file) formData.append("variant_images[]", v.file);
       });
     }
-    // Showcase Video — Upload directly from client to bypass serverless 4.5MB payload limit
+    // Showcase Video — Upload directly from client with live progress bar
     let uploadedVideoUrl = existingVideoPath || null;
     if (newVideoFile) {
       try {
+        setVideoUploadProgress(0);
+        setVideoUploadStatus("Preparing video upload...");
         const filename = `${Date.now()}_${newVideoFile.name.replace(/[^a-zA-Z0-9.]/g, "_")}`;
         const videoRef = storageRef(storage, `item-videos/${filename}`);
         const bytes = await newVideoFile.arrayBuffer();
-        await uploadBytes(videoRef, new Uint8Array(bytes), {
+
+        const uploadTask = uploadBytesResumable(videoRef, new Uint8Array(bytes), {
           contentType: newVideoFile.type || "video/mp4"
         });
+
+        await new Promise<void>((resolve, reject) => {
+          uploadTask.on(
+            "state_changed",
+            (snapshot) => {
+              const progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+              setVideoUploadProgress(progress);
+              setVideoUploadStatus(`Uploading video (${progress}%)...`);
+            },
+            (error) => reject(error),
+            () => resolve()
+          );
+        });
+
         uploadedVideoUrl = await getDownloadURL(videoRef);
+        setVideoUploadStatus("Video upload complete!");
       } catch (videoUploadErr: any) {
         console.warn("[handleCreateItem] Direct video storage upload failed:", videoUploadErr);
+      } finally {
+        setVideoUploadProgress(null);
+        setVideoUploadStatus("");
       }
     }
     attributes.existing_video_path = uploadedVideoUrl;
@@ -4799,6 +4822,24 @@ export default function DashboardPage() {
                         style={{ display: 'none' }}
                       />
                     </div>
+                    {videoUploadProgress !== null && (
+                      <div style={{ marginTop: 12, width: '100%', maxWidth: 360, background: '#faf5ff', border: '1.5px solid #e9d5ff', borderRadius: 12, padding: '12px 16px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 12, fontWeight: 700, color: '#7c3aed', marginBottom: 6 }}>
+                          <span>📹 {videoUploadStatus || "Uploading video..."}</span>
+                          <span style={{ fontSize: 13, background: '#7c3aed', color: '#fff', padding: '2px 8px', borderRadius: 10 }}>{videoUploadProgress}%</span>
+                        </div>
+                        <div style={{ height: 10, background: '#e9d5ff', borderRadius: 6, overflow: 'hidden', position: 'relative' }}>
+                          <div style={{
+                            height: '100%',
+                            width: `${videoUploadProgress}%`,
+                            background: 'linear-gradient(90deg, #7c3aed 0%, #2563eb 100%)',
+                            borderRadius: 6,
+                            transition: 'width 0.2s ease-out',
+                            boxShadow: '0 0 10px rgba(124,58,237,0.5)'
+                          }} />
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   <div className="form-group" style={{ position: 'relative' }}>
@@ -4907,7 +4948,11 @@ export default function DashboardPage() {
                   </div>
 
                   <button type="submit" className="submit-btn" disabled={isSubmitting} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-                    {isSubmitting ? (editingItem ? "Updating..." : "Adding...") : <>{editingItem ? <IconCheck /> : <IconPlus />} {editingItem ? "Update Item" : "Add Item"}</>}
+                    {isSubmitting ? (
+                      videoUploadProgress !== null ? `Uploading Video (${videoUploadProgress}%)...` : (editingItem ? "Updating..." : "Adding...")
+                    ) : (
+                      <>{editingItem ? <IconCheck /> : <IconPlus />} {editingItem ? "Update Item" : "Add Item"}</>
+                    )}
                   </button>
                 </form>
               </div>
