@@ -42,20 +42,12 @@ export default function RegisterPage() {
   const [showGoogleModal, setShowGoogleModal] = useState(false);
   const [copied, setCopied] = useState(false);
   const [origin, setOrigin] = useState("");
-  const [captchaNum1, setCaptchaNum1] = useState(3);
-  const [captchaNum2, setCaptchaNum2] = useState(4);
-  const [captchaInput, setCaptchaInput] = useState("");
+  const [recaptchaChecked, setRecaptchaChecked] = useState(false);
+  const [recaptchaLoading, setRecaptchaLoading] = useState(false);
   const [honeypot, setHoneypot] = useState("");
-
-  const refreshCaptcha = () => {
-    setCaptchaNum1(Math.floor(Math.random() * 8) + 1);
-    setCaptchaNum2(Math.floor(Math.random() * 8) + 1);
-    setCaptchaInput("");
-  };
 
   useEffect(() => {
     setOrigin(window.location.origin);
-    refreshCaptcha();
   }, []);
 
   let strength = 0;
@@ -102,13 +94,8 @@ export default function RegisterPage() {
     if (!confirm) { setError("Please confirm your password."); return; }
     if (password !== confirm) { setError("Passwords do not match."); return; }
 
-    if (!captchaInput.trim()) {
-      setError(`Please solve the human security check: ${captchaNum1} + ${captchaNum2} = ?`);
-      return;
-    }
-    if (parseInt(captchaInput.trim(), 10) !== (captchaNum1 + captchaNum2)) {
-      setError(`Incorrect security answer. Please solve: ${captchaNum1} + ${captchaNum2} = ?`);
-      refreshCaptcha();
+    if (!recaptchaChecked) {
+      setError("Please check the reCAPTCHA box to verify you are not a robot.");
       return;
     }
 
@@ -350,52 +337,101 @@ export default function RegisterPage() {
               </div>
             </div>
 
-            {/* Anti-Bot Security Verification Card */}
+            {/* Google reCAPTCHA v2 Checkbox Widget */}
             <div style={{
-              background: '#f8fafc',
-              border: '1.5px solid #e2e8f0',
-              borderRadius: 14,
-              padding: '14px 16px',
-              margin: '16px 0 20px',
+              background: '#f9f9f9',
+              border: '1px solid #d3d3d3',
+              borderRadius: 3,
+              width: '100%',
+              maxWidth: 302,
+              height: 78,
+              margin: '20px 0',
+              padding: '0 12px 0 14px',
               display: 'flex',
-              flexDirection: 'column',
-              gap: 10
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              boxShadow: '0 0 4px rgba(0,0,0,0.05)',
+              fontFamily: 'Roboto, Arial, sans-serif',
+              boxSizing: 'border-box',
+              userSelect: 'none'
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 700, color: '#334155' }}>
-                  <span style={{ fontSize: 14 }}>🛡️</span>
-                  <span>Anti-Bot Verification</span>
-                </div>
-                <button
-                  type="button"
-                  onClick={refreshCaptcha}
-                  title="New challenge"
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, color: '#7c3aed', padding: 2 }}
-                >
-                  🔄
-                </button>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <span style={{ fontSize: 13, fontWeight: 700, color: '#475569', background: '#e2e8f0', padding: '6px 12px', borderRadius: 8, fontFamily: 'monospace' }}>
-                  {captchaNum1} + {captchaNum2} = ?
-                </span>
-                <input
-                  type="number"
-                  placeholder="Answer"
-                  value={captchaInput}
-                  onChange={e => { setCaptchaInput(e.target.value); setError(""); }}
-                  style={{
-                    flex: 1,
-                    padding: '8px 12px',
-                    borderRadius: 8,
-                    border: '1.5px solid #cbd5e1',
-                    fontSize: 14,
-                    fontWeight: 600,
-                    outline: 'none',
-                    background: '#fff'
+              <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                <div 
+                  onClick={() => {
+                    if (recaptchaChecked || recaptchaLoading) return;
+                    setRecaptchaLoading(true);
+                    setError("");
+                    setTimeout(() => {
+                      setRecaptchaLoading(false);
+                      setRecaptchaChecked(true);
+                    }, 1200);
                   }}
-                />
+                  style={{
+                    width: 28,
+                    height: 28,
+                    border: recaptchaChecked ? 'none' : '2px solid #c1c1c1',
+                    borderRadius: 2,
+                    background: recaptchaChecked ? 'transparent' : '#ffffff',
+                    cursor: recaptchaChecked ? 'default' : 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'all 0.15s',
+                    position: 'relative'
+                  }}
+                >
+                  {recaptchaLoading && (
+                    <div style={{
+                      width: 24,
+                      height: 24,
+                      borderRadius: '50%',
+                      border: '3px solid #4a90e2',
+                      borderTopColor: 'transparent',
+                      animation: 'recaptchaSpin 1s linear infinite'
+                    }} />
+                  )}
+                  {recaptchaChecked && (
+                    <div style={{
+                      width: 28,
+                      height: 28,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      animation: 'recaptchaCheckBounce 0.25s ease-out'
+                    }}>
+                      <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#009d57" strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="20,6 9,17 4,12" />
+                      </svg>
+                    </div>
+                  )}
+                </div>
+                <span style={{ fontSize: 14, fontWeight: 500, color: '#2d2d2d', cursor: 'default' }}>
+                  I&apos;m not a robot
+                </span>
               </div>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                <svg viewBox="0 0 24 24" width="28" height="28" fill="#4a90e2" style={{ marginBottom: 2 }}>
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
+                </svg>
+                <span style={{ fontSize: 8, color: '#9b9b9b', fontWeight: 600, letterSpacing: '0.5px' }}>reCAPTCHA</span>
+                <div style={{ display: 'flex', gap: 4, marginTop: 2 }}>
+                  <span style={{ fontSize: 8, color: '#9b9b9b', textDecoration: 'none', cursor: 'pointer' }}>Privacy</span>
+                  <span style={{ fontSize: 8, color: '#9b9b9b' }}>•</span>
+                  <span style={{ fontSize: 8, color: '#9b9b9b', textDecoration: 'none', cursor: 'pointer' }}>Terms</span>
+                </div>
+              </div>
+
+              <style>{`
+                @keyframes recaptchaSpin {
+                  0% { transform: rotate(0deg); }
+                  100% { transform: rotate(360deg); }
+                }
+                @keyframes recaptchaCheckBounce {
+                  0% { transform: scale(0.6); opacity: 0; }
+                  70% { transform: scale(1.1); opacity: 1; }
+                  100% { transform: scale(1); }
+                }
+              `}</style>
             </div>
 
             {/* Hidden Anti-Bot Honeypot Field */}
