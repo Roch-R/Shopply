@@ -56,15 +56,15 @@ export default function RegisterPage() {
       instruction: "Select all images with a",
       subInstruction: "Click verify once there are none left.",
       images: [
-        { id: 0, label: "bus", icon: "🚌", title: "Bus Stop", isTarget: true, bg: "linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%)" },
-        { id: 1, label: "tree", icon: "🌳", title: "Park Tree", isTarget: false, bg: "linear-gradient(135deg, #dcfce7 0%, #86efac 100%)" },
-        { id: 2, label: "road", icon: "🛣️", title: "Highway", isTarget: false, bg: "linear-gradient(135deg, #f1f5f9 0%, #cbd5e1 100%)" },
-        { id: 3, label: "traffic_light", icon: "🚦", title: "Signal", isTarget: false, bg: "linear-gradient(135deg, #fef3c7 0%, #fde047 100%)" },
-        { id: 4, label: "bus", icon: "🚍", title: "Metro Bus", isTarget: true, bg: "linear-gradient(135deg, #ddd6fe 0%, #c084fc 100%)" },
-        { id: 5, label: "car", icon: "🚗", title: "Red Sedan", isTarget: false, bg: "linear-gradient(135deg, #fee2e2 0%, #fca5a5 100%)" },
-        { id: 6, label: "bus", icon: "🚐", title: "Shuttle Van", isTarget: true, bg: "linear-gradient(135deg, #e0e7ff 0%, #a5b4fc 100%)" },
-        { id: 7, label: "bicycle", icon: "🚲", title: "Bicycle", isTarget: false, bg: "linear-gradient(135deg, #ccfbf1 0%, #5eead4 100%)" },
-        { id: 8, label: "building", icon: "🏢", title: "Tower", isTarget: false, bg: "linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%)" }
+        { id: 0, label: "bus", title: "Yellow Bus", isTarget: true, img: "https://images.unsplash.com/photo-1570125909232-eb263c188f7e?w=200&auto=format&fit=crop&q=80" },
+        { id: 1, label: "tree", title: "Park Tree", isTarget: false, img: "https://images.unsplash.com/photo-1448375240586-882707db888b?w=200&auto=format&fit=crop&q=80" },
+        { id: 2, label: "road", title: "Highway", isTarget: false, img: "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=200&auto=format&fit=crop&q=80" },
+        { id: 3, label: "traffic_light", title: "Signal", isTarget: false, img: "https://images.unsplash.com/photo-1508873696983-2df515122519?w=200&auto=format&fit=crop&q=80" },
+        { id: 4, label: "bus", title: "Metro Bus", isTarget: true, img: "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=200&auto=format&fit=crop&q=80" },
+        { id: 5, label: "car", title: "Red Car", isTarget: false, img: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=200&auto=format&fit=crop&q=80" },
+        { id: 6, label: "bus", title: "Double Decker", isTarget: true, img: "https://images.unsplash.com/photo-1562620669-982042bd35a2?w=200&auto=format&fit=crop&q=80" },
+        { id: 7, label: "bicycle", title: "Bicycle", isTarget: false, img: "https://images.unsplash.com/photo-1485965120184-e220f721d03e?w=200&auto=format&fit=crop&q=80" },
+        { id: 8, label: "building", title: "Skyscraper", isTarget: false, img: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=200&auto=format&fit=crop&q=80" }
       ]
     },
     {
@@ -72,15 +72,15 @@ export default function RegisterPage() {
       instruction: "Select all images with a",
       subInstruction: "Click verify once there are none left.",
       images: [
-        { id: 0, label: "traffic_light", icon: "🚦", title: "Traffic Light", isTarget: true, bg: "linear-gradient(135deg, #fef3c7 0%, #fcd34d 100%)" },
-        { id: 1, label: "car", icon: "🚘", title: "White Sedan", isTarget: false, bg: "linear-gradient(135deg, #f1f5f9 0%, #cbd5e1 100%)" },
-        { id: 2, label: "traffic_light", icon: "🚥", title: "Cross Signal", isTarget: true, bg: "linear-gradient(135deg, #fed7aa 0%, #fb923c 100%)" },
-        { id: 3, label: "tree", icon: "🌲", title: "Pine Tree", isTarget: false, bg: "linear-gradient(135deg, #dcfce7 0%, #4ade80 100%)" },
-        { id: 4, label: "bus", icon: "🚌", title: "Yellow Bus", isTarget: false, bg: "linear-gradient(135deg, #e0f2fe 0%, #38bdf8 100%)" },
-        { id: 5, label: "traffic_light", icon: "🚦", title: "Main Signal", isTarget: true, bg: "linear-gradient(135deg, #fef9c3 0%, #facc15 100%)" },
-        { id: 6, label: "street", icon: "🏙️", title: "City Street", isTarget: false, bg: "linear-gradient(135deg, #f3e8ff 0%, #c084fc 100%)" },
-        { id: 7, label: "hydrant", icon: "🚰", title: "Water Hydrant", isTarget: false, bg: "linear-gradient(135deg, #fae8ff 0%, #f0abfc 100%)" },
-        { id: 8, label: "bicycle", icon: "🚲", title: "Bike Path", isTarget: false, bg: "linear-gradient(135deg, #ccfbf1 0%, #2dd4bf 100%)" }
+        { id: 0, label: "traffic_light", title: "Traffic Light", isTarget: true, img: "https://images.unsplash.com/photo-1508873696983-2df515122519?w=200&auto=format&fit=crop&q=80" },
+        { id: 1, label: "car", title: "White Sedan", isTarget: false, img: "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=200&auto=format&fit=crop&q=80" },
+        { id: 2, label: "traffic_light", title: "City Signal", isTarget: true, img: "https://images.unsplash.com/photo-1566933293069-b55c7f326dd4?w=200&auto=format&fit=crop&q=80" },
+        { id: 3, label: "tree", title: "Forest", isTarget: false, img: "https://images.unsplash.com/photo-1448375240586-882707db888b?w=200&auto=format&fit=crop&q=80" },
+        { id: 4, label: "bus", title: "Transit Bus", isTarget: false, img: "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=200&auto=format&fit=crop&q=80" },
+        { id: 5, label: "traffic_light", title: "Red Light", isTarget: true, img: "https://images.unsplash.com/photo-1519782500057-01309df5be94?w=200&auto=format&fit=crop&q=80" },
+        { id: 6, label: "street", title: "City Street", isTarget: false, img: "https://images.unsplash.com/photo-1477959858617-67f30ac4ce78?w=200&auto=format&fit=crop&q=80" },
+        { id: 7, label: "hydrant", title: "Fire Hydrant", isTarget: false, img: "https://images.unsplash.com/photo-1517524008697-84bbe3c3fd98?w=200&auto=format&fit=crop&q=80" },
+        { id: 8, label: "bicycle", title: "Bike Path", isTarget: false, img: "https://images.unsplash.com/photo-1485965120184-e220f721d03e?w=200&auto=format&fit=crop&q=80" }
       ]
     },
     {
@@ -88,15 +88,15 @@ export default function RegisterPage() {
       instruction: "Select all images with a",
       subInstruction: "Click verify once there are none left.",
       images: [
-        { id: 0, label: "car", icon: "🚙", title: "Blue SUV", isTarget: false, bg: "linear-gradient(135deg, #e0f2fe 0%, #60a5fa 100%)" },
-        { id: 1, label: "crosswalk", icon: "🦓", title: "Zebra Crossing", isTarget: true, bg: "linear-gradient(135deg, #f1f5f9 0%, #94a3b8 100%)" },
-        { id: 2, label: "tree", icon: "🌴", title: "Palm Tree", isTarget: false, bg: "linear-gradient(135deg, #dcfce7 0%, #4ade80 100%)" },
-        { id: 3, label: "crosswalk", icon: "🚸", title: "School Crossing", isTarget: true, bg: "linear-gradient(135deg, #fef3c7 0%, #facc15 100%)" },
-        { id: 4, label: "building", icon: "🏠", title: "Residential House", isTarget: false, bg: "linear-gradient(135deg, #ffedd5 0%, #fb923c 100%)" },
-        { id: 5, label: "crosswalk", icon: "🚶‍♂️", title: "Pedestrian Walk", isTarget: true, bg: "linear-gradient(135deg, #e0e7ff 0%, #818cf8 100%)" },
-        { id: 6, label: "motorcycle", icon: "🏍️", title: "Motorbike", isTarget: false, bg: "linear-gradient(135deg, #f3e8ff 0%, #a855f7 100%)" },
-        { id: 7, label: "bus", icon: "🚌", title: "City Bus", isTarget: false, bg: "linear-gradient(135deg, #dbeafe 0%, #3b82f6 100%)" },
-        { id: 8, label: "car", icon: "🚕", title: "Yellow Taxi", isTarget: false, bg: "linear-gradient(135deg, #fef9c3 0%, #eab308 100%)" }
+        { id: 0, label: "car", title: "Blue SUV", isTarget: false, img: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=200&auto=format&fit=crop&q=80" },
+        { id: 1, label: "crosswalk", title: "Pedestrian Crosswalk", isTarget: true, img: "https://images.unsplash.com/photo-1517649763962-0c623266010b?w=200&auto=format&fit=crop&q=80" },
+        { id: 2, label: "tree", title: "Palm Tree", isTarget: false, img: "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?w=200&auto=format&fit=crop&q=80" },
+        { id: 3, label: "crosswalk", title: "Street Lines", isTarget: true, img: "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=200&auto=format&fit=crop&q=80" },
+        { id: 4, label: "building", title: "Residential House", isTarget: false, img: "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=200&auto=format&fit=crop&q=80" },
+        { id: 5, label: "crosswalk", title: "Zebra Lines", isTarget: true, img: "https://images.unsplash.com/photo-1494515843206-f3117d3f51b7?w=200&auto=format&fit=crop&q=80" },
+        { id: 6, label: "motorcycle", title: "Motorbike", isTarget: false, img: "https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=200&auto=format&fit=crop&q=80" },
+        { id: 7, label: "bus", title: "City Bus", isTarget: false, img: "https://images.unsplash.com/photo-1570125909232-eb263c188f7e?w=200&auto=format&fit=crop&q=80" },
+        { id: 8, label: "car", title: "Yellow Taxi", isTarget: false, img: "https://images.unsplash.com/photo-1502877338535-766e1452684a?w=200&auto=format&fit=crop&q=80" }
       ]
     }
   ];
@@ -642,24 +642,27 @@ export default function RegisterPage() {
                         }}
                         style={{
                           aspectRatio: '1',
-                          background: tile.bg,
+                          background: '#e2e8f0',
                           borderRadius: 2,
                           cursor: 'pointer',
                           position: 'relative',
-                          display: 'flex',
-                          flexDirection: 'column',
-                          alignItems: 'center',
-                          justifyContent: 'center',
+                          overflow: 'hidden',
                           transition: 'all 0.15s ease',
                           transform: isSelected ? 'scale(0.92)' : 'scale(1)',
-                          border: isSelected ? '3px solid #1a73e8' : '1px solid rgba(0,0,0,0.08)',
+                          border: isSelected ? '3px solid #1a73e8' : '1px solid rgba(0,0,0,0.1)',
                           boxSizing: 'border-box'
                         }}
                       >
-                        <span style={{ fontSize: 36, filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.15))' }}>{tile.icon}</span>
-                        <span style={{ fontSize: 10, fontWeight: 600, color: '#334155', marginTop: 2, background: 'rgba(255,255,255,0.75)', padding: '1px 6px', borderRadius: 4 }}>
-                          {tile.title}
-                        </span>
+                        <img 
+                          src={tile.img} 
+                          alt={tile.title}
+                          style={{
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover',
+                            display: 'block'
+                          }} 
+                        />
 
                         {isSelected && (
                           <div style={{
