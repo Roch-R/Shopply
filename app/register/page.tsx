@@ -42,9 +42,20 @@ export default function RegisterPage() {
   const [showGoogleModal, setShowGoogleModal] = useState(false);
   const [copied, setCopied] = useState(false);
   const [origin, setOrigin] = useState("");
+  const [captchaNum1, setCaptchaNum1] = useState(3);
+  const [captchaNum2, setCaptchaNum2] = useState(4);
+  const [captchaInput, setCaptchaInput] = useState("");
+  const [honeypot, setHoneypot] = useState("");
+
+  const refreshCaptcha = () => {
+    setCaptchaNum1(Math.floor(Math.random() * 8) + 1);
+    setCaptchaNum2(Math.floor(Math.random() * 8) + 1);
+    setCaptchaInput("");
+  };
 
   useEffect(() => {
     setOrigin(window.location.origin);
+    refreshCaptcha();
   }, []);
 
   let strength = 0;
@@ -77,6 +88,10 @@ export default function RegisterPage() {
 
   const handleSubmit = async () => {
     setError("");
+    if (honeypot.trim() !== "") {
+      setError("Automated bot registration rejected.");
+      return;
+    }
     if (!username.trim()) { setError("Username is required."); return; }
     if (!email.trim()) { setError("Email is required."); return; }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) { setError("Please enter a valid email address."); return; }
@@ -87,9 +102,19 @@ export default function RegisterPage() {
     if (!confirm) { setError("Please confirm your password."); return; }
     if (password !== confirm) { setError("Passwords do not match."); return; }
 
+    if (!captchaInput.trim()) {
+      setError(`Please solve the human security check: ${captchaNum1} + ${captchaNum2} = ?`);
+      return;
+    }
+    if (parseInt(captchaInput.trim(), 10) !== (captchaNum1 + captchaNum2)) {
+      setError(`Incorrect security answer. Please solve: ${captchaNum1} + ${captchaNum2} = ?`);
+      refreshCaptcha();
+      return;
+    }
+
     setLoading(true);
     try {
-      const data = await apiRegister({ name: username.trim(), username: username.trim(), email: email.trim(), password });
+      const data = await apiRegister({ name: username.trim(), username: username.trim(), email: email.trim(), password, honeypot });
       getApiCache().invalidateAll();
       localStorage.setItem("token", data.token!);
       localStorage.setItem("user", JSON.stringify(data.user));
@@ -324,6 +349,65 @@ export default function RegisterPage() {
                 </div>
               </div>
             </div>
+
+            {/* Anti-Bot Security Verification Card */}
+            <div style={{
+              background: '#f8fafc',
+              border: '1.5px solid #e2e8f0',
+              borderRadius: 14,
+              padding: '14px 16px',
+              margin: '16px 0 20px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 10
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 700, color: '#334155' }}>
+                  <span style={{ fontSize: 14 }}>🛡️</span>
+                  <span>Anti-Bot Verification</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={refreshCaptcha}
+                  title="New challenge"
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, color: '#7c3aed', padding: 2 }}
+                >
+                  🔄
+                </button>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <span style={{ fontSize: 13, fontWeight: 700, color: '#475569', background: '#e2e8f0', padding: '6px 12px', borderRadius: 8, fontFamily: 'monospace' }}>
+                  {captchaNum1} + {captchaNum2} = ?
+                </span>
+                <input
+                  type="number"
+                  placeholder="Answer"
+                  value={captchaInput}
+                  onChange={e => { setCaptchaInput(e.target.value); setError(""); }}
+                  style={{
+                    flex: 1,
+                    padding: '8px 12px',
+                    borderRadius: 8,
+                    border: '1.5px solid #cbd5e1',
+                    fontSize: 14,
+                    fontWeight: 600,
+                    outline: 'none',
+                    background: '#fff'
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* Hidden Anti-Bot Honeypot Field */}
+            <input
+              type="text"
+              name="website_url_hp"
+              value={honeypot}
+              onChange={e => setHoneypot(e.target.value)}
+              style={{ display: 'none' }}
+              tabIndex={-1}
+              autoComplete="off"
+            />
 
             <button className="btn" disabled={loading} onClick={handleSubmit}>
               {loading ? (

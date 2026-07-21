@@ -91,6 +91,7 @@ export async function apiRegister(payload: {
   username: string;
   email: string;
   password: string;
+  honeypot?: string;
 }) {
   return request<AuthUser>("/register", {
     method: "POST",

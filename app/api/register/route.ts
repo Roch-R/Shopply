@@ -6,7 +6,13 @@ import { sendOtpEmail } from "@/lib/email";
 
 export async function POST(req: Request) {
   try {
-    const { name, username, email, password } = await req.json();
+    const { name, username, email, password, honeypot } = await req.json();
+
+    // Anti-Bot Honeypot Protection
+    if (honeypot && typeof honeypot === "string" && honeypot.trim() !== "") {
+      console.warn(`[register] Automated bot submission rejected for: ${email}`);
+      return NextResponse.json({ message: "Automated bot registration rejected." }, { status: 400 });
+    }
 
     if (!name || !username || !email || !password) {
       return NextResponse.json({ message: "All fields are required." }, { status: 422 });
