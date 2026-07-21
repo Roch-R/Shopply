@@ -195,10 +195,20 @@ export default function VerifyPage() {
         });
       }
 
+      let data: any = {};
+      if (res) {
+        data = await res.json();
+      }
+
       const expiresAt = Date.now() + 300 * 1000;
       localStorage.setItem("otp_expires_at", expiresAt.toString());
       setTimeLeft(300);
-      setSuccess("✓ A new verification code has been sent to your email!");
+
+      if (data?.otp_debug) {
+        setSuccess(`✓ Code regenerated: ${data.otp_debug}`);
+      } else {
+        setSuccess(`✓ ${data?.message || "A new verification code has been sent to your email!"}`);
+      }
     } catch (e: any) {
       setError(e?.message || "Resend failed.");
     }

@@ -47,16 +47,19 @@ export async function POST(req: Request) {
     });
 
     // Send OTP to email
+    let emailSent = false;
     try {
-      await sendOtpEmail(email, otp);
+      emailSent = await sendOtpEmail(email, otp);
     } catch (emailErr) {
       console.error("[register] Failed to send OTP email:", emailErr);
     }
 
-    console.log(`[register] Pending registration saved for ${email}. OTP: ${otp}`);
+    console.log(`[register] Pending registration saved for ${email}. OTP: ${otp} (sent: ${emailSent})`);
 
     return NextResponse.json({
-      message: "OTP sent to your email. Please verify to complete registration.",
+      message: emailSent
+        ? "OTP sent to your email. Please verify to complete registration."
+        : "Registration initiated. If email does not arrive, click Resend OTP.",
       requires_verify: true,
       pending_email: email
     }, { status: 201 });
