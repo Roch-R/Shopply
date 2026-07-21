@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/firebase";
 import { collection, query, where, getDocs, doc, setDoc } from "firebase/firestore";
-import { hashPassword } from "@/lib/db";
-import { sendOtpEmail } from "@/lib/email";
+import { hashPassword, generateToken, formatUser } from "@/lib/db";
 
 export async function POST(req: Request) {
   try {
@@ -32,36 +31,33 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: "Email is already registered." }, { status: 422 });
     }
 
-    // Generate random 6-digit OTP code
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    // Create user directly in Firestore as active/verified
+    const userId = Date.now();
+    const userDocRef = doc(db, "users", String(userId));
 
-    // Save pending registration in Firestore (keyed by email)
-    const pendingRef = doc(db, "pending_registrations", email);
-    await setDoc(pendingRef, {
+    const newUser = {
+      id: userId,
       name,
       username,
       email,
+      phone: null,
       password: hashPassword(password),
-      otp,
-      expires_at: Date.now() + 5 * 60 * 1000 // 5 minutes
-    });
+      email_verified_at: new Date().toISOString(),
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
 
-    // Send OTP to email
-    let emailSent = false;
-    try {
-      emailSent = await sendOtpEmail(email, otp);
-    } catch (emailErr) {
-      console.error("[register] Failed to send OTP email:", emailErr);
-    }
+    await setDoc(userDocRef, newUser);
 
-    console.log(`[register] Pending registration saved for ${email}. OTP: ${otp} (sent: ${emailSent})`);
+    // Generate JWT token
+    const token = generateToken({ userId: newUser.id });
+
+    console.log(`[register] User registered and auto-verified: ${username} (${email})`);
 
     return NextResponse.json({
-      message: emailSent
-        ? "OTP sent to your email. Please verify to complete registration."
-        : "Registration initiated. If email does not arrive, click Resend OTP.",
-      requires_verify: true,
-      pending_email: email
+      message: "Registration successful!",
+      token,
+      user: formatUser(newUser)
     }, { status: 201 });
 
   } catch (err: any) {

@@ -10,14 +10,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: "Unauthenticated." }, { status: 401 });
     }
 
-    const { otp } = await req.json();
-
-    // Verify OTP code against the user's stored OTP
-    if (user.otp_code !== otp) {
-      return NextResponse.json({ message: "Invalid verification code. Please try again." }, { status: 422 });
-    }
-
-    // Update user verified status in Firestore
+    // Update user verified status in Firestore instantly
     const userDocRef = doc(db, "users", String(user.id));
     await updateDoc(userDocRef, {
       email_verified_at: new Date().toISOString(),
