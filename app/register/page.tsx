@@ -58,7 +58,7 @@ export default function RegisterPage() {
     if (!document.getElementById("google-recaptcha-script")) {
       const script = document.createElement("script");
       script.id = "google-recaptcha-script";
-      script.src = "https://www.google.com/recaptcha/enterprise.js";
+      script.src = "https://www.google.com/recaptcha/api.js";
       script.async = true;
       script.defer = true;
       document.body.appendChild(script);
