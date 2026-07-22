@@ -11,10 +11,11 @@ export async function POST(req: Request) {
     // Verify Official Google reCAPTCHA v2 token
     if (recaptchaToken) {
       try {
+        const secretKey = process.env.RECAPTCHA_SECRET_KEY || "6Lc0RV4tAAAAAK4dJKQ6UgGahdcQtMqG5hZD3sp1";
         const verifyRes = await fetch("https://www.google.com/recaptcha/api/siteverify", {
           method: "POST",
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          body: `secret=6LcORV4tAAAAAK4dJKQ6UgGahdcQtMqG5hZD3sp1&response=${encodeURIComponent(recaptchaToken)}`
+          body: `secret=${secretKey}&response=${encodeURIComponent(recaptchaToken)}`
         });
         const verifyData = await verifyRes.json();
         if (!verifyData.success) {

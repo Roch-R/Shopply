@@ -352,7 +352,7 @@ export default function RegisterPage() {
             <div style={{ display: "flex", justifyContent: "center", margin: "20px 0" }}>
               <div
                 className="g-recaptcha"
-                data-sitekey="6LcORV4tAAAAAFG8MkXdmNJ0Bs9pX8_ML7dwtcpM"
+                data-sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || "6Lc0RV4tAAAAAFG8MkXdmNJ0Bs9pX8_ML7dwtcpM"}
                 data-callback="onRecaptchaSuccess"
                 data-expired-callback="onRecaptchaExpired"
               />
