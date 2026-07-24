@@ -138,6 +138,26 @@ export default function ShopPage() {
   const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false);
   const [sharingLocation, setSharingLocation] = useState(false);
   const [isMeetupMapOpen, setIsMeetupMapOpen] = useState(false);
+  const [isUserBlockedModalOpen, setIsUserBlockedModalOpen] = useState(false);
+
+  useEffect(() => {
+    if (!currentUser?.id) return;
+    const userId = String(currentUser.id);
+    const userDocRef = doc(db, "users", userId);
+
+    const unsub = onSnapshot(userDocRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const data = snapshot.data();
+        if (data.is_blocked === true) {
+          setIsUserBlockedModalOpen(true);
+          localStorage.removeItem("token");
+          localStorage.removeItem("shopply_user");
+        }
+      }
+    });
+
+    return () => unsub();
+  }, [currentUser?.id]);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const incomingTypingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const emojiPickerRef = useRef<HTMLDivElement>(null);
@@ -3351,6 +3371,85 @@ export default function ShopPage() {
                   Full Size ↗
                 </a>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* ACCOUNT BLOCKED POPUP MODAL */}
+        {isUserBlockedModalOpen && (
+          <div
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: 'rgba(15, 23, 42, 0.94)',
+              backdropFilter: 'blur(12px)',
+              zIndex: 9999999,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: 24
+            }}
+          >
+            <div
+              style={{
+                background: '#fff',
+                borderRadius: 24,
+                padding: 32,
+                maxWidth: 440,
+                width: '100%',
+                textAlign: 'center',
+                boxShadow: '0 25px 50px -12px rgba(239, 68, 68, 0.3)',
+                border: '2px solid #ef4444',
+                animation: 'slideIn 0.3s ease-out'
+              }}
+            >
+              <div
+                style={{
+                  width: 72,
+                  height: 72,
+                  borderRadius: '50%',
+                  background: '#fee2e2',
+                  color: '#ef4444',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: 36,
+                  margin: '0 auto 20px'
+                }}
+              >
+                🚫
+              </div>
+              <h2 style={{ fontSize: 22, fontWeight: 800, color: '#0f172a', margin: '0 0 10px' }}>
+                Account Suspended
+              </h2>
+              <p style={{ fontSize: 14, color: '#64748b', lineHeight: 1.6, margin: '0 0 24px' }}>
+                Your Shopply account has been blocked by the administrator. You have been automatically logged out.
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  localStorage.removeItem('token');
+                  localStorage.removeItem('shopply_user');
+                  window.location.href = '/login';
+                }}
+                style={{
+                  width: '100%',
+                  padding: '14px',
+                  borderRadius: 14,
+                  border: 'none',
+                  background: 'linear-gradient(135deg, #ef4444, #dc2626)',
+                  color: '#fff',
+                  fontWeight: 700,
+                  fontSize: 15,
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 14px rgba(239, 68, 68, 0.35)'
+                }}
+              >
+                Return to Login
+              </button>
             </div>
           </div>
         )}

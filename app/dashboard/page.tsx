@@ -249,6 +249,26 @@ export default function DashboardPage() {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [ready, setReady] = useState(false);
+  const [isUserBlockedModalOpen, setIsUserBlockedModalOpen] = useState(false);
+
+  useEffect(() => {
+    if (!user?.id) return;
+    const userId = String(user.id);
+    const userDocRef = doc(db, "users", userId);
+
+    const unsub = onSnapshot(userDocRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const data = snapshot.data();
+        if (data.is_blocked === true) {
+          setIsUserBlockedModalOpen(true);
+          localStorage.removeItem("token");
+          localStorage.removeItem("shopply_user");
+        }
+      }
+    });
+
+    return () => unsub();
+  }, [user?.id]);
   const [items, setItems] = useState<ShopItem[]>([]);
   const [activeTab, setActiveTab] = useState<SidebarTab>("profile");
   const [orders, setOrders] = useState<Order[]>([]);
