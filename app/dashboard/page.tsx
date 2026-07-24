@@ -338,6 +338,7 @@ export default function DashboardPage() {
   const [isActiveUserOnline, setIsActiveUserOnline] = useState(false);
   const [chatImageFiles, setChatImageFiles] = useState<File[]>([]);
   const [chatImagePreviews, setChatImagePreviews] = useState<string[]>([]);
+  const [viewingImageModal, setViewingImageModal] = useState<{ images: string[]; index: number } | null>(null);
   const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false);
   const [sharingLocation, setSharingLocation] = useState(false);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -3543,21 +3544,28 @@ export default function DashboardPage() {
                                              marginBottom: msg.message ? 8 : 0,
                                              maxWidth: 280
                                            }}>
-                                             {(msg.optimistic_previews || msg.images).map((img: string, i: number) => (
-                                               <img
-                                                 key={i}
-                                                 src={img.startsWith('blob:') || img.startsWith('data:') ? img : getImageUrl(img)}
-                                                 alt={`Attachment ${i + 1}`}
-                                                 style={{ borderRadius: 10, width: '100%', height: (msg.images || msg.optimistic_previews).length > 1 ? 110 : 200, objectFit: 'cover', display: 'block' }}
-                                               />
-                                             ))}
+                                             {(msg.optimistic_previews || msg.images).map((img: string, i: number) => {
+                                               const fullList = (msg.optimistic_previews || msg.images);
+                                               return (
+                                                 <img
+                                                   key={i}
+                                                   src={img.startsWith('blob:') || img.startsWith('data:') ? img : getImageUrl(img)}
+                                                   alt={`Attachment ${i + 1}`}
+                                                   onClick={() => setViewingImageModal({ images: fullList, index: i })}
+                                                   style={{ borderRadius: 10, width: '100%', height: fullList.length > 1 ? 110 : 200, objectFit: 'cover', display: 'block', cursor: 'pointer', transition: 'transform 0.15s' }}
+                                                   title="Click to view full photo"
+                                                 />
+                                               );
+                                             })}
                                            </div>
                                          ) : msg.image ? (
                                           <div style={{ marginBottom: msg.message ? 8 : 0 }}>
                                             <img
                                               src={msg.optimistic_preview || getImageUrl(msg.image)}
                                               alt="Attachment"
-                                              style={{ borderRadius: 12, maxWidth: '100%', maxHeight: 240, objectFit: 'cover', display: 'block' }}
+                                              onClick={() => setViewingImageModal({ images: [msg.optimistic_preview || getImageUrl(msg.image)], index: 0 })}
+                                              style={{ borderRadius: 12, maxWidth: '100%', maxHeight: 240, objectFit: 'cover', display: 'block', cursor: 'pointer' }}
+                                              title="Click to view full photo"
                                             />
                                           </div>
                                         ) : null}
@@ -5967,6 +5975,165 @@ export default function DashboardPage() {
           </div>
         )}
 
+        {/* FULLSCREEN LIGHTBOX IMAGE VIEWER MODAL */}
+        {viewingImageModal && (
+          <div
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: 'rgba(15, 23, 42, 0.92)',
+              backdropFilter: 'blur(8px)',
+              zIndex: 999999,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: 20
+            }}
+            onClick={() => setViewingImageModal(null)}
+          >
+            <div
+              style={{
+                position: 'relative',
+                maxWidth: '90vw',
+                maxHeight: '90vh',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+              onClick={e => e.stopPropagation()}
+            >
+              {/* Close Button */}
+              <button
+                type="button"
+                onClick={() => setViewingImageModal(null)}
+                style={{
+                  position: 'absolute',
+                  top: -16,
+                  right: -16,
+                  background: 'rgba(255, 255, 255, 0.25)',
+                  color: '#fff',
+                  border: '1px solid rgba(255, 255, 255, 0.4)',
+                  borderRadius: '50%',
+                  width: 36,
+                  height: 36,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: 18,
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.4)',
+                  zIndex: 10
+                }}
+                title="Close"
+              >
+                ✕
+              </button>
+
+              {/* Main Image */}
+              <img
+                src={
+                  viewingImageModal.images[viewingImageModal.index].startsWith('blob:') ||
+                  viewingImageModal.images[viewingImageModal.index].startsWith('data:')
+                    ? viewingImageModal.images[viewingImageModal.index]
+                    : getImageUrl(viewingImageModal.images[viewingImageModal.index])
+                }
+                alt="Enlarged view"
+                style={{
+                  maxWidth: '85vw',
+                  maxHeight: '78vh',
+                  objectFit: 'contain',
+                  borderRadius: 12,
+                  boxShadow: '0 20px 40px rgba(0, 0, 0, 0.5)',
+                  border: '1px solid rgba(255, 255, 255, 0.15)'
+                }}
+              />
+
+              {/* Navigation Bar */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginTop: 16 }}>
+                {viewingImageModal.images.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setViewingImageModal(prev =>
+                        prev ? { ...prev, index: (prev.index - 1 + prev.images.length) % prev.images.length } : null
+                      )
+                    }
+                    style={{
+                      background: 'rgba(255, 255, 255, 0.2)',
+                      color: '#fff',
+                      border: '1px solid rgba(255, 255, 255, 0.3)',
+                      borderRadius: 20,
+                      padding: '6px 16px',
+                      cursor: 'pointer',
+                      fontWeight: 600,
+                      fontSize: 13
+                    }}
+                  >
+                    ← Prev
+                  </button>
+                )}
+
+                <span style={{ color: '#e2e8f0', fontSize: 13, fontWeight: 600 }}>
+                  {viewingImageModal.images.length > 1
+                    ? `${viewingImageModal.index + 1} of ${viewingImageModal.images.length}`
+                    : 'Photo View'}
+                </span>
+
+                {viewingImageModal.images.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setViewingImageModal(prev =>
+                        prev ? { ...prev, index: (prev.index + 1) % prev.images.length } : null
+                      )
+                    }
+                    style={{
+                      background: 'rgba(255, 255, 255, 0.2)',
+                      color: '#fff',
+                      border: '1px solid rgba(255, 255, 255, 0.3)',
+                      borderRadius: 20,
+                      padding: '6px 16px',
+                      cursor: 'pointer',
+                      fontWeight: 600,
+                      fontSize: 13
+                    }}
+                  >
+                    Next →
+                  </button>
+                )}
+
+                <a
+                  href={
+                    viewingImageModal.images[viewingImageModal.index].startsWith('blob:') ||
+                    viewingImageModal.images[viewingImageModal.index].startsWith('data:')
+                      ? viewingImageModal.images[viewingImageModal.index]
+                      : getImageUrl(viewingImageModal.images[viewingImageModal.index])
+                  }
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    background: '#7c3aed',
+                    color: '#fff',
+                    textDecoration: 'none',
+                    borderRadius: 20,
+                    padding: '6px 16px',
+                    fontWeight: 600,
+                    fontSize: 13,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 4
+                  }}
+                >
+                  Full Size ↗
+                </a>
+              </div>
+            </div>
+          </div>
+        )}
 
       </div>
     </>
