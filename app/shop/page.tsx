@@ -148,9 +148,9 @@ export default function ShopPage() {
   // Smooth mode state
   const [smoothMode, setSmoothMode] = useState(() => {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem('shopply_smooth_mode') === 'true';
+      return localStorage.getItem('shopply_smooth_mode') !== 'false';
     }
-    return false;
+    return true;
   });
   const [isMobile, setIsMobile] = useState(false);
 
