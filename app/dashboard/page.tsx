@@ -336,8 +336,8 @@ export default function DashboardPage() {
   const [loadingChatMessages, setLoadingChatMessages] = useState(false);
   const [isOtherUserTyping, setIsOtherUserTyping] = useState(false);
   const [isActiveUserOnline, setIsActiveUserOnline] = useState(false);
-  const [chatImageFile, setChatImageFile] = useState<File | null>(null);
-  const [chatImagePreview, setChatImagePreview] = useState<string | null>(null);
+  const [chatImageFiles, setChatImageFiles] = useState<File[]>([]);
+  const [chatImagePreviews, setChatImagePreviews] = useState<string[]>([]);
   const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false);
   const [sharingLocation, setSharingLocation] = useState(false);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -1311,8 +1311,8 @@ export default function DashboardPage() {
       const mergeAndSet = () => {
         const all = [...sentMsgs, ...receivedMsgs];
         const filtered = all.filter(msg => 
-          (msg.sender_id === userId && msg.receiver_id === otherUserId) ||
-          (msg.sender_id === otherUserId && msg.receiver_id === userId)
+          (Number(msg.sender_id) === userId && Number(msg.receiver_id) === otherUserId) ||
+          (Number(msg.sender_id) === otherUserId && Number(msg.receiver_id) === userId)
         );
         const unique: any[] = [];
         const seenIds = new Set();
@@ -1331,7 +1331,7 @@ export default function DashboardPage() {
 
         // Mark incoming unread messages as read
         filtered.forEach(async (msg) => {
-          if (msg.sender_id === otherUserId && !msg.is_read) {
+          if (Number(msg.sender_id) === otherUserId && !msg.is_read) {
             try {
               await updateDoc(doc(db, "messages", msg.id), { is_read: true });
             } catch (err) {
@@ -1471,28 +1471,29 @@ export default function DashboardPage() {
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if ((!newChatMessage.trim() && !chatImageFile) || !activeChatUser) return;
+    if ((!newChatMessage.trim() && chatImageFiles.length === 0) || !activeChatUser) return;
 
     const token = localStorage.getItem("token");
     if (!token) return;
 
     isSendingRef.current = true;
     const messageText = newChatMessage.trim();
-    const imageToSend = chatImageFile;
-    const imagePreviewUrl = chatImagePreview;
+    const imagesToSend = [...chatImageFiles];
+    const imagePreviewsUrl = [...chatImagePreviews];
 
     // Optimistic UI: immediately clear input & append message for zero lag
     setNewChatMessage("");
-    setChatImageFile(null);
-    setChatImagePreview(null);
+    setChatImageFiles([]);
+    setChatImagePreviews([]);
 
     const optimisticMsg = {
       id: Date.now(),
       sender_id: user ? user.id : 999999,
       receiver_id: activeChatUser.id,
       message: messageText,
-      image: imagePreviewUrl ? 'optimistic_image' : null,
-      optimistic_preview: imagePreviewUrl,
+      image: imagePreviewsUrl.length > 0 ? imagePreviewsUrl[0] : null,
+      images: imagePreviewsUrl,
+      optimistic_previews: imagePreviewsUrl,
       is_read: false,
       created_at: new Date().toISOString(),
     };
@@ -1502,7 +1503,12 @@ export default function DashboardPage() {
     try {
       const formData = new FormData();
       if (messageText) formData.append("message", messageText);
-      if (imageToSend) formData.append("image", imageToSend);
+      imagesToSend.forEach(file => {
+        formData.append("images[]", file);
+      });
+      if (imagesToSend.length > 0) {
+        formData.append("image", imagesToSend[0]);
+      }
 
       const res = await fetch(`${API}/chat/${activeChatUser.id}`, {
         method: "POST",
@@ -1522,9 +1528,15 @@ export default function DashboardPage() {
         // Refresh conversations and messages instantly
         fetchConversationsRef.current();
         fetchMessagesRef.current();
+      } else {
+        const errData = await res.json().catch(() => ({}));
+        setChatMessages(prev => prev.filter(m => m.id !== optimisticMsg.id));
+        alert(errData.message || "Failed to send message.");
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
+      setChatMessages(prev => prev.filter(m => m.id !== optimisticMsg.id));
+      alert("Failed to send message. Network error.");
     } finally {
       setTimeout(() => { isSendingRef.current = false; }, 500);
     }
@@ -3523,7 +3535,24 @@ export default function DashboardPage() {
                                     )}
                                     <div style={{display: 'flex', flexDirection: 'column', alignItems: isMe ? 'flex-end' : 'flex-start'}}>
                                       <div className={`chat-message-bubble ${isMe ? 'me' : 'them'}`} style={msg.message?.startsWith("[LOCATION]") ? { background: '#f8fafc', border: '1px solid #cbd5e1', color: '#0f172a', padding: 0, overflow: 'hidden' } : {}}>
-                                        {msg.image && (
+                                        {((msg.images && msg.images.length > 0) || (msg.optimistic_previews && msg.optimistic_previews.length > 0)) ? (
+                                           <div style={{
+                                             display: 'grid',
+                                             gridTemplateColumns: ((msg.images || msg.optimistic_previews).length > 1) ? 'repeat(2, 1fr)' : '1fr',
+                                             gap: 6,
+                                             marginBottom: msg.message ? 8 : 0,
+                                             maxWidth: 280
+                                           }}>
+                                             {(msg.optimistic_previews || msg.images).map((img: string, i: number) => (
+                                               <img
+                                                 key={i}
+                                                 src={img.startsWith('blob:') || img.startsWith('data:') ? img : getImageUrl(img)}
+                                                 alt={`Attachment ${i + 1}`}
+                                                 style={{ borderRadius: 10, width: '100%', height: (msg.images || msg.optimistic_previews).length > 1 ? 110 : 200, objectFit: 'cover', display: 'block' }}
+                                               />
+                                             ))}
+                                           </div>
+                                         ) : msg.image ? (
                                           <div style={{ marginBottom: msg.message ? 8 : 0 }}>
                                             <img
                                               src={msg.optimistic_preview || getImageUrl(msg.image)}
@@ -3531,7 +3560,7 @@ export default function DashboardPage() {
                                               style={{ borderRadius: 12, maxWidth: '100%', maxHeight: 240, objectFit: 'cover', display: 'block' }}
                                             />
                                           </div>
-                                        )}
+                                        ) : null}
                                         {msg.message && (
                                           msg.message.startsWith("[LOCATION]") ? (() => {
                                             const coords = msg.message.replace("[LOCATION]", "").split(",");
@@ -3604,16 +3633,45 @@ export default function DashboardPage() {
 
                         {/* CHAT INPUT AREA */}
                         <div style={{ borderTop: '1px solid #e2e8f0', background: '#f8fafc', display: 'flex', flexDirection: 'column' }}>
-                          {chatImagePreview && (
-                            <div style={{ padding: '12px 24px 0', display: 'flex', alignItems: 'center' }}>
-                              <div style={{ position: 'relative', display: 'inline-block' }}>
-                                <img src={chatImagePreview} alt="Preview" style={{ height: 80, borderRadius: 8, objectFit: 'cover', border: '2px solid #cbd5e1' }} />
-                                <button
-                                  type="button"
-                                  onClick={() => { setChatImageFile(null); setChatImagePreview(null); }}
-                                  style={{ position: 'absolute', top: -6, right: -6, background: '#ef4444', color: '#fff', border: 'none', borderRadius: '50%', width: 20, height: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, cursor: 'pointer', boxShadow: '0 2px 4px rgba(0,0,0,0.2)' }}
-                                >✕</button>
-                              </div>
+                          {chatImagePreviews.length > 0 && (
+                            <div style={{ padding: '12px 24px 0', display: 'flex', gap: 8, overflowX: 'auto', alignItems: 'center' }}>
+                              {chatImagePreviews.map((preview, idx) => (
+                                <div key={idx} style={{ position: 'relative', display: 'inline-block', flexShrink: 0 }}>
+                                  <img src={preview} alt={`Preview ${idx + 1}`} style={{ height: 75, width: 75, borderRadius: 8, objectFit: 'cover', border: '2px solid #cbd5e1' }} />
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setChatImageFiles(prev => prev.filter((_, i) => i !== idx));
+                                      setChatImagePreviews(prev => prev.filter((_, i) => i !== idx));
+                                    }}
+                                    style={{ position: 'absolute', top: -6, right: -6, background: '#ef4444', color: '#fff', border: 'none', borderRadius: '50%', width: 20, height: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, cursor: 'pointer', boxShadow: '0 2px 4px rgba(0,0,0,0.2)' }}
+                                  >✕</button>
+                                </div>
+                              ))}
+                              <label style={{ height: 75, width: 75, borderRadius: 8, border: '2px dashed #a855f7', background: '#f3e8ff', color: '#7c3aed', fontSize: 24, fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0, transition: 'all 0.2s' }} title="Add more photos">
+                                +
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  multiple
+                                  onChange={async e => {
+                                    const files = Array.from(e.target.files || []);
+                                    if (files.length > 0) {
+                                      const compressedFiles: File[] = [];
+                                      const newPreviews: string[] = [];
+                                      for (const file of files) {
+                                        const compressed = await compressImage(file, 800);
+                                        compressedFiles.push(compressed);
+                                        newPreviews.push(URL.createObjectURL(compressed));
+                                      }
+                                      setChatImageFiles(prev => [...prev, ...compressedFiles]);
+                                      setChatImagePreviews(prev => [...prev, ...newPreviews]);
+                                    }
+                                    e.target.value = '';
+                                  }}
+                                  style={{ display: 'none' }}
+                                />
+                              </label>
                             </div>
                           )}
                           <form onSubmit={handleSendMessage} className="chat-input-form" style={{ position: 'relative' }}>
@@ -3703,16 +3761,23 @@ export default function DashboardPage() {
                               </div>
                             )}
 
-                            <label style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', width: 44, height: 44, borderRadius: '50%', background: '#e2e8f0', color: '#64748b', transition: 'all 0.2s', flexShrink: 0 }} title="Upload Image">
+                            <label style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', width: 44, height: 44, borderRadius: '50%', background: '#e2e8f0', color: '#64748b', transition: 'all 0.2s', flexShrink: 0 }} title="Upload Images">
                               <input
                                 type="file"
                                 accept="image/*"
+                                multiple
                                 onChange={async e => {
-                                  const file = e.target.files?.[0];
-                                  if (file) {
-                                    const compressed = await compressImage(file, 800);
-                                    setChatImageFile(compressed);
-                                    setChatImagePreview(URL.createObjectURL(compressed));
+                                  const files = Array.from(e.target.files || []);
+                                  if (files.length > 0) {
+                                    const compressedFiles: File[] = [];
+                                    const newPreviews: string[] = [];
+                                    for (const file of files) {
+                                      const compressed = await compressImage(file, 800);
+                                      compressedFiles.push(compressed);
+                                      newPreviews.push(URL.createObjectURL(compressed));
+                                    }
+                                    setChatImageFiles(prev => [...prev, ...compressedFiles]);
+                                    setChatImagePreviews(prev => [...prev, ...newPreviews]);
                                   }
                                   e.target.value = '';
                                 }}
@@ -3815,7 +3880,7 @@ export default function DashboardPage() {
                             />
                             <button
                               type="submit"
-                              disabled={!newChatMessage.trim() && !chatImageFile}
+                              disabled={!newChatMessage.trim() && chatImageFiles.length === 0}
                               style={{
                                 background: 'linear-gradient(135deg, #7c3aed, #6d28d9)',
                                 color: '#fff',
@@ -3826,8 +3891,8 @@ export default function DashboardPage() {
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
-                                cursor: (!newChatMessage.trim() && !chatImageFile) ? 'not-allowed' : 'pointer',
-                                opacity: (!newChatMessage.trim() && !chatImageFile) ? 0.6 : 1,
+                                cursor: (!newChatMessage.trim() && chatImageFiles.length === 0) ? 'not-allowed' : 'pointer',
+                                opacity: (!newChatMessage.trim() && chatImageFiles.length === 0) ? 0.6 : 1,
                                 boxShadow: '0 4px 12px rgba(124, 58, 237, 0.3)',
                                 transition: 'all 0.2s',
                                 flexShrink: 0
