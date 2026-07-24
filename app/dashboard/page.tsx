@@ -252,9 +252,19 @@ export default function DashboardPage() {
   const [isUserBlockedModalOpen, setIsUserBlockedModalOpen] = useState(false);
 
   useEffect(() => {
-    if (!user?.id) return;
-    const userId = String(user.id);
-    const userDocRef = doc(db, "users", userId);
+    let targetUserId = user?.id ? String(user.id) : null;
+    if (!targetUserId && typeof window !== 'undefined') {
+      try {
+        const stored = localStorage.getItem("user") || localStorage.getItem("shopply_user");
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (parsed.id) targetUserId = String(parsed.id);
+        }
+      } catch (e) {}
+    }
+    if (!targetUserId) return;
+
+    const userDocRef = doc(db, "users", targetUserId);
 
     const unsub = onSnapshot(userDocRef, (snapshot) => {
       if (snapshot.exists()) {
@@ -263,6 +273,7 @@ export default function DashboardPage() {
           setIsUserBlockedModalOpen(true);
           localStorage.removeItem("token");
           localStorage.removeItem("shopply_user");
+          localStorage.removeItem("user");
         }
       }
     });

@@ -59,6 +59,7 @@ export function formatUser(userData: any): any {
     reviews_count: userData.reviews_count || 0,
     reviews_avg_rating: userData.reviews_avg_rating || 0.0,
     email_verified_at: userData.email_verified_at || null,
+    is_blocked: userData.is_blocked || false,
     created_at: userData.created_at,
     updated_at: userData.updated_at,
   };

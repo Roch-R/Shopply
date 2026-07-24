@@ -28,6 +28,14 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: "Invalid username or password." }, { status: 401 });
     }
 
+    // Check if user is blocked by admin
+    if (user.is_blocked === true) {
+      return NextResponse.json({
+        message: "Your account has been suspended by the administrator.",
+        is_blocked: true
+      }, { status: 403 });
+    }
+
     // Generate token
     const token = generateToken({ userId: user.id });
     // Check if email is verified

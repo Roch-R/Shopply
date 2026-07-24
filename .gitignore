@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local csharp admin panel & scratch (do not push to github)
+ShopplyAdminCSharp/
+scratch/
