@@ -11,13 +11,25 @@ export async function GET(req: Request) {
     }
 
     const ordersRef = collection(db, "orders");
-    const q = query(ordersRef, where("user_id", "==", user.id));
-    const snap = await getDocs(q);
+    const snap = await getDocs(ordersRef);
 
-    const orders = snap.docs.map(doc => ({
-      ...doc.data(),
-      id: doc.id
-    }));
+    const userIdStr = String(user.id);
+    const usernameStr = user.username ? String(user.username) : "";
+    const emailStr = user.email ? String(user.email) : "";
+
+    const orders = snap.docs
+      .map(doc => {
+        const data = doc.data();
+        return {
+          ...data,
+          id: doc.id
+        };
+      })
+      .filter((o: any) => {
+        const uId = String(o.user_id || "");
+        const uObjId = o.user ? String(o.user.id || "") : "";
+        return uId === userIdStr || (usernameStr && uId === usernameStr) || (emailStr && uId === emailStr) || uObjId === userIdStr;
+      });
 
     return NextResponse.json(orders, { status: 200 });
 
@@ -127,6 +139,11 @@ export async function POST(req: Request) {
     const newOrder = {
       id: orderId,
       user_id: user.id,
+      user: {
+        id: user.id,
+        name: user.name || user.username || "Shopply User",
+        email: user.email || ""
+      },
       items: orderItems,
       total_amount: totalAmount.toFixed(2),
       shipping_address: shipping_address || "Default Address",
