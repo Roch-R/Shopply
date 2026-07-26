@@ -6,6 +6,8 @@ import Link from "next/link";
 import { Skeleton } from "@/components/Skeleton";
 import { getApiCache } from "@/lib/apiCache";
 
+import * as THREE from "three";
+
 function getAuth() {
   if (typeof window === "undefined") return { token: null, user: null };
   const token = localStorage.getItem("token");
@@ -17,6 +19,7 @@ function getAuth() {
 export default function AboutPage() {
   const router = useRouter();
   const pushed = useRef(false);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [ready, setReady] = useState(false);
   const [user, setUser] = useState<{ name: string; email: string } | null>(null);
 
@@ -30,6 +33,152 @@ export default function AboutPage() {
       setReady(true);
     }
   }, []); // intentional empty deps — runs once on mount
+
+  useEffect(() => {
+    if (!ready || !canvasRef.current) return;
+
+    const canvas = canvasRef.current;
+    const width = canvas.clientWidth || 780;
+    const height = canvas.clientHeight || 450;
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 1000);
+    camera.position.z = 6.2;
+
+    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+    renderer.setSize(width, height);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    // 1. Main Metallic 3D Torus Knot
+    const knotGeo = new THREE.TorusKnotGeometry(1.2, 0.38, 128, 32);
+    const knotMat = new THREE.MeshStandardMaterial({
+      color: 0x7c3aed,
+      roughness: 0.15,
+      metalness: 0.85,
+    });
+    const torusKnot = new THREE.Mesh(knotGeo, knotMat);
+    scene.add(torusKnot);
+
+    // 2. Outer Wireframe 3D Shopping Cube
+    const boxGeo = new THREE.BoxGeometry(3.4, 3.4, 3.4);
+    const boxMat = new THREE.MeshBasicMaterial({
+      color: 0x2563eb,
+      wireframe: true,
+      transparent: true,
+      opacity: 0.4,
+    });
+    const outerCube = new THREE.Mesh(boxGeo, boxMat);
+    scene.add(outerCube);
+
+    // 3. Orbiting 3D Crystals / Spheres
+    const spheresGroup = new THREE.Group();
+    const sphereGeo = new THREE.IcosahedronGeometry(0.35, 2);
+    const sphereMat = new THREE.MeshStandardMaterial({
+      color: 0x00f2fe,
+      roughness: 0.2,
+      metalness: 0.9,
+    });
+
+    for (let i = 0; i < 4; i++) {
+      const sphere = new THREE.Mesh(sphereGeo, sphereMat);
+      const angle = (i / 4) * Math.PI * 2;
+      sphere.position.set(Math.cos(angle) * 2.6, Math.sin(angle) * 2.6, (i % 2 === 0 ? 1 : -1) * 0.8);
+      spheresGroup.add(sphere);
+    }
+    scene.add(spheresGroup);
+
+    // 4. 3D Particle Cloud
+    const particlesGeo = new THREE.BufferGeometry();
+    const particleCount = 300;
+    const posArray = new Float32Array(particleCount * 3);
+
+    for (let i = 0; i < particleCount * 3; i++) {
+      posArray[i] = (Math.random() - 0.5) * 12;
+    }
+    particlesGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+
+    const particlesMat = new THREE.PointsMaterial({
+      size: 0.045,
+      color: 0xa855f7,
+      transparent: true,
+      opacity: 0.85,
+    });
+    const particleMesh = new THREE.Points(particlesGeo, particlesMat);
+    scene.add(particleMesh);
+
+    // 5. Studio Lights
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.9);
+    scene.add(ambientLight);
+
+    const purpleLight = new THREE.PointLight(0x7c3aed, 5, 25);
+    purpleLight.position.set(5, 5, 5);
+    scene.add(purpleLight);
+
+    const cyanLight = new THREE.PointLight(0x00f2fe, 5, 25);
+    cyanLight.position.set(-5, -5, 5);
+    scene.add(cyanLight);
+
+    // Scroll & Mouse Event Listeners
+    let currentScroll = window.scrollY;
+    const handleScroll = () => {
+      currentScroll = window.scrollY;
+    };
+    window.addEventListener("scroll", handleScroll);
+
+    let mouseX = 0;
+    let mouseY = 0;
+    const handleMouseMove = (e: MouseEvent) => {
+      const rect = canvas.getBoundingClientRect();
+      mouseX = ((e.clientX - rect.left) / rect.width - 0.5) * 2;
+      mouseY = ((e.clientY - rect.top) / rect.height - 0.5) * 2;
+    };
+    window.addEventListener("mousemove", handleMouseMove);
+
+    // Render Animation Loop
+    let reqId: number;
+    let clock = new THREE.Clock();
+
+    const animate = () => {
+      reqId = requestAnimationFrame(animate);
+      const elapsedTime = clock.getElapsedTime();
+
+      // REAL 3D SCROLL ROTATION
+      torusKnot.rotation.x = elapsedTime * 0.4 + currentScroll * 0.004 + mouseY * 0.5;
+      torusKnot.rotation.y = elapsedTime * 0.6 + currentScroll * 0.006 + mouseX * 0.5;
+
+      outerCube.rotation.x = -elapsedTime * 0.2 - currentScroll * 0.003;
+      outerCube.rotation.y = elapsedTime * 0.3 + currentScroll * 0.005;
+
+      spheresGroup.rotation.z = currentScroll * 0.004;
+      spheresGroup.rotation.y = elapsedTime * 0.5 + currentScroll * 0.003;
+
+      particleMesh.rotation.y = elapsedTime * 0.1 + currentScroll * 0.001;
+      particleMesh.rotation.x = currentScroll * 0.0005;
+
+      camera.position.z = 6.2 + Math.sin(currentScroll * 0.002) * 1.2;
+
+      renderer.render(scene, camera);
+    };
+    animate();
+
+    const handleResize = () => {
+      if (!canvas) return;
+      const w = canvas.clientWidth;
+      const h = canvas.clientHeight;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h);
+    };
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      cancelAnimationFrame(reqId);
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("resize", handleResize);
+      renderer.dispose();
+    };
+  }, [ready]);
 
   function handleLogout() {
     const token = localStorage.getItem("token");
@@ -117,127 +266,16 @@ export default function AboutPage() {
           box-shadow:0 2px 10px rgba(0,0,0,.05);transition:all .25s;display:inline-flex;align-items:center;gap:8px}
         .cta-secondary:hover{border-color:#c4b5fd;transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,0,0,.08)}
 
-        /* 3D FLOATING ANIMATED SHOWCASE CARD */
-        .hero-3d-wrapper{perspective:1000px;margin-top:20px;width:100%;max-width:780px;position:relative}
-        .hero-3d-card{background:rgba(255,255,255,0.7);backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,0.9);
-          border-radius:28px;padding:24px;box-shadow:0 30px 60px -12px rgba(124,58,237,0.18), 0 18px 36px -18px rgba(0,0,0,0.12);
-          transform-style:preserve-3d;transform:rotateX(6deg) rotateY(-4deg);transition:transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
-          animation:float3D 6s ease-in-out infinite alternate}
-        .hero-3d-card:hover{transform:rotateX(0deg) rotateY(0deg) scale(1.02);box-shadow:0 40px 80px -16px rgba(124,58,237,0.28)}
-        .hero-3d-img{width:100%;max-height:420px;object-fit:cover;border-radius:20px;transform:translateZ(30px);
-          box-shadow:0 12px 30px rgba(0,0,0,0.08)}
+        /* LIVE WEBGL 3D CANVAS SHOWCASE */
+        .hero-3d-wrapper{perspective:1000px;margin-top:20px;width:100%;max-width:850px;position:relative}
+        .hero-3d-card{background:rgba(255,255,255,0.85);backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,0.95);
+          border-radius:28px;padding:24px;box-shadow:0 30px 70px -12px rgba(124,58,237,0.22), 0 18px 36px -18px rgba(0,0,0,0.12);
+          transform-style:preserve-3d;transition:box-shadow 0.3s ease;display:flex;justify-content:center;align-items:center}
+        .hero-3d-canvas{width:100%;height:450px;border-radius:20px;outline:none;cursor:grab}
+        .hero-3d-canvas:active{cursor:grabbing}
         .hero-3d-floating-badge{position:absolute;top:-16px;right:-16px;background:linear-gradient(135deg,#7c3aed,#2563eb);
           color:#fff;font-size:12px;font-weight:700;padding:8px 18px;border-radius:100px;
-          box-shadow:0 10px 25px rgba(124,58,237,0.4);transform:translateZ(50px);animation:pulse3D 3s infinite alternate}
-
-        @keyframes float3D{
-          0%{transform:rotateX(6deg) rotateY(-4deg) translateY(0px)}
-          100%{transform:rotateX(2deg) rotateY(4deg) translateY(-16px)}
-        }
-        @keyframes pulse3D{
-          0%{transform:translateZ(50px) scale(1)}
-          100%{transform:translateZ(60px) scale(1.08)}
-        }
-
-        .stats{position:relative;z-index:1;max-width:860px;margin:0 auto 80px;
-          display:grid;grid-template-columns:repeat(3,1fr);gap:16px;padding:0 48px;animation:fadeUp .6s .35s ease both}
-        .stat-card{background:#fff;border:1px solid #f1f5f9;border-radius:20px;padding:28px 24px;text-align:center;
-          box-shadow:0 4px 16px rgba(0,0,0,.04);transition:all .3s cubic-bezier(0.2, 0.8, 0.2, 1);transform-style:preserve-3d}
-        .stat-card:hover{transform:translateY(-6px) rotateX(4deg);box-shadow:0 20px 40px rgba(124,58,237,.12);border-color:#e0d7ff}
-        .stat-num{font-family:'Playfair Display',serif;font-size:40px;font-weight:800;
-          background:linear-gradient(135deg,#7c3aed,#2563eb);
-          -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-        .stat-label{font-size:13px;color:#94a3b8;font-weight:500;margin-top:4px}
-        .section{position:relative;z-index:1;max-width:960px;margin:0 auto 80px;padding:0 48px}
-        .section-head{text-align:center;margin-bottom:48px}
-        .section-tag{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#7c3aed;margin-bottom:12px}
-        .section-title{font-family:'Playfair Display',serif;font-size:clamp(28px,4vw,40px);
-          font-weight:800;color:#0f172a;letter-spacing:-1px;line-height:1.2}
-        .features{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
-        .feat{background:#fff;border:1px solid #f1f5f9;border-radius:20px;padding:32px 28px;
-          transition:all .3s cubic-bezier(0.2, 0.8, 0.2, 1);box-shadow:0 2px 12px rgba(0,0,0,.04);transform-style:preserve-3d}
-        .feat:hover{transform:translateY(-8px) rotateX(4deg);box-shadow:0 20px 50px rgba(124,58,237,.15);border-color:#ddd6fe}
-        .feat-icon{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;
-          justify-content:center;margin-bottom:20px;font-size:22px;transition:transform 0.3s ease}
-        .feat:hover .feat-icon{transform:translateZ(20px) scale(1.1)}
-        .feat h3{font-size:16px;font-weight:700;color:#0f172a;margin-bottom:8px;letter-spacing:-.2px}
-        .feat p{font-size:14px;color:#64748b;line-height:1.7}
-        .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:0;position:relative}
-        .steps::before{content:'';position:absolute;top:28px;left:calc(16.66% + 16px);
-          right:calc(16.66% + 16px);height:2px;
-          background:linear-gradient(90deg,#7c3aed,#4f46e5,#2563eb);border-radius:1px}
-        .step{text-align:center;padding:0 20px}
-        .step-num{width:56px;height:56px;border-radius:50%;
-          background:linear-gradient(135deg,#7c3aed,#2563eb);color:#fff;font-size:18px;font-weight:700;
-          display:flex;align-items:center;justify-content:center;margin:0 auto 20px;
-          position:relative;z-index:1;box-shadow:0 6px 20px rgba(124,58,237,.3);transition:transform 0.3s ease}
-        .step:hover .step-num{transform:scale(1.15) rotate(10deg)}
-        .step h3{font-size:15px;font-weight:700;color:#0f172a;margin-bottom:8px}
-        .step p{font-size:13px;color:#94a3b8;line-height:1.6}
-        .team-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
-        .team-card{background:#fff;border:1px solid #f1f5f9;border-radius:20px;
-          padding:32px 24px;text-align:center;box-shadow:0 2px 12px rgba(0,0,0,.04);transition:all .3s cubic-bezier(0.2, 0.8, 0.2, 1);transform-style:preserve-3d}
-        .team-card:hover{transform:translateY(-8px) rotateX(4deg);box-shadow:0 20px 50px rgba(124,58,237,.15)}
-        .avatar{width:68px;height:68px;border-radius:50%;margin:0 auto 16px;
-          display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;color:#fff;transition:transform 0.3s ease}
-        .team-card:hover .avatar{transform:scale(1.1)}
-        .team-card h4{font-size:15px;font-weight:700;color:#0f172a;margin-bottom:4px}
-        .team-card .role{font-size:12px;font-weight:600;color:#7c3aed;margin-bottom:8px}
-        .team-card p{font-size:13px;color:#94a3b8;line-height:1.6}
-        .cta-banner{position:relative;z-index:1;max-width:860px;margin:0 auto 80px;padding:0 48px}
-        .cta-inner{background:linear-gradient(135deg,#7c3aed 0%,#4f46e5 50%,#2563eb 100%);
-          border-radius:28px;padding:56px 48px;text-align:center;overflow:hidden;position:relative;
-          box-shadow:0 20px 50px rgba(124,58,237,0.3);transition:transform 0.4s ease}
-        .cta-inner:hover{transform:scale(1.02)}
-        .cta-inner::before{content:'';position:absolute;width:350px;height:350px;border-radius:50%;
-          background:rgba(255,255,255,.07);top:-120px;right:-80px}
-        .cta-inner::after{content:'';position:absolute;width:250px;height:250px;border-radius:50%;
-          background:rgba(255,255,255,.05);bottom:-80px;left:-60px}
-        .cta-inner h2{font-family:'Playfair Display',serif;font-size:36px;font-weight:800;
-          color:#fff;letter-spacing:-1px;margin-bottom:14px;position:relative;z-index:1}
-        .cta-inner p{font-size:15px;color:rgba(255,255,255,.75);margin-bottom:32px;position:relative;z-index:1}
-        .cta-white{padding:14px 36px;background:#fff;border:none;border-radius:14px;
-          color:#7c3aed;font-size:15px;font-weight:700;font-family:'Inter',sans-serif;
-          cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:8px;
-          box-shadow:0 6px 24px rgba(0,0,0,.15);transition:all .25s;position:relative;z-index:1}
-        .cta-white:hover{transform:translateY(-2px);box-shadow:0 10px 32px rgba(0,0,0,.2)}
-        .footer {position:relative;z-index:1;padding:80px 48px 40px;border-top:1px solid #e2e8f0;margin-top:40px;background:#fff;}
-        .footer-grid {display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px;max-width:1100px;margin:0 auto;margin-bottom:64px;}
-        @media(max-width: 900px) { .footer-grid { grid-template-columns:1fr 1fr; gap:32px; } }
-        @media(max-width: 500px) { .footer-grid { grid-template-columns:1fr; } }
-        .f-col-logo {display:flex;flex-direction:column;gap:16px;}
-        .f-col-title {font-size:15px;font-weight:700;color:#0f172a;margin-bottom:16px;}
-        .f-col-links {display:flex;flex-direction:column;gap:12px;}
-        .f-col-links a {color:#64748b;font-size:14px;text-decoration:none;transition:color .2s;font-weight:500;}
-        .f-col-links a:hover {color:#7c3aed;}
-        .f-logo {display:flex;align-items:center;gap:10px;text-decoration:none;}
-        .f-logo-text {font-size:18px;font-weight:800;color:#0f172a;letter-spacing:-.5px;}
-        .f-desc {font-size:14px;color:#64748b;line-height:1.6;max-width:280px;}
-        .f-socials {display:flex;gap:12px;margin-top:8px;}
-        .f-socials a {width:36px;height:36px;border-radius:50%;background:#f1f5f9;color:#475569;display:flex;align-items:center;justify-content:center;transition:all .2s;}
-        .f-socials a:hover {background:#7c3aed;color:#fff;transform:translateY(-2px);}
-        .footer-bottom {max-width:1100px;margin:0 auto;padding-top:32px;border-top:1px solid #f1f5f9;display:flex;justify-content:space-between;align-items:center;}
-        @media(max-width: 600px) { .footer-bottom { flex-direction:column; gap:16px; text-align:center; } }
-        .footer-bottom p {font-size:13px;color:#94a3b8;}
-        .footer-bottom-links {display:flex;gap:20px;}
-        .footer-bottom-links a {font-size:13px;color:#94a3b8;text-decoration:none;transition:color .2s;}
-        .footer-bottom-links a:hover {color:#7c3aed;}
-        @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-        @media(max-width:768px){
-          .nav{padding:0 12px; gap:8px}
-          .nav-logo-text{display:none}
-          .nav-user{display:none}
-          .nav-right{gap:8px}
-          .nav-link{padding:6px 8px; font-size:12px}
-          .nav-btn{padding:8px 12px; font-size:12px}
-          .hero,.stats,.section,.cta-banner{padding-left:20px;padding-right:20px}
-          .hero{padding-top:60px}
-          .features,.stats,.team-grid{grid-template-columns:1fr}
-          .steps{grid-template-columns:1fr;gap:32px}
-          .steps::before{display:none}
-          .cta-inner{padding:36px 24px}
-          .footer{padding:24px 20px}
-        }
+          box-shadow:0 10px 25px rgba(124,58,237,0.4);z-index:20}
       `}</style>
 
       <div className="page">
@@ -268,11 +306,11 @@ export default function AboutPage() {
           </div>
         </nav>
 
-        {/* HERO WITH 3D SHOWCASE */}
+        {/* HERO WITH LIVE 3D WEBGL SCROLL CANVAS */}
         <div className="hero">
           <div className="hero-badge">
             <div className="hero-badge-dot" />
-            <span>About Shopply 3D Experience</span>
+            <span>Interactive WebGL 3D Engine</span>
           </div>
           <h1>The smarter way to<br /><em>run your shop.</em></h1>
           <p>Shopply is your all-in-one commerce workspace — built for modern merchants who want to move fast, sell smart, and grow without the complexity.</p>
@@ -282,9 +320,9 @@ export default function AboutPage() {
           </div>
 
           <div className="hero-3d-wrapper">
-            <div className="hero-3d-floating-badge">⚡ Next-Gen 3D Platform</div>
+            <div className="hero-3d-floating-badge">🎮 Real 3D Interactive WebGL (Scroll & Drag)</div>
             <div className="hero-3d-card">
-              <img src="/shopply_3d_hero.jpg" alt="Shopply 3D E-Commerce Platform" className="hero-3d-img" />
+              <canvas ref={canvasRef} className="hero-3d-canvas" />
             </div>
           </div>
         </div>
