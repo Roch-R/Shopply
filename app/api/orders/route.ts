@@ -79,6 +79,8 @@ export async function POST(req: Request) {
 
     const orderItems: any[] = [];
     let totalAmount = 0;
+    let sellerId = "1";
+    let sellerName = "Shopply Store";
 
     // DIRECT BUY NOW FOR SINGLE PRODUCT ITEM
     if (item_id) {
@@ -104,6 +106,9 @@ export async function POST(req: Request) {
 
       const unitPrice = price ? Number(price) : Number(itemData.price || 0);
       totalAmount = unitPrice * buyQty;
+
+      sellerId = itemData.user?.id || itemData.user_id || itemData.seller_id || itemData.seller?.id || "1";
+      sellerName = itemData.user?.name || itemData.seller_name || itemData.seller?.name || itemData.seller || "Shopply Store";
 
       orderItems.push({
         item_id: String(item_id),
@@ -137,6 +142,9 @@ export async function POST(req: Request) {
 
           if (itemDoc.exists()) {
             const item = itemDoc.data();
+            sellerId = item.user?.id || item.user_id || item.seller_id || sellerId;
+            sellerName = item.user?.name || item.seller_name || sellerName;
+
             if (typeof item.stock === 'number' && item.stock < cartItem.quantity) {
               return NextResponse.json({ message: `Not enough stock available for ${item.name || item.title || 'Item'}.` }, { status: 422 });
             }
@@ -171,6 +179,12 @@ export async function POST(req: Request) {
         id: user.id,
         name: user.name || user.username || "Shopply User",
         email: user.email || ""
+      },
+      seller_id: sellerId,
+      seller_name: sellerName,
+      seller: {
+        id: sellerId,
+        name: sellerName
       },
       items: orderItems,
       total_amount: totalAmount.toFixed(2),

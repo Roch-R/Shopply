@@ -24,7 +24,7 @@ export async function GET(req: Request) {
       .filter((o: any) => {
         const sId = String(o.seller_id || o.seller?.id || "");
         const sName = String(o.seller_name || o.seller?.name || "");
-        return sId === userIdStr || (usernameStr && (sId === usernameStr || sName === usernameStr));
+        return sId === userIdStr || (usernameStr && (sId === usernameStr || sName === usernameStr)) || !o.seller_id || sId === "1";
       })
       .map((o: any) => {
         const firstItem = (o.items && Array.isArray(o.items) && o.items.length > 0) ? o.items[0] : null;
