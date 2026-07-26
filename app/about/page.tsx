@@ -94,7 +94,7 @@ export default function AboutPage() {
         .nav-link{font-size:13px;font-weight:500;color:#64748b;text-decoration:none;
           padding:6px 12px;border-radius:8px;transition:all .2s}
         .nav-link:hover{color:#7c3aed;background:rgba(124,58,237,.06)}
-        .hero{position:relative;z-index:1;padding:100px 48px 80px;text-align:center;max-width:860px;margin:0 auto}
+        .hero{position:relative;z-index:1;padding:80px 48px 60px;text-align:center;max-width:1100px;margin:0 auto;display:flex;flex-direction:column;align-items:center}
         .hero-badge{display:inline-flex;align-items:center;gap:8px;
           background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.15);
           border-radius:100px;padding:6px 16px 6px 10px;margin-bottom:28px;animation:fadeUp .6s ease both}
@@ -104,23 +104,46 @@ export default function AboutPage() {
           color:#0f172a;letter-spacing:-2px;line-height:1.05;margin-bottom:22px;animation:fadeUp .6s .1s ease both}
         .hero h1 em{font-style:normal;background:linear-gradient(135deg,#7c3aed,#4f46e5,#2563eb);
           -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-        .hero p{font-size:18px;color:#64748b;line-height:1.75;max-width:600px;margin:0 auto 40px;animation:fadeUp .6s .2s ease both}
-        .hero-cta{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;animation:fadeUp .6s .3s ease both}
+        .hero p{font-size:18px;color:#64748b;line-height:1.75;max-width:640px;margin:0 auto 36px;animation:fadeUp .6s .2s ease both}
+        .hero-cta{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;animation:fadeUp .6s .3s ease both;margin-bottom:48px}
         .cta-primary{padding:14px 32px;background:linear-gradient(135deg,#7c3aed,#2563eb);
           border:none;border-radius:14px;color:#fff;font-size:15px;font-weight:600;
           font-family:'Inter',sans-serif;cursor:pointer;text-decoration:none;
           box-shadow:0 6px 24px rgba(124,58,237,.3);transition:all .25s;display:inline-flex;align-items:center;gap:8px}
-        .cta-primary:hover{transform:translateY(-2px);box-shadow:0 10px 32px rgba(124,58,237,.4)}
+        .cta-primary:hover{transform:translateY(-2px) scale(1.02);box-shadow:0 10px 32px rgba(124,58,237,.45)}
         .cta-secondary{padding:14px 32px;background:#fff;border:1.5px solid #e2e8f0;
           border-radius:14px;color:#0f172a;font-size:15px;font-weight:600;
           font-family:'Inter',sans-serif;cursor:pointer;text-decoration:none;
           box-shadow:0 2px 10px rgba(0,0,0,.05);transition:all .25s;display:inline-flex;align-items:center;gap:8px}
         .cta-secondary:hover{border-color:#c4b5fd;transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,0,0,.08)}
+
+        /* 3D FLOATING ANIMATED SHOWCASE CARD */
+        .hero-3d-wrapper{perspective:1000px;margin-top:20px;width:100%;max-width:780px;position:relative}
+        .hero-3d-card{background:rgba(255,255,255,0.7);backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,0.9);
+          border-radius:28px;padding:24px;box-shadow:0 30px 60px -12px rgba(124,58,237,0.18), 0 18px 36px -18px rgba(0,0,0,0.12);
+          transform-style:preserve-3d;transform:rotateX(6deg) rotateY(-4deg);transition:transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+          animation:float3D 6s ease-in-out infinite alternate}
+        .hero-3d-card:hover{transform:rotateX(0deg) rotateY(0deg) scale(1.02);box-shadow:0 40px 80px -16px rgba(124,58,237,0.28)}
+        .hero-3d-img{width:100%;max-height:420px;object-fit:cover;border-radius:20px;transform:translateZ(30px);
+          box-shadow:0 12px 30px rgba(0,0,0,0.08)}
+        .hero-3d-floating-badge{position:absolute;top:-16px;right:-16px;background:linear-gradient(135deg,#7c3aed,#2563eb);
+          color:#fff;font-size:12px;font-weight:700;padding:8px 18px;border-radius:100px;
+          box-shadow:0 10px 25px rgba(124,58,237,0.4);transform:translateZ(50px);animation:pulse3D 3s infinite alternate}
+
+        @keyframes float3D{
+          0%{transform:rotateX(6deg) rotateY(-4deg) translateY(0px)}
+          100%{transform:rotateX(2deg) rotateY(4deg) translateY(-16px)}
+        }
+        @keyframes pulse3D{
+          0%{transform:translateZ(50px) scale(1)}
+          100%{transform:translateZ(60px) scale(1.08)}
+        }
+
         .stats{position:relative;z-index:1;max-width:860px;margin:0 auto 80px;
           display:grid;grid-template-columns:repeat(3,1fr);gap:16px;padding:0 48px;animation:fadeUp .6s .35s ease both}
         .stat-card{background:#fff;border:1px solid #f1f5f9;border-radius:20px;padding:28px 24px;text-align:center;
-          box-shadow:0 4px 16px rgba(0,0,0,.04);transition:all .25s}
-        .stat-card:hover{transform:translateY(-3px);box-shadow:0 12px 32px rgba(0,0,0,.08);border-color:#e0d7ff}
+          box-shadow:0 4px 16px rgba(0,0,0,.04);transition:all .3s cubic-bezier(0.2, 0.8, 0.2, 1);transform-style:preserve-3d}
+        .stat-card:hover{transform:translateY(-6px) rotateX(4deg);box-shadow:0 20px 40px rgba(124,58,237,.12);border-color:#e0d7ff}
         .stat-num{font-family:'Playfair Display',serif;font-size:40px;font-weight:800;
           background:linear-gradient(135deg,#7c3aed,#2563eb);
           -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
@@ -132,10 +155,11 @@ export default function AboutPage() {
           font-weight:800;color:#0f172a;letter-spacing:-1px;line-height:1.2}
         .features{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
         .feat{background:#fff;border:1px solid #f1f5f9;border-radius:20px;padding:32px 28px;
-          transition:all .25s;box-shadow:0 2px 12px rgba(0,0,0,.04)}
-        .feat:hover{transform:translateY(-4px);box-shadow:0 16px 40px rgba(0,0,0,.08);border-color:#ddd6fe}
+          transition:all .3s cubic-bezier(0.2, 0.8, 0.2, 1);box-shadow:0 2px 12px rgba(0,0,0,.04);transform-style:preserve-3d}
+        .feat:hover{transform:translateY(-8px) rotateX(4deg);box-shadow:0 20px 50px rgba(124,58,237,.15);border-color:#ddd6fe}
         .feat-icon{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;
-          justify-content:center;margin-bottom:20px;font-size:22px}
+          justify-content:center;margin-bottom:20px;font-size:22px;transition:transform 0.3s ease}
+        .feat:hover .feat-icon{transform:translateZ(20px) scale(1.1)}
         .feat h3{font-size:16px;font-weight:700;color:#0f172a;margin-bottom:8px;letter-spacing:-.2px}
         .feat p{font-size:14px;color:#64748b;line-height:1.7}
         .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:0;position:relative}
@@ -146,21 +170,25 @@ export default function AboutPage() {
         .step-num{width:56px;height:56px;border-radius:50%;
           background:linear-gradient(135deg,#7c3aed,#2563eb);color:#fff;font-size:18px;font-weight:700;
           display:flex;align-items:center;justify-content:center;margin:0 auto 20px;
-          position:relative;z-index:1;box-shadow:0 6px 20px rgba(124,58,237,.3)}
+          position:relative;z-index:1;box-shadow:0 6px 20px rgba(124,58,237,.3);transition:transform 0.3s ease}
+        .step:hover .step-num{transform:scale(1.15) rotate(10deg)}
         .step h3{font-size:15px;font-weight:700;color:#0f172a;margin-bottom:8px}
         .step p{font-size:13px;color:#94a3b8;line-height:1.6}
         .team-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
         .team-card{background:#fff;border:1px solid #f1f5f9;border-radius:20px;
-          padding:32px 24px;text-align:center;box-shadow:0 2px 12px rgba(0,0,0,.04);transition:all .25s}
-        .team-card:hover{transform:translateY(-4px);box-shadow:0 16px 40px rgba(0,0,0,.08)}
+          padding:32px 24px;text-align:center;box-shadow:0 2px 12px rgba(0,0,0,.04);transition:all .3s cubic-bezier(0.2, 0.8, 0.2, 1);transform-style:preserve-3d}
+        .team-card:hover{transform:translateY(-8px) rotateX(4deg);box-shadow:0 20px 50px rgba(124,58,237,.15)}
         .avatar{width:68px;height:68px;border-radius:50%;margin:0 auto 16px;
-          display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;color:#fff}
+          display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;color:#fff;transition:transform 0.3s ease}
+        .team-card:hover .avatar{transform:scale(1.1)}
         .team-card h4{font-size:15px;font-weight:700;color:#0f172a;margin-bottom:4px}
         .team-card .role{font-size:12px;font-weight:600;color:#7c3aed;margin-bottom:8px}
         .team-card p{font-size:13px;color:#94a3b8;line-height:1.6}
         .cta-banner{position:relative;z-index:1;max-width:860px;margin:0 auto 80px;padding:0 48px}
         .cta-inner{background:linear-gradient(135deg,#7c3aed 0%,#4f46e5 50%,#2563eb 100%);
-          border-radius:28px;padding:56px 48px;text-align:center;overflow:hidden;position:relative}
+          border-radius:28px;padding:56px 48px;text-align:center;overflow:hidden;position:relative;
+          box-shadow:0 20px 50px rgba(124,58,237,0.3);transition:transform 0.4s ease}
+        .cta-inner:hover{transform:scale(1.02)}
         .cta-inner::before{content:'';position:absolute;width:350px;height:350px;border-radius:50%;
           background:rgba(255,255,255,.07);top:-120px;right:-80px}
         .cta-inner::after{content:'';position:absolute;width:250px;height:250px;border-radius:50%;
@@ -240,17 +268,24 @@ export default function AboutPage() {
           </div>
         </nav>
 
-        {/* HERO */}
+        {/* HERO WITH 3D SHOWCASE */}
         <div className="hero">
           <div className="hero-badge">
             <div className="hero-badge-dot" />
-            <span>About Shopply</span>
+            <span>About Shopply 3D Experience</span>
           </div>
           <h1>The smarter way to<br /><em>run your shop.</em></h1>
           <p>Shopply is your all-in-one commerce workspace — built for modern merchants who want to move fast, sell smart, and grow without the complexity.</p>
           <div className="hero-cta">
             <Link href="/dashboard" className="cta-primary">Go to Dashboard →</Link>
             <a href="#features" className="cta-secondary">Explore Features</a>
+          </div>
+
+          <div className="hero-3d-wrapper">
+            <div className="hero-3d-floating-badge">⚡ Next-Gen 3D Platform</div>
+            <div className="hero-3d-card">
+              <img src="/shopply_3d_hero.jpg" alt="Shopply 3D E-Commerce Platform" className="hero-3d-img" />
+            </div>
           </div>
         </div>
 
