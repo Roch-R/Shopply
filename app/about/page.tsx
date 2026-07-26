@@ -6,8 +6,6 @@ import Link from "next/link";
 import { Skeleton } from "@/components/Skeleton";
 import { getApiCache } from "@/lib/apiCache";
 
-import * as THREE from "three";
-
 function getAuth() {
   if (typeof window === "undefined") return { token: null, user: null };
   const token = localStorage.getItem("token");
@@ -19,7 +17,6 @@ function getAuth() {
 export default function AboutPage() {
   const router = useRouter();
   const pushed = useRef(false);
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [ready, setReady] = useState(false);
   const [user, setUser] = useState<{ name: string; email: string } | null>(null);
 
@@ -33,152 +30,6 @@ export default function AboutPage() {
       setReady(true);
     }
   }, []); // intentional empty deps — runs once on mount
-
-  useEffect(() => {
-    if (!ready || !canvasRef.current) return;
-
-    const canvas = canvasRef.current;
-    const width = canvas.clientWidth || 780;
-    const height = canvas.clientHeight || 450;
-
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 1000);
-    camera.position.z = 6.2;
-
-    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
-    renderer.setSize(width, height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
-    // 1. Main Metallic 3D Torus Knot
-    const knotGeo = new THREE.TorusKnotGeometry(1.2, 0.38, 128, 32);
-    const knotMat = new THREE.MeshStandardMaterial({
-      color: 0x7c3aed,
-      roughness: 0.15,
-      metalness: 0.85,
-    });
-    const torusKnot = new THREE.Mesh(knotGeo, knotMat);
-    scene.add(torusKnot);
-
-    // 2. Outer Wireframe 3D Shopping Cube
-    const boxGeo = new THREE.BoxGeometry(3.4, 3.4, 3.4);
-    const boxMat = new THREE.MeshBasicMaterial({
-      color: 0x2563eb,
-      wireframe: true,
-      transparent: true,
-      opacity: 0.4,
-    });
-    const outerCube = new THREE.Mesh(boxGeo, boxMat);
-    scene.add(outerCube);
-
-    // 3. Orbiting 3D Crystals / Spheres
-    const spheresGroup = new THREE.Group();
-    const sphereGeo = new THREE.IcosahedronGeometry(0.35, 2);
-    const sphereMat = new THREE.MeshStandardMaterial({
-      color: 0x00f2fe,
-      roughness: 0.2,
-      metalness: 0.9,
-    });
-
-    for (let i = 0; i < 4; i++) {
-      const sphere = new THREE.Mesh(sphereGeo, sphereMat);
-      const angle = (i / 4) * Math.PI * 2;
-      sphere.position.set(Math.cos(angle) * 2.6, Math.sin(angle) * 2.6, (i % 2 === 0 ? 1 : -1) * 0.8);
-      spheresGroup.add(sphere);
-    }
-    scene.add(spheresGroup);
-
-    // 4. 3D Particle Cloud
-    const particlesGeo = new THREE.BufferGeometry();
-    const particleCount = 300;
-    const posArray = new Float32Array(particleCount * 3);
-
-    for (let i = 0; i < particleCount * 3; i++) {
-      posArray[i] = (Math.random() - 0.5) * 12;
-    }
-    particlesGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-
-    const particlesMat = new THREE.PointsMaterial({
-      size: 0.045,
-      color: 0xa855f7,
-      transparent: true,
-      opacity: 0.85,
-    });
-    const particleMesh = new THREE.Points(particlesGeo, particlesMat);
-    scene.add(particleMesh);
-
-    // 5. Studio Lights
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.9);
-    scene.add(ambientLight);
-
-    const purpleLight = new THREE.PointLight(0x7c3aed, 5, 25);
-    purpleLight.position.set(5, 5, 5);
-    scene.add(purpleLight);
-
-    const cyanLight = new THREE.PointLight(0x00f2fe, 5, 25);
-    cyanLight.position.set(-5, -5, 5);
-    scene.add(cyanLight);
-
-    // Scroll & Mouse Event Listeners
-    let currentScroll = window.scrollY;
-    const handleScroll = () => {
-      currentScroll = window.scrollY;
-    };
-    window.addEventListener("scroll", handleScroll);
-
-    let mouseX = 0;
-    let mouseY = 0;
-    const handleMouseMove = (e: MouseEvent) => {
-      const rect = canvas.getBoundingClientRect();
-      mouseX = ((e.clientX - rect.left) / rect.width - 0.5) * 2;
-      mouseY = ((e.clientY - rect.top) / rect.height - 0.5) * 2;
-    };
-    window.addEventListener("mousemove", handleMouseMove);
-
-    // Render Animation Loop
-    let reqId: number;
-    let clock = new THREE.Clock();
-
-    const animate = () => {
-      reqId = requestAnimationFrame(animate);
-      const elapsedTime = clock.getElapsedTime();
-
-      // REAL 3D SCROLL ROTATION
-      torusKnot.rotation.x = elapsedTime * 0.4 + currentScroll * 0.004 + mouseY * 0.5;
-      torusKnot.rotation.y = elapsedTime * 0.6 + currentScroll * 0.006 + mouseX * 0.5;
-
-      outerCube.rotation.x = -elapsedTime * 0.2 - currentScroll * 0.003;
-      outerCube.rotation.y = elapsedTime * 0.3 + currentScroll * 0.005;
-
-      spheresGroup.rotation.z = currentScroll * 0.004;
-      spheresGroup.rotation.y = elapsedTime * 0.5 + currentScroll * 0.003;
-
-      particleMesh.rotation.y = elapsedTime * 0.1 + currentScroll * 0.001;
-      particleMesh.rotation.x = currentScroll * 0.0005;
-
-      camera.position.z = 6.2 + Math.sin(currentScroll * 0.002) * 1.2;
-
-      renderer.render(scene, camera);
-    };
-    animate();
-
-    const handleResize = () => {
-      if (!canvas) return;
-      const w = canvas.clientWidth;
-      const h = canvas.clientHeight;
-      camera.aspect = w / h;
-      camera.updateProjectionMatrix();
-      renderer.setSize(w, h);
-    };
-    window.addEventListener("resize", handleResize);
-
-    return () => {
-      cancelAnimationFrame(reqId);
-      window.removeEventListener("scroll", handleScroll);
-      window.removeEventListener("mousemove", handleMouseMove);
-      window.removeEventListener("resize", handleResize);
-      renderer.dispose();
-    };
-  }, [ready]);
 
   function handleLogout() {
     const token = localStorage.getItem("token");
@@ -396,24 +247,17 @@ export default function AboutPage() {
           </div>
         </nav>
 
-        {/* HERO WITH LIVE 3D WEBGL SCROLL CANVAS */}
+        {/* HERO */}
         <div className="hero">
           <div className="hero-badge">
             <div className="hero-badge-dot" />
-            <span>Interactive WebGL 3D Engine</span>
+            <span>About Shopply</span>
           </div>
           <h1>The smarter way to<br /><em>run your shop.</em></h1>
           <p>Shopply is your all-in-one commerce workspace — built for modern merchants who want to move fast, sell smart, and grow without the complexity.</p>
           <div className="hero-cta">
             <Link href="/dashboard" className="cta-primary">Go to Dashboard →</Link>
             <a href="#features" className="cta-secondary">Explore Features</a>
-          </div>
-
-          <div className="hero-3d-wrapper">
-            <div className="hero-3d-floating-badge">🎮 Real 3D Interactive WebGL (Scroll & Drag)</div>
-            <div className="hero-3d-card">
-              <canvas ref={canvasRef} className="hero-3d-canvas" />
-            </div>
           </div>
         </div>
 
