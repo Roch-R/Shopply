@@ -267,15 +267,32 @@ export default function AboutPage() {
         .cta-secondary:hover{border-color:#c4b5fd;transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,0,0,.08)}
 
         /* LIVE WEBGL 3D CANVAS SHOWCASE */
-        .hero-3d-wrapper{perspective:1000px;margin-top:20px;width:100%;max-width:850px;position:relative}
-        .hero-3d-card{background:rgba(255,255,255,0.85);backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,0.95);
-          border-radius:28px;padding:24px;box-shadow:0 30px 70px -12px rgba(124,58,237,0.22), 0 18px 36px -18px rgba(0,0,0,0.12);
-          transform-style:preserve-3d;transition:box-shadow 0.3s ease;display:flex;justify-content:center;align-items:center}
-        .hero-3d-canvas{width:100%;height:450px;border-radius:20px;outline:none;cursor:grab}
+        .hero-3d-wrapper{margin-top:20px;width:100%;max-width:820px;position:relative;z-index:10}
+        .hero-3d-card{background:#ffffff;border:1px solid #e2e8f0;
+          border-radius:28px;padding:16px;box-shadow:0 20px 50px rgba(124,58,237,0.15);
+          display:flex;justify-content:center;align-items:center;overflow:hidden}
+        .hero-3d-canvas{width:100%;height:380px;border-radius:20px;display:block;cursor:grab}
         .hero-3d-canvas:active{cursor:grabbing}
-        .hero-3d-floating-badge{position:absolute;top:-16px;right:-16px;background:linear-gradient(135deg,#7c3aed,#2563eb);
-          color:#fff;font-size:12px;font-weight:700;padding:8px 18px;border-radius:100px;
-          box-shadow:0 10px 25px rgba(124,58,237,0.4);z-index:20}
+        .hero-3d-floating-badge{position:absolute;top:-14px;right:20px;background:linear-gradient(135deg,#7c3aed,#2563eb);
+          color:#fff;font-size:12px;font-weight:700;padding:6px 16px;border-radius:100px;
+          box-shadow:0 8px 20px rgba(124,58,237,0.35);z-index:20}
+
+        /* SECTION AND CARDS CONTRAST STYLES */
+        .section{position:relative;z-index:1;max-width:960px;margin:0 auto 80px;padding:0 48px}
+        .section-head{text-align:center;margin-bottom:48px}
+        .section-tag{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#7c3aed;margin-bottom:12px}
+        .section-title{font-family:'Playfair Display',serif;font-size:clamp(28px,4vw,40px);
+          font-weight:800;color:#0f172a;letter-spacing:-1px;line-height:1.2}
+
+        .features{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+        .feat{background:#ffffff;border:1px solid #e2e8f0;border-radius:20px;padding:32px 28px;
+          transition:all .3s cubic-bezier(0.2, 0.8, 0.2, 1);box-shadow:0 4px 20px rgba(0,0,0,.04)}
+        .feat:hover{transform:translateY(-6px);box-shadow:0 20px 40px rgba(124,58,237,.12);border-color:#c4b5fd}
+        .feat-icon{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;
+          justify-content:center;margin-bottom:20px;font-size:22px;transition:transform 0.3s ease}
+        .feat:hover .feat-icon{transform:scale(1.1)}
+        .feat h3{font-size:16px;font-weight:700;color:#0f172a;margin-bottom:8px;letter-spacing:-.2px}
+        .feat p{font-size:14px;color:#475569;line-height:1.65}
       `}</style>
 
       <div className="page">
