@@ -155,8 +155,9 @@ export default function CartPage() {
       } else {
         showToast(data.message || "Checkout failed", "error");
       }
-    } catch (err) {
-      showToast("An error occurred", "error");
+    } catch (err: any) {
+      console.error("[cart checkout error]:", err);
+      showToast(err?.message || "An error occurred during checkout.", "error");
     } finally {
       setCheckingOut(false);
     }
