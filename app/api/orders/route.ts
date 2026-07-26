@@ -17,12 +17,12 @@ export async function GET(req: Request) {
     const usernameStr = user.username ? String(user.username) : "";
     const emailStr = user.email ? String(user.email) : "";
 
-    const orders = snap.docs
-      .map(doc => {
-        const data = doc.data();
+    const userOrders = snap.docs
+      .map(docSnap => {
+        const data = docSnap.data();
         return {
           ...data,
-          id: doc.id
+          id: docSnap.id
         };
       })
       .filter((o: any) => {
@@ -31,7 +31,35 @@ export async function GET(req: Request) {
         return uId === userIdStr || (usernameStr && uId === usernameStr) || (emailStr && uId === emailStr) || uObjId === userIdStr;
       });
 
-    return NextResponse.json(orders, { status: 200 });
+    const formattedOrders = userOrders.map((o: any) => {
+      const firstItem = (o.items && Array.isArray(o.items) && o.items.length > 0) ? o.items[0] : null;
+      const itemName = firstItem?.item?.name || firstItem?.name || o.item?.name || o.title || "Shopply Item";
+      const itemImg = firstItem?.item?.image || firstItem?.image || o.item?.image || o.image_url || "";
+      const itemPrice = firstItem?.price || firstItem?.item?.price || o.price || o.total_amount || 0;
+      const itemQty = firstItem?.quantity || o.quantity || 1;
+
+      return {
+        id: o.id,
+        user_id: o.user_id,
+        status: o.status || "pending",
+        price: String(itemPrice),
+        quantity: Number(itemQty),
+        variation: o.variation || firstItem?.variation || "",
+        created_at: o.created_at || new Date().toISOString(),
+        item: {
+          id: firstItem?.item_id || firstItem?.item?.id || o.item_id || "1",
+          name: itemName,
+          image: itemImg,
+          price: String(itemPrice)
+        },
+        seller: {
+          id: o.seller_id || o.seller?.id || "1",
+          name: o.seller_name || o.seller?.name || "Shopply Store"
+        }
+      };
+    });
+
+    return NextResponse.json({ orders: formattedOrders }, { status: 200 });
 
   } catch (err: any) {
     console.error("[orders] GET error:", err);
