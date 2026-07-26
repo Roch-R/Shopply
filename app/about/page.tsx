@@ -293,6 +293,79 @@ export default function AboutPage() {
         .feat:hover .feat-icon{transform:scale(1.1)}
         .feat h3{font-size:16px;font-weight:700;color:#0f172a;margin-bottom:8px;letter-spacing:-.2px}
         .feat p{font-size:14px;color:#475569;line-height:1.65}
+
+        /* STEPS */
+        .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;position:relative}
+        .step{text-align:center;padding:24px;background:#ffffff;border:1px solid #e2e8f0;border-radius:20px;box-shadow:0 4px 20px rgba(0,0,0,.03)}
+        .step-num{width:56px;height:56px;border-radius:50%;
+          background:linear-gradient(135deg,#7c3aed,#2563eb);color:#fff;font-size:18px;font-weight:700;
+          display:flex;align-items:center;justify-content:center;margin:0 auto 20px;
+          position:relative;z-index:1;box-shadow:0 6px 20px rgba(124,58,237,.3)}
+        .step h3{font-size:16px;font-weight:700;color:#0f172a;margin-bottom:8px}
+        .step p{font-size:14px;color:#475569;line-height:1.6}
+
+        /* TEAM GRID */
+        .team-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+        .team-card{background:#ffffff;border:1px solid #e2e8f0;border-radius:20px;
+          padding:32px 24px;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,.04);transition:all .3s ease}
+        .team-card:hover{transform:translateY(-6px);box-shadow:0 20px 40px rgba(124,58,237,.12);border-color:#c4b5fd}
+        .avatar{width:68px;height:68px;border-radius:50%;margin:0 auto 16px;
+          display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;color:#fff;box-shadow:0 8px 20px rgba(0,0,0,0.15)}
+        .team-card h4{font-size:16px;font-weight:700;color:#0f172a;margin-bottom:4px}
+        .team-card .role{font-size:13px;font-weight:600;color:#7c3aed;margin-bottom:8px}
+        .team-card p{font-size:13px;color:#64748b;line-height:1.6}
+
+        /* CTA BANNER */
+        .cta-banner{position:relative;z-index:1;max-width:960px;margin:0 auto 80px;padding:0 48px}
+        .cta-inner{background:linear-gradient(135deg,#7c3aed 0%,#4f46e5 50%,#2563eb 100%);
+          border-radius:28px;padding:56px 48px;text-align:center;overflow:hidden;position:relative;
+          box-shadow:0 20px 50px rgba(124,58,237,0.3)}
+        .cta-inner h2{font-family:'Playfair Display',serif;font-size:36px;font-weight:800;
+          color:#ffffff;letter-spacing:-1px;margin-bottom:14px;position:relative;z-index:1}
+        .cta-inner p{font-size:16px;color:rgba(255,255,255,.9);margin-bottom:32px;position:relative;z-index:1}
+        .cta-white{padding:14px 36px;background:#ffffff;border:none;border-radius:14px;
+          color:#7c3aed;font-size:15px;font-weight:700;font-family:'Inter',sans-serif;
+          cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:8px;
+          box-shadow:0 6px 24px rgba(0,0,0,.15);transition:all .25s;position:relative;z-index:1}
+        .cta-white:hover{transform:translateY(-2px);box-shadow:0 10px 32px rgba(0,0,0,.25)}
+
+        /* FOOTER */
+        .footer {position:relative;z-index:1;padding:80px 48px 40px;border-top:1px solid #e2e8f0;margin-top:40px;background:#ffffff;}
+        .footer-grid {display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px;max-width:1100px;margin:0 auto;margin-bottom:64px;}
+        @media(max-width: 900px) { .footer-grid { grid-template-columns:1fr 1fr; gap:32px; } }
+        @media(max-width: 500px) { .footer-grid { grid-template-columns:1fr; } }
+        .f-col-logo {display:flex;flex-direction:column;gap:16px;}
+        .f-col-title {font-size:15px;font-weight:700;color:#0f172a;margin-bottom:16px;}
+        .f-col-links {display:flex;flex-direction:column;gap:12px;}
+        .f-col-links a {color:#475569;font-size:14px;text-decoration:none;transition:color .2s;font-weight:500;}
+        .f-col-links a:hover {color:#7c3aed;}
+        .f-logo {display:flex;align-items:center;gap:10px;text-decoration:none;}
+        .f-logo-text {font-size:18px;font-weight:800;color:#0f172a;letter-spacing:-.5px;}
+        .f-desc {font-size:14px;color:#475569;line-height:1.6;max-width:280px;}
+        .f-socials {display:flex;gap:12px;margin-top:8px;}
+        .f-socials a {width:36px;height:36px;border-radius:50%;background:#f1f5f9;color:#475569;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+        .f-socials a:hover {background:#7c3aed;color:#ffffff;transform:translateY(-2px);}
+        .footer-bottom {max-width:1100px;margin:0 auto;padding-top:32px;border-top:1px solid #f1f5f9;display:flex;justify-content:space-between;align-items:center;}
+        @media(max-width: 600px) { .footer-bottom { flex-direction:column; gap:16px; text-align:center; } }
+        .footer-bottom p {font-size:13px;color:#64748b;}
+        .footer-bottom-links {display:flex;gap:20px;}
+        .footer-bottom-links a {font-size:13px;color:#64748b;text-decoration:none;transition:color .2s;}
+        .footer-bottom-links a:hover {color:#7c3aed;}
+
+        @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+        @media(max-width:768px){
+          .nav{padding:0 12px; gap:8px}
+          .nav-logo-text{display:none}
+          .nav-user{display:none}
+          .nav-right{gap:8px}
+          .nav-link{padding:6px 8px; font-size:12px}
+          .nav-btn{padding:8px 12px; font-size:12px}
+          .hero,.section,.cta-banner{padding-left:20px;padding-right:20px}
+          .hero{padding-top:60px}
+          .features,.team-grid,.steps{grid-template-columns:1fr}
+          .cta-inner{padding:36px 24px}
+          .footer{padding:24px 20px}
+        }
       `}</style>
 
       <div className="page">
