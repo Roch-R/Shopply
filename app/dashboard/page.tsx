@@ -4474,17 +4474,18 @@ export default function DashboardPage() {
 
                   <div className="form-group" style={{ marginTop: 24 }}>
                     <label className="form-label">Product Specifications</label>
-                    <div style={{
+                    <div className="spec-input-grid" style={{
                       display: 'grid',
-                      gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr)) auto',
+                      gridTemplateColumns: '1fr 1fr auto',
                       gap: 12,
                       width: '100%',
-                      marginBottom: 12
+                      marginBottom: 12,
+                      alignItems: 'center'
                     }}>
                       <input
                         type="text"
                         className="form-input"
-                        placeholder="Property (e.g. Color)"
+                        placeholder="Property (e.g. Material, Origin, Fit)"
                         value={newSpecKey}
                         onChange={e => setNewSpecKey(e.target.value)}
                         style={{
@@ -4494,13 +4495,14 @@ export default function DashboardPage() {
                           padding: '10px 16px',
                           fontSize: 13,
                           transition: 'all 0.2s',
-                          width: '100%'
+                          width: '100%',
+                          height: 44
                         }}
                       />
                       <input
                         type="text"
                         className="form-input"
-                        placeholder="Value (e.g. Red)"
+                        placeholder="Value (e.g. Cotton 100%, Japan, Regular)"
                         value={newSpecValue}
                         onChange={e => setNewSpecValue(e.target.value)}
                         style={{
@@ -4510,7 +4512,8 @@ export default function DashboardPage() {
                           padding: '10px 16px',
                           fontSize: 13,
                           transition: 'all 0.2s',
-                          width: '100%'
+                          width: '100%',
+                          height: 44
                         }}
                       />
                       <button
@@ -4524,7 +4527,7 @@ export default function DashboardPage() {
                         }}
                         style={{
                           padding: '0 24px',
-                          height: 42,
+                          height: 44,
                           borderRadius: 14,
                           border: 'none',
                           background: 'linear-gradient(135deg,#7c3aed,#6366f1)',
@@ -4537,13 +4540,14 @@ export default function DashboardPage() {
                           justifyContent: 'center',
                           gap: 6,
                           boxShadow: '0 4px 12px rgba(124,58,237,0.2)',
-                          transition: 'all .2s'
+                          transition: 'all .2s',
+                          whiteSpace: 'nowrap'
                         }}
                         onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 6px 16px rgba(124,58,237,0.3)'; }}
                         onMouseOut={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(124,58,237,0.2)'; }}
                       >
                         <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
-                        Add
+                        Add Spec
                       </button>
                     </div>
                     {specs.length > 0 && (
@@ -4652,7 +4656,7 @@ export default function DashboardPage() {
                           <div
                             onClick={() => document.getElementById('variant-img-input')?.click()}
                             style={{
-                              height: 120,
+                              height: 48,
                               border: '2px dashed #cbd5e1',
                               borderRadius: 14,
                               display: 'flex',
@@ -4663,16 +4667,19 @@ export default function DashboardPage() {
                               overflow: 'hidden',
                               transition: 'all .2s'
                             }}
+                            onMouseOver={e => { e.currentTarget.style.borderColor = '#7c3aed'; e.currentTarget.style.background = '#faf5ff'; }}
+                            onMouseOut={e => { e.currentTarget.style.borderColor = '#cbd5e1'; e.currentTarget.style.background = '#fff'; }}
                           >
                             {newColorPreview ? (
                               <img src={newColorPreview} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
                             ) : (
-                              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, color: '#94a3b8' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#94a3b8' }}>
                                 <IconCamera />
                                 <span style={{ fontSize: 12, fontWeight: 600 }}>Upload Photo</span>
                               </div>
                             )}
                           </div>
+                          <p style={{ fontSize: 11, color: '#94a3b8', marginTop: 4 }}>Required photo for this color.</p>
                           <input
                             id="variant-img-input"
                             type="file"
@@ -4777,22 +4784,24 @@ export default function DashboardPage() {
                           showToast("Color variant added successfully!", "success");
                         }}
                         style={{
-                          height: 48,
+                          height: 46,
                           width: '100%',
-                          borderRadius: 12,
+                          borderRadius: 14,
                           border: 'none',
-                          background: '#7c3aed',
+                          background: 'linear-gradient(135deg, #7c3aed, #6366f1)',
                           color: '#fff',
                           fontWeight: 700,
-                          fontSize: 15,
+                          fontSize: 14,
                           cursor: 'pointer',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
-                          gap: 10,
-                          boxShadow: '0 6px 16px rgba(124,58,237,0.25)',
+                          gap: 8,
+                          boxShadow: '0 4px 14px rgba(124,58,237,0.2)',
                           transition: 'all .2s'
                         }}
+                        onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 6px 18px rgba(124,58,237,0.3)'; }}
+                        onMouseOut={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 14px rgba(124,58,237,0.2)'; }}
                       >
                         <IconPlus />
                         Add This Variant
