@@ -293,24 +293,11 @@ export default function DashboardPage() {
   const [showScanner, setShowScanner] = useState(false);
   const [ordersExpanded, setOrdersExpanded] = useState(false);
   
-  // Sidebar collapsible state
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('shopply_sidebar_collapsed');
-      if (stored !== null) {
-        return stored === 'true';
-      }
-      return window.innerWidth <= 768; // default to collapsed on mobile
-    }
-    return false;
-  });
+  // Sidebar collapsible state (always expanded by default)
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   const toggleSidebar = () => {
-    setIsSidebarCollapsed(prev => {
-      const next = !prev;
-      localStorage.setItem('shopply_sidebar_collapsed', String(next));
-      return next;
-    });
+    setIsSidebarCollapsed(prev => !prev);
   };
 
   // Profile update state
@@ -2835,19 +2822,20 @@ export default function DashboardPage() {
             className="menu-toggle-btn"
             onClick={toggleSidebar}
             style={{
-              background: 'none',
-              border: 'none',
+              background: '#f8fafc',
+              border: '1.5px solid #e2e8f0',
+              borderRadius: 10,
               color: '#0f172a',
               cursor: 'pointer',
-              padding: 8,
-              display: 'none',
+              padding: '6px 10px',
+              display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              marginRight: 8
+              marginRight: 10
             }}
-            title="Menu"
+            title={isSidebarCollapsed ? "Show Sidebar Menu" : "Hide Sidebar Menu"}
           >
-            <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+            <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
               <path d="M4 6h16M4 12h16M4 18h16" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </button>
