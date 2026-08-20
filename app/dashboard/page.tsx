@@ -2295,8 +2295,20 @@ export default function DashboardPage() {
 
         .category-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+          grid-template-columns: repeat(7, minmax(0, 1fr));
           gap: 12px;
+        }
+        @media (max-width: 1024px) {
+          .category-grid {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 10px;
+          }
+        }
+        @media (max-width: 640px) {
+          .category-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+            gap: 8px !important;
+          }
         }
         .variant-form-grid {
           display: grid;
@@ -4147,17 +4159,18 @@ export default function DashboardPage() {
                             setSelectedSizes([]);
                           }}
                           style={{
-                            padding: '16px 12px',
+                            padding: '14px 6px',
                             borderRadius: 14,
                             border: `2px solid ${newItemCategory === cat.val ? '#7c3aed' : '#f1f5f9'}`,
                             background: newItemCategory === cat.val ? 'rgba(124,58,237,0.04)' : '#fff',
                             display: 'flex',
                             flexDirection: 'column',
                             alignItems: 'center',
-                            gap: 10,
+                            gap: 8,
                             cursor: 'pointer',
                             transition: 'all .2s',
-                            textAlign: 'center'
+                            textAlign: 'center',
+                            position: 'relative'
                           }}
                         >
                           <div style={{
@@ -4171,7 +4184,8 @@ export default function DashboardPage() {
                           </div>
                           <span style={{
                             fontSize: 12, fontWeight: 700,
-                            color: newItemCategory === cat.val ? '#7c3aed' : '#64748b'
+                            color: newItemCategory === cat.val ? '#7c3aed' : '#64748b',
+                            whiteSpace: 'nowrap'
                           }}>{cat.label}</span>
                           {newItemCategory === cat.val && (
                             <div style={{ position: 'absolute', top: 8, right: 8, color: '#7c3aed' }}>
