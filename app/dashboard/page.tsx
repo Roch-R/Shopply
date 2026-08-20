@@ -2185,10 +2185,10 @@ export default function DashboardPage() {
           font-size:10px;font-weight:700;width:18px;height:18px;border-radius:50%;
           display:flex;align-items:center;justify-content:center;border:2px solid #fff}
 
-        .dashboard-layout{display:flex;align-items:flex-start;max-width:1200px;margin:0 auto;padding:24px;gap:32px;min-height:calc(100vh - 64px)}
+        .dashboard-layout{display:flex;max-width:1200px;margin:0 auto;padding:24px;padding-left:308px;gap:32px;min-height:calc(100vh - 64px)}
 
         .sidebar{background:#fff;border-radius:24px;padding:16px 12px;box-shadow:0 10px 40px rgba(0,0,0,0.03);
-          border:1px solid #f1f5f9;display:flex;flex-direction:column;gap:6px;position:sticky;top:88px;width:260px;flex-shrink:0;transition:width 0.3s cubic-bezier(0.4, 0, 0.2, 1), padding 0.3s ease;z-index:60;max-height:calc(100vh - 104px);overflow-y:auto;overflow-x:hidden}
+          border:1px solid #f1f5f9;display:flex;flex-direction:column;gap:6px;position:fixed;top:88px;left:24px;width:260px;flex-shrink:0;transition:width 0.3s cubic-bezier(0.4, 0, 0.2, 1), padding 0.3s ease;z-index:60;max-height:calc(100vh - 104px);overflow-y:auto;overflow-x:hidden}
         .sidebar.collapsed{width:76px;padding:16px 8px;max-height:none}
         
         .sidebar-toggle{position:absolute;top:84px;right:-14px;width:28px;height:28px;border-radius:50%;
@@ -2496,7 +2496,7 @@ export default function DashboardPage() {
 
         @media (max-width: 768px){
           .menu-toggle-btn{display:flex !important}
-          .dashboard-layout{flex-direction:column !important;padding:12px;gap:12px}
+          .dashboard-layout{flex-direction:column !important;padding:12px !important;padding-left:12px !important;gap:12px}
           .sidebar{
             display:none !important;
           }
