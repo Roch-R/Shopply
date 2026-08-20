@@ -2869,17 +2869,9 @@ export default function DashboardPage() {
             <div className="sidebar-backdrop no-print" onClick={toggleSidebar} />
           )}
 
-          {/* SIDEBAR */}
-          <aside className={`sidebar no-print ${isSidebarCollapsed ? 'collapsed' : 'mobile-expanded'}`}>
-            
-            {/* Expand/Collapse Toggle Button */}
-            <button className="sidebar-toggle" onClick={toggleSidebar} style={{ outline: 'none' }} title={isSidebarCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}>
-              {isSidebarCollapsed ? (
-                <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" /></svg>
-              ) : (
-                <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" /></svg>
-              )}
-            </button>
+          {/* SIDEBAR - always expanded on desktop */}
+          <aside className={`sidebar no-print mobile-expanded`}>
+
 
             {/* PROFILE HEADER IN SIDEBAR */}
             <div className="sidebar-profile-header">
@@ -2890,12 +2882,10 @@ export default function DashboardPage() {
                   user?.name ? user.name.charAt(0).toUpperCase() : 'U'
                 )}
               </div>
-              {!isSidebarCollapsed && (
-                <div style={{ minWidth: 0 }}>
+              <div style={{ minWidth: 0 }}>
                   <div style={{ fontSize: 13, fontWeight: 700, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user?.name || 'User'}</div>
                   <div style={{ fontSize: 10, color: '#64748b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user?.email || 'member@shopply.com'}</div>
                 </div>
-              )}
             </div>
 
             {/* CATEGORIZED ITEMS */}
@@ -2918,11 +2908,9 @@ export default function DashboardPage() {
                 if (visibleItems.length === 0) return null;
                 return (
                   <div key={idx} className="sidebar-section" style={{ marginBottom: 12 }}>
-                    {!isSidebarCollapsed && (
-                      <div style={{ fontSize: 9, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.8px', padding: '4px 14px 4px', marginBottom: 4 }}>
+                    <div style={{ fontSize: 9, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.8px', padding: '4px 14px 4px', marginBottom: 4 }}>
                         {section.title}
                       </div>
-                    )}
                     {visibleItems.map(si => (
                       <div key={si.id} className="sidebar-item-container">
                         <button
@@ -2933,16 +2921,11 @@ export default function DashboardPage() {
                             } else if (si.id === "logout") {
                               handleLogout();
                             } else if (si.id === 'orders') {
-                              if (isSidebarCollapsed) {
-                                toggleSidebar();
+                              if (activeTab !== 'orders') {
+                                setActiveTab('orders');
                                 setOrdersExpanded(true);
                               } else {
-                                if (activeTab !== 'orders') {
-                                  setActiveTab('orders');
-                                  setOrdersExpanded(true);
-                                } else {
-                                  setOrdersExpanded(!ordersExpanded);
-                                }
+                                setOrdersExpanded(!ordersExpanded);
                               }
                             } else {
                               setActiveTab(si.id);
@@ -2951,14 +2934,14 @@ export default function DashboardPage() {
                           style={si.id === 'logout' ? { color: '#ef4444' } : undefined}
                         >
                           <span className="sidebar-icon">{si.icon}</span>
-                          {!isSidebarCollapsed && <span style={{ flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', color: si.id === 'logout' ? '#ef4444' : undefined, fontWeight: si.id === 'logout' ? 600 : undefined }}>{si.label}</span>}
+                          <span style={{ flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', color: si.id === 'logout' ? '#ef4444' : undefined, fontWeight: si.id === 'logout' ? 600 : undefined }}>{si.label}</span>
                           {si.id === 'notifications' && pendingSellerOrdersCount > 0 && (
                             <span className="sidebar-badge">{pendingSellerOrdersCount}</span>
                           )}
                           {si.id === 'messages' && chatConversations.reduce((acc, c) => acc + (c.unread_count || 0), 0) > 0 && (
                             <span className="sidebar-badge">{chatConversations.reduce((acc, c) => acc + (c.unread_count || 0), 0)}</span>
                           )}
-                          {!isSidebarCollapsed && si.id === 'orders' && (
+                          {si.id === 'orders' && (
                             <svg width="10" height="10" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24" style={{ transform: ordersExpanded ? 'rotate(0deg)' : 'rotate(-90deg)', transition: 'transform .3s ease', opacity: 0.8 }}>
                               <path d="M6 9l6 6 6-6" />
                             </svg>
@@ -2966,7 +2949,7 @@ export default function DashboardPage() {
                         </button>
 
                         {/* Expanded Submenu */}
-                        {!isSidebarCollapsed && si.id === "orders" && (
+                        {si.id === "orders" && (
                           <div className={`sidebar-sub-menu ${ordersExpanded ? 'expanded' : ''}`}>
                             {["all", "processing", "shipped", "delivered", "returns"].map(tab => (
                               <button
@@ -2983,24 +2966,8 @@ export default function DashboardPage() {
                           </div>
                         )}
 
-                        {/* Collapsed Hover Popup Tooltip Menu */}
-                        {isSidebarCollapsed && si.id === "orders" && (
-                          <div className="sidebar-popup-menu no-print">
-                            <div style={{ fontSize: 10, fontWeight: 700, color: '#94a3b8', padding: '4px 10px', borderBottom: '1px solid #f1f5f9', marginBottom: 4 }}>Orders</div>
-                            {["all", "processing", "shipped", "delivered", "returns"].map(tab => (
-                              <button
-                                key={tab}
-                                className={`sidebar-sub-item ${activeTab === 'orders' && orderTab === tab ? "active" : ""}`}
-                                onClick={() => {
-                                  setActiveTab('orders');
-                                  setOrderTab(tab);
-                                }}
-                              >
-                                {tab === "all" ? "All orders" : tab.charAt(0).toUpperCase() + tab.slice(1).replace("-", " ")}
-                              </button>
-                            ))}
-                          </div>
-                        )}
+
+
                       </div>
                     ))}
                   </div>
