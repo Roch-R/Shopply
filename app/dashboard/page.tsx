@@ -4811,139 +4811,142 @@ export default function DashboardPage() {
                       <div style={{ width: 4, height: 16, background: '#7c3aed', borderRadius: 4 }}></div>
                       Product Showcase
                     </h4>
-                  </div>
 
-                  <div className="form-group">
-                    <label className="form-label">Main Product Images (Multiple)</label>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(80px, 96px))', gap: 12, marginBottom: 16 }}>
-                      {mainImagesState.map((imgObj, idx) => (
-                        <div key={idx} style={{ position: 'relative', borderRadius: 12, overflow: 'hidden', border: '1px solid #e2e8f0', aspectRatio: '1', background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          <img src={imgObj.preview} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setMainImagesState(prev => prev.filter((_, i) => i !== idx));
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 24, alignItems: 'start' }}>
+                      <div className="form-group" style={{ marginBottom: 0 }}>
+                        <label className="form-label" style={{ marginBottom: 12, display: 'block' }}>Main Product Images (Multiple)</label>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(80px, 96px))', gap: 12 }}>
+                          {mainImagesState.map((imgObj, idx) => (
+                            <div key={idx} style={{ position: 'relative', borderRadius: 12, overflow: 'hidden', border: '1px solid #e2e8f0', aspectRatio: '1', background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              <img src={imgObj.preview} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setMainImagesState(prev => prev.filter((_, i) => i !== idx));
+                                }}
+                                style={{ position: 'absolute', top: 4, right: 4, background: 'rgba(239,68,68,0.9)', color: '#fff', border: 'none', borderRadius: '50%', width: 22, height: 22, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                              >
+                                <IconTrash />
+                              </button>
+                            </div>
+                          ))}
+                          <div
+                            onClick={() => fileInputRef.current?.click()}
+                            style={{
+                              aspectRatio: '1',
+                              minHeight: 96,
+                              border: '2px dashed #cbd5e1',
+                              borderRadius: 12,
+                              display: 'flex',
+                              flexDirection: 'column',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              cursor: 'pointer',
+                              background: '#f8fafc',
+                              color: '#64748b',
+                              transition: 'all .2s'
                             }}
-                            style={{ position: 'absolute', top: 4, right: 4, background: 'rgba(239,68,68,0.9)', color: '#fff', border: 'none', borderRadius: '50%', width: 22, height: 22, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                            onMouseOver={e => { e.currentTarget.style.borderColor = '#7c3aed'; e.currentTarget.style.background = '#faf5ff'; e.currentTarget.style.color = '#7c3aed'; }}
+                            onMouseOut={e => { e.currentTarget.style.borderColor = '#cbd5e1'; e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.color = '#64748b'; }}
                           >
-                            <IconTrash />
-                          </button>
+                            <IconPlus />
+                            <span style={{ fontSize: 11, marginTop: 4, fontWeight: 700 }}>Add Image</span>
+                          </div>
                         </div>
-                      ))}
-                      <div
-                        onClick={() => fileInputRef.current?.click()}
-                        style={{
-                          aspectRatio: '1',
-                          border: '2px dashed #cbd5e1',
-                          borderRadius: 12,
-                          display: 'flex',
-                          flexDirection: 'column',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          cursor: 'pointer',
-                          background: '#f8fafc',
-                          color: '#64748b',
-                          transition: 'all .2s'
-                        }}
-                        onMouseOver={e => { e.currentTarget.style.borderColor = '#7c3aed'; e.currentTarget.style.background = '#faf5ff'; e.currentTarget.style.color = '#7c3aed'; }}
-                        onMouseOut={e => { e.currentTarget.style.borderColor = '#cbd5e1'; e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.color = '#64748b'; }}
-                      >
-                        <IconPlus />
-                        <span style={{ fontSize: 11, marginTop: 4, fontWeight: 700 }}>Add Image</span>
+                        <input
+                          ref={fileInputRef}
+                          type="file"
+                          multiple
+                          accept="image/jpeg,image/png,image/gif,image/webp"
+                          onChange={handleImageChange}
+                          style={{ display: 'none' }}
+                        />
+                      </div>
+
+                      <div className="form-group" style={{ marginBottom: 0 }}>
+                        <label className="form-label" style={{ marginBottom: 12, display: 'block' }}>Product Showcase Video (Optional)</label>
+                        <div style={{ display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
+                          {newVideoPreview ? (
+                            <div style={{ position: 'relative', width: 160, height: 96, borderRadius: 12, overflow: 'hidden', border: '1px solid #e2e8f0', background: '#000' }}>
+                              <video src={newVideoPreview} controls style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setNewVideoFile(null);
+                                  setNewVideoPreview(null);
+                                  setExistingVideoPath(null);
+                                }}
+                                style={{ position: 'absolute', top: 4, right: 4, background: 'rgba(239,68,68,0.9)', color: '#fff', border: 'none', borderRadius: '50%', width: 20, height: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 10 }}
+                              >
+                                <IconTrash />
+                              </button>
+                            </div>
+                          ) : (
+                            <div
+                              onClick={() => document.getElementById('showcase-video-input')?.click()}
+                              style={{
+                                width: 140,
+                                height: 96,
+                                border: '2px dashed #cbd5e1',
+                                borderRadius: 12,
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                cursor: 'pointer',
+                                background: '#f8fafc',
+                                color: '#64748b',
+                                transition: 'all .2s'
+                              }}
+                              onMouseOver={e => { e.currentTarget.style.borderColor = '#7c3aed'; e.currentTarget.style.background = '#faf5ff'; e.currentTarget.style.color = '#7c3aed'; }}
+                              onMouseOut={e => { e.currentTarget.style.borderColor = '#cbd5e1'; e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.color = '#64748b'; }}
+                            >
+                              <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ marginBottom: 4 }}>
+                                <path d="M23 7l-7 5 7 5V7z" />
+                                <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
+                              </svg>
+                              <span style={{ fontSize: 11, fontWeight: 700 }}>Upload Video</span>
+                              <span style={{ fontSize: 8, color: '#94a3b8', marginTop: 1 }}>Max 50MB</span>
+                            </div>
+                          )}
+                          <input
+                            id="showcase-video-input"
+                            type="file"
+                            accept="video/mp4,video/quicktime,video/webm"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                if (file.size > 209715200) {
+                                  showToast("Video size exceeds the 200MB limit.", "error");
+                                  return;
+                                }
+                                setNewVideoFile(file);
+                                setNewVideoPreview(URL.createObjectURL(file));
+                              }
+                            }}
+                            style={{ display: 'none' }}
+                          />
+                        </div>
+                        {videoUploadProgress !== null && (
+                          <div style={{ marginTop: 12, width: '100%', maxWidth: 360, background: '#faf5ff', border: '1.5px solid #e9d5ff', borderRadius: 12, padding: '12px 16px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 12, fontWeight: 700, color: '#7c3aed', marginBottom: 6 }}>
+                              <span>📹 {videoUploadStatus || "Uploading video..."}</span>
+                              <span style={{ fontSize: 13, background: '#7c3aed', color: '#fff', padding: '2px 8px', borderRadius: 10 }}>{videoUploadProgress}%</span>
+                            </div>
+                            <div style={{ height: 10, background: '#e9d5ff', borderRadius: 6, overflow: 'hidden', position: 'relative' }}>
+                              <div style={{
+                                height: '100%',
+                                width: `${videoUploadProgress}%`,
+                                background: 'linear-gradient(90deg, #7c3aed 0%, #2563eb 100%)',
+                                borderRadius: 6,
+                                transition: 'width 0.2s ease-out',
+                                boxShadow: '0 0 10px rgba(124,58,237,0.5)'
+                              }} />
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </div>
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      multiple
-                      accept="image/jpeg,image/png,image/gif,image/webp"
-                      onChange={handleImageChange}
-                      style={{ display: 'none' }}
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label className="form-label">Product Showcase Video (Optional)</label>
-                    <div style={{ display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
-                      {newVideoPreview ? (
-                        <div style={{ position: 'relative', width: 160, height: 96, borderRadius: 12, overflow: 'hidden', border: '1px solid #e2e8f0', background: '#000' }}>
-                          <video src={newVideoPreview} controls style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setNewVideoFile(null);
-                              setNewVideoPreview(null);
-                              setExistingVideoPath(null);
-                            }}
-                            style={{ position: 'absolute', top: 4, right: 4, background: 'rgba(239,68,68,0.9)', color: '#fff', border: 'none', borderRadius: '50%', width: 20, height: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 10 }}
-                          >
-                            <IconTrash />
-                          </button>
-                        </div>
-                      ) : (
-                        <div
-                          onClick={() => document.getElementById('showcase-video-input')?.click()}
-                          style={{
-                            width: 160,
-                            height: 96,
-                            border: '2px dashed #cbd5e1',
-                            borderRadius: 12,
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            cursor: 'pointer',
-                            background: '#f8fafc',
-                            color: '#64748b',
-                            transition: 'all .2s'
-                          }}
-                          onMouseOver={e => { e.currentTarget.style.borderColor = '#7c3aed'; e.currentTarget.style.background = '#faf5ff'; e.currentTarget.style.color = '#7c3aed'; }}
-                          onMouseOut={e => { e.currentTarget.style.borderColor = '#cbd5e1'; e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.color = '#64748b'; }}
-                        >
-                          <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ marginBottom: 4 }}>
-                            <path d="M23 7l-7 5 7 5V7z" />
-                            <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
-                          </svg>
-                          <span style={{ fontSize: 11, fontWeight: 700 }}>Upload Video</span>
-                          <span style={{ fontSize: 8, color: '#94a3b8', marginTop: 1 }}>Max 50MB</span>
-                        </div>
-                      )}
-                      <input
-                        id="showcase-video-input"
-                        type="file"
-                        accept="video/mp4,video/quicktime,video/webm"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) {
-                            if (file.size > 209715200) {
-                              showToast("Video size exceeds the 200MB limit.", "error");
-                              return;
-                            }
-                            setNewVideoFile(file);
-                            setNewVideoPreview(URL.createObjectURL(file));
-                          }
-                        }}
-                        style={{ display: 'none' }}
-                      />
-                    </div>
-                    {videoUploadProgress !== null && (
-                      <div style={{ marginTop: 12, width: '100%', maxWidth: 360, background: '#faf5ff', border: '1.5px solid #e9d5ff', borderRadius: 12, padding: '12px 16px' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 12, fontWeight: 700, color: '#7c3aed', marginBottom: 6 }}>
-                          <span>📹 {videoUploadStatus || "Uploading video..."}</span>
-                          <span style={{ fontSize: 13, background: '#7c3aed', color: '#fff', padding: '2px 8px', borderRadius: 10 }}>{videoUploadProgress}%</span>
-                        </div>
-                        <div style={{ height: 10, background: '#e9d5ff', borderRadius: 6, overflow: 'hidden', position: 'relative' }}>
-                          <div style={{
-                            height: '100%',
-                            width: `${videoUploadProgress}%`,
-                            background: 'linear-gradient(90deg, #7c3aed 0%, #2563eb 100%)',
-                            borderRadius: 6,
-                            transition: 'width 0.2s ease-out',
-                            boxShadow: '0 0 10px rgba(124,58,237,0.5)'
-                          }} />
-                        </div>
-                      </div>
-                    )}
                   </div>
 
                   <div className="form-group" style={{ position: 'relative' }}>
