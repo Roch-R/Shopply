@@ -2412,8 +2412,7 @@ export default function DashboardPage() {
         .order-guarantee-banner{display:flex;align-items:center;gap:12px;background:#f0fdf4;
           border:1px solid #bbf7d0;color:#16a34a;padding:16px;border-radius:12px;font-size:14px}
         
-        .store-orders-grid{display:grid;grid-template-columns:repeat(5, minmax(0, 1fr));gap:14px}
-        .orders-list{display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));gap:20px}
+        .orders-list{display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));gap:16px}
         .order-card{background:#fff;border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,.03);
           border:1px solid #f1f5f9;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;height:100%}
         .order-card-header{padding:16px 24px;border-bottom:1px solid #f1f5f9;display:flex;
@@ -3979,7 +3978,7 @@ export default function DashboardPage() {
                   ))}
                 </div>
 
-                <div className="store-orders-grid">
+                <div className="orders-list">
                   {sellerOrders.filter(o => {
                     if (storeOrderTab === 'all') return true;
                     if (storeOrderTab === 'cancelled') return ['cancelled', 'rejected'].includes(o.status);
@@ -3999,52 +3998,69 @@ export default function DashboardPage() {
                         return o.status === storeOrderTab;
                       })
                       .map(order => (
-                        <div key={order.id} style={{ background: '#fff', borderRadius: 14, border: '1px solid #f1f5f9', boxShadow: '0 4px 16px rgba(0,0,0,0.04)', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-                          {/* Product Image */}
-                          <div style={{ position: 'relative', width: '100%', aspectRatio: '1/1', background: '#f8fafc' }}>
-                            {order.item.image ? (
-                              <img src={getImageUrl(order.item.image)} alt={order.item.name} loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                            ) : (
-                              <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#cbd5e1' }}>
-                                <IconBox />
+                        <div key={order.id} className="order-card" style={{ background: '#fff', borderRadius: 16, border: '1px solid #f1f5f9', boxShadow: '0 4px 20px rgba(0,0,0,0.03)', overflow: 'hidden', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%' }}>
+                          {/* Card Header */}
+                          <div className="order-card-header" style={{ padding: '12px 18px', borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#fafafa' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                              <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b' }}>
+                                <IconUser />
                               </div>
-                            )}
-                            {/* Status badge overlay */}
-                            <div style={{ position: 'absolute', top: 8, right: 8 }}>
-                              {renderStatusBadge(order.status)}
+                              <div>
+                                <div style={{ fontSize: 10, color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Buyer</div>
+                                <div style={{ fontSize: 13, fontWeight: 700, color: '#0f172a' }}>{order.buyer?.name || 'Shopply Customer'}</div>
+                              </div>
                             </div>
+                            {renderStatusBadge(order.status)}
                           </div>
 
                           {/* Card Body */}
-                          <div style={{ padding: '10px 12px', flex: 1, display: 'flex', flexDirection: 'column', gap: 6 }}>
-                            <div style={{ fontSize: 13, fontWeight: 700, color: '#0f172a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{order.item.name}</div>
-                            <div style={{ fontSize: 11, color: '#64748b' }}>Qty: <strong>x{order.quantity}</strong></div>
-                            {order.variation && <div style={{ fontSize: 10, color: '#7c3aed', fontWeight: 600, background: '#f5f3ff', padding: '1px 6px', borderRadius: 4, width: 'fit-content' }}>{order.variation}</div>}
-                            <div style={{ fontSize: 11, color: '#94a3b8', display: 'flex', alignItems: 'center', gap: 4, marginTop: 2 }}>
-                              <IconUser /> <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{order.buyer?.name || 'Customer'}</span>
+                          <div className="order-card-body" style={{ padding: '14px 18px', display: 'flex', gap: 14, alignItems: 'center', flex: 1 }}>
+                            {order.item.image ? (
+                              <img src={getImageUrl(order.item.image)} alt={order.item.name} loading="lazy" decoding="async" style={{ width: 76, height: 76, objectFit: 'cover', borderRadius: 12, border: '1px solid #f1f5f9', flexShrink: 0 }} />
+                            ) : (
+                              <div style={{ width: 76, height: 76, background: '#f8fafc', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#cbd5e1', border: '1px solid #f1f5f9', flexShrink: 0 }}>
+                                <IconBox />
+                              </div>
+                            )}
+
+                            <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 3 }}>
+                              <div style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{order.item.name}</div>
+                              <div style={{ fontSize: 12, color: '#64748b', fontWeight: 500 }}>Quantity: <strong style={{ color: '#0f172a' }}>x{order.quantity}</strong></div>
+                              {order.variation && <div style={{ fontSize: 11, color: '#7c3aed', fontWeight: 600, background: '#f5f3ff', padding: '2px 6px', borderRadius: 6, width: 'fit-content' }}>Variation: {order.variation}</div>}
+                            </div>
+
+                            <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                              <div style={{ fontSize: 10, color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Unit Price</div>
+                              <div style={{ fontSize: 14, fontWeight: 700, color: '#0f172a' }}>₱{parseFloat(order.price).toFixed(2)}</div>
                             </div>
                           </div>
 
                           {/* Card Footer */}
-                          <div style={{ padding: '8px 12px', borderTop: '1px solid #f1f5f9', background: '#fafaf9' }}>
-                            <div style={{ fontSize: 16, fontWeight: 800, color: '#ee4d2d', marginBottom: 6 }}>₱{(parseFloat(order.price) * order.quantity).toFixed(2)}</div>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                          <div className="order-card-footer" style={{ padding: '10px 18px', background: '#fafaf9', borderTop: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
                               <button
+                                className="btn-print"
                                 onClick={() => setReceiptOrder(order)}
-                                style={{ width: '100%', background: '#fff', color: '#475569', border: '1px solid #e2e8f0', padding: '5px 0', borderRadius: 6, fontWeight: 600, fontSize: 11, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}
+                                style={{ background: '#fff', color: '#475569', border: '1px solid #cbd5e1', padding: '5px 10px', borderRadius: 8, fontWeight: 600, fontSize: 11, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4, transition: 'all 0.2s' }}
                               >
                                 <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9" /><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2" /><rect x="6" y="14" width="12" height="8" /></svg>
                                 Receipt
                               </button>
+
                               {order.status === 'pending' && (
-                                <div style={{ display: 'flex', gap: 4 }}>
-                                  <button onClick={() => handleAcceptOrder(order.id)} style={{ flex: 1, background: '#10b981', color: '#fff', border: 'none', padding: '5px 0', borderRadius: 6, fontWeight: 600, fontSize: 11, cursor: 'pointer' }}>Accept</button>
-                                  <button onClick={() => handleRejectOrder(order.id)} style={{ flex: 1, background: '#fff', color: '#ef4444', border: '1px solid #fecaca', padding: '5px 0', borderRadius: 6, fontWeight: 600, fontSize: 11, cursor: 'pointer' }}>Reject</button>
-                                </div>
+                                <>
+                                  <button onClick={() => handleAcceptOrder(order.id)} style={{ background: 'linear-gradient(135deg,#10b981,#059669)', color: '#fff', border: 'none', padding: '5px 12px', borderRadius: 8, fontWeight: 600, fontSize: 12, cursor: 'pointer', boxShadow: '0 4px 10px rgba(16,185,129,0.2)' }}>Accept</button>
+                                  <button onClick={() => handleRejectOrder(order.id)} style={{ background: '#fff', color: '#ef4444', border: '1px solid #fecaca', padding: '5px 12px', borderRadius: 8, fontWeight: 600, fontSize: 12, cursor: 'pointer' }}>Reject</button>
+                                </>
                               )}
                               {order.status === 'processing' && (
-                                <button onClick={() => handleShipOrder(order.id)} style={{ width: '100%', background: '#3b82f6', color: '#fff', border: 'none', padding: '5px 0', borderRadius: 6, fontWeight: 600, fontSize: 11, cursor: 'pointer' }}>Ship Order</button>
+                                <button onClick={() => handleShipOrder(order.id)} style={{ background: 'linear-gradient(135deg,#3b82f6,#2563eb)', color: '#fff', border: 'none', padding: '5px 12px', borderRadius: 8, fontWeight: 600, fontSize: 12, cursor: 'pointer', boxShadow: '0 4px 10px rgba(59,130,246,0.2)' }}>Mark as Shipped</button>
                               )}
+                            </div>
+
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                              <span style={{ fontSize: 12, color: '#64748b', fontWeight: 500 }}>Total:</span>
+                              <span style={{ fontSize: 16, fontWeight: 800, color: '#ee4d2d' }}>₱{(parseFloat(order.price) * order.quantity).toFixed(2)}</span>
                             </div>
                           </div>
                         </div>
