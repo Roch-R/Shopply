@@ -2932,7 +2932,7 @@ export default function DashboardPage() {
             <div className="profile-header">
               <div className="profile-avatar" style={{ position: 'relative', overflow: 'hidden' }}>
                 {user.avatar ? (
-                  <img src={getAvatarUrl(user.avatar)} alt={user.name} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%', position: 'absolute', top: 0, left: 0 }} />
+                  <img src={getAvatarUrl(user.avatar)} alt={user.name} fetchPriority="high" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%', position: 'absolute', top: 0, left: 0 }} />
                 ) : initials}
               </div>
               <div className="profile-info">
@@ -3091,7 +3091,7 @@ export default function DashboardPage() {
                             </div>
                             <div className="order-card-body">
                               {order.item.image ? (
-                                <img src={getImageUrl(order.item.image)} alt={order.item.name} className="order-img" />
+                                <img src={getImageUrl(order.item.image)} alt={order.item.name} loading="lazy" decoding="async" className="order-img" />
                               ) : (
                                 <div className="order-img-placeholder"><IconBox /></div>
                               )}
@@ -3909,7 +3909,7 @@ export default function DashboardPage() {
                         </div>
                         <div className="order-card-body">
                           {order.item.image ? (
-                            <img src={getImageUrl(order.item.image)} alt={order.item.name} className="order-img" />
+                            <img src={getImageUrl(order.item.image)} alt={order.item.name} loading="lazy" decoding="async" className="order-img" />
                           ) : (
                             <div className="order-img-placeholder"><IconBox /></div>
                           )}
@@ -3966,7 +3966,7 @@ export default function DashboardPage() {
                           {item.is_published ? '● Live' : '● Draft'}
                         </div>
                         {item.image ? (
-                          <img src={getImageUrl(item.image)} alt={item.name} className="item-card-img" />
+                          <img src={getImageUrl(item.image)} alt={item.name} loading="lazy" decoding="async" className="item-card-img" />
                         ) : (
                           <div className="item-card-placeholder"><IconCamera /></div>
                         )}
