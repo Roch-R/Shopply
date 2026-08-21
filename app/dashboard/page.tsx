@@ -4023,32 +4023,30 @@ export default function DashboardPage() {
                               <div style={{ fontSize: 15, fontWeight: 700, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{order.item.name}</div>
                               <div style={{ fontSize: 13, color: '#64748b', fontWeight: 500 }}>Quantity: <strong style={{ color: '#0f172a' }}>x{order.quantity}</strong></div>
                               {order.variation && <div style={{ fontSize: 12, color: '#7c3aed', fontWeight: 600, background: '#f5f3ff', padding: '2px 8px', borderRadius: 6, width: 'fit-content' }}>Variation: {order.variation}</div>}
-
-                              <div style={{ marginTop: 4 }}>
-                                <button
-                                  className="btn-print"
-                                  onClick={() => setReceiptOrder(order)}
-                                  style={{ background: '#f8fafc', color: '#475569', border: '1.5px solid #cbd5e1', padding: '5px 10px', borderRadius: 8, fontWeight: 600, fontSize: 12, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6 }}
-                                >
-                                  <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9" /><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2" /><rect x="6" y="14" width="12" height="8" /></svg>
-                                  View Receipt
-                                </button>
-                              </div>
                             </div>
 
                             <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                              <div style={{ fontSize: 10, color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase' }}>Unit Price</div>
+                              <div style={{ fontSize: 10, color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Unit Price</div>
                               <div style={{ fontSize: 15, fontWeight: 700, color: '#0f172a' }}>₱{parseFloat(order.price).toFixed(2)}</div>
                             </div>
                           </div>
 
-                          <div className="order-card-footer" style={{ padding: '12px 20px', background: '#fafaf9', borderTop: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                            <div>
+                          <div className="order-card-footer" style={{ padding: '12px 20px', background: '#fafaf9', borderTop: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                              <button
+                                className="btn-print"
+                                onClick={() => setReceiptOrder(order)}
+                                style={{ background: '#fff', color: '#475569', border: '1.5px solid #e2e8f0', padding: '6px 12px', borderRadius: 8, fontWeight: 600, fontSize: 12, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6, transition: 'all 0.2s' }}
+                              >
+                                <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9" /><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2" /><rect x="6" y="14" width="12" height="8" /></svg>
+                                View Receipt
+                              </button>
+
                               {order.status === 'pending' && (
-                                <div style={{ display: 'flex', gap: 8 }}>
+                                <>
                                   <button onClick={() => handleAcceptOrder(order.id)} style={{ background: 'linear-gradient(135deg,#10b981,#059669)', color: '#fff', border: 'none', padding: '7px 16px', borderRadius: 8, fontWeight: 600, fontSize: 13, cursor: 'pointer', boxShadow: '0 4px 10px rgba(16,185,129,0.2)' }}>Accept Order</button>
                                   <button onClick={() => handleRejectOrder(order.id)} style={{ background: '#fff', color: '#ef4444', border: '1.5px solid #fecaca', padding: '7px 16px', borderRadius: 8, fontWeight: 600, fontSize: 13, cursor: 'pointer' }}>Reject</button>
-                                </div>
+                                </>
                               )}
                               {order.status === 'processing' && (
                                 <button onClick={() => handleShipOrder(order.id)} style={{ background: 'linear-gradient(135deg,#3b82f6,#2563eb)', color: '#fff', border: 'none', padding: '7px 16px', borderRadius: 8, fontWeight: 600, fontSize: 13, cursor: 'pointer', boxShadow: '0 4px 10px rgba(59,130,246,0.2)' }}>Mark as Shipped</button>
