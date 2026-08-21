@@ -3977,7 +3977,7 @@ export default function DashboardPage() {
                   ))}
                 </div>
 
-                <div className="orders-list" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                <div className="orders-list">
                   {sellerOrders.filter(o => {
                     if (storeOrderTab === 'all') return true;
                     if (storeOrderTab === 'cancelled') return ['cancelled', 'rejected'].includes(o.status);
