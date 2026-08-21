@@ -302,6 +302,7 @@ export default function DashboardPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [sellerOrders, setSellerOrders] = useState<Order[]>([]);
   const [orderTab, setOrderTab] = useState("all");
+  const [storeOrderTab, setStoreOrderTab] = useState("all");
   const [orderSearch, setOrderSearch] = useState("");
   const [receiptOrder, setReceiptOrder] = useState<Order | null>(null);
   const [activeStatChart, setActiveStatChart] = useState("Total Orders");
@@ -2124,6 +2125,26 @@ export default function DashboardPage() {
 
   const pendingSellerOrdersCount = sellerOrders.filter(o => o.status === 'pending').length;
 
+  const renderStatusBadge = (status: string) => {
+    const s = (status || "").toLowerCase();
+    if (s === 'pending') {
+      return <span style={{ background: '#fffbeb', color: '#d97706', border: '1px solid #fde68a', padding: '4px 12px', borderRadius: 20, fontSize: 11, fontWeight: 700, letterSpacing: '0.5px', textTransform: 'uppercase', display: 'inline-flex', alignItems: 'center' }}>● Pending</span>;
+    }
+    if (s === 'processing') {
+      return <span style={{ background: '#f0fdf4', color: '#16a34a', border: '1px solid #bbf7d0', padding: '4px 12px', borderRadius: 20, fontSize: 11, fontWeight: 700, letterSpacing: '0.5px', textTransform: 'uppercase', display: 'inline-flex', alignItems: 'center' }}>● Processing</span>;
+    }
+    if (s === 'shipped') {
+      return <span style={{ background: '#eff6ff', color: '#2563eb', border: '1px solid #bfdbfe', padding: '4px 12px', borderRadius: 20, fontSize: 11, fontWeight: 700, letterSpacing: '0.5px', textTransform: 'uppercase', display: 'inline-flex', alignItems: 'center' }}>● Shipped</span>;
+    }
+    if (s === 'delivered' || s === 'completed') {
+      return <span style={{ background: '#f5f3ff', color: '#7c3aed', border: '1px solid #ddd6fe', padding: '4px 12px', borderRadius: 20, fontSize: 11, fontWeight: 700, letterSpacing: '0.5px', textTransform: 'uppercase', display: 'inline-flex', alignItems: 'center' }}>● Delivered</span>;
+    }
+    if (s === 'cancelled' || s === 'rejected') {
+      return <span style={{ background: '#fef2f2', color: '#ef4444', border: '1px solid #fecaca', padding: '4px 12px', borderRadius: 20, fontSize: 11, fontWeight: 700, letterSpacing: '0.5px', textTransform: 'uppercase', display: 'inline-flex', alignItems: 'center' }}>● Cancelled</span>;
+    }
+    return <span style={{ background: '#f8fafc', color: '#64748b', border: '1px solid #e2e8f0', padding: '4px 12px', borderRadius: 20, fontSize: 11, fontWeight: 700, letterSpacing: '0.5px', textTransform: 'uppercase', display: 'inline-flex', alignItems: 'center' }}>● {status}</span>;
+  };
+
   const formatPriceDisplay = (item: ShopItem) => {
     const basePrice = parseFloat(item.price) || 0;
     let prices: number[] = [basePrice];
@@ -3113,10 +3134,13 @@ export default function DashboardPage() {
                         })
                         .filter(o => o.item.name.toLowerCase().includes(orderSearch.toLowerCase()))
                         .map(order => (
-                          <div key={order.id} className="order-card">
-                            <div className="order-card-header">
-                              <span className="order-seller"><svg width="16" height="16" fill="none" stroke="#ee4d2d" strokeWidth="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" /><circle cx="12" cy="7" r="4" /></svg> {order.seller.name}</span>
-                              <span className="order-status">{order.status.toUpperCase()}</span>
+                          <div key={order.id} className="order-card" style={{ background: '#fff', borderRadius: 16, border: '1px solid #f1f5f9', boxShadow: '0 4px 20px rgba(0,0,0,0.03)', overflow: 'hidden' }}>
+                            <div className="order-card-header" style={{ padding: '16px 24px', borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                              <span className="order-seller" style={{ display: 'flex', alignItems: 'center', gap: 8, fontWeight: 700, color: '#0f172a' }}>
+                                <svg width="16" height="16" fill="none" stroke="#7c3aed" strokeWidth="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
+                                {order.seller?.name || 'Seller Store'}
+                              </span>
+                              {renderStatusBadge(order.status)}
                             </div>
                             <div className="order-card-body">
                               {order.item.image ? (
@@ -3907,9 +3931,9 @@ export default function DashboardPage() {
             {/* ——— STORE ORDERS TAB ——— */}
             {activeTab === "store-orders" && (
               <div className="orders-container">
-                <div className="store-orders-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+                <div className="store-orders-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
                   <div>
-                    <h2 style={{ fontSize: 20, color: '#0f172a' }}>Store Orders</h2>
+                    <h2 style={{ fontSize: 20, color: '#0f172a', fontWeight: 700 }}>Store Orders</h2>
                     <p style={{ color: '#64748b', fontSize: 14 }}>Manage incoming orders for your products.</p>
                   </div>
                   <button
@@ -3921,58 +3945,125 @@ export default function DashboardPage() {
                   </button>
                 </div>
 
-                <div className="orders-list">
-                  {sellerOrders.length === 0 ? (
+                {/* STATUS FILTER TABS */}
+                <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 8, marginBottom: 20, borderBottom: '1px solid #f1f5f9' }}>
+                  {[
+                    { id: 'all', label: 'All Orders', count: sellerOrders.length },
+                    { id: 'pending', label: 'Pending', count: sellerOrders.filter(o => o.status === 'pending').length },
+                    { id: 'processing', label: 'Processing', count: sellerOrders.filter(o => o.status === 'processing').length },
+                    { id: 'shipped', label: 'Shipped', count: sellerOrders.filter(o => o.status === 'shipped').length },
+                    { id: 'delivered', label: 'Delivered', count: sellerOrders.filter(o => ['delivered', 'completed'].includes(o.status)).length },
+                    { id: 'cancelled', label: 'Cancelled', count: sellerOrders.filter(o => ['cancelled', 'rejected'].includes(o.status)).length },
+                  ].map(tab => (
+                    <button
+                      key={tab.id}
+                      type="button"
+                      onClick={() => setStoreOrderTab(tab.id)}
+                      style={{
+                        padding: '8px 16px',
+                        borderRadius: 20,
+                        fontSize: 13,
+                        fontWeight: 600,
+                        border: 'none',
+                        cursor: 'pointer',
+                        whiteSpace: 'nowrap',
+                        transition: 'all 0.2s ease',
+                        background: storeOrderTab === tab.id ? '#7c3aed' : '#f8fafc',
+                        color: storeOrderTab === tab.id ? '#fff' : '#64748b',
+                        boxShadow: storeOrderTab === tab.id ? '0 4px 12px rgba(124,58,237,0.2)' : 'none'
+                      }}
+                    >
+                      {tab.label} ({tab.count})
+                    </button>
+                  ))}
+                </div>
+
+                <div className="orders-list" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                  {sellerOrders.filter(o => {
+                    if (storeOrderTab === 'all') return true;
+                    if (storeOrderTab === 'cancelled') return ['cancelled', 'rejected'].includes(o.status);
+                    if (storeOrderTab === 'delivered') return ['delivered', 'completed'].includes(o.status);
+                    return o.status === storeOrderTab;
+                  }).length === 0 ? (
                     <div className="empty-state" style={{ marginTop: 20 }}>
-                      <div className="empty-title">No store orders yet</div>
-                      <div className="empty-desc">When buyers purchase your items, they will appear here.</div>
+                      <div className="empty-title">No orders found</div>
+                      <div className="empty-desc">No orders match the selected status filter.</div>
                     </div>
                   ) : (
-                    sellerOrders.map(order => (
-                      <div key={order.id} className="order-card" style={order.status === 'pending' ? { borderLeft: '4px solid #f59e0b' } : {}}>
-                        <div className="order-card-header">
-                          <span className="order-seller"><IconUser /> Buyer: {order.buyer?.name || 'Unknown'}</span>
-                          <span className="order-status" style={{ color: order.status === 'pending' ? '#f59e0b' : order.status === 'processing' ? '#10b981' : order.status === 'cancelled' ? '#ef4444' : '#ee4d2d' }}>
-                            {order.status.toUpperCase()}
-                          </span>
-                        </div>
-                        <div className="order-card-body">
-                          {order.item.image ? (
-                            <img src={getImageUrl(order.item.image)} alt={order.item.name} loading="lazy" decoding="async" className="order-img" />
-                          ) : (
-                            <div className="order-img-placeholder"><IconBox /></div>
-                          )}
-                          <div className="order-info">
-                            <div className="order-name">{order.item.name}</div>
-                            <div className="order-qty">x{order.quantity}</div>
-                            {order.variation && <div className="order-qty" style={{ color: '#7c3aed', fontWeight: 600 }}>Variation: {order.variation}</div>}
-                            {order.status === 'pending' ? (
-                              <div className="action-btns">
-                                <button className="btn-accept" onClick={() => handleAcceptOrder(order.id)}>Accept</button>
-                                <button className="btn-reject" onClick={() => handleRejectOrder(order.id)}>Reject</button>
+                    sellerOrders
+                      .filter(o => {
+                        if (storeOrderTab === 'all') return true;
+                        if (storeOrderTab === 'cancelled') return ['cancelled', 'rejected'].includes(o.status);
+                        if (storeOrderTab === 'delivered') return ['delivered', 'completed'].includes(o.status);
+                        return o.status === storeOrderTab;
+                      })
+                      .map(order => (
+                        <div key={order.id} className="order-card" style={{ background: '#fff', borderRadius: 16, border: '1px solid #f1f5f9', boxShadow: '0 4px 20px rgba(0,0,0,0.03)', overflow: 'hidden' }}>
+                          <div className="order-card-header" style={{ padding: '14px 20px', borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                              <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b' }}>
+                                <IconUser />
                               </div>
+                              <div>
+                                <div style={{ fontSize: 10, color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Buyer</div>
+                                <div style={{ fontSize: 13, fontWeight: 700, color: '#0f172a' }}>{order.buyer?.name || 'Shopply Customer'}</div>
+                              </div>
+                            </div>
+                            {renderStatusBadge(order.status)}
+                          </div>
+
+                          <div className="order-card-body" style={{ padding: '16px 20px', display: 'flex', gap: 16, alignItems: 'center' }}>
+                            {order.item.image ? (
+                              <img src={getImageUrl(order.item.image)} alt={order.item.name} loading="lazy" decoding="async" style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 12, border: '1px solid #f1f5f9', flexShrink: 0 }} />
                             ) : (
-                              <div style={{ marginTop: 8, display: 'flex', gap: 8 }}>
-                                <button className="btn-print" onClick={() => setReceiptOrder(order)}>
+                              <div style={{ width: 80, height: 80, background: '#f8fafc', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#cbd5e1', border: '1px solid #f1f5f9', flexShrink: 0 }}>
+                                <IconBox />
+                              </div>
+                            )}
+
+                            <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 4 }}>
+                              <div style={{ fontSize: 15, fontWeight: 700, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{order.item.name}</div>
+                              <div style={{ fontSize: 13, color: '#64748b', fontWeight: 500 }}>Quantity: <strong style={{ color: '#0f172a' }}>x{order.quantity}</strong></div>
+                              {order.variation && <div style={{ fontSize: 12, color: '#7c3aed', fontWeight: 600, background: '#f5f3ff', padding: '2px 8px', borderRadius: 6, width: 'fit-content' }}>Variation: {order.variation}</div>}
+
+                              <div style={{ marginTop: 4 }}>
+                                <button
+                                  className="btn-print"
+                                  onClick={() => setReceiptOrder(order)}
+                                  style={{ background: '#f8fafc', color: '#475569', border: '1.5px solid #cbd5e1', padding: '5px 10px', borderRadius: 8, fontWeight: 600, fontSize: 12, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6 }}
+                                >
                                   <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9" /><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2" /><rect x="6" y="14" width="12" height="8" /></svg>
                                   View Receipt
                                 </button>
-                                {order.status === 'processing' && (
-                                  <button className="btn-accept" onClick={() => handleShipOrder(order.id)} style={{ background: '#3b82f6' }}>
-                                    Mark as Shipped
-                                  </button>
-                                )}
                               </div>
-                            )}
+                            </div>
+
+                            <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                              <div style={{ fontSize: 10, color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase' }}>Unit Price</div>
+                              <div style={{ fontSize: 15, fontWeight: 700, color: '#0f172a' }}>₱{parseFloat(order.price).toFixed(2)}</div>
+                            </div>
                           </div>
-                          <div className="order-price">₱{parseFloat(order.price).toFixed(2)}</div>
+
+                          <div className="order-card-footer" style={{ padding: '12px 20px', background: '#fafaf9', borderTop: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <div>
+                              {order.status === 'pending' && (
+                                <div style={{ display: 'flex', gap: 8 }}>
+                                  <button onClick={() => handleAcceptOrder(order.id)} style={{ background: 'linear-gradient(135deg,#10b981,#059669)', color: '#fff', border: 'none', padding: '7px 16px', borderRadius: 8, fontWeight: 600, fontSize: 13, cursor: 'pointer', boxShadow: '0 4px 10px rgba(16,185,129,0.2)' }}>Accept Order</button>
+                                  <button onClick={() => handleRejectOrder(order.id)} style={{ background: '#fff', color: '#ef4444', border: '1.5px solid #fecaca', padding: '7px 16px', borderRadius: 8, fontWeight: 600, fontSize: 13, cursor: 'pointer' }}>Reject</button>
+                                </div>
+                              )}
+                              {order.status === 'processing' && (
+                                <button onClick={() => handleShipOrder(order.id)} style={{ background: 'linear-gradient(135deg,#3b82f6,#2563eb)', color: '#fff', border: 'none', padding: '7px 16px', borderRadius: 8, fontWeight: 600, fontSize: 13, cursor: 'pointer', boxShadow: '0 4px 10px rgba(59,130,246,0.2)' }}>Mark as Shipped</button>
+                              )}
+                            </div>
+
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                              <span style={{ fontSize: 13, color: '#64748b', fontWeight: 500 }}>Total Payment:</span>
+                              <span style={{ fontSize: 18, fontWeight: 800, color: '#ee4d2d' }}>₱{(parseFloat(order.price) * order.quantity).toFixed(2)}</span>
+                            </div>
+                          </div>
                         </div>
-                        <div className="order-card-footer">
-                          <div className="order-total-label">Total Payment:</div>
-                          <div className="order-total-price">₱{(parseFloat(order.price) * order.quantity).toFixed(2)}</div>
-                        </div>
-                      </div>
-                    ))
+                      ))
                   )}
                 </div>
               </div>
