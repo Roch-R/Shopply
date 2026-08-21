@@ -3,11 +3,14 @@
 import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import jsQR from "jsqr";
+import dynamic from "next/dynamic";
 import { IconUser, IconBox, IconPlus, IconShop, IconCart, IconTrash, IconEye, IconEyeOff, IconCamera, IconUpload, IconMail, IconId, IconStorefront, IconFollowers, IconFollowing, IconStar, IconCheck, IconCalendar, IconActivity, IconWarning, IconBell, IconChat, IconOrders, IconSearch, IconStore, IconSettings, IconLogout } from "@/components/icons";
 import { getApiCache, createSmartPoller } from "@/lib/apiCache";
 import { Skeleton, SkeletonStatCard, SkeletonChatMessage, SkeletonChatListItem } from "@/components/Skeleton";
-import MeetupMap from "@/components/MeetupMap";
+const MeetupMap = dynamic(() => import("@/components/MeetupMap"), { 
+  ssr: false,
+  loading: () => <div style={{ height: 260, background: '#f1f5f9', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8' }}>Loading Map...</div>
+});
 import { collection, query, where, onSnapshot, doc, updateDoc } from "firebase/firestore";
 import { ref as storageRef, uploadBytes, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { db, storage } from "@/lib/firebase";
@@ -973,7 +976,13 @@ export default function DashboardPage() {
     let animationId: number;
     let stream: MediaStream | null = null;
 
+    let jsQRMod: any = null;
+
     if (showScanner && videoRef.current && canvasRef.current) {
+      import("jsqr").then(mod => {
+        jsQRMod = mod.default || mod;
+      }).catch(err => console.error("Failed to load jsqr", err));
+
       navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } }).then(s => {
         stream = s;
         if (videoRef.current) {
@@ -982,7 +991,7 @@ export default function DashboardPage() {
           videoRef.current.play();
           requestAnimationFrame(tick);
         }
-      });
+      }).catch(err => console.error("Camera access failed", err));
     }
 
     const tick = () => {
@@ -994,9 +1003,9 @@ export default function DashboardPage() {
           canvas.width = videoRef.current.videoWidth;
           ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
           const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-          const code = jsQR(imageData.data, imageData.width, imageData.height, {
+          const code = jsQRMod ? jsQRMod(imageData.data, imageData.width, imageData.height, {
             inversionAttempts: "dontInvert",
-          });
+          }) : null;
           if (code && code.data) {
             setShowScanner(false);
             if (code.data.startsWith("TRK-")) {
