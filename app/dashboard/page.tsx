@@ -251,8 +251,21 @@ const formatDividerDate = (dateString: string) => {
 
 export default function DashboardPage() {
   const router = useRouter();
-  const [user, setUser] = useState<User | null>(null);
-  const [ready, setReady] = useState(false);
+  const [user, setUser] = useState<User | null>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = localStorage.getItem("user") || localStorage.getItem("shopply_user");
+        if (stored) return JSON.parse(stored);
+      } catch (e) {}
+    }
+    return null;
+  });
+  const [ready, setReady] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return Boolean(localStorage.getItem("token") && (localStorage.getItem("user") || localStorage.getItem("shopply_user")));
+    }
+    return false;
+  });
   const [isUserBlockedModalOpen, setIsUserBlockedModalOpen] = useState(false);
 
   useEffect(() => {
@@ -305,7 +318,18 @@ export default function DashboardPage() {
   };
 
   // Profile update state
-  const [profileName, setProfileName] = useState("");
+  const [profileName, setProfileName] = useState(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = localStorage.getItem("user") || localStorage.getItem("shopply_user");
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          return parsed.name || "";
+        }
+      } catch (e) {}
+    }
+    return "";
+  });
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [updatingProfile, setUpdatingProfile] = useState(false);
