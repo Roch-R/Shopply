@@ -2890,7 +2890,9 @@ export default function DashboardPage() {
                         <button
                           className={`sidebar-item ${activeTab === si.id ? "active" : ""}`}
                           onClick={() => {
-                            setIsMobileMenuOpen(false);
+                            if (si.id !== 'orders') {
+                              setIsMobileMenuOpen(false);
+                            }
                             if (si.id === "shop") {
                               router.push("/shop");
                             } else if (si.id === "logout") {
@@ -2931,6 +2933,7 @@ export default function DashboardPage() {
                                 key={tab}
                                 className={`sidebar-sub-item ${activeTab === 'orders' && orderTab === tab ? "active" : ""}`}
                                 onClick={() => {
+                                  setIsMobileMenuOpen(false);
                                   setActiveTab('orders');
                                   setOrderTab(tab);
                                 }}
