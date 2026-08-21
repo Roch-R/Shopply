@@ -2558,9 +2558,10 @@ export default function DashboardPage() {
           .profile-stat-val{display:inline !important}
           .info-cards{grid-template-columns:1fr !important;gap:14px !important}
           .info-card{padding:16px !important;border-radius:14px !important}
-          .nav{padding:0 8px !important}
-          .nav-right{gap:4px !important}
-          .logo-text{display:none !important}
+          .nav{padding:0 12px !important;height:60px !important}
+          .nav-right{gap:8px !important}
+          .nav-logo{display:flex !important;align-items:center !important;gap:8px !important}
+          .logo-text{display:inline-block !important;font-size:16px !important;font-weight:700 !important;color:#0f172a !important}
           .shop-text{display:none !important}
           .logout-text{display:none !important}
           .logout-icon-span{display:inline-flex !important;color:#fff}

@@ -1208,9 +1208,10 @@ export default function ShopPage() {
           .rating-summary{display:flex;flex-direction:column;gap:20px;padding:20px;align-items:center;text-align:center}
           .review-filters{justify-content:center;margin-bottom:0}
           
-          .nav{padding:0 8px !important}
-          .nav-right{gap:4px !important}
-          .logo-text{display:none !important}
+          .nav{padding:0 12px !important;height:60px !important}
+          .nav-right{gap:8px !important}
+          .nav-logo{display:flex !important;align-items:center !important;gap:8px !important}
+          .logo-text{display:inline-block !important;font-size:16px !important;font-weight:700 !important;color:#0f172a !important}
           .about-text{display:none !important}
           .login-text-span{display:none !important}
           .login-icon-span{display:inline-flex !important;color:#fff}
