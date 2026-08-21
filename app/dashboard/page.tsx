@@ -2185,49 +2185,11 @@ export default function DashboardPage() {
           font-size:10px;font-weight:700;width:18px;height:18px;border-radius:50%;
           display:flex;align-items:center;justify-content:center;border:2px solid #fff}
 
-        .dashboard-layout{display:flex;padding:24px;padding-left:308px;gap:32px;min-height:calc(100vh - 64px)}
+        .dashboard-layout{display:block;max-width:100%;padding:24px;min-height:calc(100vh - 64px)}
 
         .sidebar{background:#fff;border-radius:24px;padding:16px 12px;box-shadow:0 10px 40px rgba(0,0,0,0.03);
-          border:1px solid #f1f5f9;display:flex;flex-direction:column;gap:6px;position:fixed;top:88px;left:24px;width:260px;flex-shrink:0;transition:width 0.3s cubic-bezier(0.4, 0, 0.2, 1), padding 0.3s ease;z-index:60;max-height:calc(100vh - 104px);overflow-y:auto;overflow-x:hidden}
-        .sidebar.collapsed{width:76px;padding:16px 8px;max-height:none}
-        
-        .sidebar-toggle{position:absolute;top:84px;right:-14px;width:28px;height:28px;border-radius:50%;
-          background:#fff;border:1px solid #e2e8f0;box-shadow:0 4px 10px rgba(0,0,0,0.06);
-          display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:70;
-          transition:all 0.2s;color:#64748b}
-        .sidebar-toggle:hover{color:#7c3aed;background:#f8fafc;transform:scale(1.08)}
-        
-        .sidebar-item{display:flex;align-items:center;gap:14px;padding:12px 18px;border-radius:14px;font-size:14px;font-weight:600;color:#64748b;cursor:pointer;background:none;border:none;transition:all 0.2s ease;text-align:left;width:100%;box-sizing:border-box}
-        .sidebar-item:hover{background:#f8fafc;color:#7c3aed}
-        .sidebar-item.active{background:linear-gradient(135deg,#7c3aed,#2563eb);color:#fff;
-          box-shadow:0 8px 16px rgba(124,58,237,.15)}
-        .sidebar-icon{display:flex;align-items:center;justify-content:center;font-size:18px;transition:transform 0.2s ease}
-        .sidebar-item.active .sidebar-icon{transform:scale(1.05)}
-        
-        .sidebar-badge{background:#ef4444;color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(239,68,68,0.3)}
-        .sidebar-item.active .sidebar-badge{background:#fff;color:#7c3aed;box-shadow:0 2px 6px rgba(0,0,0,0.08)}
-
-        .sidebar-sub-menu{display:flex;flex-direction:column;gap:4px;padding-left:20px;margin-top:6px;position:relative;overflow:hidden;max-height:0;transition:all .3s ease}
-        .sidebar-sub-menu.expanded{max-height:500px;margin:8px 0}
-        .sidebar-sub-menu::before{content:'';position:absolute;left:20px;top:0;bottom:12px;width:1.5px;background:#e2e8f0}
-        
-        .sidebar-sub-item{position:relative;display:flex;align-items:center;padding:8px 16px 8px 32px;font-size:13px;font-weight:500;
-          color:#64748b;border-radius:10px;border:none;background:none;cursor:pointer;transition:all 0.2s;text-align:left;width:100%}
-        .sidebar-sub-item::before{content:'';position:absolute;left:20px;top:50%;width:8px;height:1.5px;background:#e2e8f0}
-        .sidebar-sub-item:hover{color:#7c3aed;background:#f8fafc}
-        .sidebar-sub-item.active{color:#7c3aed;background:rgba(124,58,237,.06);font-weight:600}
-
-        /* Hover Popup Tooltip Menu when collapsed */
-        .sidebar-item-container{position:relative}
-        .sidebar.collapsed .sidebar-popup-menu{display:none;position:absolute;left:100%;top:50%;
-          transform:translateY(-50%);background:#fff;border-radius:12px;padding:8px;
-          box-shadow:0 10px 30px rgba(0,0,0,0.08);border:1px solid #e2e8f0;margin-left:12px;
-          z-index:100;min-width:140px;flex-direction:column;gap:4px}
-        .sidebar.collapsed .sidebar-item-container:hover .sidebar-popup-menu{display:flex}
-        .sidebar.collapsed .sidebar-sub-item{padding-left:14px}
-        .sidebar.collapsed .sidebar-sub-item::before{display:none}
-        .sidebar.collapsed .sidebar-sub-menu::before{display:none}
-        .sidebar.collapsed .sidebar-sub-menu{padding-left:0}
+          border:1px solid #f1f5f9;display:flex;flex-direction:column;gap:6px;position:fixed;top:88px;left:24px;width:240px;z-index:40;max-height:calc(100vh - 104px);overflow-y:auto;overflow-x:hidden}
+        .content{margin-left:272px}
         
         .sidebar-section{display:flex;flex-direction:column;gap:4px;width:100%}
         
@@ -2263,22 +2225,25 @@ export default function DashboardPage() {
           border-bottom: 1px solid #f1f5f9;
           position: relative;
         }
-        .sidebar.collapsed .sidebar-profile-header {
-          padding: 12px 0;
-          justify-content: center;
-          gap: 0;
-        }
-        .sidebar.collapsed .sidebar-item {
-          padding: 12px 0;
-          justify-content: center;
-        }
-        .sidebar.collapsed .sidebar-item-container .sidebar-badge {
-          position: absolute;
-          top: 6px;
-          right: 18px;
-          padding: 1px 4px;
-          font-size: 8px;
-        }
+        .sidebar-item{display:flex;align-items:center;gap:14px;padding:12px 18px;border-radius:14px;font-size:14px;font-weight:600;color:#64748b;cursor:pointer;background:none;border:none;transition:all 0.2s ease;text-align:left;width:100%;box-sizing:border-box}
+        .sidebar-item:hover{background:#f8fafc;color:#7c3aed}
+        .sidebar-item.active{background:linear-gradient(135deg,#7c3aed,#2563eb);color:#fff;
+          box-shadow:0 8px 16px rgba(124,58,237,.15)}
+        .sidebar-icon{display:flex;align-items:center;justify-content:center;font-size:18px;transition:transform 0.2s ease}
+        .sidebar-item.active .sidebar-icon{transform:scale(1.05)}
+        
+        .sidebar-badge{background:#ef4444;color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(239,68,68,0.3)}
+        .sidebar-item.active .sidebar-badge{background:#fff;color:#7c3aed;box-shadow:0 2px 6px rgba(0,0,0,0.08)}
+
+        .sidebar-sub-menu{display:flex;flex-direction:column;gap:4px;padding-left:20px;margin-top:6px;position:relative;overflow:hidden;max-height:0;transition:all .3s ease}
+        .sidebar-sub-menu.expanded{max-height:500px;margin:8px 0}
+        .sidebar-sub-menu::before{content:'';position:absolute;left:20px;top:0;bottom:12px;width:1.5px;background:#e2e8f0}
+        
+        .sidebar-sub-item{position:relative;display:flex;align-items:center;padding:8px 16px 8px 32px;font-size:13px;font-weight:500;
+          color:#64748b;border-radius:10px;border:none;background:none;cursor:pointer;transition:all 0.2s;text-align:left;width:100%}
+        .sidebar-sub-item::before{content:'';position:absolute;left:20px;top:50%;width:8px;height:1.5px;background:#e2e8f0}
+        .sidebar-sub-item:hover{color:#7c3aed;background:#f8fafc}
+        .sidebar-sub-item.active{color:#7c3aed;background:rgba(124,58,237,.06);font-weight:600}
 
         .category-grid {
           display: grid;
@@ -2303,7 +2268,7 @@ export default function DashboardPage() {
           gap: 20px;
         }
 
-        .content{flex:1;min-width:0}
+        
 
         .profile-header{background:linear-gradient(135deg,#fff,#f8fafc);border-radius:20px;padding:32px;
           box-shadow:0 10px 25px rgba(0,0,0,.03);border:1px solid rgba(255,255,255,0.8);margin-bottom:24px;
@@ -2496,7 +2461,8 @@ export default function DashboardPage() {
 
         @media (max-width: 768px){
           .menu-toggle-btn{display:flex !important}
-          .dashboard-layout{flex-direction:column !important;padding:12px !important;padding-left:12px !important;gap:12px}
+          .dashboard-layout{padding:12px !important;gap:12px}
+          .content{margin-left:0 !important}
           .sidebar{
             display:none !important;
           }
@@ -2568,7 +2534,7 @@ export default function DashboardPage() {
 
         @media (max-width: 768px){
           .dashboard-layout{padding:8px !important;gap:0 !important}
-          .content{width:100% !important}
+          .content{width:100% !important;margin-left:0 !important}
           .profile-header{flex-direction:column !important;text-align:center !important;
             padding:20px 12px !important;gap:16px !important;border-radius:16px !important;margin-bottom:16px !important}
           .profile-header::before{display:none !important}
