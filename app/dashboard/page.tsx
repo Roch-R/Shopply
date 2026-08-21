@@ -2561,9 +2561,6 @@ export default function DashboardPage() {
           .store-orders-header button{width:100% !important;justify-content:center !important;height:48px !important}
         }
 
-        @media (max-width: 1024px){
-          .orders-list{grid-template-columns:1fr !important}
-        }
         @media (max-width: 768px){
           .orders-list{grid-template-columns:1fr !important}
           .dashboard-layout{padding:8px !important;gap:0 !important}
