@@ -2978,42 +2978,40 @@ export default function DashboardPage() {
 
           {/* CONTENT */}
           <div className="content">
-            {/* ——— PROFILE HEADER (Always visible) ——— */}
-            <div className="profile-header">
-              <div className="profile-avatar" style={{ position: 'relative', overflow: 'hidden' }}>
-                {user.avatar ? (
-                  <img src={getAvatarUrl(user.avatar)} alt={user.name} fetchPriority="high" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%', position: 'absolute', top: 0, left: 0 }} />
-                ) : initials}
-              </div>
-              <div className="profile-info">
-                <p style={{ color: '#7c3aed', fontSize: 13, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 }}>Welcome back,</p>
-                <h2>{user.name}</h2>
-                <p>{user.email}</p>
-              </div>
-              <div className="profile-stats">
-                <div className="profile-stat">
-                  <span className="profile-stat-icon"><IconStorefront /></span>
-                  <span>Products: <span className="profile-stat-val">{items.length}</span></span>
-                </div>
-                <div className="profile-stat">
-                  <span className="profile-stat-icon"><IconFollowers /></span>
-                  <span>Followers: <span className="profile-stat-val">{user.followers_count !== undefined ? user.followers_count : 0}</span></span>
-                </div>
-                <div className="profile-stat">
-                  <span className="profile-stat-icon"><IconFollowing /></span>
-                  <span>Following: <span className="profile-stat-val">{user.following_count !== undefined ? user.following_count : 0}</span></span>
-                </div>
-                <div className="profile-stat">
-                  <span className="profile-stat-icon"><IconStar /></span>
-                  <span>Rating: <span className="profile-stat-val">{user.reviews_avg_rating ? user.reviews_avg_rating.toFixed(1) : "0.0"} ({user.reviews_count !== undefined ? user.reviews_count : 0} Rating)</span></span>
-                </div>
-              </div>
-            </div>
-
-
             {/* ——— PROFILE TAB ——— */}
             {activeTab === "profile" && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+                {/* Profile Welcome Header */}
+                <div className="profile-header">
+                  <div className="profile-avatar" style={{ position: 'relative', overflow: 'hidden' }}>
+                    {user.avatar ? (
+                      <img src={getAvatarUrl(user.avatar)} alt={user.name} fetchPriority="high" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%', position: 'absolute', top: 0, left: 0 }} />
+                    ) : initials}
+                  </div>
+                  <div className="profile-info">
+                    <p style={{ color: '#7c3aed', fontSize: 13, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 }}>Welcome back,</p>
+                    <h2>{user.name}</h2>
+                    <p>{user.email}</p>
+                  </div>
+                  <div className="profile-stats">
+                    <div className="profile-stat">
+                      <span className="profile-stat-icon"><IconStorefront /></span>
+                      <span>Products: <span className="profile-stat-val">{items.length}</span></span>
+                    </div>
+                    <div className="profile-stat">
+                      <span className="profile-stat-icon"><IconFollowers /></span>
+                      <span>Followers: <span className="profile-stat-val">{user.followers_count !== undefined ? user.followers_count : 0}</span></span>
+                    </div>
+                    <div className="profile-stat">
+                      <span className="profile-stat-icon"><IconFollowing /></span>
+                      <span>Following: <span className="profile-stat-val">{user.following_count !== undefined ? user.following_count : 0}</span></span>
+                    </div>
+                    <div className="profile-stat">
+                      <span className="profile-stat-icon"><IconStar /></span>
+                      <span>Rating: <span className="profile-stat-val" style={{ color: '#ee4d2d' }}>{user.reviews_avg_rating !== undefined ? Number(user.reviews_avg_rating).toFixed(1) : '0.0'} ({user.reviews_count || 0} Rating)</span></span>
+                    </div>
+                  </div>
+                </div>
                 <div className="info-cards" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 20 }}>
                   <div className="info-card">
                     <div className="info-card-label">Profile Settings</div>
