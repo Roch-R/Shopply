@@ -2412,9 +2412,9 @@ export default function DashboardPage() {
         .order-guarantee-banner{display:flex;align-items:center;gap:12px;background:#f0fdf4;
           border:1px solid #bbf7d0;color:#16a34a;padding:16px;border-radius:12px;font-size:14px}
         
-        .orders-list{display:flex;flex-direction:column;gap:20px}
-        .order-card{background:#fff;border-radius:16px;box-shadow:0 2px 12px rgba(0,0,0,.05);
-          overflow:hidden}
+        .orders-list{display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));gap:20px}
+        .order-card{background:#fff;border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,.03);
+          border:1px solid #f1f5f9;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;height:100%}
         .order-card-header{padding:16px 24px;border-bottom:1px solid #f1f5f9;display:flex;
           align-items:center;justify-content:space-between;font-size:14px}
         .order-seller{display:flex;align-items:center;gap:8px;font-weight:600;color:#333}
@@ -2561,7 +2561,11 @@ export default function DashboardPage() {
           .store-orders-header button{width:100% !important;justify-content:center !important;height:48px !important}
         }
 
+        @media (max-width: 1024px){
+          .orders-list{grid-template-columns:1fr !important}
+        }
         @media (max-width: 768px){
+          .orders-list{grid-template-columns:1fr !important}
           .dashboard-layout{padding:8px !important;gap:0 !important}
           .content{width:100% !important;margin-left:0 !important}
           .profile-header{flex-direction:column !important;text-align:center !important;
