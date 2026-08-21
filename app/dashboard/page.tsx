@@ -310,11 +310,11 @@ export default function DashboardPage() {
   const [showScanner, setShowScanner] = useState(false);
   const [ordersExpanded, setOrdersExpanded] = useState(false);
   
-  // Sidebar collapsible state (always expanded by default)
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  // Mobile menu drawer state
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const toggleSidebar = () => {
-    setIsSidebarCollapsed(prev => !prev);
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(prev => !prev);
   };
 
   // Profile update state
@@ -2474,7 +2474,7 @@ export default function DashboardPage() {
           .sidebar{
             display:none !important;
           }
-          .sidebar.mobile-expanded{
+          .sidebar.mobile-open{
             display:flex !important;
             position:fixed !important;
             top:0 !important;
@@ -2794,7 +2794,7 @@ export default function DashboardPage() {
           <button 
             type="button"
             className="menu-toggle-btn"
-            onClick={toggleSidebar}
+            onClick={toggleMobileMenu}
             style={{
               background: '#f8fafc',
               border: '1.5px solid #e2e8f0',
@@ -2838,13 +2838,13 @@ export default function DashboardPage() {
         </nav>
 
         <div className="dashboard-layout">
-          {/* BACKDROP OVERLAY FOR MOBILE DRAW */}
-          {!isSidebarCollapsed && (
-            <div className="sidebar-backdrop no-print" onClick={toggleSidebar} />
+          {/* BACKDROP OVERLAY FOR MOBILE DRAWER */}
+          {isMobileMenuOpen && (
+            <div className="sidebar-backdrop no-print" onClick={() => setIsMobileMenuOpen(false)} />
           )}
 
-          {/* SIDEBAR - always expanded on desktop */}
-          <aside className={`sidebar no-print mobile-expanded`}>
+          {/* SIDEBAR */}
+          <aside className={`sidebar no-print ${isMobileMenuOpen ? 'mobile-open' : ''}`}>
 
 
             {/* PROFILE HEADER IN SIDEBAR */}
@@ -2890,6 +2890,7 @@ export default function DashboardPage() {
                         <button
                           className={`sidebar-item ${activeTab === si.id ? "active" : ""}`}
                           onClick={() => {
+                            setIsMobileMenuOpen(false);
                             if (si.id === "shop") {
                               router.push("/shop");
                             } else if (si.id === "logout") {
