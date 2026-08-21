@@ -2882,7 +2882,7 @@ export default function DashboardPage() {
               </div>
               <div style={{ minWidth: 0 }}>
                   <div style={{ fontSize: 13, fontWeight: 700, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user?.name || 'User'}</div>
-                  <div style={{ fontSize: 10, color: '#64748b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user?.email || 'member@shopply.com'}</div>
+                  <div style={{ fontSize: 11, color: '#64748b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user?.email || user?.username || 'Shopply Member'}</div>
                 </div>
             </div>
 
@@ -2993,7 +2993,7 @@ export default function DashboardPage() {
                   <div className="profile-info">
                     <p style={{ color: '#7c3aed', fontSize: 13, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 }}>Welcome back,</p>
                     <h2>{user.name}</h2>
-                    <p>{user.email}</p>
+                    <p>{user.email || user.username}</p>
                   </div>
                   <div className="profile-stats">
                     <div className="profile-stat">
