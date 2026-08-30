@@ -6204,9 +6204,36 @@ export default function DashboardPage() {
 
         {/* TOAST NOTIFICATION */}
         {toast && typeof window !== 'undefined' && createPortal(
-          <div className={`toast ${toast.type}`}>
+          <div
+            style={{
+              position: 'fixed',
+              bottom: '24px',
+              right: '24px',
+              height: 'auto',
+              maxHeight: '70px',
+              width: 'auto',
+              maxWidth: '380px',
+              padding: '12px 18px',
+              borderRadius: '12px',
+              background: toast.type === 'success' ? '#10b981' : '#ef4444',
+              color: '#ffffff',
+              fontWeight: 600,
+              fontSize: '14px',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '10px',
+              zIndex: 999999,
+              boxShadow: '0 8px 24px rgba(0,0,0,0.25)',
+              pointerEvents: 'auto',
+              boxSizing: 'border-box',
+              lineHeight: 1.4,
+              overflow: 'hidden',
+              whiteSpace: 'nowrap',
+              textOverflow: 'ellipsis'
+            }}
+          >
             {toast.type === 'success' ? <IconCheck /> : <IconWarning />}
-            <span>{toast.message}</span>
+            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{toast.message}</span>
           </div>,
           document.body
         )}
