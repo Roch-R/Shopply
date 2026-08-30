@@ -4,6 +4,7 @@ import { doc, setDoc, getDoc } from "firebase/firestore";
 import { getAuthUser, formatUser } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 
 export async function POST(req: Request) {
   try {
@@ -30,8 +31,12 @@ export async function POST(req: Request) {
       const avatarField = formData.get("avatar");
       if (avatarField && typeof avatarField === "object" && "size" in avatarField && (avatarField as any).size > 0) {
         const fileObj = avatarField as any;
-        const buffer = Buffer.from(await fileObj.arrayBuffer());
-        avatarBase64 = `data:${fileObj.type || "image/png"};base64,${buffer.toString("base64")}`;
+        const bytes = new Uint8Array(await fileObj.arrayBuffer());
+        let binary = "";
+        for (let i = 0; i < bytes.byteLength; i++) {
+          binary += String.fromCharCode(bytes[i]);
+        }
+        avatarBase64 = `data:${fileObj.type || "image/png"};base64,${btoa(binary)}`;
       }
     } else {
       const body = await req.json();
