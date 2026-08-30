@@ -1353,94 +1353,77 @@ export default function ShopPage() {
           font-family: 'Inter', sans-serif;
         }
         .description-images-gallery {
-          display: flex;
-          flex-direction: column;
-          gap: 32px;
-          max-width: 800px;
-          margin: 0 auto;
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+          gap: 16px;
+          width: 100%;
         }
         .desc-image-card {
           position: relative;
-          border-radius: 24px;
+          border-radius: 16px;
           overflow: hidden;
           border: 1px solid #e2e8f0;
-          box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
-          background: #fff;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);
+          background: #f8fafc;
+          aspect-ratio: 16/10;
+          cursor: pointer;
+          transition: all 0.25s ease;
         }
         .desc-image-card:hover {
-          transform: translateY(-6px);
-          box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+          transform: translateY(-3px);
+          box-shadow: 0 12px 24px -4px rgba(15, 23, 42, 0.08);
           border-color: #cbd5e1;
         }
         .desc-image-badge {
           position: absolute;
-          top: 16px;
-          left: 16px;
+          top: 10px;
+          left: 10px;
           background: rgba(15, 23, 42, 0.75);
-          backdrop-filter: blur(8px);
+          backdrop-filter: blur(6px);
           color: #fff;
-          font-size: 11px;
+          font-size: 10px;
           font-weight: 700;
-          padding: 6px 14px;
+          padding: 4px 10px;
           border-radius: 20px;
           letter-spacing: 0.05em;
           text-transform: uppercase;
-          z-index: 10;
+          z-index: 2;
           border: 1px solid rgba(255, 255, 255, 0.1);
-          box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
         .desc-gallery-img {
           width: 100%;
-          height: auto;
-          max-height: 700px;
-          object-fit: contain;
+          height: 100%;
+          object-fit: cover;
           display: block;
-          transition: transform 0.5s ease;
+          transition: transform 0.3s ease;
         }
         .desc-image-card:hover .desc-gallery-img {
-          transform: scale(1.02);
+          transform: scale(1.03);
         }
-        .desc-image-actions {
+        .desc-zoom-overlay {
           position: absolute;
           inset: 0;
-          background: rgba(15, 23, 42, 0.4);
+          background: rgba(15, 23, 42, 0.35);
+          backdrop-filter: blur(2px);
           display: flex;
           align-items: center;
           justify-content: center;
           opacity: 0;
-          transition: opacity 0.3s ease;
-          z-index: 5;
+          transition: opacity 0.2s ease;
+          z-index: 3;
+          color: #fff;
+          font-size: 12px;
+          font-weight: 700;
+          gap: 6px;
         }
-        .desc-image-card:hover .desc-image-actions {
+        .desc-image-card:hover .desc-zoom-overlay {
           opacity: 1;
         }
-        .desc-zoom-btn {
-          background: #fff;
-          color: #0f172a;
-          font-size: 13px;
-          font-weight: 700;
-          padding: 12px 24px;
-          border-radius: 14px;
-          text-decoration: none;
-          box-shadow: 0 10px 20px rgba(0,0,0,0.15);
-          transition: all 0.2s;
-          display: inline-flex;
-          align-items: center;
-          gap: 6px;
-          border: 1px solid #cbd5e1;
-        }
-        .desc-zoom-btn:hover {
-          transform: scale(1.05);
-          background: #0f172a;
-          color: #fff;
-          border-color: #0f172a;
-        }
-        .rating-section{border-top:1px solid #f1f5f9;padding:24px 16px;background:#fdfdfd}
+        .rating-section{border-top:1px solid #f1f5f9;padding:24px 16px;background:#fff}
         .reviews-scroll-container{
           max-height:420px;
           overflow-y:auto;
-          padding: 16px 24px;
+          padding: 16px 20px;
           background: #f8fafc;
           border-radius: 16px;
           border: 1px solid #e2e8f0;
@@ -1450,28 +1433,29 @@ export default function ShopPage() {
         .reviews-scroll-container::-webkit-scrollbar-track{background:transparent}
         .reviews-scroll-container::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:3px;transition:background .2s}
         .reviews-scroll-container::-webkit-scrollbar-thumb:hover{background:#94a3b8}
-        .rating-header-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:32px}
-        .rating-summary{display:flex;align-items:center;gap:32px;background:#fff;padding:28px;border-radius:24px;border:1px solid #f1f5f9;box-shadow:0 4px 15px rgba(0,0,0,.02)}
-        .big-rating{font-size:44px;font-weight:800;color:#7c3aed}
+        .rating-header-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+        .rating-summary{display:flex;align-items:center;gap:28px;background:#f8fafc;padding:20px 24px;border-radius:18px;border:1px solid #e2e8f0;margin-bottom:24px;flex-wrap:wrap}
+        .big-rating{font-size:38px;font-weight:800;color:#7c3aed;line-height:1}
         .rating-stars-col{display:flex;flex-direction:column;gap:4px}
         .stars{display:flex;gap:3px;color:#f59e0b}
         
-        .review-filters{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:32px}
-        .rev-filter{padding:8px 16px;border-radius:20px;border:1px solid #e2e8f0;font-size:12px;font-weight:600;color:#64748b;cursor:pointer;background:#fff}
-        .rev-filter.active{background:#7c3aed;color:#fff;border-color:#7c3aed}
+        .review-filters{display:flex;gap:8px;flex-wrap:wrap}
+        .rev-filter{padding:7px 14px;border-radius:20px;border:1px solid #e2e8f0;font-size:12px;font-weight:600;color:#64748b;cursor:pointer;background:#fff;transition:all .2s ease}
+        .rev-filter:hover{border-color:#cbd5e1;color:#0f172a}
+        .rev-filter.active{background:#7c3aed;color:#fff;border-color:#7c3aed;box-shadow:0 2px 8px rgba(124,58,237,0.2)}
         
-        .review-card{padding:20px 0;border-bottom:1px solid #e2e8f0}
+        .review-card{padding:16px 0;border-bottom:1px solid #e2e8f0}
         .review-card:last-child{border-bottom:none}
-        .review-user{display:flex;align-items:center;gap:12px;margin-bottom:8px}
-        .u-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#e2e8f0,#cbd5e1);
-          display:flex;align-items:center;justify-content:center;font-weight:700;color:#64748b;font-size:13px}
+        .review-user{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+        .u-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#e2e8f0,#cbd5e1);
+          display:flex;align-items:center;justify-content:center;font-weight:700;color:#64748b;font-size:12px}
         .u-info{display:flex;flex-direction:column;gap:2px}
         .u-name{font-size:13px;font-weight:700;color:#0f172a}
         .r-date{font-size:11px;color:#94a3b8}
-        .r-text{font-size:14px;color:#334155;line-height:1.6;margin:8px 0}
-        .r-variation{font-size:11px;color:#94a3b8;margin-bottom:12px;display:block}
-        .r-images{display:flex;gap:12px;flex-wrap:wrap}
-        .r-img{width:80px;height:80px;border-radius:10px;object-fit:cover;cursor:pointer;border:1px solid #f1f5f9}
+        .r-text{font-size:14px;color:#334155;line-height:1.6;margin:6px 0}
+        .r-variation{font-size:11px;color:#94a3b8;margin-bottom:8px;display:block}
+        .r-images{display:flex;gap:8px;flex-wrap:wrap}
+        .r-img{width:70px;height:70px;border-radius:8px;object-fit:cover;cursor:pointer;border:1px solid #e2e8f0}
         
         .back-to-top{position:fixed;bottom:32px;right:32px;width:50px;height:50px;
           border-radius:50%;background:#0f172a;color:#fff;display:flex;align-items:center;
@@ -1481,42 +1465,43 @@ export default function ShopPage() {
         .back-to-top:hover{transform:translateY(-4px);background:#1e293b;box-shadow:0 12px 30px rgba(0,0,0,.2)}
  
 
-        .seller-header-bar{background:#fff;border-top:1px solid #f1f5f9;border-bottom:1px solid #f1f5f9;padding:16px;display:flex;align-items:flex-start;flex-direction:column;justify-content:space-between;gap:20px;flex-wrap:wrap}
-        @media (max-width: 950px) { .seller-header-bar{padding:24px;flex-direction:column;align-items:flex-start} }
-        .seller-left-side{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+        .seller-header-bar{background:#f8fafc;border-top:1px solid #f1f5f9;border-bottom:1px solid #f1f5f9;padding:20px 24px;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap}
+        @media (max-width: 950px) { .seller-header-bar{padding:20px 16px;flex-direction:column;align-items:flex-start} }
+        .seller-left-side{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
         .seller-avatar-wrapper{position:relative}
-        .seller-main-avatar{width:72px;height:72px;border-radius:50%;object-fit:cover;background:#f1f5f9;border:2px solid #e2e8f0;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;color:#64748b}
-        .seller-mall-badge{position:absolute;bottom:-4px;left:50%;transform:translateX(-50%);background:#7c3aed;color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;border:2px solid #fff;white-space:nowrap;box-shadow:0 2px 4px rgba(0,0,0,.1)}
-        .seller-info-col{display:flex;flex-direction:column;gap:4px}
-        .seller-title-name{font-size:18px;font-weight:700;color:#0f172a;display:flex;align-items:center;gap:6px}
-        .seller-active-status{font-size:12px;color:#64748b;margin-bottom:8px}
-        .seller-actions-row{display:flex;gap:10px;flex-wrap:wrap}
-        .seller-btn-chat{padding:8px 16px;background:#f3e8ff;border:1px solid #7c3aed;color:#7c3aed;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .2s}
+        .seller-main-avatar{width:64px;height:64px;border-radius:50%;object-fit:cover;background:#f1f5f9;border:2px solid #e2e8f0;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#64748b}
+        .seller-mall-badge{position:absolute;bottom:-4px;left:50%;transform:translateX(-50%);background:#7c3aed;color:#fff;font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;border:1.5px solid #fff;white-space:nowrap;box-shadow:0 2px 4px rgba(0,0,0,.1)}
+        .seller-info-col{display:flex;flex-direction:column;gap:3px}
+        .seller-title-name{font-size:16px;font-weight:700;color:#0f172a;display:flex;align-items:center;gap:6px;margin:0}
+        .seller-active-status{font-size:12px;color:#64748b;margin-bottom:6px}
+        .seller-actions-row{display:flex;gap:8px;flex-wrap:wrap}
+        .seller-btn-chat{padding:7px 14px;background:#f3e8ff;border:1px solid #7c3aed;color:#7c3aed;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .2s}
         .seller-btn-chat:hover{background:#e9d5ff;transform:translateY(-1px)}
-        .seller-btn-shop{padding:8px 16px;background:#fff;border:1px solid #cbd5e1;color:#475569;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .2s}
-        .seller-stats-grid{display:grid;grid-template-columns:repeat(3, minmax(0, 1fr));gap:12px;flex-grow:1;max-width:600px}
+        .seller-btn-shop{padding:7px 14px;background:#fff;border:1px solid #cbd5e1;color:#475569;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .2s}
+        .seller-stats-grid{display:grid;grid-template-columns:repeat(3, minmax(0, 1fr));gap:8px;flex-grow:1;max-width:520px}
         @media (max-width: 650px) {
           .seller-stats-grid{grid-template-columns:repeat(2, minmax(0, 1fr));gap:8px}
         }
         .seller-stat-box{
           display:flex;
-          flex-direction:column-reverse;
+          flex-direction:column;
           align-items:center;
           justify-content:center;
           text-align:center;
-          padding:12px 8px;
-          background:#f8fafc;
+          padding:8px 6px;
+          background:#fff;
           border:1px solid #e2e8f0;
-          border-radius:12px;
-          gap:4px;
+          border-radius:10px;
+          gap:2px;
           transition:all .2s;
+          box-shadow: 0 1px 2px rgba(0,0,0,0.02);
         }
         .seller-stat-box:hover{
-          background:#f1f5f9;
+          background:#f8fafc;
           border-color:#cbd5e1;
         }
-        .seller-stat-label{font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:0.3px}
-        .seller-stat-val{font-size:14px;font-weight:700;color:#7c3aed}
+        .seller-stat-label{font-size:10px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:0.3px}
+        .seller-stat-val{font-size:13px;font-weight:700;color:#7c3aed}
         .seller-stat-val.dark{color:#0f172a}
       `}</style>
 
@@ -2115,31 +2100,38 @@ export default function ShopPage() {
                 </div>
               </div>
 
-              {/* DESCRIPTION IMAGES GALLERY (FULL WIDTH BELOW IMAGE/INFO GRID) */}
+              {/* DESCRIPTION IMAGES GALLERY (RESPONSIVE GRID) */}
               {viewItem.attributes?.description_images && viewItem.attributes.description_images.length > 0 && (
-                <div className="description-section" style={{ borderTop: '1px solid #f1f5f9', padding: isMobile ? '24px 16px' : '48px', background: '#fff' }}>
-                  <div className="description-header" style={{ marginBottom: 24 }}>
-                    <span className="variant-section-label" style={{ fontSize: '16px', fontWeight: 800, color: '#0f172a' }}>
+                <div className="description-section" style={{ borderTop: '1px solid #f1f5f9', padding: isMobile ? '20px 16px' : '32px 48px', background: '#fff' }}>
+                  <div className="description-header" style={{ marginBottom: 16 }}>
+                    <span className="variant-section-label" style={{ fontSize: '15px', fontWeight: 800, color: '#0f172a', marginBottom: 2 }}>
                       Product Gallery
                     </span>
+                    <p style={{ fontSize: '12px', color: '#64748b', margin: 0 }}>Click any photo to view in full resolution</p>
                   </div>
                   <div className="description-images-gallery">
                     {viewItem.attributes.description_images.map((path: string, index: number) => (
-                      <div key={index} className="desc-image-card">
-                        <div className="desc-image-badge">Gallery Image {index + 1}</div>
+                      <div 
+                        key={index} 
+                        className="desc-image-card"
+                        onClick={() => setViewingImageModal({ 
+                          images: viewItem.attributes?.description_images || [], 
+                          index 
+                        })}
+                      >
+                        <div className="desc-image-badge">Photo {index + 1}</div>
                         <img 
                           src={getImageUrl(path)} 
-                          alt={`Description Image ${index + 1}`}
+                          alt={`Gallery Image ${index + 1}`}
                           className="desc-gallery-img"
                           onError={(e) => {
                             e.currentTarget.onerror = null;
                             e.currentTarget.src = "https://placehold.co/600x400/f8fafc/cbd5e1?text=Image+Not+Found";
                           }}
                         />
-                        <div className="desc-image-actions">
-                          <a href={getImageUrl(path)} target="_blank" rel="noopener noreferrer" className="desc-zoom-btn">
-                            🔍 Expand Full Resolution
-                          </a>
+                        <div className="desc-zoom-overlay">
+                          <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+                          <span>Enlarge</span>
                         </div>
                       </div>
                     ))}
