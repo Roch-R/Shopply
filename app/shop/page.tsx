@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import Link from "next/link";
 import { getApiCache, createSmartPoller } from "@/lib/apiCache";
 import MeetupMap from "@/components/MeetupMap";
