@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/firebase";
-import { doc, updateDoc, getDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc } from "firebase/firestore";
 import { getAuthUser, formatUser } from "@/lib/db";
 
 export async function POST(req: Request) {
@@ -47,7 +47,7 @@ export async function POST(req: Request) {
       updateData.avatar = avatarBase64;
     }
 
-    await updateDoc(userDocRef, updateData);
+    await setDoc(userDocRef, updateData, { merge: true });
 
     // Re-fetch updated user
     const updatedDoc = await getDoc(userDocRef);

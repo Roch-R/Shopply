@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { db, storage } from "@/lib/firebase";
-import { doc, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc, setDoc, deleteDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { getAuthUser } from "@/lib/db";
 
@@ -117,7 +117,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
 
     const location = (formData.get("location") as string) || itemData.location || user.location || null;
 
-    const updatedItem: Record<string, any> = {
+    const updatedItem = {
       ...itemData,
       name,
       description,
@@ -133,7 +133,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       }
     };
 
-    await updateDoc(itemDocRef, updatedItem);
+    await setDoc(itemDocRef, updatedItem, { merge: true });
 
     return NextResponse.json({
       message: "Item updated successfully.",
