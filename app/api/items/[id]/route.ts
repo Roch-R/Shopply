@@ -117,7 +117,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
 
     const location = (formData.get("location") as string) || itemData.location || user.location || null;
 
-    const updatedItem = {
+    const updatedItem: Record<string, any> = {
       ...itemData,
       name,
       description,
@@ -127,7 +127,10 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       image: mainImageUrl,
       attributes,
       location,
-      "user.location": location
+      user: {
+        ...(itemData.user || {}),
+        location
+      }
     };
 
     await updateDoc(itemDocRef, updatedItem);
