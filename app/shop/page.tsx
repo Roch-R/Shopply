@@ -103,6 +103,12 @@ const calculateTotalStock = (item: any) => {
   return item.stock || 0;
 };
 
+const isFootwearCategory = (cat?: string | null) => {
+  if (!cat) return false;
+  const c = cat.trim().toLowerCase();
+  return c === "footwear" || c === "shoes" || c === "shoe";
+};
+
 export default function ShopPage() {
   const [items, setItems] = useState<ShopItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -1734,7 +1740,7 @@ export default function ShopPage() {
                         {calculateTotalStock(item) > 0 ? (
                           <>
                             <button className="add-cart-btn" onClick={(e) => {
-                              if (item.attributes?.sizes && item.attributes.sizes.length > 0) {
+                              if (isFootwearCategory(item.category) && item.attributes?.sizes && item.attributes.sizes.length > 0) {
                                 handleViewItem(item);
                               } else {
                                 handleAddToCart(item, item.attributes?.colors?.[0] || "", item.attributes?.variant_prices?.[0] || item.price);
@@ -1743,7 +1749,7 @@ export default function ShopPage() {
                               <IconCart /> {addingToCart === item.id ? '...' : 'Add to Cart'}
                             </button>
                             <button className="buy-btn" onClick={(e) => {
-                              if (item.attributes?.sizes && item.attributes.sizes.length > 0) {
+                              if (isFootwearCategory(item.category) && item.attributes?.sizes && item.attributes.sizes.length > 0) {
                                 handleViewItem(item);
                               } else {
                                 setBuyModal({item, variation: item.attributes?.colors?.[0] || "", price: item.attributes?.variant_prices?.[0] || item.price, variantIdx: 0});
@@ -2024,7 +2030,7 @@ export default function ShopPage() {
                     </div>
                   )}
 
-                  {viewItem.attributes?.sizes && (
+                  {isFootwearCategory(viewItem.category) && viewItem.attributes?.sizes && viewItem.attributes.sizes.length > 0 && (
                     <div>
                       <span className="variant-section-label">Size</span>
                       <div className="size-grid">
@@ -2053,14 +2059,14 @@ export default function ShopPage() {
                         setErrorMsg("Please select a color variation first.");
                         return;
                       }
-                      if (viewItem.attributes?.sizes && viewItem.attributes.sizes.length > 0 && !selectedSize) {
+                      if (isFootwearCategory(viewItem.category) && viewItem.attributes?.sizes && viewItem.attributes.sizes.length > 0 && !selectedSize) {
                         setErrorMsg("Please select a size first.");
                         return;
                       }
                       const varIdx = selectedVariant !== null ? selectedVariant : 0;
                       let variationStr = "";
                       if (viewItem.attributes?.colors?.[varIdx]) variationStr += viewItem.attributes.colors[varIdx];
-                      if (selectedSize) variationStr += (variationStr ? ", " : "") + selectedSize;
+                      if (isFootwearCategory(viewItem.category) && selectedSize) variationStr += (variationStr ? ", " : "") + selectedSize;
                       const priceStr = viewItem.attributes?.variant_prices?.[varIdx] || viewItem.price;
                       handleAddToCart(viewItem, variationStr, priceStr);
                     }}>
@@ -2071,14 +2077,14 @@ export default function ShopPage() {
                         setErrorMsg("Please select a color variation first.");
                         return;
                       }
-                      if (viewItem.attributes?.sizes && viewItem.attributes.sizes.length > 0 && !selectedSize) {
+                      if (isFootwearCategory(viewItem.category) && viewItem.attributes?.sizes && viewItem.attributes.sizes.length > 0 && !selectedSize) {
                         setErrorMsg("Please select a size first.");
                         return;
                       }
                       const varIdx = selectedVariant !== null ? selectedVariant : 0;
                       let variationStr = "";
                       if (viewItem.attributes?.colors?.[varIdx]) variationStr += viewItem.attributes.colors[varIdx];
-                      if (selectedSize) variationStr += (variationStr ? ", " : "") + selectedSize;
+                      if (isFootwearCategory(viewItem.category) && selectedSize) variationStr += (variationStr ? ", " : "") + selectedSize;
                       const priceStr = viewItem.attributes?.variant_prices?.[varIdx] || viewItem.price;
                       setBuyModal({item: viewItem, variation: variationStr, price: priceStr, variantIdx: varIdx});
                     }}>

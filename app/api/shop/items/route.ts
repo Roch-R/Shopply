@@ -44,9 +44,7 @@ const seededItems = [
     reviews_avg_rating: 4.5,
     sold_count: 8,
     attributes: {
-      sizes: ["Standard"],
-      colors: ["Midnight Black", "Silver", "Rose Gold"],
-      size_stocks: { "Standard": 30 }
+      colors: ["Midnight Black", "Silver", "Rose Gold"]
     },
     user: {
       id: 998,
@@ -71,9 +69,7 @@ const seededItems = [
     reviews_avg_rating: 4.9,
     sold_count: 15,
     attributes: {
-      sizes: ["Over-Ear"],
-      colors: ["Matte Black", "Sand White"],
-      size_stocks: { "Over-Ear": 20 }
+      colors: ["Matte Black", "Sand White"]
     },
     user: {
       id: 997,

@@ -211,6 +211,12 @@ const calculateTotalStock = (item: any) => {
   return item.stock || 0;
 };
 
+const isFootwearCategory = (cat?: string | null) => {
+  if (!cat) return false;
+  const c = cat.trim().toLowerCase();
+  return c === "footwear" || c === "shoes" || c === "shoe";
+};
+
 const formatLastMessageTime = (dateString: string) => {
   if (!dateString) return "";
   const date = new Date(dateString);
@@ -1766,8 +1772,8 @@ export default function DashboardPage() {
     formData.append("price", newItemPrice);
     formData.append("stock", newItemStock);
     formData.append("category", newItemCategory);
-    const attributes: any = { sizes: selectedSizes, specs: specs };
-    if (Object.keys(sizeStocks).length > 0) {
+    const attributes: any = { sizes: isFootwearCategory(newItemCategory) ? selectedSizes : [], specs: specs };
+    if (isFootwearCategory(newItemCategory) && Object.keys(sizeStocks).length > 0) {
       const parsedSizeStocks: Record<string, number> = {};
       for (const [k, v] of Object.entries(sizeStocks)) {
         parsedSizeStocks[k] = parseInt(v as string) || 0;
@@ -1904,8 +1910,8 @@ export default function DashboardPage() {
     // Parse attributes properly
     const attrs = typeof item.attributes === "string" ? JSON.parse(item.attributes) : (item.attributes || {});
     
-    setSelectedSizes(attrs.sizes || []);
-    setSizeStocks(attrs.size_stocks || {});
+    setSelectedSizes(isFootwearCategory(item.category) ? (attrs.sizes || []) : []);
+    setSizeStocks(isFootwearCategory(item.category) ? (attrs.size_stocks || {}) : {});
     setSpecs(attrs.specs || []);
     const loadedVariants = (attrs.colors || []).map((color: string, idx: number) => ({
       color,
@@ -1949,8 +1955,8 @@ export default function DashboardPage() {
     formData.append("price", newItemPrice);
     formData.append("stock", newItemStock);
     formData.append("category", newItemCategory);
-    const attributes: any = { sizes: selectedSizes, specs: specs };
-    if (Object.keys(sizeStocks).length > 0) {
+    const attributes: any = { sizes: isFootwearCategory(newItemCategory) ? selectedSizes : [], specs: specs };
+    if (isFootwearCategory(newItemCategory) && Object.keys(sizeStocks).length > 0) {
       const parsedSizeStocks: Record<string, number> = {};
       for (const [k, v] of Object.entries(sizeStocks)) {
         parsedSizeStocks[k] = parseInt(v as string) || 0;
@@ -4241,74 +4247,7 @@ export default function DashboardPage() {
                     </div>
                   </div>
 
-                  {newItemCategory === "Clothes" && (
-                    <div className="form-group">
-                      <label className="form-label">Available Sizes</label>
-                      <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-                        {["S", "M", "L", "XL", "XXL"].map(size => (
-                          <button
-                            key={size}
-                            type="button"
-                            onClick={() => {
-                              setSelectedSizes(prev => prev.includes(size) ? prev.filter(s => s !== size) : [...prev, size]);
-                            }}
-                            style={{
-                              padding: '10px 20px',
-                              borderRadius: 12,
-                              border: '1.5px solid',
-                              borderColor: selectedSizes.includes(size) ? '#7c3aed' : '#e2e8f0',
-                              background: selectedSizes.includes(size) ? 'rgba(124,58,237,0.05)' : '#fff',
-                              color: selectedSizes.includes(size) ? '#7c3aed' : '#64748b',
-                              cursor: 'pointer',
-                              fontWeight: 700,
-                              fontSize: 14,
-                              transition: 'all .2s',
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: 8,
-                              boxShadow: selectedSizes.includes(size) ? '0 4px 12px rgba(124,58,237,0.1)' : 'none'
-                            }}
-                          >
-                            {size}
-                            {selectedSizes.includes(size) && (
-                              <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12" /></svg>
-                            )}
-                          </button>
-                        ))}
-                      </div>
-                      {selectedSizes.length > 0 && (
-                        <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 8, background: '#f8fafc', padding: 12, borderRadius: 12, border: '1px solid #e2e8f0' }}>
-                          <label className="form-label" style={{ fontSize: 12, marginBottom: 4 }}>Stock per Size</label>
-                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
-                            {selectedSizes.map(s => (
-                              <div key={s} style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#fff', padding: '4px 8px', borderRadius: 8, border: '1px solid #e2e8f0' }}>
-                                <span style={{ fontWeight: 700, width: 32, fontSize: 14, color: '#0f172a' }}>{s}</span>
-                                <input 
-                                  type="number" 
-                                  min="0" 
-                                  className="form-input" 
-                                  style={{ width: 80, padding: '6px 12px', fontSize: 14, minHeight: 0 }} 
-                                  placeholder="0" 
-                                  value={sizeStocks[s] !== undefined ? sizeStocks[s] : ""}
-                                  onChange={e => {
-                                    const val = e.target.value;
-                                    setSizeStocks(prev => {
-                                      const newStocks = { ...prev, [s]: val };
-                                      const total = Object.values(newStocks).reduce((sum: number, v) => sum + (parseInt(v as string) || 0), 0);
-                                      setNewItemStock(total.toString());
-                                      return newStocks;
-                                    });
-                                  }} 
-                                />
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {newItemCategory === "Shoes" && (
+                  {isFootwearCategory(newItemCategory) && (
                     <div className="form-group">
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
                         <label className="form-label" style={{ marginBottom: 0 }}>Available Shoe Sizes</label>
