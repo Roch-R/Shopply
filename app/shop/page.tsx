@@ -147,6 +147,58 @@ export default function ShopPage() {
   const [isMeetupMapOpen, setIsMeetupMapOpen] = useState(false);
   const [isUserBlockedModalOpen, setIsUserBlockedModalOpen] = useState(false);
 
+  // Buyer Location Detection
+  const [buyerLocation, setBuyerLocation] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem("shopply_buyer_location") || "";
+    }
+    return "";
+  });
+  const [detectingBuyerLoc, setDetectingBuyerLoc] = useState<boolean>(false);
+
+  const detectBuyerLocation = useCallback(() => {
+    if (typeof window === 'undefined' || !navigator.geolocation) return;
+    setDetectingBuyerLoc(true);
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        try {
+          const { latitude, longitude } = pos.coords;
+          const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=12&addressdetails=1`, {
+            headers: { 'Accept-Language': 'en' }
+          });
+          const data = await res.json();
+          const addr = data.address;
+          const city = addr?.city || addr?.town || addr?.municipality || addr?.village || addr?.county || "";
+          const state = addr?.state || addr?.region || "";
+          const locStr = [city, state].filter(Boolean).join(", ");
+          if (locStr) {
+            setBuyerLocation(locStr);
+            localStorage.setItem("shopply_buyer_location", locStr);
+          } else if (data.display_name) {
+            const shortLoc = data.display_name.split(",").slice(0, 2).join(",").trim();
+            setBuyerLocation(shortLoc);
+            localStorage.setItem("shopply_buyer_location", shortLoc);
+          }
+        } catch (e) {
+          console.error("Buyer reverse geocoding failed", e);
+        } finally {
+          setDetectingBuyerLoc(false);
+        }
+      },
+      (err) => {
+        console.warn("Buyer geolocation error or permission denied:", err);
+        setDetectingBuyerLoc(false);
+      },
+      { timeout: 8000, enableHighAccuracy: true }
+    );
+  }, []);
+
+  useEffect(() => {
+    if (!buyerLocation) {
+      detectBuyerLocation();
+    }
+  }, [buyerLocation, detectBuyerLocation]);
+
   useEffect(() => {
     let targetUserId = currentUser?.id ? String(currentUser.id) : null;
     if (!targetUserId && typeof window !== 'undefined') {
@@ -1550,9 +1602,55 @@ export default function ShopPage() {
             <h1 className="title" style={{ position: 'relative', margin: '0 0 16px 0', background: 'linear-gradient(135deg, #0f172a, #475569)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', lineHeight: 1.2 }}>
               Discover Amazing Items
             </h1>
-            <p className="subtitle" style={{ position: 'relative', fontSize: '17px', maxWidth: '600px', color: '#475569' }}>
+            <p className="subtitle" style={{ position: 'relative', fontSize: '17px', maxWidth: '600px', color: '#475569', marginBottom: '14px' }}>
               Browse the latest premium products published by our community. Find exactly what you&apos;re looking for, seamlessly and beautifully.
             </p>
+
+            {/* USER LOCATION DETECTION BAR */}
+            <div style={{
+              position: 'relative',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 8,
+              background: 'rgba(255, 255, 255, 0.95)',
+              backdropFilter: 'blur(8px)',
+              border: '1px solid #e2e8f0',
+              padding: '6px 14px',
+              borderRadius: '20px',
+              fontSize: '13px',
+              color: '#334155',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+              flexWrap: 'wrap'
+            }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontWeight: 700, color: '#7c3aed' }}>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="#ef4444"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                Delivering to:
+              </span>
+              <span style={{ fontWeight: 700, color: '#0f172a' }}>
+                {buyerLocation || (detectingBuyerLoc ? "Detecting location..." : "Philippines")}
+              </span>
+              <button 
+                type="button"
+                onClick={detectBuyerLocation}
+                disabled={detectingBuyerLoc}
+                style={{
+                  background: '#f3e8ff',
+                  border: '1px solid #d8b4fe',
+                  color: '#7c3aed',
+                  fontWeight: 700,
+                  fontSize: '11px',
+                  borderRadius: '12px',
+                  padding: '2px 8px',
+                  cursor: detectingBuyerLoc ? 'wait' : 'pointer',
+                  transition: 'all 0.2s',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 3
+                }}
+              >
+                {detectingBuyerLoc ? "Detecting..." : (buyerLocation ? "Refresh" : "Detect")}
+              </button>
+            </div>
             
             {/* SEARCH INPUT BAR */}
             <div 
@@ -1753,38 +1851,37 @@ export default function ShopPage() {
                       </div>
                     </div>
                     <div className="item-seller" style={{marginTop:12, padding: '8px 12px', background: '#f8fafc', borderRadius: '10px', border: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', gap: '8px'}}>
-                      {item.user.avatar ? (
+                      {item.user?.avatar ? (
                         <img 
                           src={getAvatarUrl(item.user.avatar)} 
-                          alt={item.user.name} 
+                          alt={item.user?.name || "Seller"} 
                           className="seller-avatar" 
-                          style={{objectFit: 'cover', width: '28px', height: '28px', flexShrink: 0}} 
+                          style={{objectFit: 'cover', width: '28px', height: '28px', flexShrink: 0, borderRadius: '50%'}} 
                           onError={(e) => {
                             e.currentTarget.onerror = null;
-                            e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(item.user.name)}&background=e2e8f0&color=64748b&bold=true`;
+                            e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(item.user?.name || "User")}&background=e2e8f0&color=64748b&bold=true`;
                           }}
                         />
                       ) : (
-                        <div className="seller-avatar" style={{width: '28px', height: '28px', flexShrink: 0}}>{item.user.name.charAt(0).toUpperCase()}</div>
+                        <div className="seller-avatar" style={{width: '28px', height: '28px', flexShrink: 0, borderRadius: '50%'}}>{(item.user?.name || "U").charAt(0).toUpperCase()}</div>
                       )}
                       <div style={{display: 'flex', flexDirection: 'column', gap: 1, minWidth: 0, flex: 1}}>
-                        <span style={{color: '#0f172a', fontSize: '13px', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'}}>
-                          {item.user.name}
+                        <span style={{color: '#0f172a', fontSize: '13px', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'}}>
+                          {item.user?.name || "Seller"}
                         </span>
-                        {item.user.location && (
-                          <a 
-                            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.user.location)}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            onClick={(e) => e.stopPropagation()}
-                            style={{display: 'flex', alignItems: 'center', gap: 3, fontSize: 11, color: '#64748b', textDecoration: 'none', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', transition: 'color .2s'}}
-                            onMouseEnter={(e) => (e.currentTarget.style.color = '#7c3aed')}
-                            onMouseLeave={(e) => (e.currentTarget.style.color = '#64748b')}
-                          >
-                            <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" style={{flexShrink: 0}}><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-                            <span style={{overflow: 'hidden', textOverflow: 'ellipsis'}}>{item.user.location}</span>
-                          </a>
-                        )}
+                        <a 
+                          href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.user?.location || "Metro Manila, Philippines")}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          style={{display: 'flex', alignItems: 'center', gap: 3, fontSize: '11px', fontWeight: 600, color: '#475569', textDecoration: 'none', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', transition: 'color .2s'}}
+                          onMouseEnter={(e) => (e.currentTarget.style.color = '#7c3aed')}
+                          onMouseLeave={(e) => (e.currentTarget.style.color = '#475569')}
+                          title="View seller location on Google Maps"
+                        >
+                          <svg width="11" height="11" viewBox="0 0 24 24" fill="#ef4444" style={{flexShrink: 0}}><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                          <span style={{overflow: 'hidden', textOverflow: 'ellipsis'}}>{item.user?.location || "Metro Manila, Philippines"}</span>
+                        </a>
                       </div>
                     </div>
                   </div>
@@ -2173,19 +2270,18 @@ export default function ShopPage() {
                       {viewItem.user.name}
                     </h4>
                     <span className="seller-active-status">Active recently</span>
-                    {viewItem.user.location && (
-                      <a 
-                        href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(viewItem.user.location)}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#64748b', textDecoration: 'none', marginBottom: 6, transition: 'color .2s'}}
-                        onMouseEnter={(e) => (e.currentTarget.style.color = '#7c3aed')}
-                        onMouseLeave={(e) => (e.currentTarget.style.color = '#64748b')}
-                      >
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style={{flexShrink: 0, color: '#ef4444'}}><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-                        {viewItem.user.location}
-                      </a>
-                    )}
+                    <a 
+                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(viewItem.user?.location || "Metro Manila, Philippines")}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 12, fontWeight: 600, color: '#475569', textDecoration: 'none', marginBottom: 6, transition: 'color .2s'}}
+                      onMouseEnter={(e) => (e.currentTarget.style.color = '#7c3aed')}
+                      onMouseLeave={(e) => (e.currentTarget.style.color = '#475569')}
+                      title="View seller location on Google Maps"
+                    >
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="#ef4444" style={{flexShrink: 0}}><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                      {viewItem.user?.location || "Metro Manila, Philippines"}
+                    </a>
                     <div className="seller-actions-row">
                       <button className="seller-btn-chat" onClick={() => {
                         const token = localStorage.getItem("token");

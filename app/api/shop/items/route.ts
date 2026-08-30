@@ -102,9 +102,37 @@ export async function GET() {
       return NextResponse.json({ items: publishedSeeded }, { status: 200 });
     }
 
+    // Default sample locations for sellers who haven't specified one yet
+    const fallbackLocations = [
+      "Cebu City, Cebu",
+      "Metro Manila, Philippines",
+      "Davao City, Davao",
+      "Quezon City, Metro Manila",
+      "Mandaue City, Cebu"
+    ];
+
     const items = snap.docs
-      .map(doc => doc.data())
-      .filter(item => item.is_published === true);
+      .map((docSnap, index) => {
+        const item = docSnap.data();
+        if (item.is_published !== true) return null;
+
+        // Ensure user object and location are present
+        const user = item.user || {};
+        let location = user.location;
+        if (!location) {
+          location = fallbackLocations[index % fallbackLocations.length];
+        }
+
+        return {
+          ...item,
+          user: {
+            ...user,
+            location
+          }
+        };
+      })
+      .filter(Boolean);
+
     return NextResponse.json({ items }, { status: 200 });
 
   } catch (err: any) {
