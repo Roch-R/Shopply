@@ -26,9 +26,10 @@ export async function POST(req: Request) {
         location = locationField.trim() || null;
       }
       const avatarField = formData.get("avatar");
-      if (avatarField && avatarField instanceof File && avatarField.size > 0) {
-        const buffer = Buffer.from(await avatarField.arrayBuffer());
-        avatarBase64 = `data:${avatarField.type};base64,${buffer.toString("base64")}`;
+      if (avatarField && typeof avatarField === "object" && "size" in avatarField && (avatarField as any).size > 0) {
+        const fileObj = avatarField as any;
+        const buffer = Buffer.from(await fileObj.arrayBuffer());
+        avatarBase64 = `data:${fileObj.type || "image/png"};base64,${buffer.toString("base64")}`;
       }
     } else {
       const body = await req.json();
