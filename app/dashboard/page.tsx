@@ -23,6 +23,7 @@ interface User {
   email: string;
   email_verified_at: string | null;
   avatar: string | null;
+  location?: string | null;
   followers_count?: number;
   following_count?: number;
   reviews_count?: number;
@@ -42,6 +43,13 @@ interface ShopItem {
   is_published: boolean;
   category: string;
   attributes: any;
+  location?: string | null;
+  user?: {
+    id: number;
+    name: string;
+    avatar?: string | null;
+    location?: string | null;
+  };
   created_at: string;
 }
 
