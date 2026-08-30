@@ -1,6 +1,7 @@
 // Force recompile
 "use client";
 import { useEffect, useState, useRef } from "react";
+import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import dynamic from "next/dynamic";
@@ -2350,9 +2351,11 @@ export default function DashboardPage() {
         .profile-stat-icon{display:flex;align-items:center;justify-content:center;color:#475569}
         .profile-stat-val{color:#ef4444;font-weight:600}
         
-        .toast{position:fixed;bottom:32px;right:32px;padding:16px 24px;border-radius:12px;
-          color:#fff;font-weight:600;display:flex;align-items:center;gap:12px;z-index:9999;
-          box-shadow:0 10px 30px rgba(0,0,0,.2);animation:slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)}
+        .toast{position:fixed;bottom:32px;right:32px;padding:12px 20px;border-radius:12px;
+          color:#fff;font-weight:600;display:inline-flex;align-items:center;gap:10px;z-index:999999;
+          max-width:380px;width:max-content;height:auto;min-height:auto;line-height:1.4;font-size:14px;
+          box-shadow:0 10px 30px rgba(0,0,0,.25);animation:slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+          pointer-events:auto;box-sizing:border-box}
         .toast.success{background:#10b981}
         .toast.error{background:#ef4444}
         @keyframes slideUp{from{transform:translateY(100%) scale(0.9);opacity:0}to{transform:translateY(0) scale(1);opacity:1}}
@@ -6200,11 +6203,12 @@ export default function DashboardPage() {
         )}
 
         {/* TOAST NOTIFICATION */}
-        {toast && (
+        {toast && typeof window !== 'undefined' && createPortal(
           <div className={`toast ${toast.type}`}>
             {toast.type === 'success' ? <IconCheck /> : <IconWarning />}
-            {toast.message}
-          </div>
+            <span>{toast.message}</span>
+          </div>,
+          document.body
         )}
 
         {/* FULLSCREEN LIGHTBOX IMAGE VIEWER MODAL */}
