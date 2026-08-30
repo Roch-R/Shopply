@@ -376,6 +376,7 @@ export default function ShopPage() {
   const [revImages, setRevImages] = useState<File[]>([]);
   const [revPreviews, setRevPreviews] = useState<string[]>([]);
   const [submittingReview, setSubmittingReview] = useState(false);
+  const [isWritingReview, setIsWritingReview] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [reviewFilter, setReviewFilter] = useState<'all' | 'comment' | 'media'>('all');
 
@@ -2218,26 +2219,67 @@ export default function ShopPage() {
               </div>
 
               <div className="rating-section">
-                <div className="rating-header-row">
-                  <h3 style={{fontSize:18,fontWeight:800,color:'#0f172a'}}>Product Ratings & Reviews</h3>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <h3 style={{ fontSize: 18, fontWeight: 800, color: '#0f172a', margin: 0 }}>Product Ratings & Reviews</h3>
+                    <span style={{ fontSize: 12, fontWeight: 700, background: '#f1f5f9', color: '#64748b', padding: '2px 8px', borderRadius: 20 }}>
+                      {reviews.length}
+                    </span>
+                  </div>
+                  {!isWritingReview && (!currentUser || !reviews.some(rev => rev.user?.id === currentUser.id)) && (
+                    <button 
+                      onClick={() => {
+                        const token = localStorage.getItem("token");
+                        if (!token) {
+                          setErrorMsg("Please log in to write a review.");
+                          return;
+                        }
+                        setIsWritingReview(true);
+                      }}
+                      style={{
+                        padding: '8px 16px',
+                        borderRadius: 10,
+                        border: '1px solid #7c3aed',
+                        background: '#f5f3ff',
+                        color: '#7c3aed',
+                        fontSize: 13,
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 6,
+                        transition: 'all .2s'
+                      }}
+                    >
+                      <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                      Write a Review
+                    </button>
+                  )}
                 </div>
 
                 <div className="rating-summary">
-                  <div style={{textAlign:'center'}}>
-                    <div className="big-rating">
-                      {reviews.length > 0 
-                        ? (reviews.reduce((acc, r) => acc + Number(r.rating), 0) / reviews.length).toFixed(1) 
-                        : "0.0"} 
-                      <span style={{fontSize:16,color:'#94a3b8',fontWeight:500}}> out of 5</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                    <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
+                      <span className="big-rating">
+                        {reviews.length > 0 
+                          ? (reviews.reduce((acc, r) => acc + Number(r.rating), 0) / reviews.length).toFixed(1) 
+                          : "0.0"}
+                      </span>
+                      <span style={{ fontSize: 13, color: '#94a3b8', fontWeight: 600 }}>/ 5.0</span>
                     </div>
-                    <StarRating rating={Math.round(reviews.reduce((acc, r) => acc + Number(r.rating), 0) / (reviews.length || 1))} size={24} />
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                      <StarRating rating={Math.round(reviews.reduce((acc, r) => acc + Number(r.rating), 0) / (reviews.length || 1))} size={16} />
+                      <span style={{ fontSize: 12, color: '#64748b', fontWeight: 500 }}>
+                        {reviews.length} {reviews.length === 1 ? "Rating" : "Ratings"}
+                      </span>
+                    </div>
                   </div>
                   <div className="review-filters">
                     <button 
                       className={`rev-filter ${reviewFilter === 'all' ? 'active' : ''}`}
                       onClick={() => setReviewFilter('all')}
                     >
-                      All
+                      All ({reviews.length})
                     </button>
                     <button 
                       className={`rev-filter ${reviewFilter === 'comment' ? 'active' : ''}`}
@@ -2249,80 +2291,116 @@ export default function ShopPage() {
                       className={`rev-filter ${reviewFilter === 'media' ? 'active' : ''}`}
                       onClick={() => setReviewFilter('media')}
                     >
-                      With Media ({reviews.filter(r => r.images && r.images.length > 0).length})
+                      With Photos ({reviews.filter(r => r.images && r.images.length > 0).length})
                     </button>
                   </div>
                 </div>
 
                 {/* WRITE A REVIEW FORM */}
-                {currentUser && reviews.some(rev => rev.user?.id === currentUser.id) ? (
-                  <div style={{background:'#f0fdf4',borderRadius:20,padding:24,marginBottom:40,border:'1.5px solid #bbf7d0',display:'flex',alignItems:'center',gap:12,color:'#166534'}}>
-                    <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{flexShrink:0}}>
-                      <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                    <span style={{fontSize:14,fontWeight:600}}>You have already submitted a review for this product. Thank you!</span>
-                  </div>
-                ) : (
-                  <div style={{background:'#f8fafc',borderRadius:20,padding:24,marginBottom:40,border:'1.5px dashed #e2e8f0'}}>
-                    <h4 style={{fontSize:15,fontWeight:700,color:'#0f172a',marginBottom:16}}>Share your experience</h4>
-                    <form onSubmit={handleSubmitReview}>
-                      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:20}}>
-                        <span style={{fontSize:13,fontWeight:600,color:'#64748b'}}>Your Rating:</span>
-                        <div style={{display:'flex',gap:4}}>
-                          {[1,2,3,4,5].map(star => (
+                {isWritingReview && (
+                  <div style={{ background: '#fff', borderRadius: 16, padding: 20, marginBottom: 24, border: '1.5px solid #7c3aed', boxShadow: '0 8px 24px rgba(124,58,237,0.08)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                      <h4 style={{ fontSize: 15, fontWeight: 700, color: '#0f172a', margin: 0 }}>Share Your Experience</h4>
+                      <button 
+                        type="button" 
+                        onClick={() => setIsWritingReview(false)} 
+                        style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', fontSize: 18, padding: 4 }}
+                      >
+                        ✕
+                      </button>
+                    </div>
+                    <form onSubmit={async (e) => {
+                      await handleSubmitReview(e);
+                      setIsWritingReview(false);
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14, flexWrap: 'wrap' }}>
+                        <span style={{ fontSize: 13, fontWeight: 600, color: '#64748b' }}>Your Rating:</span>
+                        <div style={{ display: 'flex', gap: 4 }}>
+                          {[1, 2, 3, 4, 5].map(star => (
                             <button 
                               key={star} 
                               type="button" 
                               onClick={() => setRevRating(star)}
-                              style={{background:'none',border:'none',cursor:'pointer',color:star <= revRating ? '#f59e0b' : '#cbd5e1',padding:0}}
+                              style={{ background: 'none', border: 'none', cursor: 'pointer', color: star <= revRating ? '#f59e0b' : '#cbd5e1', padding: 2 }}
                             >
-                              <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                              <svg width="22" height="22" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.27 5.82 22 7 14.14l-5-4.87 6.91-1.01L12 2z"/>
                               </svg>
                             </button>
                           ))}
                         </div>
+                        <span style={{ fontSize: 12, fontWeight: 700, color: '#f59e0b' }}>
+                          {revRating === 5 ? "5/5 - Excellent" : revRating === 4 ? "4/5 - Good" : revRating === 3 ? "3/5 - Average" : revRating === 2 ? "2/5 - Poor" : "1/5 - Terrible"}
+                        </span>
                       </div>
                       
                       <textarea 
                         className="form-input" 
-                        placeholder="Write your honest review here..." 
+                        placeholder="What did you like or dislike about this product?" 
                         value={revComment} 
                         onChange={e => setRevComment(e.target.value)}
-                        style={{width:'100%',minHeight:100,marginBottom:16,padding:16,borderRadius:12,resize:'none'}}
+                        style={{ width: '100%', minHeight: 90, marginBottom: 14, padding: '12px 14px', borderRadius: 10, resize: 'vertical', fontSize: 13, border: '1px solid #e2e8f0', background: '#f8fafc' }}
                       />
 
-                      <div style={{marginBottom:20}}>
-                        <label className="variant-section-label">Add Photos</label>
-                        <div style={{display:'flex',gap:12,flexWrap:'wrap'}}>
+                      <div style={{ marginBottom: 16 }}>
+                        <label style={{ fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 8, display: 'block' }}>Add Photos (optional)</label>
+                        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
                           {revPreviews.map((p, i) => (
-                            <img key={i} src={p} style={{width:60,height:60,borderRadius:8,objectFit:'cover'}} />
+                            <div key={i} style={{ position: 'relative' }}>
+                              <img src={p} style={{ width: 56, height: 56, borderRadius: 8, objectFit: 'cover', border: '1px solid #e2e8f0' }} />
+                            </div>
                           ))}
                           <button 
                             type="button" 
                             onClick={() => document.getElementById('rev-img-input')?.click()}
-                            style={{width:60,height:60,borderRadius:8,border:'1.5px dashed #cbd5e1',background:'#fff',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',color:'#94a3b8'}}
+                            style={{ width: 56, height: 56, borderRadius: 8, border: '1.5px dashed #cbd5e1', background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#64748b', fontSize: 20 }}
                           >
-                            <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+                            +
                           </button>
-                          <input id="rev-img-input" type="file" multiple accept="image/*" style={{display:'none'}} onChange={handleReviewImageChange} />
+                          <input id="rev-img-input" type="file" multiple accept="image/*" style={{ display: 'none' }} onChange={handleReviewImageChange} />
                         </div>
                       </div>
 
-                      <button 
-                        type="submit" 
-                        disabled={submittingReview}
-                        style={{width:'100%',padding:'14px',borderRadius:12,border:'none',background:'#0f172a',color:'#fff',fontWeight:700,cursor:'pointer',opacity:submittingReview ? 0.7 : 1}}
-                      >
-                        {submittingReview ? "Submitting..." : "Submit Review"}
-                      </button>
+                      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
+                        <button 
+                          type="button" 
+                          onClick={() => setIsWritingReview(false)}
+                          style={{ padding: '8px 18px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', color: '#64748b', fontWeight: 600, fontSize: 13, cursor: 'pointer' }}
+                        >
+                          Cancel
+                        </button>
+                        <button 
+                          type="submit" 
+                          disabled={submittingReview}
+                          style={{ padding: '8px 24px', borderRadius: 8, border: 'none', background: 'linear-gradient(135deg, #7c3aed, #6d28d9)', color: '#fff', fontWeight: 700, fontSize: 13, cursor: 'pointer', boxShadow: '0 2px 8px rgba(124,58,237,0.25)', opacity: submittingReview ? 0.7 : 1 }}
+                        >
+                          {submittingReview ? "Submitting..." : "Submit Review"}
+                        </button>
+                      </div>
                     </form>
                   </div>
                 )}
 
+                {currentUser && reviews.some(rev => rev.user?.id === currentUser.id) && (
+                  <div style={{ background: '#f0fdf4', borderRadius: 12, padding: '12px 16px', marginBottom: 20, border: '1px solid #bbf7d0', display: 'flex', alignItems: 'center', gap: 10, color: '#166534' }}>
+                    <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ flexShrink: 0 }}>
+                      <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    <span style={{ fontSize: 13, fontWeight: 600 }}>You have submitted a review for this product. Thank you!</span>
+                  </div>
+                )}
+
                 {filteredReviews.length === 0 ? (
-                  <div style={{textAlign:'center',padding:'40px 0',color:'#94a3b8'}}>
-                    <p>{reviewFilter === 'all' ? "No reviews yet. Be the first to review this product!" : "No reviews match the selected filter."}</p>
+                  <div style={{ textAlign: 'center', padding: '36px 20px', background: '#f8fafc', borderRadius: 16, border: '1px dashed #e2e8f0' }}>
+                    <div style={{ width: 44, height: 44, borderRadius: '50%', background: '#f1f5f9', color: '#94a3b8', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px', fontSize: 20 }}>
+                      💬
+                    </div>
+                    <p style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', margin: '0 0 4px' }}>
+                      {reviewFilter === 'all' ? "No reviews yet for this product" : "No reviews match the selected filter"}
+                    </p>
+                    <p style={{ fontSize: 12, color: '#64748b', margin: 0 }}>
+                      {reviewFilter === 'all' ? "Be the first to share your thoughts and help others!" : "Try selecting 'All' to view all customer reviews."}
+                    </p>
                   </div>
                 ) : (
                   <div className="reviews-scroll-container">
