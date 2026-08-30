@@ -54,6 +54,7 @@ export function formatUser(userData: any): any {
     email: userData.email || null,
     phone: userData.phone || null,
     avatar: userData.avatar || null,
+    location: userData.location || null,
     followers_count: userData.followers_count || 0,
     following_count: userData.following_count || 0,
     reviews_count: userData.reviews_count || 0,

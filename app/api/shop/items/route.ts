@@ -28,7 +28,8 @@ const seededItems = [
       items_count: 3,
       reviews_count: 15,
       followers_count: 120,
-      is_online: true
+      is_online: true,
+      location: "Cebu City, Cebu"
     },
     created_at: new Date().toISOString()
   },
@@ -53,7 +54,8 @@ const seededItems = [
       items_count: 1,
       reviews_count: 8,
       followers_count: 85,
-      is_online: false
+      is_online: false,
+      location: "Manila, Metro Manila"
     },
     created_at: new Date().toISOString()
   },
@@ -78,7 +80,8 @@ const seededItems = [
       items_count: 2,
       reviews_count: 24,
       followers_count: 340,
-      is_online: true
+      is_online: true,
+      location: "Davao City, Davao"
     },
     created_at: new Date().toISOString()
   }
@@ -132,7 +135,8 @@ export async function POST(req: Request) {
         id: user.id,
         name: user.name || "",
         avatar: user.avatar || "",
-        is_online: true
+        is_online: true,
+        location: user.location || null
       },
       created_at: new Date().toISOString()
     };

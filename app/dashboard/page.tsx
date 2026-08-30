@@ -340,6 +340,19 @@ export default function DashboardPage() {
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [updatingProfile, setUpdatingProfile] = useState(false);
+  const [profileLocation, setProfileLocation] = useState(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = localStorage.getItem("user") || localStorage.getItem("shopply_user");
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          return parsed.location || "";
+        }
+      } catch (e) {}
+    }
+    return "";
+  });
+  const [detectingLocation, setDetectingLocation] = useState(false);
 
   // Smooth mode state
   const [smoothMode, setSmoothMode] = useState(() => {
@@ -1679,6 +1692,7 @@ export default function DashboardPage() {
 
     const formData = new FormData();
     formData.append("name", profileName);
+    formData.append("location", profileLocation);
     if (avatarFile) {
       formData.append("avatar", avatarFile);
     }
@@ -3067,6 +3081,97 @@ export default function DashboardPage() {
                           value={profileName}
                           onChange={(e) => setProfileName(e.target.value)}
                         />
+                      </div>
+
+                      <div className="form-group">
+                        <label className="form-label">Location</label>
+                        <div style={{ display: 'flex', gap: 8 }}>
+                          <input
+                            type="text"
+                            className="form-input"
+                            placeholder="e.g. Cebu City, Cebu"
+                            value={profileLocation}
+                            onChange={(e) => setProfileLocation(e.target.value)}
+                            style={{ flex: 1 }}
+                          />
+                          <button
+                            type="button"
+                            disabled={detectingLocation}
+                            onClick={async () => {
+                              if (!navigator.geolocation) {
+                                showToast("Geolocation is not supported by your browser.", "error");
+                                return;
+                              }
+                              setDetectingLocation(true);
+                              navigator.geolocation.getCurrentPosition(
+                                async (position) => {
+                                  try {
+                                    const { latitude, longitude } = position.coords;
+                                    const res = await fetch(
+                                      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=12&addressdetails=1`,
+                                      { headers: { 'Accept-Language': 'en' } }
+                                    );
+                                    const data = await res.json();
+                                    const addr = data.address;
+                                    const city = addr?.city || addr?.town || addr?.municipality || addr?.village || addr?.county || "";
+                                    const state = addr?.state || addr?.region || "";
+                                    const locationStr = [city, state].filter(Boolean).join(", ");
+                                    if (locationStr) {
+                                      setProfileLocation(locationStr);
+                                      showToast(`Location detected: ${locationStr}`, "success");
+                                    } else {
+                                      setProfileLocation(data.display_name?.split(",").slice(0, 2).join(",").trim() || "");
+                                      showToast("Location detected!", "success");
+                                    }
+                                  } catch (err) {
+                                    console.error("Reverse geocoding error:", err);
+                                    showToast("Could not determine your location name.", "error");
+                                  } finally {
+                                    setDetectingLocation(false);
+                                  }
+                                },
+                                (err) => {
+                                  console.error("Geolocation error:", err);
+                                  setDetectingLocation(false);
+                                  if (err.code === 1) {
+                                    showToast("Location access denied. Please allow location in your browser settings.", "error");
+                                  } else {
+                                    showToast("Could not get your location. Please enter it manually.", "error");
+                                  }
+                                },
+                                { enableHighAccuracy: true, timeout: 10000 }
+                              );
+                            }}
+                            style={{
+                              padding: '8px 14px',
+                              borderRadius: 8,
+                              border: '1px solid #7c3aed',
+                              background: detectingLocation ? '#e9d5ff' : '#f5f3ff',
+                              color: '#7c3aed',
+                              fontSize: 12,
+                              fontWeight: 700,
+                              cursor: detectingLocation ? 'wait' : 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 5,
+                              whiteSpace: 'nowrap',
+                              transition: 'all .2s'
+                            }}
+                          >
+                            {detectingLocation ? (
+                              <>
+                                <svg width="14" height="14" viewBox="0 0 24 24" style={{ animation: 'spin 1s linear infinite' }}><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" fill="none" strokeDasharray="31.42" strokeLinecap="round"/></svg>
+                                Detecting...
+                              </>
+                            ) : (
+                              <>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                                Detect
+                              </>
+                            )}
+                          </button>
+                        </div>
+                        <p style={{ fontSize: 11, color: '#94a3b8', marginTop: 4 }}>This will be shown on your product listings</p>
                       </div>
 
                       <button type="submit" className="submit-btn" disabled={updatingProfile}>

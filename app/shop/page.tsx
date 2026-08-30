@@ -40,6 +40,7 @@ interface ShopItem {
     total_orders?: number;
     accepted_orders?: number;
     is_online?: boolean | number;
+    location?: string | null;
   };
   created_at: string;
 }
@@ -1766,9 +1767,25 @@ export default function ShopPage() {
                       ) : (
                         <div className="seller-avatar" style={{width: '28px', height: '28px', flexShrink: 0}}>{item.user.name.charAt(0).toUpperCase()}</div>
                       )}
-                      <span style={{color: '#0f172a', fontSize: '13px', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'}}>
-                        {item.user.name}
-                      </span>
+                      <div style={{display: 'flex', flexDirection: 'column', gap: 1, minWidth: 0, flex: 1}}>
+                        <span style={{color: '#0f172a', fontSize: '13px', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'}}>
+                          {item.user.name}
+                        </span>
+                        {item.user.location && (
+                          <a 
+                            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.user.location)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(e) => e.stopPropagation()}
+                            style={{display: 'flex', alignItems: 'center', gap: 3, fontSize: 11, color: '#64748b', textDecoration: 'none', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', transition: 'color .2s'}}
+                            onMouseEnter={(e) => (e.currentTarget.style.color = '#7c3aed')}
+                            onMouseLeave={(e) => (e.currentTarget.style.color = '#64748b')}
+                          >
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" style={{flexShrink: 0}}><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                            <span style={{overflow: 'hidden', textOverflow: 'ellipsis'}}>{item.user.location}</span>
+                          </a>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -2156,6 +2173,19 @@ export default function ShopPage() {
                       {viewItem.user.name}
                     </h4>
                     <span className="seller-active-status">Active recently</span>
+                    {viewItem.user.location && (
+                      <a 
+                        href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(viewItem.user.location)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#64748b', textDecoration: 'none', marginBottom: 6, transition: 'color .2s'}}
+                        onMouseEnter={(e) => (e.currentTarget.style.color = '#7c3aed')}
+                        onMouseLeave={(e) => (e.currentTarget.style.color = '#64748b')}
+                      >
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style={{flexShrink: 0, color: '#ef4444'}}><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                        {viewItem.user.location}
+                      </a>
+                    )}
                     <div className="seller-actions-row">
                       <button className="seller-btn-chat" onClick={() => {
                         const token = localStorage.getItem("token");
