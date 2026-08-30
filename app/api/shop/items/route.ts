@@ -3,6 +3,8 @@ import { db } from "@/lib/firebase";
 import { collection, getDocs, doc, setDoc, addDoc } from "firebase/firestore";
 import { getAuthUser } from "@/lib/db";
 
+export const dynamic = "force-dynamic";
+
 // Seed data to populate empty Firestore database
 const seededItems = [
   {

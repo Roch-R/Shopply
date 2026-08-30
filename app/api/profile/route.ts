@@ -3,6 +3,8 @@ import { db } from "@/lib/firebase";
 import { doc, setDoc, getDoc } from "firebase/firestore";
 import { getAuthUser, formatUser } from "@/lib/db";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(req: Request) {
   try {
     const user = await getAuthUser(req);

@@ -4,6 +4,8 @@ import { collection, getDocs, doc, setDoc, query, where } from "firebase/firesto
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { getAuthUser } from "@/lib/db";
 
+export const dynamic = "force-dynamic";
+
 // Safe helper to upload a File to Firebase Storage with base64 data URL fallback if storage is locked
 async function uploadFile(file: File, folder: string): Promise<string> {
   try {

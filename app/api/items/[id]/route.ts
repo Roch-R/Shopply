@@ -4,6 +4,8 @@ import { doc, getDoc, updateDoc, setDoc, deleteDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { getAuthUser } from "@/lib/db";
 
+export const dynamic = "force-dynamic";
+
 // Helper to upload a File to Firebase Storage
 async function uploadFile(file: File, folder: string): Promise<string> {
   const bytes = await file.arrayBuffer();
