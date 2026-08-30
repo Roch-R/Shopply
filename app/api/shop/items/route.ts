@@ -102,26 +102,13 @@ export async function GET() {
       return NextResponse.json({ items: publishedSeeded }, { status: 200 });
     }
 
-    // Default sample locations for sellers who haven't specified one yet
-    const fallbackLocations = [
-      "Cebu City, Cebu",
-      "Metro Manila, Philippines",
-      "Davao City, Davao",
-      "Quezon City, Metro Manila",
-      "Mandaue City, Cebu"
-    ];
-
     const items = snap.docs
-      .map((docSnap, index) => {
+      .map((docSnap) => {
         const item = docSnap.data();
         if (item.is_published !== true) return null;
 
-        // Ensure user object and location are present
         const user = item.user || {};
-        let location = user.location;
-        if (!location) {
-          location = fallbackLocations[index % fallbackLocations.length];
-        }
+        const location = item.location || user.location || null;
 
         return {
           ...item,
@@ -152,6 +139,8 @@ export async function POST(req: Request) {
     const itemId = Date.now(); // numeric ID
     const itemDocRef = doc(db, "items", String(itemId));
 
+    const itemLocation = payload.location || user.location || null;
+
     const newItem = {
       ...payload,
       id: itemId,
@@ -159,12 +148,13 @@ export async function POST(req: Request) {
       reviews_count: 0,
       reviews_avg_rating: 0.0,
       sold_count: 0,
+      location: itemLocation,
       user: {
         id: user.id,
         name: user.name || "",
         avatar: user.avatar || "",
         is_online: true,
-        location: user.location || null
+        location: itemLocation
       },
       created_at: new Date().toISOString()
     };

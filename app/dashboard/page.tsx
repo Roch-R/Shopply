@@ -1118,6 +1118,8 @@ export default function DashboardPage() {
   const [newColorPreview, setNewColorPreview] = useState<string | null>(null);
   const [showCustomPicker, setShowCustomPicker] = useState(false);
   const [editingItem, setEditingItem] = useState<ShopItem | null>(null);
+  const [newItemLocation, setNewItemLocation] = useState("");
+  const [detectingItemLoc, setDetectingItemLoc] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [deleteModal, setDeleteModal] = useState<number | null>(null);
   const [rejectOrderModal, setRejectOrderModal] = useState<number | null>(null);
@@ -1786,6 +1788,7 @@ export default function DashboardPage() {
     formData.append("price", newItemPrice);
     formData.append("stock", newItemStock);
     formData.append("category", newItemCategory);
+    formData.append("location", newItemLocation || user?.location || "");
     const attributes: any = { sizes: isFootwearCategory(newItemCategory) ? selectedSizes : [], specs: specs };
     if (isFootwearCategory(newItemCategory) && Object.keys(sizeStocks).length > 0) {
       const parsedSizeStocks: Record<string, number> = {};
@@ -1920,6 +1923,7 @@ export default function DashboardPage() {
     setNewItemPrice(item.price);
     setNewItemStock(item.stock?.toString() || "1");
     setNewItemCategory(item.category || "Clothes");
+    setNewItemLocation((item as any).location || item.user?.location || "");
     
     // Parse attributes properly
     const attrs = typeof item.attributes === "string" ? JSON.parse(item.attributes) : (item.attributes || {});
@@ -1969,6 +1973,7 @@ export default function DashboardPage() {
     formData.append("price", newItemPrice);
     formData.append("stock", newItemStock);
     formData.append("category", newItemCategory);
+    formData.append("location", newItemLocation || user?.location || "");
     const attributes: any = { sizes: isFootwearCategory(newItemCategory) ? selectedSizes : [], specs: specs };
     if (isFootwearCategory(newItemCategory) && Object.keys(sizeStocks).length > 0) {
       const parsedSizeStocks: Record<string, number> = {};
@@ -4350,6 +4355,98 @@ export default function DashboardPage() {
                       <label className="form-label">Price (₱) *</label>
                       <input type="number" step="0.01" className="form-input" placeholder="0.00" value={newItemPrice} onChange={e => setNewItemPrice(e.target.value)} required />
                     </div>
+                  </div>
+
+                  <div className="form-group" style={{ marginBottom: 18 }}>
+                    <label className="form-label">Product / Store Location</label>
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <input 
+                        type="text" 
+                        className="form-input" 
+                        placeholder="e.g. Toledo City, Cebu" 
+                        value={newItemLocation} 
+                        onChange={e => setNewItemLocation(e.target.value)} 
+                        style={{ flex: 1 }}
+                      />
+                      <button
+                        type="button"
+                        disabled={detectingItemLoc}
+                        onClick={async () => {
+                          if (!navigator.geolocation) {
+                            showToast("Geolocation is not supported by your browser.", "error");
+                            return;
+                          }
+                          setDetectingItemLoc(true);
+                          navigator.geolocation.getCurrentPosition(
+                            async (position) => {
+                              try {
+                                const { latitude, longitude } = position.coords;
+                                const res = await fetch(
+                                  `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=12&addressdetails=1`,
+                                  { headers: { 'Accept-Language': 'en' } }
+                                );
+                                const data = await res.json();
+                                const addr = data.address;
+                                const city = addr?.city || addr?.town || addr?.municipality || addr?.village || addr?.county || "";
+                                const state = addr?.state || addr?.region || "";
+                                const locationStr = [city, state].filter(Boolean).join(", ");
+                                if (locationStr) {
+                                  setNewItemLocation(locationStr);
+                                  showToast(`Real Location detected: ${locationStr}`, "success");
+                                } else {
+                                  const fallbackStr = data.display_name?.split(",").slice(0, 2).join(",").trim() || "";
+                                  setNewItemLocation(fallbackStr);
+                                  showToast("Location detected!", "success");
+                                }
+                              } catch (err) {
+                                console.error("Reverse geocoding error:", err);
+                                showToast("Could not determine your location name.", "error");
+                              } finally {
+                                setDetectingItemLoc(false);
+                              }
+                            },
+                            (err) => {
+                              console.error("Geolocation error:", err);
+                              setDetectingItemLoc(false);
+                              if (err.code === 1) {
+                                showToast("Location access denied. Please allow location in browser settings.", "error");
+                              } else {
+                                showToast("Could not get GPS location. Please enter it manually.", "error");
+                              }
+                            },
+                            { enableHighAccuracy: true, timeout: 10000 }
+                          );
+                        }}
+                        style={{
+                          padding: '8px 14px',
+                          borderRadius: 8,
+                          border: '1px solid #7c3aed',
+                          background: detectingItemLoc ? '#e9d5ff' : '#f5f3ff',
+                          color: '#7c3aed',
+                          fontSize: 12,
+                          fontWeight: 700,
+                          cursor: detectingItemLoc ? 'wait' : 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 5,
+                          whiteSpace: 'nowrap',
+                          transition: 'all .2s'
+                        }}
+                      >
+                        {detectingItemLoc ? (
+                          <>
+                            <svg width="14" height="14" viewBox="0 0 24 24" style={{ animation: 'spin 1s linear infinite' }}><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" fill="none" strokeDasharray="31.42" strokeLinecap="round"/></svg>
+                            Detecting...
+                          </>
+                        ) : (
+                          <>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                            📍 Detect Real GPS
+                          </>
+                        )}
+                      </button>
+                    </div>
+                    <p style={{ fontSize: 11, color: '#94a3b8', marginTop: 4 }}>This real location will be displayed on the card in the marketplace.</p>
                   </div>
 
                   {isFootwearCategory(newItemCategory) && (

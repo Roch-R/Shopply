@@ -142,6 +142,8 @@ export async function POST(req: Request) {
     const itemId = Date.now();
     const itemDocRef = doc(db, "items", String(itemId));
 
+    const location = (formData.get("location") as string) || user.location || null;
+
     const newItem = {
       id: itemId,
       name,
@@ -152,6 +154,7 @@ export async function POST(req: Request) {
       image: mainImageUrl,
       is_published: true,
       attributes,
+      location,
       reviews_count: 0,
       reviews_avg_rating: 0.0,
       sold_count: 0,
@@ -159,7 +162,8 @@ export async function POST(req: Request) {
         id: Number(user.id),
         name: user.name || "",
         avatar: user.avatar || "",
-        is_online: true
+        is_online: true,
+        location
       },
       created_at: new Date().toISOString()
     };

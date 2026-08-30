@@ -1869,19 +1869,26 @@ export default function ShopPage() {
                         <span style={{color: '#0f172a', fontSize: '13px', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'}}>
                           {item.user?.name || "Seller"}
                         </span>
-                        <a 
-                          href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.user?.location || "Metro Manila, Philippines")}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={(e) => e.stopPropagation()}
-                          style={{display: 'flex', alignItems: 'center', gap: 3, fontSize: '11px', fontWeight: 600, color: '#475569', textDecoration: 'none', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', transition: 'color .2s'}}
-                          onMouseEnter={(e) => (e.currentTarget.style.color = '#7c3aed')}
-                          onMouseLeave={(e) => (e.currentTarget.style.color = '#475569')}
-                          title="View seller location on Google Maps"
-                        >
-                          <svg width="11" height="11" viewBox="0 0 24 24" fill="#ef4444" style={{flexShrink: 0}}><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-                          <span style={{overflow: 'hidden', textOverflow: 'ellipsis'}}>{item.user?.location || "Metro Manila, Philippines"}</span>
-                        </a>
+                        {item.user?.location ? (
+                          <a 
+                            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.user.location)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(e) => e.stopPropagation()}
+                            style={{display: 'flex', alignItems: 'center', gap: 3, fontSize: '11px', fontWeight: 600, color: '#475569', textDecoration: 'none', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', transition: 'color .2s'}}
+                            onMouseEnter={(e) => (e.currentTarget.style.color = '#7c3aed')}
+                            onMouseLeave={(e) => (e.currentTarget.style.color = '#475569')}
+                            title="View real seller location on Google Maps"
+                          >
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="#ef4444" style={{flexShrink: 0}}><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                            <span style={{overflow: 'hidden', textOverflow: 'ellipsis'}}>{item.user.location}</span>
+                          </a>
+                        ) : (
+                          <span style={{display: 'flex', alignItems: 'center', gap: 3, fontSize: '11px', color: '#94a3b8'}}>
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="#cbd5e1" style={{flexShrink: 0}}><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                            <span style={{overflow: 'hidden', textOverflow: 'ellipsis'}}>Location not set</span>
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -2270,18 +2277,25 @@ export default function ShopPage() {
                       {viewItem.user.name}
                     </h4>
                     <span className="seller-active-status">Active recently</span>
-                    <a 
-                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(viewItem.user?.location || "Metro Manila, Philippines")}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 12, fontWeight: 600, color: '#475569', textDecoration: 'none', marginBottom: 6, transition: 'color .2s'}}
-                      onMouseEnter={(e) => (e.currentTarget.style.color = '#7c3aed')}
-                      onMouseLeave={(e) => (e.currentTarget.style.color = '#475569')}
-                      title="View seller location on Google Maps"
-                    >
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="#ef4444" style={{flexShrink: 0}}><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-                      {viewItem.user?.location || "Metro Manila, Philippines"}
-                    </a>
+                    {viewItem.user?.location ? (
+                      <a 
+                        href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(viewItem.user.location)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 12, fontWeight: 600, color: '#475569', textDecoration: 'none', marginBottom: 6, transition: 'color .2s'}}
+                        onMouseEnter={(e) => (e.currentTarget.style.color = '#7c3aed')}
+                        onMouseLeave={(e) => (e.currentTarget.style.color = '#475569')}
+                        title="View real seller location on Google Maps"
+                      >
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="#ef4444" style={{flexShrink: 0}}><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                        {viewItem.user.location}
+                      </a>
+                    ) : (
+                      <span style={{display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#94a3b8', marginBottom: 6}}>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="#cbd5e1" style={{flexShrink: 0}}><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                        Location not set by seller
+                      </span>
+                    )}
                     <div className="seller-actions-row">
                       <button className="seller-btn-chat" onClick={() => {
                         const token = localStorage.getItem("token");

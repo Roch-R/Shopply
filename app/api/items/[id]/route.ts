@@ -115,6 +115,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     attributes.variant_image_paths = finalVariantPaths;
     delete attributes.existing_variant_paths;
 
+    const location = (formData.get("location") as string) || itemData.location || user.location || null;
+
     const updatedItem = {
       ...itemData,
       name,
@@ -123,7 +125,9 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       stock,
       category,
       image: mainImageUrl,
-      attributes
+      attributes,
+      location,
+      "user.location": location
     };
 
     await updateDoc(itemDocRef, updatedItem);
