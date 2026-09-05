@@ -33,8 +33,10 @@ function GoogleCallbackContent() {
 
     async function authenticate() {
       try {
+        const redirect_uri = window.location.origin + "/auth/google/callback";
         const data = await apiGoogleAuth({
           code,
+          redirect_uri,
           simulated_email,
           simulated_name,
           simulated_avatar,

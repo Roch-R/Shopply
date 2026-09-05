@@ -120,6 +120,7 @@ export async function apiLogout(): Promise<void> {
 
 export async function apiGoogleAuth(payload: {
   code?: string | null;
+  redirect_uri?: string | null;
   simulated_email?: string | null;
   simulated_name?: string | null;
   simulated_avatar?: string | null;

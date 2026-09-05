@@ -1,18 +1,37 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/firebase";
-import { collection, query, where, getDocs, doc, setDoc, updateDoc } from "firebase/firestore";
+import { collection, query, where, getDocs, doc, setDoc } from "firebase/firestore";
 import { generateToken, formatUser, hashPassword } from "@/lib/db";
+
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 
 const GOOGLE_CLIENT_ID = "10342567270-6b7rfni3mbil5anjo1fk1u9c9eo4mp6l.apps.googleusercontent.com";
 const GOOGLE_CLIENT_SECRET = "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";
 
+// Safely parse Google OpenID JWT ID Token (delivered directly from Google's token endpoint over HTTPS)
+function parseIdToken(idToken: string): any | null {
+  try {
+    const parts = idToken.split(".");
+    if (parts.length < 2) return null;
+    const base64Url = parts[1];
+    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+    const jsonStr = Buffer.from(base64, "base64").toString("utf-8");
+    return JSON.parse(jsonStr);
+  } catch (err) {
+    console.warn("[google-callback] Failed to parse id_token:", err);
+    return null;
+  }
+}
+
 export async function POST(req: Request) {
   try {
-    const { code, simulated_email, simulated_name, simulated_avatar } = await req.json();
+    const body = await req.json();
+    const { code, redirect_uri, simulated_email, simulated_name, simulated_avatar } = body;
 
-    let email = null;
-    let name = null;
-    let avatar = null;
+    let email: string | null = null;
+    let name: string | null = null;
+    let avatar: string | null = null;
 
     if (code) {
       if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
@@ -21,9 +40,11 @@ export async function POST(req: Request) {
         }, { status: 500 });
       }
 
-      // Determine redirect URI
+      // Determine redirect URI - prefer the one sent by the client to match exactly
       const origin = req.headers.get("origin") || "https://shopply-nine.vercel.app";
-      const redirectUri = `${origin}/auth/google/callback`;
+      const finalRedirectUri = redirect_uri || `${origin}/auth/google/callback`;
+
+      console.log("[google-callback] Exchanging code with redirect_uri:", finalRedirectUri);
 
       // Exchange authorization code for tokens
       const tokenRes = await fetch("https://oauth2.googleapis.com/token", {
@@ -32,7 +53,7 @@ export async function POST(req: Request) {
         body: new URLSearchParams({
           client_id: GOOGLE_CLIENT_ID,
           client_secret: GOOGLE_CLIENT_SECRET,
-          redirect_uri: redirectUri,
+          redirect_uri: finalRedirectUri,
           grant_type: "authorization_code",
           code
         })
@@ -40,6 +61,7 @@ export async function POST(req: Request) {
 
       if (!tokenRes.ok) {
         const errDetails = await tokenRes.text();
+        console.error("[google-callback] Token exchange error:", errDetails);
         return NextResponse.json({ 
           message: `Failed to exchange Google authorization code. Details: ${errDetails}` 
         }, { status: 400 });
@@ -47,20 +69,54 @@ export async function POST(req: Request) {
 
       const tokenData = await tokenRes.json();
       const accessToken = tokenData.access_token;
+      const idToken = tokenData.id_token;
 
-      // Fetch user profile info
-      const userRes = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
-        headers: { Authorization: `Bearer ${accessToken}` }
-      });
-
-      if (!userRes.ok) {
-        return NextResponse.json({ message: "Failed to fetch user info from Google." }, { status: 400 });
+      // 1. First priority: Extract identity directly from id_token (Google OpenID Connect)
+      if (idToken) {
+        const idPayload = parseIdToken(idToken);
+        if (idPayload && idPayload.email) {
+          email = idPayload.email;
+          name = idPayload.name || idPayload.given_name || "Google User";
+          avatar = idPayload.picture || null;
+          console.log("[google-callback] Extracted user from id_token successfully:", email);
+        }
       }
 
-      const googleUser = await userRes.json();
-      email = googleUser.email || null;
-      name = googleUser.name || null;
-      avatar = googleUser.picture || null;
+      // 2. Secondary: If email wasn't found in id_token, query Google userinfo endpoints
+      if (!email && accessToken) {
+        const endpoints = [
+          "https://www.googleapis.com/oauth2/v3/userinfo",
+          "https://openidconnect.googleapis.com/v1/userinfo"
+        ];
+
+        for (const ep of endpoints) {
+          try {
+            const userRes = await fetch(ep, {
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+                "User-Agent": "Shopply/1.0",
+                Accept: "application/json"
+              }
+            });
+
+            if (userRes.ok) {
+              const googleUser = await userRes.json();
+              email = email || googleUser.email || null;
+              name = name || googleUser.name || null;
+              avatar = avatar || googleUser.picture || null;
+              if (email) {
+                console.log(`[google-callback] Extracted user from ${ep}:`, email);
+                break;
+              }
+            } else {
+              const userErr = await userRes.text();
+              console.warn(`[google-callback] ${ep} failed:`, userRes.status, userErr);
+            }
+          } catch (fetchErr) {
+            console.warn(`[google-callback] Network error fetching ${ep}:`, fetchErr);
+          }
+        }
+      }
 
     } else if (simulated_email) {
       email = simulated_email;
@@ -71,13 +127,17 @@ export async function POST(req: Request) {
     }
 
     if (!email) {
-      return NextResponse.json({ message: "Unable to retrieve email address from Google." }, { status: 400 });
+      return NextResponse.json({ 
+        message: "Failed to fetch user info from Google. Please try signing in again." 
+      }, { status: 400 });
     }
 
-    // Check if user exists in Firestore
+    // Check if user exists in Firestore by email or username
     const usersRef = collection(db, "users");
-    const q = query(usersRef, where("username", "==", email));
-    const snap = await getDocs(q);
+    let snap = await getDocs(query(usersRef, where("email", "==", email)));
+    if (snap.empty) {
+      snap = await getDocs(query(usersRef, where("username", "==", email)));
+    }
 
     let user: any;
     let userId: number;
@@ -85,12 +145,19 @@ export async function POST(req: Request) {
     if (!snap.empty) {
       const userDoc = snap.docs[0];
       user = userDoc.data();
-      userId = user.id;
+      userId = user.id || Number(userDoc.id);
 
       // Update fields if missing
-      const updates: any = { updated_at: new Date().toISOString() };
+      const updates: any = { 
+        updated_at: new Date().toISOString(),
+        email: email
+      };
       let hasUpdates = false;
 
+      if (!user.email) {
+        user.email = email;
+        hasUpdates = true;
+      }
       if (!user.email_verified_at) {
         updates.email_verified_at = new Date().toISOString();
         user.email_verified_at = updates.email_verified_at;
@@ -103,7 +170,7 @@ export async function POST(req: Request) {
       }
 
       if (hasUpdates) {
-        await updateDoc(doc(db, "users", String(userId)), updates);
+        await setDoc(doc(db, "users", String(userId)), updates, { merge: true });
       }
     } else {
       // Create new Google User
@@ -115,6 +182,7 @@ export async function POST(req: Request) {
         id: userId,
         name: name || "Google User",
         username: email,
+        email: email,
         password: hashPassword(randomPassword),
         avatar,
         phone: null,
