@@ -2321,8 +2321,14 @@ export default function DashboardPage() {
         }
         @media (max-width: 640px) {
           .category-grid {
-            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-            gap: 8px !important;
+            grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+            gap: 6px !important;
+          }
+        }
+        @media (max-width: 380px) {
+          .category-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+            gap: 5px !important;
           }
         }
         .variant-form-grid {
@@ -2591,7 +2597,7 @@ export default function DashboardPage() {
           .order-search-container{flex-direction:column !important;align-items:stretch !important;gap:12px !important;padding:16px !important}
           .order-search{width:100% !important}
           .order-search input{width:100% !important}
-          .category-grid{grid-template-columns:repeat(2, 1fr) !important;gap:8px !important}
+          .category-grid{grid-template-columns:repeat(4, minmax(0, 1fr)) !important;gap:6px !important}
           .variant-form-grid{grid-template-columns:1fr !important;gap:16px !important}
           .store-orders-header{flex-direction:column !important;align-items:stretch !important;gap:16px !important}
           .store-orders-header button{width:100% !important;justify-content:center !important;height:48px !important}
@@ -2628,10 +2634,29 @@ export default function DashboardPage() {
           .shop-link{padding:0 !important;border-radius:50% !important;width:36px !important;height:36px !important;display:inline-flex !important;justify-content:center !important;align-items:center !important;background:rgba(124,58,237,0.1) !important}
           .cart-nav-icon{width:36px !important;height:36px !important;margin-right:0 !important}
           .toast{bottom:16px !important;right:16px !important;left:16px !important;font-size:13px !important}
-          .add-form{padding:16px !important;border-radius:14px !important}
-          .form-row{grid-template-columns:1fr !important}
+          .add-form{padding:16px 12px !important;border-radius:14px !important}
+          .form-row{grid-template-columns:1fr !important;gap:12px !important}
+          .form-group{margin-bottom:16px !important}
           .items-grid{grid-template-columns:1fr !important}
-          .category-grid{grid-template-columns:repeat(2, 1fr) !important;gap:8px !important}
+          .category-grid{grid-template-columns:repeat(4, minmax(0, 1fr)) !important;gap:6px !important}
+          .category-btn{padding:8px 4px !important;gap:4px !important;border-radius:10px !important}
+          .category-icon-wrap{width:28px !important;height:28px !important}
+          .category-icon-wrap svg{width:15px !important;height:15px !important}
+          .category-btn-label{font-size:10px !important}
+          .category-check-icon{top:3px !important;right:3px !important}
+          .category-check-icon svg{width:12px !important;height:12px !important}
+          .location-input-group{flex-direction:column !important;gap:8px !important}
+          .location-input-group button{width:100% !important;height:42px !important;justify-content:center !important}
+          .spec-input-grid{grid-template-columns:1fr !important;gap:8px !important}
+          .spec-input-grid button{width:100% !important;height:42px !important;justify-content:center !important}
+          .variant-box-container{padding:14px 10px !important;border-radius:14px !important;margin-bottom:16px !important;gap:14px !important}
+          .variant-form-grid{grid-template-columns:1fr !important;gap:14px !important}
+          .custom-picker-container{padding:14px 10px !important;border-radius:14px !important;gap:14px !important}
+          .color-palette-grid{grid-template-columns:repeat(6, 1fr) !important;gap:6px !important}
+          .form-section-divider{margin:20px 0 14px !important;padding-top:18px !important}
+          .form-section-divider h4{margin-bottom:12px !important}
+          .product-desc-textarea{min-height:120px !important;padding:12px !important;font-size:13px !important;border-radius:12px !important}
+          .shoe-size-btn{width:42px !important;height:42px !important;font-size:13px !important}
           .settings-stats-grid{grid-template-columns:1fr !important}
           .my-stats-grid{grid-template-columns:1fr 1fr !important;gap:10px !important}
           .order-search-container{flex-direction:column !important;padding:12px !important}
@@ -4307,6 +4332,7 @@ export default function DashboardPage() {
                       ].map(cat => (
                         <div
                           key={cat.val}
+                          className="category-btn"
                           onClick={() => {
                             setNewItemCategory(cat.val);
                             setSelectedSizes([]);
@@ -4326,7 +4352,7 @@ export default function DashboardPage() {
                             position: 'relative'
                           }}
                         >
-                          <div style={{
+                          <div className="category-icon-wrap" style={{
                             width: 36, height: 36, borderRadius: '50%',
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
                             background: newItemCategory === cat.val ? '#7c3aed' : '#f8fafc',
@@ -4335,13 +4361,13 @@ export default function DashboardPage() {
                           }}>
                             {cat.icon}
                           </div>
-                          <span style={{
+                          <span className="category-btn-label" style={{
                             fontSize: 12, fontWeight: 700,
                             color: newItemCategory === cat.val ? '#7c3aed' : '#64748b',
                             whiteSpace: 'nowrap'
                           }}>{cat.label}</span>
                           {newItemCategory === cat.val && (
-                            <div style={{ position: 'absolute', top: 8, right: 8, color: '#7c3aed' }}>
+                            <div className="category-check-icon" style={{ position: 'absolute', top: 8, right: 8, color: '#7c3aed' }}>
                               <IconCheck />
                             </div>
                           )}
@@ -4350,7 +4376,7 @@ export default function DashboardPage() {
                     </div>
                   </div>
 
-                  <div style={{ borderTop: '1px solid #f1f5f9', margin: '32px 0 24px', paddingTop: 32 }}>
+                  <div className="form-section-divider" style={{ borderTop: '1px solid #f1f5f9', margin: '32px 0 24px', paddingTop: 32 }}>
                     <h4 style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 8 }}>
                       <div style={{ width: 4, height: 16, background: '#7c3aed', borderRadius: 4 }}></div>
                       Essential Details
@@ -4370,7 +4396,7 @@ export default function DashboardPage() {
 
                   <div className="form-group" style={{ marginBottom: 18 }}>
                     <label className="form-label">Product / Store Location</label>
-                    <div style={{ display: 'flex', gap: 8 }}>
+                    <div className="location-input-group" style={{ display: 'flex', gap: 8 }}>
                       <input 
                         type="text" 
                         className="form-input" 
@@ -4497,6 +4523,7 @@ export default function DashboardPage() {
                           <button
                             key={size}
                             type="button"
+                            className="shoe-size-btn"
                             onClick={() => {
                               setSelectedSizes(prev => prev.includes(size) ? prev.filter(s => s !== size) : [...prev, size]);
                             }}
@@ -4604,7 +4631,7 @@ export default function DashboardPage() {
                     </div>
                   )}
 
-                  <div style={{ borderTop: '1px solid #f1f5f9', margin: '32px 0 24px', paddingTop: 32 }}>
+                  <div className="form-section-divider" style={{ borderTop: '1px solid #f1f5f9', margin: '32px 0 24px', paddingTop: 32 }}>
                     <h4 style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 8 }}>
                       <div style={{ width: 4, height: 16, background: '#7c3aed', borderRadius: 4 }}></div>
                       Inventory & Variations
@@ -4643,7 +4670,7 @@ export default function DashboardPage() {
                     </div>
                   </div>
 
-                  <div style={{ borderTop: '1px solid #f1f5f9', margin: '32px 0 24px', paddingTop: 32 }}>
+                  <div className="form-section-divider" style={{ borderTop: '1px solid #f1f5f9', margin: '32px 0 24px', paddingTop: 32 }}>
                     <h4 style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 8 }}>
                       <div style={{ width: 4, height: 16, background: '#7c3aed', borderRadius: 4 }}></div>
                       Specifications & Variants
@@ -4764,7 +4791,7 @@ export default function DashboardPage() {
 
                   <div className="form-group" style={{ marginTop: 24 }}>
                     <label className="form-label">Color Variants with Photos</label>
-                    <div style={{
+                    <div className="variant-box-container" style={{
                       background: '#f8fafc',
                       padding: 24,
                       borderRadius: 20,
@@ -4869,7 +4896,7 @@ export default function DashboardPage() {
                       </div>
 
                       {showCustomPicker && (
-                        <div style={{
+                        <div className="custom-picker-container" style={{
                           background: '#fff',
                           borderRadius: 20,
                           padding: 24,
@@ -4888,7 +4915,7 @@ export default function DashboardPage() {
                             <button type="button" onClick={() => setShowCustomPicker(false)} style={{ border: 'none', background: '#f1f5f9', color: '#64748b', width: 32, height: 32, borderRadius: '50%', cursor: 'pointer', fontSize: 18, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all .2s' }}>&times;</button>
                           </div>
 
-                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: 8 }}>
+                          <div className="color-palette-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: 8 }}>
                             {COLOR_PALETTE.map(col => (
                               <button
                                 key={col.name}
@@ -5007,7 +5034,7 @@ export default function DashboardPage() {
                     )}
                   </div>
 
-                  <div style={{ borderTop: '1px solid #f1f5f9', margin: '40px 0 24px', paddingTop: 32 }}>
+                  <div className="form-section-divider" style={{ borderTop: '1px solid #f1f5f9', margin: '40px 0 24px', paddingTop: 32 }}>
                     <h4 style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 8 }}>
                       <div style={{ width: 4, height: 16, background: '#7c3aed', borderRadius: 4 }}></div>
                       Product Showcase
@@ -5159,7 +5186,7 @@ export default function DashboardPage() {
                     </div>
                     <div style={{ position: 'relative' }}>
                       <textarea
-                        className="form-textarea"
+                        className="form-textarea product-desc-textarea"
                         placeholder="Describe your item (e.g. material, fit, condition, tags)..."
                         value={newItemDesc}
                         onChange={e => setNewItemDesc(e.target.value)}
