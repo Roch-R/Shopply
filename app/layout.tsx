@@ -8,6 +8,15 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Shopply",
   description: "Premium E-Commerce Platform",
+  icons: {
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/icon.png", type: "image/png" },
+      { url: "/favicon.ico" },
+    ],
+    shortcut: "/favicon.ico",
+    apple: "/apple-icon.png",
+  },
 };
 
 export const viewport: Viewport = {
@@ -29,6 +38,12 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head>
+        {/* Favicons & Brand Icons */}
+        <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+        <link rel="icon" type="image/png" href="/icon.png" />
+        <link rel="shortcut icon" href="/favicon.ico" />
+        <link rel="apple-touch-icon" href="/apple-icon.png" />
+
         {/* Viewport meta tag for mobile responsiveness */}
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
         {/* Preconnect to Google Fonts for faster font loading */}

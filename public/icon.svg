@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" fill="none">
+  <defs>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="rgba(124, 58, 237, 0.25)" />
+    </filter>
+  </defs>
+  
+  <g transform="translate(28, 12) scale(1)" filter="url(#glow)">
+    <!-- Purple bag body -->
+    <rect x="14" y="68" width="172" height="156" rx="28" fill="none" stroke="#7c3aed" stroke-width="16" stroke-linejoin="round" />
+    
+    <!-- Purple handle -->
+    <path d="M58 70 Q58 16 100 16 Q142 16 142 70" fill="none" stroke="#7c3aed" stroke-width="16" stroke-linecap="round" />
+    
+    <!-- Rivet dots -->
+    <circle cx="68" cy="70" r="7" fill="#7c3aed" />
+    <circle cx="132" cy="70" r="7" fill="#7c3aed" />
+    
+    <!-- Yellow dynamic smile / swoosh -->
+    <path d="M28 186 Q40 148 72 144 Q104 140 110 168 Q116 194 146 188 Q164 184 168 162" 
+          fill="none" stroke="#FFB800" stroke-width="15" stroke-linecap="round" stroke-linejoin="round" />
+    <path d="M154 148 L168 162 L150 174" 
+          fill="none" stroke="#FFB800" stroke-width="15" stroke-linecap="round" stroke-linejoin="round" />
+  </g>
+</svg>
