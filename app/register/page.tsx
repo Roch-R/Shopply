@@ -5,6 +5,9 @@ import { useRouter } from "next/navigation";
 import { apiRegister } from "@/lib/api";
 import { getApiCache } from "@/lib/apiCache";
 
+/* ── Icons ─────────────────────────────────────────────────────── */
+
+
 const EyeOpen = () => (
   <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
     <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
@@ -20,7 +23,19 @@ const EyeOff = () => (
   </svg>
 );
 
+const CheckMark = () => (
+  <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+    <polyline points="20 6 9 17 4 12"/>
+  </svg>
+);
+const XMark = () => (
+  <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+  </svg>
+);
+
 const GoogleIcon = () => (
+
   <svg width="20" height="20" viewBox="0 0 24 24">
     <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.81-2.4 3.66v3.04h3.88c2.27-2.09 3.565-5.17 3.565-8.84Z"/>
     <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.04c-1.08.72-2.45 1.16-4.05 1.16-3.11 0-5.74-2.11-6.68-4.96H1.21v3.15C3.18 21.88 7.27 24 12 24Z"/>
@@ -35,6 +50,7 @@ export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPass, setShowPass] = useState(false);
@@ -43,6 +59,8 @@ export default function RegisterPage() {
   const [copied, setCopied] = useState(false);
   const [origin, setOrigin] = useState("");
   const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
+  // Touched state — show inline validation only after user has interacted
+  const [touched, setTouched] = useState({ username: false, email: false, password: false, confirm: false });
 
   useEffect(() => {
     setOrigin(window.location.origin);
@@ -65,22 +83,20 @@ export default function RegisterPage() {
     }
   }, []);
 
-  let strength = 0;
-  if (password.length > 0) {
-    strength = 1;
-    const hasLength = password.length >= 8;
-    const hasLower = /[a-z]/.test(password);
-    const hasDigit = /\d/.test(password);
-    
-    const score = [hasLength, hasLower, hasDigit].filter(Boolean).length;
-    if (score >= 3) {
-      strength = 3;
-    } else if (score >= 2) {
-      strength = 2;
-    }
-  }
-  const strengthColor = ["transparent", "#ef4444", "#f59e0b", "#10b981"][strength];
-  const strengthWidth = ["0%", "25%", "60%", "100%"][strength];
+  // Password rules
+  const passRules = [
+    { label: "At least 8 characters",      ok: password.length >= 8 },
+    { label: "Contains a letter",           ok: /[a-zA-Z]/.test(password) },
+    { label: "Contains a number",           ok: /\d/.test(password) },
+  ];
+  const passScore = passRules.filter(r => r.ok).length;
+  const passwordOk = passScore === 3;
+  const confirmOk  = password === confirm && confirm.length > 0;
+  const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+
+  const strengthLabel = ["", "Weak", "Fair", "Strong"][passScore];
+  const strengthColor = ["transparent", "#ef4444", "#f59e0b", "#10b981"][passScore];
+  const strengthWidth = ["0%", "33%", "66%", "100%"][passScore];
 
   const handleGoogleLogin = () => {
     const clientId = "10342567270-6b7rfni3mbil5anjo1fk1u9c9eo4mp6l.apps.googleusercontent.com" as string;
@@ -95,18 +111,18 @@ export default function RegisterPage() {
 
   const handleSubmit = async () => {
     setError("");
-    if (!username.trim()) { setError("Username is required."); return; }
+    // Mark all fields as touched so inline errors appear
+    setTouched({ username: true, email: true, password: true, confirm: true });
+
+    if (username.trim().length < 3) { setError("Username must be at least 3 characters."); return; }
     if (!email.trim()) { setError("Email is required."); return; }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) { setError("Please enter a valid email address."); return; }
-    if (!password) { setError("Password is required."); return; }
-    if (password.length < 8) { setError("Password must be at least 8 characters."); return; }
-    if (!/[a-z]/.test(password)) { setError("Password must contain at least one letter."); return; }
-    if (!/\d/.test(password)) { setError("Password must contain at least one number."); return; }
-    if (!confirm) { setError("Please confirm your password."); return; }
-    if (password !== confirm) { setError("Passwords do not match."); return; }
+    if (!isEmailValid) { setError("Please enter a valid email address."); return; }
+    if (!passwordOk) { setError("Password must be at least 8 characters with a letter and a number."); return; }
+    if (!confirmOk) { setError("Passwords do not match."); return; }
+    if (!agreedToTerms) { setError("Please agree to the Terms of Service and Privacy Policy to continue."); return; }
 
     if (!recaptchaToken) {
-      setError("Please complete the Google reCAPTCHA verification.");
+      setError("Please complete the reCAPTCHA verification.");
       return;
     }
 
@@ -167,48 +183,75 @@ export default function RegisterPage() {
         .dot.d1{width:8px;background:rgba(255,255,255,.4);cursor:pointer}
         .dot.d1:hover{opacity:.7;transform:scale(1.2)}
         .dot.d2{width:28px;background:#fff;opacity:.9;cursor:default}
-        .right{width:460px;background:#fff;padding:48px 44px;display:flex;flex-direction:column;justify-content:center}
-        .right-head{margin-bottom:24px}
-        .right-head h1{font-size:24px;font-weight:700;color:#0f172a;letter-spacing:-.4px;margin-bottom:6px}
+        .right{width:480px;background:#fff;padding:48px 44px;display:flex;flex-direction:column;justify-content:center;overflow-y:auto}
+        .right-head{margin-bottom:26px}
+        .right-head h1{font-size:25px;font-weight:700;color:#0f172a;letter-spacing:-.4px;margin-bottom:6px}
         .right-head p{font-size:14px;color:#94a3b8;line-height:1.5}
-        .field{margin-bottom:16px}
+        .field{margin-bottom:15px}
         .field label{display:block;font-size:11px;font-weight:600;color:#64748b;letter-spacing:.5px;text-transform:uppercase;margin-bottom:7px}
         .field input{width:100%;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:12px;
           padding:12px 16px;font-size:14px;color:#0f172a;font-family:'Inter',sans-serif;
           outline:none;transition:all .2s}
         .field input::placeholder{color:#cbd5e1}
         .field input:focus{border-color:#4f46e5;background:#f5f3ff;box-shadow:0 0 0 3px rgba(79,70,229,.08)}
-        .field input.match{border-color:#10b981}
-        .field input.nomatch{border-color:#ef4444}
+        .field input.valid{border-color:#10b981;background:#f0fdf4}
+        .field input.invalid{border-color:#ef4444;background:#fef2f2}
+        .field input.has-icon{padding-right:44px}
         input[type="password"]::-ms-reveal,
         input[type="password"]::-ms-clear{display:none}
+        .eye-btn{position:absolute;right:12px;top:50%;transform:translateY(-50%);
+          background:none;border:none;cursor:pointer;color:#94a3b8;padding:6px;display:flex;align-items:center}
+        .eye-btn:hover{color:#64748b}
+        .field-err{font-size:11.5px;color:#ef4444;margin-top:5px;display:flex;align-items:center;gap:4px;font-weight:500}
+        .field-ok{font-size:11.5px;color:#10b981;margin-top:5px;display:flex;align-items:center;gap:4px;font-weight:500}
         .row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-        .bar{height:3px;border-radius:2px;background:#f1f5f9;margin-top:6px;overflow:hidden}
-        .fill{height:100%;border-radius:2px;transition:width .3s,background .3s}
-        .err{background:#fef2f2;border:1.5px solid #fecaca;border-radius:10px;
-          padding:10px 14px;font-size:13px;color:#ef4444;margin-bottom:16px;display:flex;align-items:center;gap:8px}
-        .btn{width:100%;padding:13px;background:linear-gradient(135deg,#2563eb 0%,#7c3aed 100%);
-          border:none;border-radius:12px;color:#fff;font-size:15px;font-weight:600;
+        .strength-bar{height:3px;border-radius:2px;background:#f1f5f9;margin-top:8px;overflow:hidden}
+        .strength-fill{height:100%;border-radius:2px;transition:width .35s ease,background .35s ease}
+        .strength-label{display:flex;justify-content:space-between;align-items:center;margin-top:5px}
+        .strength-text{font-size:11px;font-weight:700}
+        .hint{font-size:11px;color:#94a3b8;margin-top:4px}
+        .rules{margin-top:10px;display:flex;flex-direction:column;gap:5px;background:#f8fafc;
+          border-radius:10px;padding:10px 12px;border:1.5px solid #f1f5f9;margin-bottom:4px}
+        .rule{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:500;transition:color .2s}
+        .rule.ok{color:#10b981}
+        .rule.fail{color:#cbd5e1}
+        .rule-dot{width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s}
+        .rule.ok .rule-dot{background:#dcfce7}
+        .rule.fail .rule-dot{background:#f1f5f9}
+        .email-note{display:flex;align-items:center;gap:6px;font-size:11.5px;color:#64748b;
+          margin-top:5px;font-weight:500;background:#f0fdf4;border-radius:8px;padding:6px 10px}
+        .terms-row{display:flex;align-items:flex-start;gap:10px;margin:12px 0 14px}
+        .terms-checkbox{width:18px;height:18px;border-radius:5px;border:1.5px solid #cbd5e1;
+          background:#f8fafc;cursor:pointer;display:flex;align-items:center;justify-content:center;
+          flex-shrink:0;margin-top:1px;transition:all .2s}
+        .terms-checkbox.checked{background:#4f46e5;border-color:#4f46e5}
+        .terms-text{font-size:12.5px;color:#64748b;line-height:1.6}
+        .terms-text a{color:#4f46e5;font-weight:600;text-decoration:none}
+        .terms-text a:hover{color:#4338ca;text-decoration:underline}
+        .err{background:#fef2f2;border:1.5px solid #fecaca;border-radius:12px;
+          padding:11px 15px;font-size:13px;color:#ef4444;margin-bottom:16px;display:flex;align-items:flex-start;gap:8px;line-height:1.5;font-weight:500}
+        .btn{width:100%;padding:14px;background:linear-gradient(135deg,#2563eb 0%,#7c3aed 100%);
+          border:none;border-radius:13px;color:#fff;font-size:15px;font-weight:600;
           font-family:'Inter',sans-serif;cursor:pointer;transition:all .2s;margin-top:4px;
-          box-shadow:0 4px 14px rgba(79,70,229,.3);
-          position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;height:48px;}
-        .btn:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 6px 20px rgba(79,70,229,.4)}
-        .btn:disabled{opacity:.7;cursor:not-allowed}
-        .btn-google{width:100%;padding:13px;background:#fff;border:1.5px solid #cbd5e1;border-radius:100px;
-          color:#0f172a;font-size:15px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;
-          display:flex;align-items:center;justify-content:center;gap:12px;transition:all .2s;margin-top:8px}
-        .btn-google:hover{background:#f8fafc;border-color:#94a3b8;transform:translateY(-1px)}
-        .spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.4);
-          border-top-color:#fff;border-radius:50%;animation:sp .6s linear infinite;vertical-align:middle;margin-right:8px}
+          box-shadow:0 4px 16px rgba(79,70,229,.3);
+          display:flex;align-items:center;justify-content:center;gap:8px;height:50px;}
+        .btn:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 6px 22px rgba(79,70,229,.4)}
+        .btn:disabled{opacity:.65;cursor:not-allowed}
+        .spin{width:17px;height:17px;border:2.5px solid rgba(255,255,255,.35);
+          border-top-color:#fff;border-radius:50%;animation:sp .65s linear infinite}
         @keyframes sp{to{transform:rotate(360deg)}}
-        .divider{display:flex;align-items:center;gap:12px;margin:20px 0}
+        .btn-google{width:100%;padding:13px;background:#fff;border:1.5px solid #e2e8f0;border-radius:100px;
+          color:#0f172a;font-size:14px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;
+          display:flex;align-items:center;justify-content:center;gap:10px;transition:all .2s;margin-top:10px;
+          box-shadow:0 1px 4px rgba(0,0,0,.06)}
+        .btn-google:hover{background:#f8fafc;border-color:#cbd5e1;transform:translateY(-1px)}
+        .divider{display:flex;align-items:center;gap:12px;margin:18px 0 0}
         .divider span{font-size:12px;color:#cbd5e1;white-space:nowrap}
         .div-line{flex:1;height:1px;background:#f1f5f9}
-        .foot{text-align:center;font-size:13px;color:#94a3b8}
+        .foot{text-align:center;font-size:13px;color:#94a3b8;margin-top:16px}
         .foot a{color:#4f46e5;text-decoration:none;font-weight:600}
         .foot a:hover{color:#4338ca}
-        .hint{font-size:11px;color:#94a3b8;margin-top:4px}
-
+        .recaptcha-wrap{display:flex;justify-content:center;margin:14px 0 4px}
 
         /* Modal Styles */
         .modal-overlay{position:fixed;inset:0;background:rgba(15,23,42,.6);backdrop-filter:blur(8px);
@@ -273,37 +316,56 @@ export default function RegisterPage() {
               <h1>Create Account</h1>
               <p>Fill in your details to get started</p>
             </div>
-            {error && <div className="err"><span>⚠</span>{error}</div>}
 
+            {error && (
+              <div className="err">
+                <span style={{fontSize:16,flexShrink:0}}>⚠</span>
+                <span>{error}</span>
+              </div>
+            )}
+
+            {/* Username */}
             <div className="field">
               <label>Username</label>
               <input
-                type="text" placeholder="Username"
+                type="text"
+                placeholder="Choose a username"
                 value={username}
+                className={touched.username ? (username.trim().length >= 3 ? "valid" : "invalid") : ""}
                 onChange={e => { setUsername(e.target.value); setError(""); }}
+                onBlur={() => setTouched(t => ({ ...t, username: true }))}
                 autoComplete="off"
               />
+              {touched.username && username.trim().length < 3 && username.length > 0 && (
+                <div className="field-err"><XMark/>At least 3 characters required</div>
+              )}
+              {touched.username && username.trim().length >= 3 && (
+                <div className="field-ok"><CheckMark/>Username looks good!</div>
+              )}
             </div>
 
-
+            {/* Email */}
             <div className="field">
               <label>Email Address</label>
               <input
-                type="email" placeholder="you@gmail.com"
+                type="email"
+                placeholder="you@gmail.com"
                 value={email}
-                onChange={e => {
-                  setEmail(e.target.value);
-                  setError("");
-                }}
+                className={touched.email && email.trim() ? (isEmailValid ? "valid" : "invalid") : ""}
+                onChange={e => { setEmail(e.target.value); setError(""); }}
+                onBlur={() => setTouched(t => ({ ...t, email: true }))}
                 autoComplete="email"
               />
-              <div style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '11px', color: '#64748b', marginTop: '4px', fontWeight: 500 }}>
-                <span style={{ fontSize: '12px' }}>📧</span>
-                <span>OTP verification code will be sent to your email</span>
+              {touched.email && email.trim() && !isEmailValid && (
+                <div className="field-err"><XMark/>Please enter a valid email address</div>
+              )}
+              <div className="email-note">
+                <span>📧</span>
+                <span>A 6-digit OTP code will be sent to verify your email</span>
               </div>
             </div>
 
-
+            {/* Password + Confirm */}
             <div className="row">
               <div className="field">
                 <label>Password</label>
@@ -312,44 +374,69 @@ export default function RegisterPage() {
                     type={showPass ? "text" : "password"}
                     placeholder="••••••••"
                     value={password}
+                    className={`has-icon${touched.password && password ? (passwordOk ? " valid" : " invalid") : ""}`}
                     onChange={e => { setPassword(e.target.value); setError(""); }}
+                    onBlur={() => setTouched(t => ({ ...t, password: true }))}
                     autoComplete="new-password"
-                    style={{paddingRight:"44px"}}
                   />
-                  <button type="button" onClick={() => setShowPass(!showPass)}
-                    style={{position:"absolute",right:"12px",top:"50%",transform:"translateY(-50%)",
-                      background:"none",border:"none",cursor:"pointer",color:"#94a3b8",padding:0,display:"flex"}}>
+                  <button type="button" className="eye-btn" onClick={() => setShowPass(!showPass)}>
                     {showPass ? <EyeOpen/> : <EyeOff/>}
                   </button>
                 </div>
-                <div className="bar">
-                  <div className="fill" style={{ width: strengthWidth, background: strengthColor }}/>
-                </div>
-                <p className="hint">Min. 8 chars (letters and numbers)</p>
+                {password.length > 0 && (
+                  <>
+                    <div className="strength-bar">
+                      <div className="strength-fill" style={{ width: strengthWidth, background: strengthColor }}/>
+                    </div>
+                    <div className="strength-label">
+                      <span className="hint">Strength</span>
+                      <span className="strength-text" style={{ color: strengthColor }}>{strengthLabel}</span>
+                    </div>
+                  </>
+                )}
               </div>
+
               <div className="field">
-                <label>Confirm</label>
+                <label>Confirm Password</label>
                 <div style={{position:"relative"}}>
                   <input
                     type={showConfirm ? "text" : "password"}
                     placeholder="••••••••"
                     value={confirm}
+                    className={`has-icon${touched.confirm && confirm ? (confirmOk ? " valid" : " invalid") : ""}`}
                     onChange={e => { setConfirm(e.target.value); setError(""); }}
+                    onBlur={() => setTouched(t => ({ ...t, confirm: true }))}
                     autoComplete="new-password"
-                    className={confirm.length > 0 ? (confirm === password ? "match" : "nomatch") : ""}
-                    style={{paddingRight:"44px"}}
                   />
-                  <button type="button" onClick={() => setShowConfirm(!showConfirm)}
-                    style={{position:"absolute",right:"12px",top:"50%",transform:"translateY(-50%)",
-                      background:"none",border:"none",cursor:"pointer",color:"#94a3b8",padding:0,display:"flex"}}>
+                  <button type="button" className="eye-btn" onClick={() => setShowConfirm(!showConfirm)}>
                     {showConfirm ? <EyeOpen/> : <EyeOff/>}
                   </button>
                 </div>
+                {touched.confirm && confirm.length > 0 && !confirmOk && (
+                  <div className="field-err"><XMark/>Passwords don&apos;t match</div>
+                )}
+                {touched.confirm && confirmOk && (
+                  <div className="field-ok"><CheckMark/>Passwords match!</div>
+                )}
               </div>
             </div>
 
-            {/* Official Google reCAPTCHA v2 Checkbox Widget */}
-            <div style={{ display: "flex", justifyContent: "center", margin: "20px 0" }}>
+            {/* Password rules checklist */}
+            {password.length > 0 && (
+              <div className="rules">
+                {passRules.map(r => (
+                  <div key={r.label} className={`rule ${r.ok ? "ok" : "fail"}`}>
+                    <div className="rule-dot">
+                      {r.ok ? <CheckMark/> : <XMark/>}
+                    </div>
+                    {r.label}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* reCAPTCHA */}
+            <div className="recaptcha-wrap">
               <div
                 className="g-recaptcha"
                 data-sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || "6Lc0RV4tAAAAAFG8MkXdmNJ0Bs9pX8_ML7dwtcpM"}
@@ -358,21 +445,42 @@ export default function RegisterPage() {
               />
             </div>
 
+            {/* Terms of Service */}
+            <div className="terms-row">
+              <div
+                className={`terms-checkbox${agreedToTerms ? " checked" : ""}`}
+                onClick={() => setAgreedToTerms(!agreedToTerms)}
+                role="checkbox"
+                aria-checked={agreedToTerms}
+                tabIndex={0}
+                onKeyDown={e => e.key === " " && setAgreedToTerms(!agreedToTerms)}
+              >
+                {agreedToTerms && <CheckMark/>}
+              </div>
+              <p className="terms-text">
+                I agree to the <Link href="/terms">Terms of Service</Link> and <Link href="/privacy">Privacy Policy</Link>.
+                Your data is protected and never shared without consent.
+              </p>
+            </div>
+
+            {/* Submit */}
             <button className="btn" disabled={loading} onClick={handleSubmit}>
               {loading ? (
-                <div className="animate-pulse bg-white/40 rounded" style={{ height: 16, width: 120 }}></div>
+                <>
+                  <div className="spin"/>
+                  Creating your account…
+                </>
               ) : "Create Account →"}
             </button>
 
-            <div className="divider"><div className="div-line" /><span>or</span><div className="div-line" /></div>
+            <div className="divider"><div className="div-line"/><span>or</span><div className="div-line"/></div>
 
             <button type="button" className="btn-google" onClick={handleGoogleLogin}>
-              <GoogleIcon />
-              <span>Sign in with Google</span>
+              <GoogleIcon/>
+              <span>Continue with Google</span>
             </button>
 
-            <div className="divider"><div className="div-line"/><span>Already have an account?</span><div className="div-line"/></div>
-            <p className="foot"><Link href="/login">Sign in instead →</Link></p>
+            <p className="foot">Already have an account? <Link href="/login">Sign in →</Link></p>
           </div>
         </div>
 
