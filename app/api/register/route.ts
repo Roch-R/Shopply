@@ -44,11 +44,18 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: "Username is already taken." }, { status: 422 });
     }
 
-    // Check if email already exists
+    // Check if email already exists (by email field)
     const qEmail = query(usersRef, where("email", "==", email));
     const snapEmail = await getDocs(qEmail);
     if (!snapEmail.empty) {
-      return NextResponse.json({ message: "Email is already registered." }, { status: 422 });
+      return NextResponse.json({ message: "This email is already registered. Please sign in instead." }, { status: 422 });
+    }
+
+    // Also check if email was stored as username (Google OAuth accounts)
+    const qEmailAsUsername = query(usersRef, where("username", "==", email));
+    const snapEmailAsUsername = await getDocs(qEmailAsUsername);
+    if (!snapEmailAsUsername.empty) {
+      return NextResponse.json({ message: "This email is already registered. Please sign in instead." }, { status: 422 });
     }
 
     // Generate real random 6-digit OTP code
