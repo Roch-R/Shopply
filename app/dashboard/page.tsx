@@ -2310,26 +2310,31 @@ export default function DashboardPage() {
 
         .category-grid {
           display: grid;
-          grid-template-columns: repeat(7, minmax(0, 1fr));
-          gap: 12px;
+          grid-template-columns: repeat(7, 1fr);
+          gap: 10px;
         }
-        @media (max-width: 1024px) {
+        @media (max-width: 1100px) {
           .category-grid {
-            grid-template-columns: repeat(4, minmax(0, 1fr));
-            gap: 10px;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
           }
         }
         @media (max-width: 640px) {
           .category-grid {
-            grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+            grid-template-columns: repeat(4, 1fr) !important;
             gap: 6px !important;
           }
         }
         @media (max-width: 380px) {
           .category-grid {
-            grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+            grid-template-columns: repeat(3, 1fr) !important;
             gap: 5px !important;
           }
+        }
+        /* Ensure category cards never overflow their column */
+        .category-grid > div {
+          min-width: 0;
+          overflow: hidden;
         }
         .variant-form-grid {
           display: grid;
@@ -4364,7 +4369,10 @@ export default function DashboardPage() {
                           <span className="category-btn-label" style={{
                             fontSize: 12, fontWeight: 700,
                             color: newItemCategory === cat.val ? '#7c3aed' : '#64748b',
-                            whiteSpace: 'nowrap'
+                            whiteSpace: 'normal',
+                            wordBreak: 'break-word',
+                            lineHeight: 1.2,
+                            textAlign: 'center'
                           }}>{cat.label}</span>
                           {newItemCategory === cat.val && (
                             <div className="category-check-icon" style={{ position: 'absolute', top: 8, right: 8, color: '#7c3aed' }}>
