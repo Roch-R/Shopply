@@ -347,6 +347,140 @@ const isFootwearCategory = (cat?: string | null) => {
   return c === "footwear" || c === "shoes" || c === "shoe";
 };
 
+const detectProductDetailsFromAI = (name: string) => {
+  const n = (name || "").toLowerCase().trim();
+  if (!n) return null;
+
+  let category = "General";
+  let suggestedPrice = "499.00";
+
+  // Footwear / Shoes
+  if (/\b(shoe|shoes|sneaker|sneakers|dunk|jordan|kobe|yeezy|air force|air max|slides|crocs|boots|boot|heels|heel|sandals|sandal|loafers|loafer|cleats|slippers|footwear)\b/i.test(n)) {
+    category = "Shoes";
+    if (/jordan|yeezy|kobe|dunk/i.test(n)) suggestedPrice = "3899.00";
+    else if (/boots|heels|leather/i.test(n)) suggestedPrice = "2499.00";
+    else suggestedPrice = "1599.00";
+  }
+  // Electronics / Tech
+  else if (/\b(iphone|ipad|macbook|laptop|pc|desktop|monitor|gpu|cpu|processor|motherboard|ryzen|intel|rtx|gtx|samsung galaxy|redmi|xiaomi|pixel|tablet|nintendo|playstation|ps4|ps5|xbox|oled|ssd|nvme)\b/i.test(n)) {
+    category = "Electronics";
+    if (/macbook|laptop|iphone|ps5/i.test(n)) suggestedPrice = "24999.00";
+    else if (/ipad|tablet|monitor|gpu/i.test(n)) suggestedPrice = "12499.00";
+    else suggestedPrice = "2999.00";
+  }
+  // Clothes / Apparel
+  else if (/\b(shirt|t-shirt|tee|tees|hoodie|hoodies|jacket|jackets|jeans|pants|shorts|dress|skirt|sweater|cardigan|polo|jersey|trousers|coat|blazer|windbreaker|denim|apparel|clothing)\b/i.test(n)) {
+    category = "Clothes";
+    if (/jacket|hoodie|coat|blazer/i.test(n)) suggestedPrice = "999.00";
+    else if (/jeans|pants|denim/i.test(n)) suggestedPrice = "799.00";
+    else suggestedPrice = "399.00";
+  }
+  // Beauty / Skincare
+  else if (/\b(serum|cream|lotion|sunscreen|moisturizer|cleanser|toner|lipstick|lip balm|lip gloss|perfume|cologne|fragrance|makeup|eyeliner|mascara|foundation|skincare|cosmetic)\b/i.test(n)) {
+    category = "Beauty";
+    if (/perfume|cologne|fragrance/i.test(n)) suggestedPrice = "1499.00";
+    else if (/serum|sunscreen|moisturizer/i.test(n)) suggestedPrice = "599.00";
+    else suggestedPrice = "349.00";
+  }
+  // Living / Home
+  else if (/\b(desk|chair|table|sofa|couch|bed|mattress|pillow|curtain|lamp|light|cabinet|shelf|drawer|rug|carpet|blender|pot|pan|cookware|kitchen|furniture|decor)\b/i.test(n)) {
+    category = "Home";
+    if (/sofa|bed|mattress|table|desk/i.test(n)) suggestedPrice = "3499.00";
+    else if (/chair|lamp|cabinet/i.test(n)) suggestedPrice = "1299.00";
+    else suggestedPrice = "599.00";
+  }
+  // Jewelry / Accessories
+  else if (/\b(necklace|ring|bracelet|earring|earrings|pendant|chain|gold|silver|diamond|pearl|bangle|choker|jewelry|jewellery|gemstone)\b/i.test(n)) {
+    category = "Accessories";
+    if (/gold|diamond|moissanite/i.test(n)) suggestedPrice = "2899.00";
+    else if (/silver|pearl|pendant/i.test(n)) suggestedPrice = "899.00";
+    else suggestedPrice = "450.00";
+  }
+  // Gadgets
+  else if (/\b(headphone|headphones|earbuds|earphones|airpods|headset|smartwatch|watch|charger|powerbank|cable|usb|drone|gimbal|camera|speaker|tripod|gadget)\b/i.test(n)) {
+    category = "General";
+    if (/drone|camera|gimbal/i.test(n)) suggestedPrice = "5499.00";
+    else if (/airpods|smartwatch|headphones/i.test(n)) suggestedPrice = "1899.00";
+    else suggestedPrice = "599.00";
+  }
+
+  const categoryLabels: Record<string, string> = {
+    General: "Gadgets",
+    Electronics: "Tech",
+    Clothes: "Apparel",
+    Shoes: "Footwear",
+    Beauty: "Beauty",
+    Home: "Living",
+    Accessories: "Jewelry"
+  };
+
+  return {
+    category,
+    categoryLabel: categoryLabels[category] || "Gadgets",
+    suggestedPrice
+  };
+};
+
+const generateAiProductDescription = (name: string, category: string, specs: { key: string; value: string }[]) => {
+  const cleanName = name.trim() || "Quality Product";
+  const specsFormatted = specs.length > 0
+    ? specs.map(s => `• ${s.key}: ${s.value}`).join('\n')
+    : "• Authenticity: 100% Genuine Guaranteed\n• Build: High-Grade Premium Material\n• Condition: Brand New / Inspected";
+
+  return `✨ ${cleanName.toUpperCase()} — OFFICIAL RELEASE
+
+Upgrade your everyday lifestyle with the premium ${cleanName}. Meticulously designed for unmatched reliability, modern elegance, and everyday comfort, this piece delivers exceptional performance you can depend on.
+
+🌟 KEY FEATURES & HIGHLIGHTS:
+• Premium Grade Construction: Crafted with durable, verified materials built to last.
+• Superior Comfort & Utility: Engineered to seamlessly integrate with your daily routine.
+• Verified Shopply Quality: Thoroughly checked and certified prior to fast dispatch.
+• Buyer Satisfaction Protected: Covered by full storefront buyer protection and hassle-free returns.
+
+📋 PRODUCT SPECIFICATIONS:
+${specsFormatted}
+
+📦 PACKAGE CONTENTS:
+• 1x ${cleanName}
+• Original Protective Packaging & Authenticity Seals
+
+🚚 FAST, SECURE NATIONWIDE SHIPPING:
+Packed with shock-absorbent multi-layer bubble wrap. Same-day or next-day shipping guaranteed!`;
+};
+
+const generateAiProductSummary = (existingDesc: string, name: string) => {
+  const cleanName = name.trim() || "This Item";
+  if (existingDesc && existingDesc.trim().length > 30) {
+    const lines = existingDesc
+      .split('\n')
+      .map(l => l.trim())
+      .filter(l => l.length > 4 && !l.startsWith('===') && !l.startsWith('---'));
+
+    const existingBullets = lines.filter(l => l.startsWith('•') || l.startsWith('-') || l.startsWith('*'));
+    if (existingBullets.length >= 2) {
+      return `📌 AI SUMMARY FOR ${cleanName.toUpperCase()}:\n${existingBullets.slice(0, 4).join('\n')}\n• Fast Nationwide Express Shipping Guaranteed`;
+    }
+
+    const sentences = existingDesc
+      .replace(/([.?!])\s*(?=[A-Z])/g, "$1|")
+      .split("|")
+      .map(s => s.trim().replace(/^[^a-zA-Z0-9]+/, ''))
+      .filter(s => s.length > 15 && s.length < 180 && !s.toLowerCase().includes("shipping"));
+
+    if (sentences.length >= 2) {
+      return `📌 AI SUMMARY FOR ${cleanName.toUpperCase()}:\n` +
+        sentences.slice(0, 4).map(s => `• ${s.replace(/\.$/, '')}`).join('\n') +
+        `\n• 100% Authentic Quality Verified by Shopply`;
+    }
+  }
+
+  return `📌 QUICK SUMMARY FOR ${cleanName.toUpperCase()}:
+• Quality: 100% Authentic & Inspected for Superior Performance
+• Best For: Daily Wear / Daily Use & Lifestyle Essentials
+• Highlights: High-Durability Materials with Sleek Contemporary Styling
+• Guarantee: Verified Shopply Seller Guarantee with Fast Nationwide Express Delivery`;
+};
+
 const formatLastMessageTime = (dateString: string) => {
   if (!dateString) return "";
   const date = new Date(dateString);
@@ -4562,16 +4696,122 @@ export default function DashboardPage() {
                   </div>
 
                   <div className="form-section-divider" style={{ borderTop: '1px solid #f1f5f9', margin: '32px 0 24px', paddingTop: 32 }}>
-                    <h4 style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <div style={{ width: 4, height: 16, background: '#7c3aed', borderRadius: 4 }}></div>
-                      Essential Details
-                    </h4>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 10 }}>
+                      <h4 style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <div style={{ width: 4, height: 16, background: '#7c3aed', borderRadius: 4 }}></div>
+                        Essential Details
+                      </h4>
+                      {newItemName.trim() && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const detected = detectProductDetailsFromAI(newItemName);
+                            if (detected) {
+                              setNewItemCategory(detected.category);
+                              setNewItemPrice(detected.suggestedPrice);
+                              if (!newItemDesc) {
+                                setNewItemDesc(generateAiProductDescription(newItemName, detected.category, specs));
+                              }
+                              showToast(`✨ AI detected Category: ${detected.categoryLabel} & Est. Price: ₱${detected.suggestedPrice}!`, "success");
+                            } else {
+                              showToast("Please enter a product name first.", "error");
+                            }
+                          }}
+                          style={{
+                            padding: '6px 14px',
+                            borderRadius: 10,
+                            border: '1.5px solid #7c3aed',
+                            background: '#faf5ff',
+                            color: '#7c3aed',
+                            fontSize: 12,
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 6,
+                            transition: 'all .2s',
+                            boxShadow: '0 2px 6px rgba(124,58,237,0.08)'
+                          }}
+                          onMouseOver={e => { e.currentTarget.style.background = '#7c3aed'; e.currentTarget.style.color = '#fff'; }}
+                          onMouseOut={e => { e.currentTarget.style.background = '#faf5ff'; e.currentTarget.style.color = '#7c3aed'; }}
+                          title="Let AI automatically detect the category, suggested price, and description from your product name"
+                        >
+                          <span>✨</span>
+                          <span>AI Auto-Detect & Fill Details</span>
+                        </button>
+                      )}
+                    </div>
                   </div>
 
                   <div className="form-row">
                     <div className="form-group">
-                      <label className="form-label">Product Name *</label>
-                      <input type="text" className="form-input" placeholder="e.g. Vintage T-Shirt" value={newItemName} onChange={e => setNewItemName(e.target.value)} required />
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                        <label className="form-label" style={{ margin: 0 }}>Product Name *</label>
+                        {newItemName.trim() && (
+                          <span style={{ fontSize: 11, color: '#7c3aed', fontWeight: 600 }}>
+                            AI Detection Active ⚡
+                          </span>
+                        )}
+                      </div>
+                      <input
+                        type="text"
+                        className="form-input"
+                        placeholder="e.g. Nike Air Jordan 1, iPhone 15, Oversized Vintage T-Shirt..."
+                        value={newItemName}
+                        onChange={e => setNewItemName(e.target.value)}
+                        required
+                      />
+
+                      {/* LIVE SMART AI DETECTION BANNER */}
+                      {(() => {
+                        const detected = detectProductDetailsFromAI(newItemName);
+                        if (!detected) return null;
+                        const isCatDifferent = newItemCategory !== detected.category;
+                        return (
+                          <div style={{
+                            marginTop: 8,
+                            padding: '8px 12px',
+                            background: '#f5f3ff',
+                            borderRadius: 12,
+                            border: '1px solid #ddd6fe',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            flexWrap: 'wrap',
+                            gap: 8,
+                            fontSize: 11
+                          }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#5b21b6' }}>
+                              <span>🤖</span>
+                              <span>AI Detected: <strong>{detected.categoryLabel}</strong> {isCatDifferent ? `(Current: ${newItemCategory})` : "✓"} • Est. <strong>₱{detected.suggestedPrice}</strong></span>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setNewItemCategory(detected.category);
+                                setNewItemPrice(detected.suggestedPrice);
+                                if (!newItemDesc) {
+                                  setNewItemDesc(generateAiProductDescription(newItemName, detected.category, specs));
+                                }
+                                showToast(`✨ AI set Category: ${detected.categoryLabel} & Price: ₱${detected.suggestedPrice}!`, "success");
+                              }}
+                              style={{
+                                background: '#7c3aed',
+                                color: '#fff',
+                                border: 'none',
+                                borderRadius: 6,
+                                padding: '3px 10px',
+                                fontSize: 11,
+                                fontWeight: 700,
+                                cursor: 'pointer',
+                                transition: 'all .2s'
+                              }}
+                            >
+                              Apply to Details →
+                            </button>
+                          </div>
+                        );
+                      })()}
                     </div>
                     <div className="form-group">
                       <label className="form-label">Price (₱) *</label>
@@ -6054,11 +6294,111 @@ export default function DashboardPage() {
                   </div>
 
                   <div className="form-group" style={{ position: 'relative' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                      <label className="form-label" style={{ margin: 0 }}>Description</label>
-                      <span style={{ fontSize: 11, color: '#94a3b8', fontWeight: 600 }}>
-                        {newItemDesc.length} characters
-                      </span>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8, flexWrap: 'wrap', gap: 8 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <label className="form-label" style={{ margin: 0 }}>Description</label>
+                        <span style={{ fontSize: 11, color: '#94a3b8', fontWeight: 600, background: '#f1f5f9', padding: '2px 8px', borderRadius: 10 }}>
+                          {newItemDesc.length} chars
+                        </span>
+                      </div>
+
+                      {/* AI Toolbar for Description */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (!newItemName.trim()) {
+                              showToast("Please enter a Product Name first so AI knows what to write!", "error");
+                              return;
+                            }
+                            const generated = generateAiProductDescription(newItemName, newItemCategory, specs);
+                            setNewItemDesc(generated);
+                            showToast("✨ AI generated persuasive product description with specs!", "success");
+                          }}
+                          style={{
+                            padding: '5px 11px',
+                            borderRadius: 8,
+                            border: '1px solid #7c3aed',
+                            background: '#faf5ff',
+                            color: '#7c3aed',
+                            fontSize: 11,
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 5,
+                            transition: 'all .2s',
+                            boxShadow: '0 1px 3px rgba(124,58,237,0.08)'
+                          }}
+                          onMouseOver={e => { e.currentTarget.style.background = '#7c3aed'; e.currentTarget.style.color = '#fff'; }}
+                          onMouseOut={e => { e.currentTarget.style.background = '#faf5ff'; e.currentTarget.style.color = '#7c3aed'; }}
+                          title="Generate a high-converting e-commerce description with specs and key highlights"
+                        >
+                          <span>✨</span>
+                          <span>AI Write Description</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (!newItemDesc.trim() && !newItemName.trim()) {
+                              showToast("Please enter a Product Name or write some details first.", "error");
+                              return;
+                            }
+                            const summary = generateAiProductSummary(newItemDesc, newItemName);
+                            if (newItemDesc.trim() && !newItemDesc.includes("QUICK SUMMARY") && !newItemDesc.includes("AI SUMMARY")) {
+                              setNewItemDesc(`${summary}\n\n---\n\n${newItemDesc}`);
+                            } else {
+                              setNewItemDesc(summary);
+                            }
+                            showToast("📝 AI generated executive summary bullet points!", "success");
+                          }}
+                          style={{
+                            padding: '5px 11px',
+                            borderRadius: 8,
+                            border: '1px solid #0284c7',
+                            background: '#f0f9ff',
+                            color: '#0284c7',
+                            fontSize: 11,
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 5,
+                            transition: 'all .2s',
+                            boxShadow: '0 1px 3px rgba(2,132,199,0.08)'
+                          }}
+                          onMouseOver={e => { e.currentTarget.style.background = '#0284c7'; e.currentTarget.style.color = '#fff'; }}
+                          onMouseOut={e => { e.currentTarget.style.background = '#f0f9ff'; e.currentTarget.style.color = '#0284c7'; }}
+                          title="Summarize key features into easy-to-read highlights for buyers"
+                        >
+                          <span>📝</span>
+                          <span>AI Summarize</span>
+                        </button>
+
+                        {newItemDesc && (
+                          <button
+                            type="button"
+                            onClick={() => setNewItemDesc("")}
+                            style={{
+                              padding: '5px 8px',
+                              borderRadius: 8,
+                              border: '1px solid #e2e8f0',
+                              background: '#fff',
+                              color: '#94a3b8',
+                              fontSize: 11,
+                              fontWeight: 600,
+                              cursor: 'pointer',
+                              transition: 'all .15s'
+                            }}
+                            onMouseOver={e => { e.currentTarget.style.color = '#ef4444'; e.currentTarget.style.borderColor = '#fca5a5'; }}
+                            onMouseOut={e => { e.currentTarget.style.color = '#94a3b8'; e.currentTarget.style.borderColor = '#e2e8f0'; }}
+                            title="Clear description text"
+                          >
+                            Clear
+                          </button>
+                        )}
+                      </div>
                     </div>
                     <div style={{ position: 'relative' }}>
                       <textarea
