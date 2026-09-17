@@ -1248,6 +1248,7 @@ export default function DashboardPage() {
   const [newColorPrice, setNewColorPrice] = useState("");
   const [newColorFile, setNewColorFile] = useState<File | null>(null);
   const [newColorPreview, setNewColorPreview] = useState<string | null>(null);
+  const [editingVariantIdx, setEditingVariantIdx] = useState<number | null>(null);
   const [isDraggingVariantPhoto, setIsDraggingVariantPhoto] = useState(false);
   const [variantZoomPhoto, setVariantZoomPhoto] = useState<string | null>(null);
   const [detectedColorSuggestion, setDetectedColorSuggestion] = useState<string | null>(null);
@@ -5267,12 +5268,64 @@ export default function DashboardPage() {
                       background: '#f8fafc',
                       padding: 24,
                       borderRadius: 20,
-                      border: '1.5px solid #e2e8f0',
+                      border: editingVariantIdx !== null ? '2px solid #7c3aed' : '1.5px solid #e2e8f0',
                       marginBottom: 28,
                       display: 'flex',
                       flexDirection: 'column',
-                      gap: 20
+                      gap: 20,
+                      transition: 'all .2s'
                     }}>
+                      {editingVariantIdx !== null && (
+                        <div style={{
+                          background: 'linear-gradient(135deg, #f5f3ff, #ede9fe)',
+                          border: '1.5px solid #c4b5fd',
+                          borderRadius: 14,
+                          padding: '12px 18px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          flexWrap: 'wrap',
+                          gap: 12,
+                          boxShadow: '0 2px 8px rgba(124,58,237,0.06)'
+                        }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                            <span style={{ fontSize: 18 }}>✏️</span>
+                            <div>
+                              <span style={{ fontSize: 13, fontWeight: 800, color: '#5b21b6' }}>
+                                Re-editing Variant #{editingVariantIdx + 1}: &ldquo;{colorVariants[editingVariantIdx]?.color}&rdquo;
+                              </span>
+                              <span style={{ fontSize: 11, color: '#7c3aed', display: 'block', marginTop: 1 }}>
+                                Adjust the color name, price, or photo below, then click &ldquo;Save Changes to Variant&rdquo;.
+                              </span>
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEditingVariantIdx(null);
+                              setNewColorName("");
+                              setNewColorPrice("");
+                              setNewColorFile(null);
+                              setNewColorPreview(null);
+                              setDetectedColorSuggestion(null);
+                            }}
+                            style={{
+                              padding: '6px 14px',
+                              background: '#fff',
+                              border: '1px solid #c4b5fd',
+                              borderRadius: 8,
+                              color: '#5b21b6',
+                              fontSize: 12,
+                              fontWeight: 700,
+                              cursor: 'pointer',
+                              transition: 'all .2s'
+                            }}
+                          >
+                            Cancel Edit
+                          </button>
+                        </div>
+                      )}
+
                       <div className="variant-form-grid">
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                           <label className="form-label" style={{ fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 0 }}>Variant Color Name</label>
@@ -5587,91 +5640,271 @@ export default function DashboardPage() {
                           </div>
                         </div>
                       )}
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (!newColorName.trim()) {
-                            showToast("Please enter a valid color name.", "error");
-                            return;
-                          }
-                          if (/[0-9]/.test(newColorName)) {
-                            showToast("Numbers are strictly not allowed in the color name. Please enter a valid color name.", "error");
-                            return;
-                          }
-                          if (!newColorFile && !editingItem) {
-                            showToast("Please upload a photo for this color variant.", "error");
-                            return;
-                          }
-                          setColorVariants(prev => [...prev, { color: newColorName.trim(), price: newColorPrice.trim() || newItemPrice || "0", file: newColorFile, preview: newColorPreview }]);
-                          setNewColorName("");
-                          setNewColorPrice("");
-                          setNewColorFile(null);
-                          setNewColorPreview(null);
-                          setDetectedColorSuggestion(null);
-                          showToast("Color variant added successfully!", "success");
-                        }}
-                        style={{
-                          height: 46,
-                          width: '100%',
-                          borderRadius: 14,
-                          border: 'none',
-                          background: 'linear-gradient(135deg, #7c3aed, #6366f1)',
-                          color: '#fff',
-                          fontWeight: 700,
-                          fontSize: 14,
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          gap: 8,
-                          boxShadow: '0 4px 14px rgba(124,58,237,0.2)',
-                          transition: 'all .2s'
-                        }}
-                        onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 6px 18px rgba(124,58,237,0.3)'; }}
-                        onMouseOut={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 14px rgba(124,58,237,0.2)'; }}
-                      >
-                        <IconPlus />
-                        Add This Variant
-                      </button>
+                      {editingVariantIdx !== null ? (
+                        <div style={{ display: 'flex', gap: 10 }}>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (!newColorName.trim()) {
+                                showToast("Please enter a valid color name.", "error");
+                                return;
+                              }
+                              if (/[0-9]/.test(newColorName)) {
+                                showToast("Numbers are strictly not allowed in the color name. Please enter a valid color name.", "error");
+                                return;
+                              }
+                              setColorVariants(prev => prev.map((v, i) => i === editingVariantIdx ? {
+                                ...v,
+                                color: newColorName.trim(),
+                                price: newColorPrice.trim() || newItemPrice || "0",
+                                file: newColorFile !== null ? newColorFile : v.file,
+                                preview: newColorPreview || v.preview
+                              } : v));
+                              setEditingVariantIdx(null);
+                              setNewColorName("");
+                              setNewColorPrice("");
+                              setNewColorFile(null);
+                              setNewColorPreview(null);
+                              setDetectedColorSuggestion(null);
+                              showToast("Variant updated successfully!", "success");
+                            }}
+                            style={{
+                              height: 46,
+                              flex: 1,
+                              borderRadius: 14,
+                              border: 'none',
+                              background: 'linear-gradient(135deg, #10b981, #059669)',
+                              color: '#fff',
+                              fontWeight: 700,
+                              fontSize: 14,
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              gap: 8,
+                              boxShadow: '0 4px 14px rgba(16,185,129,0.25)',
+                              transition: 'all .2s'
+                            }}
+                            onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 6px 18px rgba(16,185,129,0.35)'; }}
+                            onMouseOut={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 14px rgba(16,185,129,0.25)'; }}
+                          >
+                            <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12" /></svg>
+                            Save Changes to Variant
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEditingVariantIdx(null);
+                              setNewColorName("");
+                              setNewColorPrice("");
+                              setNewColorFile(null);
+                              setNewColorPreview(null);
+                              setDetectedColorSuggestion(null);
+                            }}
+                            style={{
+                              height: 46,
+                              padding: '0 20px',
+                              borderRadius: 14,
+                              border: '1.5px solid #cbd5e1',
+                              background: '#fff',
+                              color: '#64748b',
+                              fontWeight: 700,
+                              fontSize: 13,
+                              cursor: 'pointer',
+                              transition: 'all .2s'
+                            }}
+                            onMouseOver={e => { e.currentTarget.style.borderColor = '#94a3b8'; e.currentTarget.style.color = '#0f172a'; }}
+                            onMouseOut={e => { e.currentTarget.style.borderColor = '#cbd5e1'; e.currentTarget.style.color = '#64748b'; }}
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (!newColorName.trim()) {
+                              showToast("Please enter a valid color name.", "error");
+                              return;
+                            }
+                            if (/[0-9]/.test(newColorName)) {
+                              showToast("Numbers are strictly not allowed in the color name. Please enter a valid color name.", "error");
+                              return;
+                            }
+                            if (!newColorFile && !editingItem) {
+                              showToast("Please upload a photo for this color variant.", "error");
+                              return;
+                            }
+                            setColorVariants(prev => [...prev, { color: newColorName.trim(), price: newColorPrice.trim() || newItemPrice || "0", file: newColorFile, preview: newColorPreview }]);
+                            setNewColorName("");
+                            setNewColorPrice("");
+                            setNewColorFile(null);
+                            setNewColorPreview(null);
+                            setDetectedColorSuggestion(null);
+                            showToast("Color variant added successfully!", "success");
+                          }}
+                          style={{
+                            height: 46,
+                            width: '100%',
+                            borderRadius: 14,
+                            border: 'none',
+                            background: 'linear-gradient(135deg, #7c3aed, #6366f1)',
+                            color: '#fff',
+                            fontWeight: 700,
+                            fontSize: 14,
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: 8,
+                            boxShadow: '0 4px 14px rgba(124,58,237,0.2)',
+                            transition: 'all .2s'
+                          }}
+                          onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 6px 18px rgba(124,58,237,0.3)'; }}
+                          onMouseOut={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 14px rgba(124,58,237,0.2)'; }}
+                        >
+                          <IconPlus />
+                          Add This Variant
+                        </button>
+                      )}
                     </div>
                     {colorVariants.length > 0 && (
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                           <span style={{ fontSize: 12, fontWeight: 700, color: '#475569' }}>Configured Color Variants ({colorVariants.length})</span>
-                          <span style={{ fontSize: 11, color: '#94a3b8' }}>Click photo to inspect full size</span>
+                          <span style={{ fontSize: 11, color: '#94a3b8' }}>Click Re-edit to change price, color, or photo</span>
                         </div>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: 12 }}>
-                          {colorVariants.map((v, idx) => (
-                            <div key={idx} style={{ background: '#fff', borderRadius: 16, border: '1.5px solid #e2e8f0', overflow: 'hidden', position: 'relative', boxShadow: '0 4px 14px rgba(0,0,0,0.03)', transition: 'all .2s' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 12 }}>
+                          {colorVariants.map((v, idx) => {
+                            const isBeingEdited = editingVariantIdx === idx;
+                            return (
                               <div
-                                onClick={() => v.preview && setVariantZoomPhoto(v.preview)}
-                                style={{ position: 'relative', width: '100%', height: 100, cursor: v.preview ? 'zoom-in' : 'default', background: '#f8fafc', overflow: 'hidden' }}
-                                title="Click to view full photo"
+                                key={idx}
+                                style={{
+                                  background: '#fff',
+                                  borderRadius: 16,
+                                  border: isBeingEdited ? '2px solid #7c3aed' : '1.5px solid #e2e8f0',
+                                  overflow: 'hidden',
+                                  position: 'relative',
+                                  boxShadow: isBeingEdited ? '0 0 0 4px rgba(124,58,237,0.15)' : '0 4px 14px rgba(0,0,0,0.03)',
+                                  transition: 'all .2s'
+                                }}
                               >
-                                <img src={v.preview || ''} alt={v.color} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                <div style={{ position: 'absolute', bottom: 4, right: 4, background: 'rgba(15,23,42,0.65)', color: '#fff', padding: '2px 6px', borderRadius: 6, fontSize: 10, backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', gap: 3 }}>
-                                  <span>🔍 Zoom</span>
+                                <div
+                                  onClick={() => v.preview && setVariantZoomPhoto(v.preview)}
+                                  style={{ position: 'relative', width: '100%', height: 100, cursor: v.preview ? 'zoom-in' : 'default', background: '#f8fafc', overflow: 'hidden' }}
+                                  title="Click to view full photo"
+                                >
+                                  <img src={v.preview || ''} alt={v.color} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                  <div style={{ position: 'absolute', bottom: 4, right: 4, background: 'rgba(15,23,42,0.65)', color: '#fff', padding: '2px 6px', borderRadius: 6, fontSize: 10, backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', gap: 3 }}>
+                                    <span>🔍 Zoom</span>
+                                  </div>
                                 </div>
-                              </div>
-                              <div style={{ padding: '10px 12px', background: '#fff' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-                                  <span style={{ width: 10, height: 10, borderRadius: '50%', background: getColorPreviewHex(v.color), border: '1px solid rgba(0,0,0,0.15)', flexShrink: 0 }}></span>
-                                  <span style={{ fontSize: 13, fontWeight: 700, color: '#0f172a', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>{v.color}</span>
+
+                                <div style={{ padding: '10px 12px', background: '#fff' }}>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                                    <span style={{ width: 10, height: 10, borderRadius: '50%', background: getColorPreviewHex(v.color), border: '1px solid rgba(0,0,0,0.15)', flexShrink: 0 }}></span>
+                                    <span style={{ fontSize: 13, fontWeight: 700, color: '#0f172a', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>{v.color}</span>
+                                  </div>
+                                  <div style={{ fontSize: 12, color: '#10b981', fontWeight: 700 }}>₱{parseFloat(v.price || newItemPrice || "0").toFixed(2)}</div>
+
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setEditingVariantIdx(idx);
+                                      setNewColorName(v.color);
+                                      setNewColorPrice(v.price || "");
+                                      setNewColorPreview(v.preview || null);
+                                      setNewColorFile(v.file || null);
+                                      const el = document.querySelector('.variant-box-container');
+                                      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                      showToast(`Loaded ${v.color} into editor to re-edit`, "success");
+                                    }}
+                                    style={{
+                                      marginTop: 8,
+                                      width: '100%',
+                                      padding: '5px 0',
+                                      borderRadius: 8,
+                                      border: isBeingEdited ? '1px solid #7c3aed' : '1px solid #e2e8f0',
+                                      background: isBeingEdited ? '#faf5ff' : '#f8fafc',
+                                      color: isBeingEdited ? '#7c3aed' : '#475569',
+                                      fontSize: 11,
+                                      fontWeight: 700,
+                                      cursor: 'pointer',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                      gap: 4,
+                                      transition: 'all .2s'
+                                    }}
+                                    onMouseOver={e => { if (!isBeingEdited) { e.currentTarget.style.background = '#f1f5f9'; e.currentTarget.style.borderColor = '#cbd5e1'; } }}
+                                    onMouseOut={e => { if (!isBeingEdited) { e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.borderColor = '#e2e8f0'; } }}
+                                  >
+                                    <span>✏️</span>
+                                    <span>{isBeingEdited ? "Editing Now" : "Re-edit"}</span>
+                                  </button>
                                 </div>
-                                <div style={{ fontSize: 12, color: '#10b981', fontWeight: 700 }}>₱{parseFloat(v.price || newItemPrice || "0").toFixed(2)}</div>
+
+                                {/* EDIT PENCIL BUTTON (TOP RIGHT) */}
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setEditingVariantIdx(idx);
+                                    setNewColorName(v.color);
+                                    setNewColorPrice(v.price || "");
+                                    setNewColorPreview(v.preview || null);
+                                    setNewColorFile(v.file || null);
+                                    const el = document.querySelector('.variant-box-container');
+                                    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                    showToast(`Loaded ${v.color} into editor to re-edit`, "success");
+                                  }}
+                                  style={{
+                                    position: 'absolute',
+                                    top: 6,
+                                    right: 36,
+                                    width: 26,
+                                    height: 26,
+                                    borderRadius: '50%',
+                                    background: isBeingEdited ? '#7c3aed' : 'rgba(255,255,255,0.95)',
+                                    color: isBeingEdited ? '#fff' : '#475569',
+                                    border: '1px solid rgba(0,0,0,0.08)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    cursor: 'pointer',
+                                    boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
+                                    transition: 'all .2s'
+                                  }}
+                                  onMouseOver={e => { if (!isBeingEdited) { e.currentTarget.style.background = '#7c3aed'; e.currentTarget.style.color = '#fff'; } }}
+                                  onMouseOut={e => { if (!isBeingEdited) { e.currentTarget.style.background = 'rgba(255,255,255,0.95)'; e.currentTarget.style.color = '#475569'; } }}
+                                  title="Re-edit this variant"
+                                >
+                                  <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 113 3L12 15l-4 1 1-4 9.5-9.5z" /></svg>
+                                </button>
+
+                                {/* DELETE TRASH BUTTON (TOP RIGHT) */}
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    if (editingVariantIdx === idx) {
+                                      setEditingVariantIdx(null);
+                                      setNewColorName("");
+                                      setNewColorPrice("");
+                                      setNewColorFile(null);
+                                      setNewColorPreview(null);
+                                    }
+                                    setColorVariants(prev => prev.filter((_, i) => i !== idx));
+                                  }}
+                                  style={{ position: 'absolute', top: 6, right: 6, width: 26, height: 26, borderRadius: '50%', background: 'rgba(239,68,68,0.92)', color: '#fff', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 2px 6px rgba(0,0,0,0.2)', transition: 'all .2s' }}
+                                  onMouseOver={e => { e.currentTarget.style.transform = 'scale(1.1)'; e.currentTarget.style.background = '#dc2626'; }}
+                                  onMouseOut={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.background = 'rgba(239,68,68,0.92)'; }}
+                                  title="Delete this variant"
+                                >
+                                  <IconTrash />
+                                </button>
                               </div>
-                              <button
-                                type="button"
-                                onClick={() => setColorVariants(prev => prev.filter((_, i) => i !== idx))}
-                                style={{ position: 'absolute', top: 6, right: 6, width: 26, height: 26, borderRadius: '50%', background: 'rgba(239,68,68,0.92)', color: '#fff', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 2px 6px rgba(0,0,0,0.2)', transition: 'all .2s' }}
-                                onMouseOver={e => { e.currentTarget.style.transform = 'scale(1.1)'; e.currentTarget.style.background = '#dc2626'; }}
-                                onMouseOut={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.background = 'rgba(239,68,68,0.92)'; }}
-                                title="Delete this variant"
-                              >
-                                <IconTrash />
-                              </button>
-                            </div>
-                          ))}
+                            );
+                          })}
                         </div>
                       </div>
                     )}
