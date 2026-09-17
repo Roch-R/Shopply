@@ -2340,6 +2340,23 @@ export default function DashboardPage() {
           display: grid;
           grid-template-columns: 1fr 1fr 1fr;
           gap: 20px;
+          align-items: start;
+        }
+        .variant-form-grid > div {
+          min-width: 0;
+          overflow: hidden;
+        }
+        @media (max-width: 900px) {
+          .variant-form-grid {
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+          }
+        }
+        @media (max-width: 560px) {
+          .variant-form-grid {
+            grid-template-columns: 1fr;
+            gap: 14px;
+          }
         }
 
         
@@ -4923,7 +4940,7 @@ export default function DashboardPage() {
                             <button type="button" onClick={() => setShowCustomPicker(false)} style={{ border: 'none', background: '#f1f5f9', color: '#64748b', width: 32, height: 32, borderRadius: '50%', cursor: 'pointer', fontSize: 18, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all .2s' }}>&times;</button>
                           </div>
 
-                          <div className="color-palette-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: 8 }}>
+                          <div className="color-palette-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(32px, 1fr))', gap: 8 }}>
                             {COLOR_PALETTE.map(col => (
                               <button
                                 key={col.name}
