@@ -1782,6 +1782,7 @@ export default function DashboardPage() {
       reader.onloadend = () => setNewColorPreview(reader.result as string);
       reader.readAsDataURL(compressedFile);
     }
+    e.target.value = '';
   };
 
   const handleAddItem = async (e: React.FormEvent) => {
@@ -4883,32 +4884,104 @@ export default function DashboardPage() {
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                           <label className="form-label" style={{ fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 0 }}>Variant Photo</label>
-                          <div
-                            onClick={() => document.getElementById('variant-img-input')?.click()}
-                            style={{
-                              height: 48,
-                              border: '2px dashed #cbd5e1',
-                              borderRadius: 14,
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              cursor: 'pointer',
-                              background: '#fff',
-                              overflow: 'hidden',
-                              transition: 'all .2s'
-                            }}
-                            onMouseOver={e => { e.currentTarget.style.borderColor = '#7c3aed'; e.currentTarget.style.background = '#faf5ff'; }}
-                            onMouseOut={e => { e.currentTarget.style.borderColor = '#cbd5e1'; e.currentTarget.style.background = '#fff'; }}
-                          >
-                            {newColorPreview ? (
-                              <img src={newColorPreview} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
-                            ) : (
-                              <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#94a3b8' }}>
-                                <IconCamera />
-                                <span style={{ fontSize: 12, fontWeight: 600 }}>Upload Photo</span>
+                          {newColorPreview ? (
+                            <div
+                              onClick={() => document.getElementById('variant-img-input')?.click()}
+                              style={{
+                                height: 48,
+                                border: '1.5px solid #7c3aed',
+                                borderRadius: 14,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                padding: '4px 10px 4px 6px',
+                                cursor: 'pointer',
+                                background: '#faf5ff',
+                                boxShadow: '0 1px 3px rgba(124,58,237,0.08)',
+                                transition: 'all .2s'
+                              }}
+                              title="Click to replace photo"
+                            >
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0, flex: 1 }}>
+                                <img
+                                  src={newColorPreview}
+                                  alt="Variant preview"
+                                  style={{
+                                    width: 38,
+                                    height: 38,
+                                    borderRadius: 10,
+                                    objectFit: 'cover',
+                                    flexShrink: 0,
+                                    border: '1px solid rgba(124,58,237,0.2)'
+                                  }}
+                                />
+                                <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0, overflow: 'hidden' }}>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                    <span style={{ fontSize: 12, fontWeight: 700, color: '#0f172a', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>
+                                      {newColorFile?.name || "Photo Ready"}
+                                    </span>
+                                    <span style={{ fontSize: 10, fontWeight: 700, background: '#dcfce7', color: '#15803d', padding: '1px 6px', borderRadius: 6, flexShrink: 0 }}>
+                                      ✓ Ready
+                                    </span>
+                                  </div>
+                                  <span style={{ fontSize: 11, color: '#7c3aed', fontWeight: 600 }}>Click to replace photo</span>
+                                </div>
                               </div>
-                            )}
-                          </div>
+
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setNewColorFile(null);
+                                  setNewColorPreview(null);
+                                }}
+                                style={{
+                                  width: 30,
+                                  height: 30,
+                                  borderRadius: 8,
+                                  border: 'none',
+                                  background: '#fee2e2',
+                                  color: '#ef4444',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  cursor: 'pointer',
+                                  flexShrink: 0,
+                                  transition: 'all .2s',
+                                  marginLeft: 8
+                                }}
+                                onMouseOver={e => { e.currentTarget.style.background = '#ef4444'; e.currentTarget.style.color = '#fff'; }}
+                                onMouseOut={e => { e.currentTarget.style.background = '#fee2e2'; e.currentTarget.style.color = '#ef4444'; }}
+                                title="Remove photo"
+                              >
+                                <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                                  <path d="M18 6L6 18M6 6l12 12" />
+                                </svg>
+                              </button>
+                            </div>
+                          ) : (
+                            <div
+                              onClick={() => document.getElementById('variant-img-input')?.click()}
+                              style={{
+                                height: 48,
+                                border: '2px dashed #cbd5e1',
+                                borderRadius: 14,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                cursor: 'pointer',
+                                background: '#fff',
+                                gap: 8,
+                                color: '#64748b',
+                                transition: 'all .2s'
+                              }}
+                              onMouseOver={e => { e.currentTarget.style.borderColor = '#7c3aed'; e.currentTarget.style.background = '#faf5ff'; e.currentTarget.style.color = '#7c3aed'; }}
+                              onMouseOut={e => { e.currentTarget.style.borderColor = '#cbd5e1'; e.currentTarget.style.background = '#fff'; e.currentTarget.style.color = '#64748b'; }}
+                            >
+                              <IconCamera />
+                              <span style={{ fontSize: 12, fontWeight: 600 }}>Upload Photo</span>
+                            </div>
+                          )}
                           <p style={{ fontSize: 11, color: '#94a3b8', marginTop: 4 }}>Required photo for this color.</p>
                           <input
                             id="variant-img-input"
@@ -5071,7 +5144,7 @@ export default function DashboardPage() {
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(80px, 96px))', gap: 12 }}>
                           {mainImagesState.map((imgObj, idx) => (
                             <div key={idx} style={{ position: 'relative', borderRadius: 12, overflow: 'hidden', border: '1px solid #e2e8f0', aspectRatio: '1', background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                              <img src={imgObj.preview} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+                              <img src={imgObj.preview} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                               <button
                                 type="button"
                                 onClick={() => {
@@ -5253,7 +5326,7 @@ export default function DashboardPage() {
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: 12, marginBottom: 16 }}>
                       {descImagesState.map((imgObj, idx) => (
                         <div key={idx} style={{ position: 'relative', borderRadius: 12, overflow: 'hidden', border: '1px solid #e2e8f0', aspectRatio: '1.5', background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          <img src={imgObj.preview} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+                          <img src={imgObj.preview} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                           <button
                             type="button"
                             onClick={() => {
