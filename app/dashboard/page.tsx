@@ -1125,6 +1125,9 @@ export default function DashboardPage() {
   const [newColorPrice, setNewColorPrice] = useState("");
   const [newColorFile, setNewColorFile] = useState<File | null>(null);
   const [newColorPreview, setNewColorPreview] = useState<string | null>(null);
+  const [isDraggingVariantPhoto, setIsDraggingVariantPhoto] = useState(false);
+  const [variantZoomPhoto, setVariantZoomPhoto] = useState<string | null>(null);
+  const [detectedColorSuggestion, setDetectedColorSuggestion] = useState<string | null>(null);
   const [showCustomPicker, setShowCustomPicker] = useState(false);
   const [editingItem, setEditingItem] = useState<ShopItem | null>(null);
   const [newItemLocation, setNewItemLocation] = useState("");
@@ -1773,14 +1776,46 @@ export default function DashboardPage() {
     }
   };
 
+  const processVariantFile = async (file: File) => {
+    if (!file.type.startsWith('image/')) {
+      showToast("Please select a valid image file (PNG, JPG, WEBP).", "error");
+      return;
+    }
+    const compressedFile = await compressImage(file, 800);
+    setNewColorFile(compressedFile);
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const dataUrl = reader.result as string;
+      setNewColorPreview(dataUrl);
+
+      // Auto-detect dominant color from image to assist seller
+      try {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          canvas.width = 16;
+          canvas.height = 16;
+          const ctx = canvas.getContext("2d");
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, 16, 16);
+            const p = ctx.getImageData(8, 8, 1, 1).data;
+            const hex = `#${((1 << 24) + (p[0] << 16) + (p[1] << 8) + p[2]).toString(16).slice(1)}`;
+            const matched = hexToColorName(hex);
+            if (matched) {
+              setDetectedColorSuggestion(matched);
+            }
+          }
+        };
+        img.src = dataUrl;
+      } catch (e) {}
+    };
+    reader.readAsDataURL(compressedFile);
+  };
+
   const handleVariantImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const compressedFile = await compressImage(file, 800);
-      setNewColorFile(compressedFile);
-      const reader = new FileReader();
-      reader.onloadend = () => setNewColorPreview(reader.result as string);
-      reader.readAsDataURL(compressedFile);
+      await processVariantFile(file);
     }
     e.target.value = '';
   };
@@ -4883,57 +4918,87 @@ export default function DashboardPage() {
                           <p style={{ fontSize: 11, color: '#94a3b8', marginTop: 4 }}>Price for this specific variant.</p>
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                          <label className="form-label" style={{ fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 0 }}>Variant Photo</label>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <label className="form-label" style={{ fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 0 }}>Variant Photo</label>
+                            {newColorPreview && (
+                              <button
+                                type="button"
+                                onClick={() => setVariantZoomPhoto(newColorPreview)}
+                                style={{ background: 'none', border: 'none', color: '#7c3aed', fontSize: 11, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, padding: 0 }}
+                              >
+                                🔍 Zoom Photo
+                              </button>
+                            )}
+                          </div>
+
                           {newColorPreview ? (
                             <div
-                              onClick={() => document.getElementById('variant-img-input')?.click()}
                               style={{
-                                height: 48,
+                                minHeight: 48,
                                 border: '1.5px solid #7c3aed',
                                 borderRadius: 14,
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'space-between',
-                                padding: '4px 10px 4px 6px',
-                                cursor: 'pointer',
-                                background: '#faf5ff',
-                                boxShadow: '0 1px 3px rgba(124,58,237,0.08)',
+                                padding: '5px 10px 5px 6px',
+                                background: 'linear-gradient(135deg, #ffffff 0%, #faf5ff 100%)',
+                                boxShadow: '0 2px 8px rgba(124,58,237,0.08)',
                                 transition: 'all .2s'
                               }}
-                              title="Click to replace photo"
                             >
                               <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0, flex: 1 }}>
-                                <img
-                                  src={newColorPreview}
-                                  alt="Variant preview"
+                                <div
+                                  onClick={() => setVariantZoomPhoto(newColorPreview)}
                                   style={{
+                                    position: 'relative',
                                     width: 38,
                                     height: 38,
                                     borderRadius: 10,
-                                    objectFit: 'cover',
+                                    overflow: 'hidden',
                                     flexShrink: 0,
-                                    border: '1px solid rgba(124,58,237,0.2)'
+                                    cursor: 'zoom-in',
+                                    border: '1.5px solid rgba(124,58,237,0.25)',
+                                    boxShadow: '0 2px 5px rgba(0,0,0,0.06)'
                                   }}
-                                />
+                                  title="Click to view full photo"
+                                >
+                                  <img
+                                    src={newColorPreview}
+                                    alt="Variant preview"
+                                    style={{
+                                      width: '100%',
+                                      height: '100%',
+                                      objectFit: 'cover'
+                                    }}
+                                  />
+                                </div>
                                 <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0, overflow: 'hidden' }}>
                                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                                     <span style={{ fontSize: 12, fontWeight: 700, color: '#0f172a', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>
-                                      {newColorFile?.name || "Photo Ready"}
+                                      {newColorFile?.name || "Photo Attached"}
                                     </span>
                                     <span style={{ fontSize: 10, fontWeight: 700, background: '#dcfce7', color: '#15803d', padding: '1px 6px', borderRadius: 6, flexShrink: 0 }}>
                                       ✓ Ready
                                     </span>
                                   </div>
-                                  <span style={{ fontSize: 11, color: '#7c3aed', fontWeight: 600 }}>Click to replace photo</span>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 2 }}>
+                                    <button
+                                      type="button"
+                                      onClick={() => document.getElementById('variant-img-input')?.click()}
+                                      style={{ background: 'none', border: 'none', color: '#7c3aed', fontSize: 11, fontWeight: 600, cursor: 'pointer', padding: 0, textDecoration: 'underline' }}
+                                    >
+                                      Replace photo
+                                    </button>
+                                  </div>
                                 </div>
                               </div>
 
                               <button
                                 type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
+                                onClick={() => {
                                   setNewColorFile(null);
                                   setNewColorPreview(null);
+                                  setDetectedColorSuggestion(null);
                                 }}
                                 style={{
                                   width: 30,
@@ -4962,27 +5027,74 @@ export default function DashboardPage() {
                           ) : (
                             <div
                               onClick={() => document.getElementById('variant-img-input')?.click()}
+                              onDragOver={(e) => { e.preventDefault(); setIsDraggingVariantPhoto(true); }}
+                              onDragLeave={() => setIsDraggingVariantPhoto(false)}
+                              onDrop={async (e) => {
+                                e.preventDefault();
+                                setIsDraggingVariantPhoto(false);
+                                const file = e.dataTransfer.files?.[0];
+                                if (file) await processVariantFile(file);
+                              }}
                               style={{
                                 height: 48,
-                                border: '2px dashed #cbd5e1',
+                                border: `2px dashed ${isDraggingVariantPhoto ? '#7c3aed' : '#cbd5e1'}`,
                                 borderRadius: 14,
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
                                 cursor: 'pointer',
-                                background: '#fff',
+                                background: isDraggingVariantPhoto ? '#faf5ff' : '#fff',
                                 gap: 8,
-                                color: '#64748b',
+                                color: isDraggingVariantPhoto ? '#7c3aed' : '#64748b',
                                 transition: 'all .2s'
                               }}
                               onMouseOver={e => { e.currentTarget.style.borderColor = '#7c3aed'; e.currentTarget.style.background = '#faf5ff'; e.currentTarget.style.color = '#7c3aed'; }}
-                              onMouseOut={e => { e.currentTarget.style.borderColor = '#cbd5e1'; e.currentTarget.style.background = '#fff'; e.currentTarget.style.color = '#64748b'; }}
+                              onMouseOut={e => { if (!isDraggingVariantPhoto) { e.currentTarget.style.borderColor = '#cbd5e1'; e.currentTarget.style.background = '#fff'; e.currentTarget.style.color = '#64748b'; } }}
                             >
                               <IconCamera />
-                              <span style={{ fontSize: 12, fontWeight: 600 }}>Upload Photo</span>
+                              <span style={{ fontSize: 12, fontWeight: 600 }}>
+                                {isDraggingVariantPhoto ? "Drop photo here!" : "Upload or Drop Photo"}
+                              </span>
                             </div>
                           )}
-                          <p style={{ fontSize: 11, color: '#94a3b8', marginTop: 4 }}>Required photo for this color.</p>
+
+                          {detectedColorSuggestion && newColorName.toLowerCase() !== detectedColorSuggestion.toLowerCase() && (
+                            <div style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'space-between',
+                              background: '#f5f3ff',
+                              border: '1px solid #ddd6fe',
+                              padding: '6px 12px',
+                              borderRadius: 10,
+                              fontSize: 11,
+                              marginTop: 2
+                            }}>
+                              <span style={{ color: '#5b21b6', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}>
+                                <span>🎨</span>
+                                <span>Detected color from photo: <strong>{detectedColorSuggestion}</strong></span>
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => setNewColorName(detectedColorSuggestion)}
+                                style={{
+                                  background: '#7c3aed',
+                                  color: '#fff',
+                                  border: 'none',
+                                  padding: '3px 10px',
+                                  borderRadius: 6,
+                                  fontWeight: 700,
+                                  cursor: 'pointer',
+                                  fontSize: 11,
+                                  transition: 'all .2s'
+                                }}
+                              >
+                                Apply Color →
+                              </button>
+                            </div>
+                          )}
+
+                          <p style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>Required photo for this color. Drag & drop or click to upload.</p>
                           <input
                             id="variant-img-input"
                             type="file"
@@ -5084,6 +5196,7 @@ export default function DashboardPage() {
                           setNewColorPrice("");
                           setNewColorFile(null);
                           setNewColorPreview(null);
+                          setDetectedColorSuggestion(null);
                           showToast("Color variant added successfully!", "success");
                         }}
                         style={{
@@ -5111,23 +5224,44 @@ export default function DashboardPage() {
                       </button>
                     </div>
                     {colorVariants.length > 0 && (
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(120px,1fr))', gap: 12 }}>
-                        {colorVariants.map((v, idx) => (
-                          <div key={idx} style={{ background: '#fff', borderRadius: 14, border: '1.5px solid #f1f5f9', overflow: 'hidden', position: 'relative', boxShadow: '0 4px 12px rgba(0,0,0,0.03)', transition: 'all .2s' }}>
-                            <img src={v.preview || ''} style={{ width: '100%', height: 90, objectFit: 'cover' }} />
-                            <div style={{ padding: 10, fontSize: 13, fontWeight: 700, textAlign: 'center', color: '#334155', background: '#fcfcfd' }}>
-                              {v.color}
-                              <div style={{ fontSize: 11, color: '#10b981', fontWeight: 600 }}>₱{parseFloat(v.price || newItemPrice || "0").toFixed(2)}</div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <span style={{ fontSize: 12, fontWeight: 700, color: '#475569' }}>Configured Color Variants ({colorVariants.length})</span>
+                          <span style={{ fontSize: 11, color: '#94a3b8' }}>Click photo to inspect full size</span>
+                        </div>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: 12 }}>
+                          {colorVariants.map((v, idx) => (
+                            <div key={idx} style={{ background: '#fff', borderRadius: 16, border: '1.5px solid #e2e8f0', overflow: 'hidden', position: 'relative', boxShadow: '0 4px 14px rgba(0,0,0,0.03)', transition: 'all .2s' }}>
+                              <div
+                                onClick={() => v.preview && setVariantZoomPhoto(v.preview)}
+                                style={{ position: 'relative', width: '100%', height: 100, cursor: v.preview ? 'zoom-in' : 'default', background: '#f8fafc', overflow: 'hidden' }}
+                                title="Click to view full photo"
+                              >
+                                <img src={v.preview || ''} alt={v.color} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                <div style={{ position: 'absolute', bottom: 4, right: 4, background: 'rgba(15,23,42,0.65)', color: '#fff', padding: '2px 6px', borderRadius: 6, fontSize: 10, backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', gap: 3 }}>
+                                  <span>🔍 Zoom</span>
+                                </div>
+                              </div>
+                              <div style={{ padding: '10px 12px', background: '#fff' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                                  <span style={{ width: 10, height: 10, borderRadius: '50%', background: getColorPreviewHex(v.color), border: '1px solid rgba(0,0,0,0.15)', flexShrink: 0 }}></span>
+                                  <span style={{ fontSize: 13, fontWeight: 700, color: '#0f172a', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>{v.color}</span>
+                                </div>
+                                <div style={{ fontSize: 12, color: '#10b981', fontWeight: 700 }}>₱{parseFloat(v.price || newItemPrice || "0").toFixed(2)}</div>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => setColorVariants(prev => prev.filter((_, i) => i !== idx))}
+                                style={{ position: 'absolute', top: 6, right: 6, width: 26, height: 26, borderRadius: '50%', background: 'rgba(239,68,68,0.92)', color: '#fff', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 2px 6px rgba(0,0,0,0.2)', transition: 'all .2s' }}
+                                onMouseOver={e => { e.currentTarget.style.transform = 'scale(1.1)'; e.currentTarget.style.background = '#dc2626'; }}
+                                onMouseOut={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.background = 'rgba(239,68,68,0.92)'; }}
+                                title="Delete this variant"
+                              >
+                                <IconTrash />
+                              </button>
                             </div>
-                            <button
-                              type="button"
-                              onClick={() => setColorVariants(prev => prev.filter((_, i) => i !== idx))}
-                              style={{ position: 'absolute', top: 6, right: 6, width: 24, height: 24, borderRadius: '50%', background: 'rgba(239,68,68,0.95)', color: '#fff', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 2px 6px rgba(0,0,0,0.15)' }}
-                            >
-                              <IconTrash />
-                            </button>
-                          </div>
-                        ))}
+                          ))}
+                        </div>
                       </div>
                     )}
                   </div>
@@ -5814,6 +5948,42 @@ export default function DashboardPage() {
         })()}
           </div>
         </div>
+
+        {/* VARIANT PHOTO ZOOM LIGHTBOX MODAL */}
+        {variantZoomPhoto !== null && (
+          <div
+            style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.85)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 350, padding: 20 }}
+            onClick={() => setVariantZoomPhoto(null)}
+          >
+            <div
+              style={{ position: 'relative', maxWidth: 640, width: '100%', background: '#fff', borderRadius: 24, overflow: 'hidden', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)' }}
+              onClick={e => e.stopPropagation()}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 20px', borderBottom: '1px solid #f1f5f9', background: '#fff' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ fontSize: 15, fontWeight: 700, color: '#0f172a' }}>Variant Photo Preview</span>
+                  <span style={{ fontSize: 11, background: '#f5f3ff', color: '#7c3aed', padding: '2px 8px', borderRadius: 6, fontWeight: 700 }}>Full Resolution</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setVariantZoomPhoto(null)}
+                  style={{ border: 'none', background: '#f1f5f9', color: '#64748b', width: 32, height: 32, borderRadius: '50%', cursor: 'pointer', fontSize: 18, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all .2s' }}
+                  onMouseOver={e => { e.currentTarget.style.background = '#e2e8f0'; e.currentTarget.style.color = '#0f172a'; }}
+                  onMouseOut={e => { e.currentTarget.style.background = '#f1f5f9'; e.currentTarget.style.color = '#64748b'; }}
+                >
+                  &times;
+                </button>
+              </div>
+              <div style={{ padding: 20, background: '#0f172a', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 300, maxHeight: '65vh' }}>
+                <img src={variantZoomPhoto} alt="Zoomed variant preview" style={{ maxWidth: '100%', maxHeight: '60vh', objectFit: 'contain', borderRadius: 12 }} />
+              </div>
+              <div style={{ padding: '12px 20px', background: '#f8fafc', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: 12, color: '#64748b' }}>Click anywhere outside or press Close to dismiss</span>
+                <button type="button" onClick={() => setVariantZoomPhoto(null)} style={{ padding: '8px 20px', background: '#7c3aed', color: '#fff', border: 'none', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'all .2s' }}>Close</button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* DELETE CONFIRMATION MODAL */}
         {deleteModal !== null && (
