@@ -204,6 +204,127 @@ const compressImage = (file: File, maxWidth: number = 800): Promise<File> => {
   });
 };
 
+interface SpecPreset {
+  key: string;
+  placeholder: string;
+  options: string[];
+}
+
+const CATEGORY_SPEC_PRESETS: Record<string, { label: string; presets: SpecPreset[]; template: { key: string; value: string }[] }> = {
+  General: {
+    label: "Gadgets",
+    template: [
+      { key: "Brand", value: "Original / OEM" },
+      { key: "Condition", value: "Brand New" },
+      { key: "Warranty", value: "7 Days Replacement" }
+    ],
+    presets: [
+      { key: "Brand", placeholder: "e.g. Apple, Sony, OEM", options: ["Apple", "Samsung", "Sony", "Xiaomi", "Original OEM"] },
+      { key: "Condition", placeholder: "e.g. Brand New, Like New", options: ["Brand New (Sealed)", "Like New", "Refurbished", "Used / Good"] },
+      { key: "Warranty", placeholder: "e.g. 1 Year Official", options: ["7 Days Replacement", "1 Month Store Warranty", "6 Months Warranty", "1 Year Official"] },
+      { key: "Material", placeholder: "e.g. Aluminum, Polycarbonate", options: ["Aluminum Alloy", "Polycarbonate Plastic", "Stainless Steel", "Silicone"] },
+      { key: "Origin", placeholder: "e.g. Philippines, Japan", options: ["Philippines", "Japan", "USA", "Korea", "China"] },
+      { key: "Package Includes", placeholder: "e.g. Device, Cable, Manual", options: ["Complete in Box", "Device + Charging Cable", "Unit Only"] }
+    ]
+  },
+  Electronics: {
+    label: "Tech",
+    template: [
+      { key: "Brand", value: "Official Brand" },
+      { key: "Storage", value: "128GB" },
+      { key: "Connectivity", value: "Bluetooth 5.3 + Wi-Fi 6" },
+      { key: "Warranty", value: "1 Year Official" }
+    ],
+    presets: [
+      { key: "Brand", placeholder: "e.g. ASUS, Apple, Lenovo", options: ["Apple", "Samsung", "ASUS", "Lenovo", "Sony", "Dell", "Xiaomi"] },
+      { key: "Storage", placeholder: "e.g. 128GB, 256GB, 1TB", options: ["64GB", "128GB", "256GB", "512GB", "1TB NVMe", "2TB"] },
+      { key: "RAM", placeholder: "e.g. 8GB, 16GB, 32GB", options: ["4GB", "8GB DDR4", "16GB DDR5", "32GB", "64GB"] },
+      { key: "Connectivity", placeholder: "e.g. Bluetooth, 5G, Wi-Fi 6", options: ["Bluetooth 5.3 + Wi-Fi 6", "5G Cellular + Wi-Fi", "USB-C Fast Charging", "Wireless 2.4GHz"] },
+      { key: "Battery Life", placeholder: "e.g. Up to 18 Hours", options: ["Up to 8 Hours", "Up to 15 Hours", "Up to 24 Hours", "All-Day Battery"] },
+      { key: "Warranty", placeholder: "e.g. 1 Year Official", options: ["7 Days Store Replacement", "6 Months Warranty", "1 Year Official Manufacturer", "2 Years Extended"] },
+      { key: "Display", placeholder: "e.g. 6.7\" OLED 120Hz", options: ["6.7\" AMOLED 120Hz", "15.6\" FHD IPS", "Retina Display", "4K Ultra HD"] }
+    ]
+  },
+  Clothes: {
+    label: "Apparel",
+    template: [
+      { key: "Material", value: "100% Cotton" },
+      { key: "Fit Type", value: "Regular Fit" },
+      { key: "Care", value: "Machine Wash Cold" }
+    ],
+    presets: [
+      { key: "Material", placeholder: "e.g. 100% Cotton, Linen", options: ["100% Combed Cotton", "Cotton Blend", "Linen Breathable", "Heavyweight Denim", "Silk / Satin", "Polyester Spandex"] },
+      { key: "Fit Type", placeholder: "e.g. Regular, Oversized", options: ["Regular Fit", "Oversized / Boxy", "Slim Fit", "Relaxed Fit", "Athletic Fit"] },
+      { key: "Gender", placeholder: "e.g. Unisex, Men, Women", options: ["Unisex", "Men", "Women", "Kids / Teens"] },
+      { key: "Pattern", placeholder: "e.g. Plain / Solid, Graphic", options: ["Plain / Minimalist", "Graphic Print", "Vintage Washed", "Striped", "Plaid Checkered"] },
+      { key: "Care Instructions", placeholder: "e.g. Machine Wash Cold", options: ["Machine Wash Cold", "Hand Wash Only", "Do Not Bleach / Low Iron", "Dry Clean Only"] },
+      { key: "Neckline", placeholder: "e.g. Crew Neck, V-Neck, Hoodie", options: ["Crew Neck", "V-Neck", "Hooded with Drawstring", "Collared / Polo", "Turtleneck"] }
+    ]
+  },
+  Shoes: {
+    label: "Footwear",
+    template: [
+      { key: "Upper Material", value: "Breathable Mesh" },
+      { key: "Sole Material", value: "Cushioned EVA + Rubber" },
+      { key: "Closure", value: "Lace-Up" }
+    ],
+    presets: [
+      { key: "Upper Material", placeholder: "e.g. Genuine Leather, Mesh", options: ["Breathable Knit Mesh", "Genuine Full-Grain Leather", "Durable Canvas", "Synthetic Suede"] },
+      { key: "Sole Material", placeholder: "e.g. Anti-Slip Rubber, EVA", options: ["Anti-Slip Rubber Tread", "Cushioned EVA Foam", "Vibram High-Traction", "Lightweight Phylon"] },
+      { key: "Closure", placeholder: "e.g. Lace-Up, Slip-On", options: ["Traditional Lace-Up", "Easy Slip-On", "Velcro Straps", "Side Zipper"] },
+      { key: "Toe Shape", placeholder: "e.g. Round Toe", options: ["Round Toe", "Pointed Toe", "Square Toe", "Steel Safety Toe"] },
+      { key: "Occasion", placeholder: "e.g. Running, Casual, Formal", options: ["Daily Casual Walking", "Running & Athletic", "Formal & Office", "Outdoor & Hiking"] },
+      { key: "Gender", placeholder: "e.g. Unisex, Men, Women", options: ["Unisex", "Men", "Women", "Kids"] }
+    ]
+  },
+  Beauty: {
+    label: "Beauty",
+    template: [
+      { key: "Skin Type", value: "All Skin Types" },
+      { key: "Net Volume", value: "50ml" },
+      { key: "Origin", value: "South Korea" }
+    ],
+    presets: [
+      { key: "Skin Type", placeholder: "e.g. All Skin Types, Sensitive", options: ["All Skin Types", "Sensitive & Gentle", "Oily / Acne-Prone", "Dry & Dehydrated", "Combination"] },
+      { key: "Net Volume / Weight", placeholder: "e.g. 50ml, 100g", options: ["30ml / 1.0 fl.oz", "50ml / 1.7 fl.oz", "100ml / 3.4 fl.oz", "150ml Toner", "50g Cream"] },
+      { key: "Formulation", placeholder: "e.g. Serum, Cream, Gel", options: ["Lightweight Serum", "Rich Moisturizing Cream", "Water-Gel", "Foaming Cleanser", "Sheet Mask"] },
+      { key: "Key Benefits", placeholder: "e.g. Hydrating, Brightening", options: ["Deep Hydration & Barrier Repair", "Brightening & Dark Spot Defense", "Anti-Aging & Firming", "Acne & Pore Care"] },
+      { key: "Country of Origin", placeholder: "e.g. South Korea, Japan", options: ["South Korea", "Japan", "Philippines", "USA", "France"] },
+      { key: "Shelf Life / Expiry", placeholder: "e.g. 24 Months PAO", options: ["12 Months PAO (After Opening)", "24 Months Shelf Life", "36 Months from MFG Date"] }
+    ]
+  },
+  Home: {
+    label: "Living",
+    template: [
+      { key: "Material", value: "Solid Hardwood" },
+      { key: "Room Type", value: "Living Room" },
+      { key: "Assembly", value: "Simple 10-Min DIY (Tools Included)" }
+    ],
+    presets: [
+      { key: "Dimensions", placeholder: "e.g. 120 x 60 x 75 cm", options: ["Compact (60 x 40 cm)", "Standard (120 x 60 x 75 cm)", "Large (180 x 80 cm)", "Custom Measurements"] },
+      { key: "Material", placeholder: "e.g. Solid Wood, Metal", options: ["Solid Hardwood", "Engineered MDF with Wood Veneer", "Powder-Coated Steel Metal", "Ceramic / Tempered Glass"] },
+      { key: "Room Placement", placeholder: "e.g. Living Room, Bedroom", options: ["Living Room", "Bedroom", "Home Office / Study", "Dining & Kitchen", "Balcony & Outdoor"] },
+      { key: "Assembly Required", placeholder: "e.g. Yes, Easy DIY", options: ["No (Comes Fully Assembled)", "Simple 10-Min DIY (Tools Included)", "Flat Pack Assembly Required"] },
+      { key: "Weight Capacity", placeholder: "e.g. Up to 150 kg", options: ["Up to 30 kg", "Up to 80 kg", "Up to 150 kg Heavy Duty", "Up to 250 kg Max Load"] }
+    ]
+  },
+  Accessories: {
+    label: "Jewelry",
+    template: [
+      { key: "Metal / Material", value: "925 Sterling Silver" },
+      { key: "Hypoallergenic", value: "Yes (Lead & Nickel Free)" },
+      { key: "Packaging", value: "Gift Box Included" }
+    ],
+    presets: [
+      { key: "Metal / Material", placeholder: "e.g. 925 Sterling Silver, 18K Gold", options: ["925 Sterling Silver", "18K Gold Vermeil Plated", "Titanium Surgical Steel", "316L Stainless Steel (Tarnish-Proof)"] },
+      { key: "Gemstone / Stone", placeholder: "e.g. Cubic Zirconia, Moissanite", options: ["Grade 5A Cubic Zirconia", "GRA Certified Moissanite", "Freshwater Pearl", "Natural Crystal Stone", "None (Sleek Metal)"] },
+      { key: "Chain Length", placeholder: "e.g. 45cm + 5cm Extension", options: ["40cm Choker Length", "45cm + 5cm Adjustable Extender", "50cm Standard Length", "60cm Long Chain"] },
+      { key: "Hypoallergenic", placeholder: "e.g. Yes, Lead & Nickel Free", options: ["100% Lead & Nickel Free (Sensitive Skin Safe)", "Tarnish & Rust Resistant", "Waterproof Everyday Wear"] },
+      { key: "Closure Type", placeholder: "e.g. Lobster Claw", options: ["Secure Lobster Claw Clasp", "Spring Ring Clasp", "Magnetic Safety Lock", "Toggle Clasp"] }
+    ]
+  }
+};
+
 const calculateTotalStock = (item: any) => {
   try {
     let attrs = item.attributes;
@@ -1120,6 +1241,8 @@ export default function DashboardPage() {
   const [specs, setSpecs] = useState<{ key: string, value: string }[]>([]);
   const [newSpecKey, setNewSpecKey] = useState("");
   const [newSpecValue, setNewSpecValue] = useState("");
+  const [editingSpecIdx, setEditingSpecIdx] = useState<number | null>(null);
+  const [editingSpecVal, setEditingSpecVal] = useState<string>("");
   const [colorVariants, setColorVariants] = useState<{ color: string, price: string, file: File | null, preview: string | null, path?: string | null }[]>([]);
   const [newColorName, setNewColorName] = useState("");
   const [newColorPrice, setNewColorPrice] = useState("");
@@ -4739,115 +4862,403 @@ export default function DashboardPage() {
                   </div>
 
                   <div className="form-group" style={{ marginTop: 24 }}>
-                    <label className="form-label">Product Specifications</label>
-                    <div className="spec-input-grid" style={{
-                      display: 'grid',
-                      gridTemplateColumns: '1fr 1fr auto',
-                      gap: 12,
-                      width: '100%',
-                      marginBottom: 12,
-                      alignItems: 'center'
-                    }}>
-                      <input
-                        type="text"
-                        className="form-input"
-                        placeholder="Property (e.g. Material, Origin, Fit)"
-                        value={newSpecKey}
-                        onChange={e => setNewSpecKey(e.target.value)}
-                        style={{
-                          borderRadius: 14,
-                          background: '#f8fafc',
-                          border: '1.5px solid #e2e8f0',
-                          padding: '10px 16px',
-                          fontSize: 13,
-                          transition: 'all 0.2s',
-                          width: '100%',
-                          height: 44
-                        }}
-                      />
-                      <input
-                        type="text"
-                        className="form-input"
-                        placeholder="Value (e.g. Cotton 100%, Japan, Regular)"
-                        value={newSpecValue}
-                        onChange={e => setNewSpecValue(e.target.value)}
-                        style={{
-                          borderRadius: 14,
-                          background: '#f8fafc',
-                          border: '1.5px solid #e2e8f0',
-                          padding: '10px 16px',
-                          fontSize: 13,
-                          transition: 'all 0.2s',
-                          width: '100%',
-                          height: 44
-                        }}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (newSpecKey.trim() && newSpecValue.trim()) {
-                            setSpecs(prev => [...prev, { key: newSpecKey.trim(), value: newSpecValue.trim() }]);
-                            setNewSpecKey("");
-                            setNewSpecValue("");
+                    {(() => {
+                      const currentCategoryPresets = CATEGORY_SPEC_PRESETS[newItemCategory] || CATEGORY_SPEC_PRESETS["General"];
+                      const currentActivePreset = currentCategoryPresets.presets.find(p => p.key.toLowerCase() === newSpecKey.trim().toLowerCase());
+
+                      const handleAutofillSpecs = () => {
+                        const tpl = currentCategoryPresets.template;
+                        setSpecs(prev => {
+                          const existingKeys = new Set(prev.map(s => s.key.toLowerCase()));
+                          const toAdd = tpl.filter(t => !existingKeys.has(t.key.toLowerCase()));
+                          if (toAdd.length === 0) {
+                            showToast("Standard specifications are already added!", "success");
+                            return prev;
                           }
-                        }}
-                        style={{
-                          padding: '0 24px',
-                          height: 44,
-                          borderRadius: 14,
-                          border: 'none',
-                          background: 'linear-gradient(135deg,#7c3aed,#6366f1)',
-                          color: '#fff',
-                          fontWeight: 700,
-                          fontSize: 13,
-                          cursor: 'pointer',
+                          showToast(`Added ${toAdd.length} standard specifications for ${currentCategoryPresets.label}!`, "success");
+                          return [...prev, ...toAdd];
+                        });
+                      };
+
+                      const handleAddSpec = () => {
+                        if (!newSpecKey.trim()) {
+                          showToast("Please select or enter a property (e.g. Material, Brand).", "error");
+                          return;
+                        }
+                        if (!newSpecValue.trim()) {
+                          showToast("Please enter a value for this property.", "error");
+                          return;
+                        }
+                        setSpecs(prev => [...prev, { key: newSpecKey.trim(), value: newSpecValue.trim() }]);
+                        setNewSpecKey("");
+                        setNewSpecValue("");
+                        showToast("Specification added!", "success");
+                      };
+
+                      return (
+                        <div style={{
+                          background: '#f8fafc',
+                          padding: 24,
+                          borderRadius: 20,
+                          border: '1.5px solid #e2e8f0',
                           display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          gap: 6,
-                          boxShadow: '0 4px 12px rgba(124,58,237,0.2)',
-                          transition: 'all .2s',
-                          whiteSpace: 'nowrap'
-                        }}
-                        onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 6px 16px rgba(124,58,237,0.3)'; }}
-                        onMouseOut={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(124,58,237,0.2)'; }}
-                      >
-                        <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
-                        Add Spec
-                      </button>
-                    </div>
-                    {specs.length > 0 && (
-                      <div style={{ background: '#f8fafc', borderRadius: 14, padding: '12px 16px', border: '1.5px solid #e2e8f0', marginTop: 12, display: 'flex', flexDirection: 'column', gap: 8 }}>
-                        {specs.map((s, idx) => (
-                          <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 0', borderBottom: idx === specs.length - 1 ? 'none' : '1px solid #f1f5f9' }}>
-                            <div style={{ display: 'flex', gap: 12, fontSize: 13, alignItems: 'center' }}>
-                              <span style={{ display: 'inline-block', width: 6, height: 6, borderRadius: '50%', background: '#7c3aed' }}></span>
-                              <span style={{ fontWeight: 600, color: '#475569', minWidth: 80 }}>{s.key}:</span>
-                              <span style={{ color: '#0f172a', fontWeight: 500 }}>{s.value}</span>
+                          flexDirection: 'column',
+                          gap: 16
+                        }}>
+                          {/* SECTION HEADER & AUTOFILL BUTTON */}
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 12 }}>
+                            <div>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                <label className="form-label" style={{ fontSize: 14, fontWeight: 800, color: '#0f172a', marginBottom: 0 }}>
+                                  Product Specifications
+                                </label>
+                                <span style={{ fontSize: 11, background: '#f1f5f9', color: '#64748b', padding: '2px 8px', borderRadius: 6, fontWeight: 700 }}>
+                                  Category: {currentCategoryPresets.label}
+                                </span>
+                              </div>
+                              <p style={{ fontSize: 12, color: '#64748b', marginTop: 4, marginBottom: 0 }}>
+                                Buyers look for specs like Brand, Material, Warranty, or Origin before buying.
+                              </p>
                             </div>
+
                             <button
                               type="button"
-                              onClick={() => setSpecs(prev => prev.filter((_, i) => i !== idx))}
+                              onClick={handleAutofillSpecs}
                               style={{
-                                border: 'none',
-                                background: 'rgba(239,68,68,0.08)',
-                                color: '#ef4444',
-                                padding: '4px 10px',
-                                borderRadius: 8,
-                                cursor: 'pointer',
-                                fontSize: 11,
+                                padding: '8px 16px',
+                                borderRadius: 10,
+                                border: '1.5px solid #7c3aed',
+                                background: '#faf5ff',
+                                color: '#7c3aed',
+                                fontSize: 12,
                                 fontWeight: 700,
-                                transition: 'all 0.2s'
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 6,
+                                transition: 'all .2s',
+                                boxShadow: '0 2px 6px rgba(124,58,237,0.06)'
                               }}
-                              onMouseOver={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.15)'; }}
-                              onMouseOut={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.08)'; }}
+                              onMouseOver={e => { e.currentTarget.style.background = '#7c3aed'; e.currentTarget.style.color = '#fff'; }}
+                              onMouseOut={e => { e.currentTarget.style.background = '#faf5ff'; e.currentTarget.style.color = '#7c3aed'; }}
+                              title="Automatically add standard specifications recommended for this category"
                             >
-                              Remove
+                              <span>✨</span>
+                              <span>Autofill {currentCategoryPresets.label} Specs</span>
                             </button>
                           </div>
-                        ))}
-                      </div>
-                    )}
+
+                          {/* SMART QUICK-ADD CHIPS FOR CURRENT CATEGORY */}
+                          <div style={{ background: '#fff', padding: '12px 16px', borderRadius: 14, border: '1px solid #e2e8f0' }}>
+                            <div style={{ fontSize: 11, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+                              <span>⚡ Quick-Add Recommended Specs:</span>
+                              <span style={{ fontSize: 10, color: '#94a3b8', textTransform: 'none' }}>(Click to fill)</span>
+                            </div>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                              {currentCategoryPresets.presets.map((preset) => {
+                                const alreadyAdded = specs.some(s => s.key.toLowerCase() === preset.key.toLowerCase());
+                                const isSelected = newSpecKey.toLowerCase() === preset.key.toLowerCase();
+                                return (
+                                  <button
+                                    key={preset.key}
+                                    type="button"
+                                    onClick={() => {
+                                      setNewSpecKey(preset.key);
+                                      if (preset.options.length > 0 && !newSpecValue) {
+                                        setNewSpecValue(preset.options[0]);
+                                      }
+                                    }}
+                                    style={{
+                                      padding: '5px 12px',
+                                      borderRadius: 8,
+                                      border: isSelected ? '1.5px solid #7c3aed' : '1px solid #e2e8f0',
+                                      background: isSelected ? '#faf5ff' : (alreadyAdded ? '#f1f5f9' : '#fff'),
+                                      color: isSelected ? '#7c3aed' : (alreadyAdded ? '#94a3b8' : '#334155'),
+                                      fontSize: 12,
+                                      fontWeight: 600,
+                                      cursor: 'pointer',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      gap: 4,
+                                      transition: 'all .2s'
+                                    }}
+                                    onMouseOver={e => {
+                                      if (!isSelected) {
+                                        e.currentTarget.style.borderColor = '#cbd5e1';
+                                        e.currentTarget.style.background = '#f8fafc';
+                                      }
+                                    }}
+                                    onMouseOut={e => {
+                                      if (!isSelected) {
+                                        e.currentTarget.style.borderColor = '#e2e8f0';
+                                        e.currentTarget.style.background = alreadyAdded ? '#f1f5f9' : '#fff';
+                                      }
+                                    }}
+                                  >
+                                    <span>{alreadyAdded ? '✓' : '+'}</span>
+                                    <span>{preset.key}</span>
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+
+                          {/* INPUT ROW (PROPERTY + VALUE + ADD BUTTON) */}
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                            <div className="spec-input-grid" style={{
+                              display: 'grid',
+                              gridTemplateColumns: '1fr 1fr auto',
+                              gap: 10,
+                              width: '100%',
+                              alignItems: 'center'
+                            }}>
+                              <div style={{ position: 'relative' }}>
+                                <input
+                                  type="text"
+                                  className="form-input"
+                                  placeholder={currentActivePreset?.placeholder || "Property Name (e.g. Material, Brand)"}
+                                  value={newSpecKey}
+                                  onChange={e => setNewSpecKey(e.target.value)}
+                                  onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), handleAddSpec())}
+                                  style={{
+                                    borderRadius: 14,
+                                    background: '#fff',
+                                    border: '1.5px solid #cbd5e1',
+                                    padding: '10px 16px',
+                                    fontSize: 13,
+                                    height: 46,
+                                    width: '100%'
+                                  }}
+                                />
+                              </div>
+
+                              <div style={{ position: 'relative' }}>
+                                <input
+                                  type="text"
+                                  className="form-input"
+                                  placeholder="Specification Value (e.g. 100% Cotton, 1 Year)"
+                                  value={newSpecValue}
+                                  onChange={e => setNewSpecValue(e.target.value)}
+                                  onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), handleAddSpec())}
+                                  style={{
+                                    borderRadius: 14,
+                                    background: '#fff',
+                                    border: '1.5px solid #cbd5e1',
+                                    padding: '10px 16px',
+                                    fontSize: 13,
+                                    height: 46,
+                                    width: '100%'
+                                  }}
+                                />
+                              </div>
+
+                              <button
+                                type="button"
+                                onClick={handleAddSpec}
+                                style={{
+                                  padding: '0 24px',
+                                  height: 46,
+                                  borderRadius: 14,
+                                  border: 'none',
+                                  background: 'linear-gradient(135deg,#7c3aed,#6366f1)',
+                                  color: '#fff',
+                                  fontWeight: 700,
+                                  fontSize: 13,
+                                  cursor: 'pointer',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  gap: 6,
+                                  boxShadow: '0 4px 12px rgba(124,58,237,0.2)',
+                                  transition: 'all .2s',
+                                  whiteSpace: 'nowrap'
+                                }}
+                                onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 6px 16px rgba(124,58,237,0.3)'; }}
+                                onMouseOut={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(124,58,237,0.2)'; }}
+                              >
+                                <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+                                Add Spec
+                              </button>
+                            </div>
+
+                            {/* COMMON VALUE SUGGESTIONS IF PROPERTY IS KNOWN */}
+                            {currentActivePreset && currentActivePreset.options.length > 0 && (
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', padding: '4px 6px' }}>
+                                <span style={{ fontSize: 11, color: '#64748b', fontWeight: 600 }}>Suggested values:</span>
+                                {currentActivePreset.options.map(opt => (
+                                  <button
+                                    key={opt}
+                                    type="button"
+                                    onClick={() => setNewSpecValue(opt)}
+                                    style={{
+                                      background: newSpecValue === opt ? '#7c3aed' : '#f1f5f9',
+                                      color: newSpecValue === opt ? '#fff' : '#475569',
+                                      border: 'none',
+                                      padding: '2px 8px',
+                                      borderRadius: 6,
+                                      fontSize: 11,
+                                      fontWeight: 600,
+                                      cursor: 'pointer',
+                                      transition: 'all .15s'
+                                    }}
+                                  >
+                                    {opt}
+                                  </button>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+
+                          {/* ADDED SPECIFICATIONS TABLE / LIST */}
+                          {specs.length > 0 ? (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 4 }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 4px' }}>
+                                <span style={{ fontSize: 12, fontWeight: 700, color: '#334155', display: 'flex', alignItems: 'center', gap: 6 }}>
+                                  <span>📋 Added Specifications ({specs.length})</span>
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => setSpecs([])}
+                                  style={{ background: 'none', border: 'none', color: '#ef4444', fontSize: 11, fontWeight: 600, cursor: 'pointer', padding: 0 }}
+                                >
+                                  Clear all
+                                </button>
+                              </div>
+
+                              <div style={{
+                                background: '#fff',
+                                borderRadius: 14,
+                                border: '1px solid #e2e8f0',
+                                overflow: 'hidden',
+                                boxShadow: '0 2px 6px rgba(0,0,0,0.02)'
+                              }}>
+                                {specs.map((s, idx) => (
+                                  <div
+                                    key={idx}
+                                    style={{
+                                      display: 'flex',
+                                      justifyContent: 'space-between',
+                                      alignItems: 'center',
+                                      padding: '10px 16px',
+                                      borderBottom: idx === specs.length - 1 ? 'none' : '1px solid #f1f5f9',
+                                      background: editingSpecIdx === idx ? '#faf5ff' : '#fff',
+                                      transition: 'all .2s'
+                                    }}
+                                  >
+                                    <div style={{ display: 'flex', gap: 12, fontSize: 13, alignItems: 'center', minWidth: 0, flex: 1 }}>
+                                      <span style={{ display: 'inline-block', width: 6, height: 6, borderRadius: '50%', background: '#7c3aed', flexShrink: 0 }}></span>
+                                      <span style={{ fontWeight: 700, color: '#334155', minWidth: 120, flexShrink: 0 }}>{s.key}:</span>
+
+                                      {editingSpecIdx === idx ? (
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1 }}>
+                                          <input
+                                            type="text"
+                                            value={editingSpecVal}
+                                            onChange={e => setEditingSpecVal(e.target.value)}
+                                            onKeyDown={e => {
+                                              if (e.key === 'Enter') {
+                                                if (editingSpecVal.trim()) {
+                                                  setSpecs(prev => prev.map((item, i) => i === idx ? { ...item, value: editingSpecVal.trim() } : item));
+                                                  setEditingSpecIdx(null);
+                                                }
+                                              } else if (e.key === 'Escape') {
+                                                setEditingSpecIdx(null);
+                                              }
+                                            }}
+                                            autoFocus
+                                            style={{
+                                              padding: '4px 10px',
+                                              borderRadius: 8,
+                                              border: '1.5px solid #7c3aed',
+                                              fontSize: 13,
+                                              width: '100%',
+                                              maxWidth: 240,
+                                              outline: 'none'
+                                            }}
+                                          />
+                                          <button
+                                            type="button"
+                                            onClick={() => {
+                                              if (editingSpecVal.trim()) {
+                                                setSpecs(prev => prev.map((item, i) => i === idx ? { ...item, value: editingSpecVal.trim() } : item));
+                                                setEditingSpecIdx(null);
+                                                showToast("Updated specification value!", "success");
+                                              }
+                                            }}
+                                            style={{ background: '#7c3aed', color: '#fff', border: 'none', padding: '4px 10px', borderRadius: 6, fontSize: 11, fontWeight: 700, cursor: 'pointer' }}
+                                          >
+                                            Save
+                                          </button>
+                                          <button
+                                            type="button"
+                                            onClick={() => setEditingSpecIdx(null)}
+                                            style={{ background: '#f1f5f9', color: '#64748b', border: 'none', padding: '4px 8px', borderRadius: 6, fontSize: 11, cursor: 'pointer' }}
+                                          >
+                                            Cancel
+                                          </button>
+                                        </div>
+                                      ) : (
+                                        <span
+                                          onClick={() => {
+                                            setEditingSpecIdx(idx);
+                                            setEditingSpecVal(s.value);
+                                          }}
+                                          title="Click to edit value"
+                                          style={{ color: '#0f172a', fontWeight: 500, cursor: 'pointer', padding: '2px 6px', borderRadius: 6 }}
+                                          onMouseOver={e => e.currentTarget.style.background = '#f1f5f9'}
+                                          onMouseOut={e => e.currentTarget.style.background = 'transparent'}
+                                        >
+                                          {s.value} <span style={{ fontSize: 10, color: '#94a3b8', marginLeft: 4 }}>✎</span>
+                                        </span>
+                                      )}
+                                    </div>
+
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginLeft: 12 }}>
+                                      <button
+                                        type="button"
+                                        onClick={() => setSpecs(prev => prev.filter((_, i) => i !== idx))}
+                                        style={{
+                                          border: 'none',
+                                          background: 'rgba(239,68,68,0.08)',
+                                          color: '#ef4444',
+                                          padding: '5px 12px',
+                                          borderRadius: 8,
+                                          cursor: 'pointer',
+                                          fontSize: 11,
+                                          fontWeight: 700,
+                                          transition: 'all 0.2s'
+                                        }}
+                                        onMouseOver={e => { e.currentTarget.style.background = '#ef4444'; e.currentTarget.style.color = '#fff'; }}
+                                        onMouseOut={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.08)'; e.currentTarget.style.color = '#ef4444'; }}
+                                      >
+                                        Remove
+                                      </button>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+
+                              <div style={{ fontSize: 11, color: '#16a34a', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4, padding: '0 4px' }}>
+                                <span>✓</span>
+                                <span>These {specs.length} specifications will automatically be formatted into the buyer Details table on your product listing.</span>
+                              </div>
+                            </div>
+                          ) : (
+                            <div style={{
+                              background: '#fff',
+                              borderRadius: 14,
+                              border: '1px dashed #cbd5e1',
+                              padding: '16px',
+                              textAlign: 'center',
+                              color: '#64748b',
+                              fontSize: 12
+                            }}>
+                              💡 No specifications added yet. Click any quick-add chip above or tap <strong>"Autofill {currentCategoryPresets.label} Specs"</strong> to fill standard details in 1 second.
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })()}
                   </div>
 
                   <div className="form-group" style={{ marginTop: 24 }}>
