@@ -491,6 +491,8 @@ interface DetectedItemInfo {
   suggestedPrice: string;
   confidence: string;
   detectedType: string;
+  description?: string;
+  summary?: string;
 }
 
 // Global cache for client-side MobileNet model
@@ -570,7 +572,50 @@ const detectItemFromImageSource = async (
   const cleanColor = (colorName || "").trim();
   const colorPrefix = cleanColor ? `${cleanColor} ` : "";
 
-  // 1. Client-side Filename Matching (instant & accurate when filename has product hints)
+  // 1. Super-Smart Cloud Multi-Modal AI Vision (OpenAI GPT-4o-mini / Google Gemini Vision)
+  if (imageSrc) {
+    try {
+      const storedOpenAiKey = typeof window !== "undefined" ? (localStorage.getItem("shopply_openai_key") || "") : "";
+      const storedGeminiKey = typeof window !== "undefined" ? (localStorage.getItem("shopply_gemini_key") || "") : "";
+
+      const res = await fetch("/api/ai/scan-image", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(storedOpenAiKey ? { "x-openai-key": storedOpenAiKey } : {}),
+          ...(storedGeminiKey ? { "x-gemini-key": storedGeminiKey } : {})
+        },
+        body: JSON.stringify({
+          image: imageSrc,
+          filename: file?.name || "",
+          color: cleanColor,
+          category: currentCategory || "General",
+          openaiKey: storedOpenAiKey,
+          geminiKey: storedGeminiKey
+        })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && data.title && (data.engine?.includes("OpenAI") || data.engine?.includes("Gemini"))) {
+          return {
+            title: data.title,
+            category: data.category || currentCategory || "General",
+            categoryLabel: data.categoryLabel || "Gadgets",
+            suggestedPrice: data.suggestedPrice || "899.00",
+            confidence: "high",
+            detectedType: data.engine || "OpenAI Vision",
+            description: data.description,
+            summary: data.summary
+          };
+        }
+      }
+    } catch (apiErr) {
+      console.warn("Cloud AI Vision error, using local neural scanner:", apiErr);
+    }
+  }
+
+  // 2. Client-side Filename Matching (instant & accurate when filename has product hints)
   if (file && file.name) {
     const fn = file.name.toLowerCase();
     // Tools & Hardware (e.g. tools.jpg, toolkit, drill, hammer, hardware)
@@ -1754,26 +1799,38 @@ export default function DashboardPage() {
   const [rejectOrderModal, setRejectOrderModal] = useState<number | null>(null);
   const [cartCount, setCartCount] = useState(0);
   const [isAiScanningImage, setIsAiScanningImage] = useState(false);
+  const [showAiKeyModal, setShowAiKeyModal] = useState(false);
+  const [openAiKeyInput, setOpenAiKeyInput] = useState(() => {
+    if (typeof window !== "undefined") return localStorage.getItem("shopply_openai_key") || "";
+    return "";
+  });
+  const [geminiKeyInput, setGeminiKeyInput] = useState(() => {
+    if (typeof window !== "undefined") return localStorage.getItem("shopply_gemini_key") || "";
+    return "";
+  });
   const [aiPhotoDetectedItem, setAiPhotoDetectedItem] = useState<{
     title: string;
     category: string;
     categoryLabel: string;
     suggestedPrice: string;
     detectedType: string;
+    description?: string;
+    summary?: string;
   } | null>(null);
 
   const applyAiDetectedItem = (
     title: string,
     category: string,
     price: string,
-    overridePrice?: string
+    overridePrice?: string,
+    customDesc?: string
   ) => {
     setNewItemName(title);
     setNewItemCategory(category);
     if (!newItemPrice || newItemPrice === "0" || newItemPrice === "0.00" || (overridePrice && parseFloat(overridePrice) > 0)) {
       setNewItemPrice(overridePrice || price);
     }
-    const generatedDesc = generateAiProductDescription(title, category, specs);
+    const generatedDesc = customDesc || generateAiProductDescription(title, category, specs);
     setNewItemDesc(generatedDesc);
     showToast(`✨ AI identified photo as "${title}" & filled Product Name!`, "success");
   };
@@ -2426,7 +2483,9 @@ export default function DashboardPage() {
               applyAiDetectedItem(
                 itemResult.title,
                 itemResult.category,
-                itemResult.suggestedPrice
+                itemResult.suggestedPrice,
+                undefined,
+                itemResult.description
               );
             } catch (err) {
               console.warn("AI detection from showcase image error:", err);
@@ -2490,7 +2549,8 @@ export default function DashboardPage() {
             itemResult.title,
             itemResult.category,
             itemResult.suggestedPrice,
-            newColorPrice.trim() || undefined
+            newColorPrice.trim() || undefined,
+            itemResult.description
           );
         }
       } catch (err) {
@@ -5133,8 +5193,32 @@ export default function DashboardPage() {
                         <div style={{ width: 4, height: 16, background: '#7c3aed', borderRadius: 4 }}></div>
                         Essential Details
                       </h4>
-                      <button
-                        type="button"
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                        <button
+                          type="button"
+                          onClick={() => setShowAiKeyModal(true)}
+                          style={{
+                            padding: '6px 12px',
+                            borderRadius: 10,
+                            border: '1.5px solid #10a37f',
+                            background: openAiKeyInput || geminiKeyInput ? '#ecfdf5' : '#fff',
+                            color: openAiKeyInput || geminiKeyInput ? '#059669' : '#10a37f',
+                            fontSize: 12,
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 5,
+                            transition: 'all .2s',
+                            boxShadow: '0 2px 6px rgba(16,163,127,0.1)'
+                          }}
+                          title="Connect OpenAI GPT-4o-mini Vision or Google Gemini for super-smart product photo recognition"
+                        >
+                          <span>🧠</span>
+                          <span>{openAiKeyInput ? "OpenAI Connected 🟢" : geminiKeyInput ? "Gemini Connected 🟢" : "Connect OpenAI / Gemini Key"}</span>
+                        </button>
+                        <button
+                          type="button"
                         onClick={async () => {
                           const availableImg = newColorPreview || (colorVariants[0]?.preview) || (mainImagesState[0]?.preview);
                           const availableFile = newColorFile || (colorVariants[0]?.file) || (mainImagesState[0]?.file);
@@ -5146,7 +5230,7 @@ export default function DashboardPage() {
                             setIsAiScanningImage(true);
                             const res = await detectItemFromImageSource(availableImg, availableFile, availableColor, newItemCategory);
                             setIsAiScanningImage(false);
-                            applyAiDetectedItem(res.title, res.category, res.suggestedPrice, availablePrice);
+                            applyAiDetectedItem(res.title, res.category, res.suggestedPrice, availablePrice, res.description);
                           } else if (newItemName.trim()) {
                             const detected = detectProductDetailsFromAI(newItemName);
                             if (detected) {
@@ -5161,7 +5245,7 @@ export default function DashboardPage() {
                             }
                           } else {
                             const res = await detectItemFromImageSource(null, null, null, newItemCategory);
-                            applyAiDetectedItem(res.title, res.category, res.suggestedPrice);
+                            applyAiDetectedItem(res.title, res.category, res.suggestedPrice, undefined, res.description);
                             showToast("💡 Auto-filled details based on Category! Upload a photo below anytime to re-detect.", "success");
                           }
                         }}
@@ -5189,6 +5273,7 @@ export default function DashboardPage() {
                       </button>
                     </div>
                   </div>
+                </div>
 
                   <div className="form-row">
                     <div className="form-group">
@@ -5212,10 +5297,10 @@ export default function DashboardPage() {
                                 setIsAiScanningImage(true);
                                 const res = await detectItemFromImageSource(availableImg, availableFile, availableColor, newItemCategory);
                                 setIsAiScanningImage(false);
-                                applyAiDetectedItem(res.title, res.category, res.suggestedPrice, availablePrice);
+                                applyAiDetectedItem(res.title, res.category, res.suggestedPrice, availablePrice, res.description);
                               } else {
                                 const res = await detectItemFromImageSource(null, null, null, newItemCategory);
-                                applyAiDetectedItem(res.title, res.category, res.suggestedPrice);
+                                applyAiDetectedItem(res.title, res.category, res.suggestedPrice, undefined, res.description);
                                 showToast("💡 Auto-named from Category! Drop or upload an item photo below anytime to re-detect.", "success");
                               }
                             }}
@@ -5290,7 +5375,7 @@ export default function DashboardPage() {
                                 setIsAiScanningImage(true);
                                 const res = await detectItemFromImageSource(availableImg, availableFile, availableColor, newItemCategory);
                                 setIsAiScanningImage(false);
-                                applyAiDetectedItem(res.title, res.category, res.suggestedPrice, availablePrice);
+                                applyAiDetectedItem(res.title, res.category, res.suggestedPrice, availablePrice, res.description);
                               }}
                               style={{
                                 background: 'linear-gradient(135deg, #7c3aed, #6366f1)',
@@ -6579,7 +6664,7 @@ export default function DashboardPage() {
                             // If Product Name is blank or generic placeholder, AI automatically detects the item from this uploaded variant photo!
                             if ((!newItemName.trim() || /Lifestyle Product|Gadget Product|Quality Product|Quality Lifestyle|Minimalist Home Living/i.test(newItemName)) && (addedPreview || addedFile)) {
                               detectItemFromImageSource(addedPreview, addedFile, addedColor, newItemCategory).then(res => {
-                                applyAiDetectedItem(res.title, res.category, res.suggestedPrice, addedPrice);
+                                applyAiDetectedItem(res.title, res.category, res.suggestedPrice, addedPrice, res.description);
                               });
                             } else if ((!newItemPrice || newItemPrice === "0" || newItemPrice === "0.00") && addedPrice && parseFloat(addedPrice) > 0) {
                               setNewItemPrice(addedPrice);
@@ -7573,6 +7658,158 @@ export default function DashboardPage() {
               <div style={{ padding: '12px 20px', background: '#f8fafc', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span style={{ fontSize: 12, color: '#64748b' }}>Click anywhere outside or press Close to dismiss</span>
                 <button type="button" onClick={() => setVariantZoomPhoto(null)} style={{ padding: '8px 20px', background: '#7c3aed', color: '#fff', border: 'none', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'all .2s' }}>Close</button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* OPENAI / GEMINI VISION CONFIGURATION MODAL */}
+        {showAiKeyModal && (
+          <div
+            style={{
+              position: 'fixed',
+              inset: 0,
+              background: 'rgba(15, 23, 42, 0.6)',
+              backdropFilter: 'blur(4px)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 9999,
+              padding: 16
+            }}
+            onClick={() => setShowAiKeyModal(false)}
+          >
+            <div
+              style={{
+                background: '#fff',
+                borderRadius: 20,
+                maxWidth: 480,
+                width: '100%',
+                padding: 24,
+                boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+                position: 'relative'
+              }}
+              onClick={e => e.stopPropagation()}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <div style={{ width: 40, height: 40, borderRadius: 12, background: 'linear-gradient(135deg, #10a37f, #059669)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 20 }}>
+                    🧠
+                  </div>
+                  <div>
+                    <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#0f172a' }}>Connect OpenAI Vision</h3>
+                    <p style={{ margin: 0, fontSize: 12, color: '#64748b' }}>Super-smart image-to-text product scanning</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowAiKeyModal(false)}
+                  style={{ border: 'none', background: 'none', fontSize: 22, cursor: 'pointer', color: '#94a3b8' }}
+                >
+                  &times;
+                </button>
+              </div>
+
+              <div style={{ background: '#f8fafc', borderRadius: 12, padding: 12, border: '1px solid #e2e8f0', marginBottom: 16, fontSize: 12, color: '#475569', lineHeight: 1.5 }}>
+                ✨ <strong>How it works:</strong> Paste your OpenAI API Key (<code style={{ background: '#e2e8f0', padding: '2px 4px', borderRadius: 4 }}>sk-...</code>). The AI uses <strong>GPT-4o-mini Vision</strong> to examine your uploaded product photo, detect exact brands (e.g. DEKOPRO, Bosch, Nike, Apple), exact tools in a set, colors, and automatically write the Product Name & Description!
+              </div>
+
+              <div style={{ marginBottom: 14 }}>
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#334155', marginBottom: 6 }}>
+                  OpenAI API Key (GPT-4o-mini Vision)
+                </label>
+                <input
+                  type="password"
+                  className="form-input"
+                  placeholder="sk-proj-..."
+                  value={openAiKeyInput}
+                  onChange={e => setOpenAiKeyInput(e.target.value)}
+                  style={{ width: '100%', fontSize: 13 }}
+                />
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 }}>
+                  <span style={{ fontSize: 11, color: '#94a3b8' }}>Stored securely in your browser</span>
+                  <a href="https://platform.openai.com/api-keys" target="_blank" rel="noreferrer" style={{ fontSize: 11, color: '#7c3aed', fontWeight: 600 }}>
+                    Get OpenAI Key →
+                  </a>
+                </div>
+              </div>
+
+              <div style={{ marginBottom: 20 }}>
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#334155', marginBottom: 6 }}>
+                  Google Gemini API Key (Free Option)
+                </label>
+                <input
+                  type="password"
+                  className="form-input"
+                  placeholder="AIzaSy..."
+                  value={geminiKeyInput}
+                  onChange={e => setGeminiKeyInput(e.target.value)}
+                  style={{ width: '100%', fontSize: 13 }}
+                />
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 }}>
+                  <span style={{ fontSize: 11, color: '#94a3b8' }}>Free tier with Gemini 1.5 Flash</span>
+                  <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noreferrer" style={{ fontSize: 11, color: '#7c3aed', fontWeight: 600 }}>
+                    Get Free Gemini Key →
+                  </a>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', alignItems: 'center' }}>
+                {(openAiKeyInput || geminiKeyInput) && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      localStorage.removeItem("shopply_openai_key");
+                      localStorage.removeItem("shopply_gemini_key");
+                      setOpenAiKeyInput("");
+                      setGeminiKeyInput("");
+                      showToast("AI keys cleared. Using local vision scanner.", "success");
+                      setShowAiKeyModal(false);
+                    }}
+                    style={{
+                      padding: '8px 14px',
+                      borderRadius: 10,
+                      border: '1px solid #e2e8f0',
+                      background: '#fff',
+                      color: '#ef4444',
+                      fontSize: 12,
+                      fontWeight: 600,
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Clear Keys
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (openAiKeyInput.trim()) {
+                      localStorage.setItem("shopply_openai_key", openAiKeyInput.trim());
+                    } else {
+                      localStorage.removeItem("shopply_openai_key");
+                    }
+                    if (geminiKeyInput.trim()) {
+                      localStorage.setItem("shopply_gemini_key", geminiKeyInput.trim());
+                    } else {
+                      localStorage.removeItem("shopply_gemini_key");
+                    }
+                    showToast("✨ AI Vision settings saved! Ready to scan photos with cloud AI.", "success");
+                    setShowAiKeyModal(false);
+                  }}
+                  style={{
+                    padding: '8px 18px',
+                    borderRadius: 10,
+                    border: 'none',
+                    background: 'linear-gradient(135deg, #10a37f, #059669)',
+                    color: '#fff',
+                    fontSize: 12,
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    boxShadow: '0 4px 12px rgba(16,163,127,0.25)'
+                  }}
+                >
+                  Save & Enable Super-Smart Vision →
+                </button>
               </div>
             </div>
           </div>
