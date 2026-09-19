@@ -6,7 +6,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://shop-ply.site"),
+  metadataBase: new URL("https://www.shop-ply.site"),
   title: {
     default: "Shopply | Online Shopping & Marketplace Philippines",
     template: "%s | Shopply",
