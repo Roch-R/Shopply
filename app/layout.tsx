@@ -6,8 +6,60 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Shopply",
-  description: "Premium E-Commerce Platform",
+  metadataBase: new URL("https://shop-ply.site"),
+  title: {
+    default: "Shopply | Online Shopping & Marketplace Philippines",
+    template: "%s | Shopply",
+  },
+  description: "Shop quality electronics, gadgets, clothes, shoes, household tools, and beauty essentials on Shopply (shop-ply.site). Fast shipping, secure checkout, and verified sellers across the Philippines.",
+  keywords: [
+    "Shopply",
+    "shop-ply",
+    "shop ply",
+    "shop-ply.site",
+    "shopply philippines",
+    "online shopping philippines",
+    "e-commerce marketplace",
+    "tools and hardware",
+    "electronics online shop",
+    "buy clothes and shoes online"
+  ],
+  authors: [{ name: "Shopply" }],
+  creator: "Shopply",
+  publisher: "Shopply",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_PH",
+    url: "https://shop-ply.site",
+    title: "Shopply | Online Shopping & Marketplace Philippines",
+    description: "Shop quality electronics, gadgets, tools, clothes, and home essentials on Shopply.",
+    siteName: "Shopply",
+    images: [
+      {
+        url: "/icon.png",
+        width: 512,
+        height: 512,
+        alt: "Shopply Marketplace",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Shopply | Online Shopping & Marketplace Philippines",
+    description: "Shop quality electronics, gadgets, tools, clothes, and home essentials on Shopply.",
+    images: ["/icon.png"],
+  },
   icons: {
     icon: [
       { url: "/icon.svg", type: "image/svg+xml" },
