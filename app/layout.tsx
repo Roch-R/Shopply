@@ -69,6 +69,9 @@ export const metadata: Metadata = {
     shortcut: "/favicon.ico",
     apple: "/apple-icon.png",
   },
+  verification: {
+    google: "ed3b42f783975a11",
+  },
 };
 
 export const viewport: Viewport = {
