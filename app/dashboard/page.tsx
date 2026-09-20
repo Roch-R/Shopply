@@ -3186,9 +3186,10 @@ export default function DashboardPage() {
         *{box-sizing:border-box;margin:0;padding:0}
         body{background:#f5f7ff;font-family:'Inter',sans-serif}
         .root{min-height:100vh;background:linear-gradient(135deg,#f0f4ff 0%,#faf5ff 50%,#f0f9ff 100%)}
-        .nav{background:#fff;border-bottom:1px solid #e2e8f0;padding:0 32px;height:64px;
+        .nav{background:rgba(255,255,255,0.96);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+          border-bottom:1px solid #e2e8f0;padding:0 32px;height:64px;
           display:flex;align-items:center;justify-content:space-between;
-          box-shadow:0 1px 8px rgba(0,0,0,.04);position:sticky;top:0;z-index:50}
+          box-shadow:0 2px 12px rgba(0,0,0,.04);position:fixed;top:0;left:0;right:0;width:100%;z-index:80}
         .nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
         .logo-text{font-size:17px;font-weight:700;color:#0f172a;letter-spacing:-.3px}
         .nav-right{display:flex;align-items:center;gap:16px}
@@ -3211,7 +3212,7 @@ export default function DashboardPage() {
           font-size:10px;font-weight:700;width:18px;height:18px;border-radius:50%;
           display:flex;align-items:center;justify-content:center;border:2px solid #fff}
 
-        .dashboard-layout{display:block;max-width:100%;padding:24px;min-height:calc(100vh - 64px)}
+        .dashboard-layout{display:block;max-width:100%;padding:88px 24px 24px 24px;min-height:calc(100vh - 64px)}
 
         .sidebar{background:#fff;border-radius:24px;padding:16px 12px;box-shadow:0 10px 40px rgba(0,0,0,0.03);
           border:1px solid #f1f5f9;display:flex;flex-direction:column;gap:6px;position:fixed;top:88px;left:24px;width:240px;z-index:40;max-height:calc(100vh - 104px);overflow-y:auto;overflow-x:hidden}
@@ -3502,7 +3503,7 @@ export default function DashboardPage() {
 
         @media (max-width: 768px){
           .menu-toggle-btn{display:flex !important}
-          .dashboard-layout{padding:12px !important;gap:12px}
+          .dashboard-layout{padding:76px 12px 24px 12px !important;gap:12px}
           .content{margin-left:0 !important}
           .sidebar{
             display:none !important;
@@ -3576,7 +3577,7 @@ export default function DashboardPage() {
         @media (max-width: 768px){
           .orders-list{grid-template-columns:1fr !important}
           .store-orders-grid{grid-template-columns:repeat(2, minmax(0, 1fr)) !important;gap:10px !important}
-          .dashboard-layout{padding:8px !important;gap:0 !important}
+          .dashboard-layout{padding:76px 10px 24px 10px !important;gap:0 !important}
           .content{width:100% !important;margin-left:0 !important}
           .profile-header{flex-direction:column !important;text-align:center !important;
             padding:20px 12px !important;gap:16px !important;border-radius:16px !important;margin-bottom:16px !important}
