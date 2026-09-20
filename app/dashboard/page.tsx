@@ -1042,6 +1042,17 @@ export default function DashboardPage() {
   // Scanner state
   const [showScanner, setShowScanner] = useState(false);
   const [ordersExpanded, setOrdersExpanded] = useState(false);
+  const [expandedOrderIds, setExpandedOrderIds] = useState<Set<string>>(new Set());
+  const [ordersPage, setOrdersPage] = useState(1);
+  const ORDERS_PER_PAGE = 7;
+  const toggleOrderExpand = (id: string | number) => {
+    setExpandedOrderIds(prev => {
+      const next = new Set(prev);
+      const key = String(id);
+      if (next.has(key)) next.delete(key); else next.add(key);
+      return next;
+    });
+  };
   
   // Mobile menu drawer state
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -4257,7 +4268,7 @@ export default function DashboardPage() {
                             <button
                               key={tab.id}
                               type="button"
-                              onClick={() => setOrderTab(tab.id)}
+                              onClick={() => { setOrderTab(tab.id); setOrdersPage(1); }}
                               style={{
                                 padding: '8px 16px',
                                 borderRadius: 20,
@@ -4297,7 +4308,7 @@ export default function DashboardPage() {
                           type="text"
                           placeholder="Search Order ID (#SHP), item, or seller..."
                           value={orderSearch}
-                          onChange={e => setOrderSearch(e.target.value)}
+                          onChange={e => { setOrderSearch(e.target.value); setOrdersPage(1); }}
                           style={{
                             width: '100%',
                             padding: '10px 38px 10px 16px',
@@ -4325,9 +4336,32 @@ export default function DashboardPage() {
                     </div>
                   </div>
 
-                  {/* ORDERS LIST */}
-                  <div className="orders-list" style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-                    {orders.length === 0 ? (
+                  {/* ORDERS LIST — Compact Accordion */}
+                  {(() => {
+                    const filteredOrders = orders
+                      .filter(o => {
+                        if (orderTab === 'all') return true;
+                        if (orderTab === 'processing') return ['pending', 'processing'].includes(o.status);
+                        if (orderTab === 'shipped') return o.status === 'shipped';
+                        if (orderTab === 'delivered') return ['delivered', 'completed'].includes(o.status);
+                        if (orderTab === 'returns') return ['cancelled', 'rejected', 'returns'].includes(o.status);
+                        return false;
+                      })
+                      .filter(o => {
+                        if (!orderSearch.trim()) return true;
+                        const q = orderSearch.toLowerCase();
+                        return (
+                          o.item.name.toLowerCase().includes(q) ||
+                          String(o.id).toLowerCase().includes(q) ||
+                          (o.seller?.name && o.seller.name.toLowerCase().includes(q)) ||
+                          (o.tracking_number && o.tracking_number.toLowerCase().includes(q))
+                        );
+                      });
+
+                    const totalPages = Math.ceil(filteredOrders.length / ORDERS_PER_PAGE);
+                    const pageOrders = filteredOrders.slice((ordersPage - 1) * ORDERS_PER_PAGE, ordersPage * ORDERS_PER_PAGE);
+
+                    if (orders.length === 0) return (
                       <div className="empty-state" style={{ padding: '60px 20px', textAlign: 'center', background: '#fff', borderRadius: 20, border: '1px dashed #cbd5e1' }}>
                         <div style={{ width: 64, height: 64, borderRadius: '50%', background: '#f1f5f9', color: '#94a3b8', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
                           <IconBox />
@@ -4338,496 +4372,243 @@ export default function DashboardPage() {
                           <IconShop /> Browse Marketplace
                         </Link>
                       </div>
-                    ) : orders
-                        .filter(o => {
-                          if (orderTab === 'all') return true;
-                          if (orderTab === 'processing') return ['pending', 'processing'].includes(o.status);
-                          if (orderTab === 'shipped') return o.status === 'shipped';
-                          if (orderTab === 'delivered') return ['delivered', 'completed'].includes(o.status);
-                          if (orderTab === 'returns') return ['cancelled', 'rejected', 'returns'].includes(o.status);
-                          return false;
-                        })
-                        .filter(o => {
-                          if (!orderSearch.trim()) return true;
-                          const q = orderSearch.toLowerCase();
-                          return (
-                            o.item.name.toLowerCase().includes(q) ||
-                            String(o.id).toLowerCase().includes(q) ||
-                            (o.seller?.name && o.seller.name.toLowerCase().includes(q)) ||
-                            (o.tracking_number && o.tracking_number.toLowerCase().includes(q))
-                          );
-                        }).length === 0 ? (
+                    );
+
+                    if (filteredOrders.length === 0) return (
                       <div className="empty-state" style={{ padding: '60px 20px', textAlign: 'center', background: '#fff', borderRadius: 20, border: '1px dashed #cbd5e1' }}>
                         <div className="empty-title" style={{ fontSize: 17, fontWeight: 700, color: '#0f172a', marginBottom: 6 }}>No matching orders found</div>
                         <div className="empty-desc" style={{ color: '#64748b', fontSize: 13, marginBottom: 16 }}>No orders match your selected filter or search term.</div>
-                        <button
-                          onClick={() => { setOrderTab('all'); setOrderSearch(""); }}
-                          style={{ background: '#f1f5f9', color: '#475569', border: '1px solid #cbd5e1', padding: '8px 18px', borderRadius: 10, fontWeight: 600, fontSize: 13, cursor: 'pointer' }}
-                        >
+                        <button onClick={() => { setOrderTab('all'); setOrderSearch(""); }} style={{ background: '#f1f5f9', color: '#475569', border: '1px solid #cbd5e1', padding: '8px 18px', borderRadius: 10, fontWeight: 600, fontSize: 13, cursor: 'pointer' }}>
                           Clear Filters
                         </button>
                       </div>
-                    ) : (
-                      orders
-                        .filter(o => {
-                          if (orderTab === 'all') return true;
-                          if (orderTab === 'processing') return ['pending', 'processing'].includes(o.status);
-                          if (orderTab === 'shipped') return o.status === 'shipped';
-                          if (orderTab === 'delivered') return ['delivered', 'completed'].includes(o.status);
-                          if (orderTab === 'returns') return ['cancelled', 'rejected', 'returns'].includes(o.status);
-                          return false;
-                        })
-                        .filter(o => {
-                          if (!orderSearch.trim()) return true;
-                          const q = orderSearch.toLowerCase();
-                          return (
-                            o.item.name.toLowerCase().includes(q) ||
-                            String(o.id).toLowerCase().includes(q) ||
-                            (o.seller?.name && o.seller.name.toLowerCase().includes(q)) ||
-                            (o.tracking_number && o.tracking_number.toLowerCase().includes(q))
-                          );
-                        })
-                        .map(order => {
-                          const orderCode = `SHP-2026-${String(order.id).slice(-6)}`;
-                          const trackingCode = order.tracking_number || `SPX-PH-${String(order.id).slice(-8)}`;
-                          const courierName = order.courier || "Shopply Express (SPX Standard Local)";
-                          const stepIdx = getOrderStepIndex(order.status);
-                          const isCancelled = ['cancelled', 'rejected'].includes(order.status);
-                          const orderTotal = (parseFloat(order.price) * order.quantity).toFixed(2);
-                          const orderAddress = order.shipping_address || (user?.location ? `${user.location}, Philippines` : "Toledo City, Cebu, Philippines");
-                          const paymentMethod = order.payment_method || "Cash on Delivery (COD)";
+                    );
 
-                          return (
-                            <div
-                              key={order.id}
-                              className="order-card"
-                              style={{
-                                background: '#fff',
-                                borderRadius: 20,
-                                border: '1.5px solid #f1f5f9',
-                                boxShadow: '0 4px 20px rgba(0,0,0,0.04)',
-                                overflow: 'hidden',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                transition: 'transform 0.2s, box-shadow 0.2s'
-                              }}
-                            >
-                              {/* 1. ORDER CARD TOP HEADER */}
-                              <div
-                                style={{
-                                  padding: '16px 24px',
-                                  background: '#fafbfc',
-                                  borderBottom: '1px solid #f1f5f9',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'space-between',
-                                  flexWrap: 'wrap',
-                                  gap: 12
-                                }}
-                              >
-                                <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-                                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                    <div style={{ width: 34, height: 34, borderRadius: '50%', background: 'linear-gradient(135deg, #7c3aed, #6366f1)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 700 }}>
-                                      <IconStore />
+                    return (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+                        {/* Summary row */}
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 16px', background: '#f8fafc', borderRadius: '16px 16px 0 0', border: '1px solid #e2e8f0', borderBottom: 'none', fontSize: 12, color: '#64748b', fontWeight: 600 }}>
+                          <span>Showing {pageOrders.length} of {filteredOrders.length} order{filteredOrders.length !== 1 ? 's' : ''}</span>
+                          <span style={{ color: '#7c3aed', fontWeight: 700 }}>Click any row to expand details ▾</span>
+                        </div>
+
+                        {/* Order rows */}
+                        <div style={{ border: '1px solid #e2e8f0', borderRadius: '0 0 16px 16px', overflow: 'hidden', background: '#fff' }}>
+                          {pageOrders.map((order, idx) => {
+                            const orderCode = `SHP-2026-${String(order.id).slice(-6)}`;
+                            const trackingCode = order.tracking_number || `SPX-PH-${String(order.id).slice(-8)}`;
+                            const courierName = order.courier || "Shopply Express (SPX Standard Local)";
+                            const stepIdx = getOrderStepIndex(order.status);
+                            const isCancelled = ['cancelled', 'rejected'].includes(order.status);
+                            const orderTotal = (parseFloat(order.price) * order.quantity).toFixed(2);
+                            const orderAddress = order.shipping_address || (user?.location ? `${user.location}, Philippines` : "Toledo City, Cebu, Philippines");
+                            const paymentMethod = order.payment_method || "Cash on Delivery (COD)";
+                            const isExpanded = expandedOrderIds.has(String(order.id));
+                            const isLast = idx === pageOrders.length - 1;
+
+                            return (
+                              <div key={order.id} style={{ borderBottom: isLast ? 'none' : '1px solid #f1f5f9' }}>
+                                {/* ── COMPACT ROW (always visible) ── */}
+                                <div
+                                  onClick={() => toggleOrderExpand(order.id)}
+                                  style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 12,
+                                    padding: '12px 16px',
+                                    cursor: 'pointer',
+                                    background: isExpanded ? '#faf5ff' : '#fff',
+                                    transition: 'background 0.15s',
+                                    userSelect: 'none'
+                                  }}
+                                  onMouseEnter={e => { if (!isExpanded) (e.currentTarget as HTMLDivElement).style.background = '#f8fafc'; }}
+                                  onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.background = isExpanded ? '#faf5ff' : '#fff'; }}
+                                >
+                                  {/* Thumbnail */}
+                                  {order.item.image ? (
+                                    <img
+                                      src={getImageUrl(order.item.image)}
+                                      alt={order.item.name}
+                                      loading="lazy"
+                                      style={{ width: 52, height: 52, objectFit: 'cover', borderRadius: 10, border: '1px solid #f1f5f9', flexShrink: 0 }}
+                                    />
+                                  ) : (
+                                    <div style={{ width: 52, height: 52, background: '#f8fafc', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#cbd5e1', border: '1px solid #f1f5f9', flexShrink: 0 }}>
+                                      <IconBox />
                                     </div>
-                                    <div>
-                                      <span style={{ fontWeight: 800, color: '#0f172a', fontSize: 14 }}>
-                                        {order.seller?.name || 'Shopply Store'}
-                                      </span>
-                                      <span style={{ fontSize: 11, color: '#10b981', fontWeight: 600, marginLeft: 6, background: 'rgba(16,185,129,0.1)', padding: '1px 6px', borderRadius: 6 }}>
-                                        Verified Seller
-                                      </span>
+                                  )}
+
+                                  {/* Item info */}
+                                  <div style={{ flex: 1, minWidth: 0 }}>
+                                    <div style={{ fontSize: 13, fontWeight: 700, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                      {order.item.name}
+                                      {order.variation && <span style={{ fontSize: 11, color: '#7c3aed', marginLeft: 6, fontWeight: 600 }}>({order.variation})</span>}
                                     </div>
+                                    <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>
+                                      <span style={{ fontFamily: 'monospace', fontWeight: 600, color: '#64748b' }}>#{orderCode}</span>
+                                      <span style={{ margin: '0 6px' }}>·</span>
+                                      <span>{order.seller?.name || 'Shopply Store'}</span>
+                                      <span style={{ margin: '0 6px' }}>·</span>
+                                      <span>x{order.quantity}</span>
+                                    </div>
+                                    <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 1 }}>{formatOrderDate(order.created_at)}</div>
                                   </div>
 
-                                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                    <button
-                                      type="button"
-                                      onClick={() => handleContactSeller(order.seller)}
-                                      style={{
-                                        background: '#fff',
-                                        border: '1px solid #cbd5e1',
-                                        padding: '4px 10px',
-                                        borderRadius: 8,
-                                        fontSize: 12,
-                                        fontWeight: 600,
-                                        color: '#7c3aed',
-                                        cursor: 'pointer',
-                                        display: 'inline-flex',
-                                        alignItems: 'center',
-                                        gap: 5,
-                                        transition: 'all 0.2s'
-                                      }}
-                                      title="Chat with this seller"
-                                    >
-                                      <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                                      Chat Seller
-                                    </button>
-                                    <Link
-                                      href="/shop"
-                                      style={{
-                                        fontSize: 12,
-                                        color: '#64748b',
-                                        textDecoration: 'none',
-                                        fontWeight: 500,
-                                        padding: '4px 8px',
-                                        borderRadius: 8,
-                                        background: '#f1f5f9'
-                                      }}
-                                    >
-                                      View Shop
-                                    </Link>
+                                  {/* Status + Total */}
+                                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4, flexShrink: 0, minWidth: 100 }}>
+                                    {renderStatusBadge(order.status)}
+                                    <span style={{ fontSize: 15, fontWeight: 800, color: '#ee4d2d' }}>₱{orderTotal}</span>
+                                  </div>
+
+                                  {/* Chevron */}
+                                  <div style={{ color: '#94a3b8', flexShrink: 0, transition: 'transform 0.2s', transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)', display: 'flex', alignItems: 'center' }}>
+                                    <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
                                   </div>
                                 </div>
 
-                                <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-                                  <div style={{ textAlign: 'right' }}>
-                                    <div style={{ fontSize: 12, fontWeight: 700, color: '#0f172a', fontFamily: 'monospace', letterSpacing: '0.5px' }}>
-                                      #{orderCode}
-                                    </div>
-                                    <div style={{ fontSize: 11, color: '#94a3b8' }}>
-                                      {formatOrderDate(order.created_at)}
-                                    </div>
-                                  </div>
-                                  {renderStatusBadge(order.status)}
-                                </div>
-                              </div>
+                                {/* ── EXPANDED PANEL ── */}
+                                {isExpanded && (
+                                  <div style={{ background: '#faf5ff', borderTop: '1px solid #ede9fe', padding: '16px 20px 20px', display: 'flex', flexDirection: 'column', gap: 14 }}>
 
-                              {/* 2. ORDER PROGRESS STEPPER */}
-                              <div style={{ padding: '16px 24px', background: '#fff', borderBottom: '1px solid #f8fafc' }}>
-                                {isCancelled ? (
-                                  <div style={{ background: '#fef2f2', border: '1px solid #fee2e2', borderRadius: 12, padding: '10px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#b91c1c', fontSize: 13, fontWeight: 600 }}>
-                                      <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
-                                      <span>Order Cancelled</span>
-                                      {order.cancellation_reason && (
-                                        <span style={{ fontSize: 12, color: '#7f1d1d', fontWeight: 400 }}>({order.cancellation_reason})</span>
-                                      )}
-                                    </div>
-                                    <span style={{ fontSize: 11, color: '#ef4444', fontWeight: 600 }}>No payment charged • Stock restored</span>
-                                  </div>
-                                ) : (
-                                  <div className="order-stepper-wrap" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'relative', width: '100%', maxWidth: 720, margin: '4px auto 0' }}>
-                                    {/* Connecting Progress Line */}
-                                    <div style={{ position: 'absolute', top: 14, left: 24, right: 24, height: 3, background: '#e2e8f0', zIndex: 1 }}>
-                                      <div style={{
-                                        height: '100%',
-                                        background: stepIdx >= 4 ? '#10b981' : '#7c3aed',
-                                        width: stepIdx === 1 ? '0%' : stepIdx === 2 ? '33%' : stepIdx === 3 ? '66%' : '100%',
-                                        transition: 'width 0.4s ease'
-                                      }} />
-                                    </div>
-
-                                    {[
-                                      { step: 1, label: 'Order Placed', sub: 'Verified' },
-                                      { step: 2, label: 'Processing', sub: 'Merchant Packing' },
-                                      { step: 3, label: 'In Transit', sub: 'SPX Courier' },
-                                      { step: 4, label: 'Delivered', sub: 'Completed' }
-                                    ].map(s => {
-                                      const isDone = stepIdx >= s.step;
-                                      const isCurrent = stepIdx === s.step;
-                                      const isDelivered = stepIdx === 4;
-                                      const activeColor = isDelivered ? '#10b981' : '#7c3aed';
-
-                                      return (
-                                        <div key={s.step} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative', zIndex: 2, textAlign: 'center' }}>
-                                          <div style={{
-                                            width: 30,
-                                            height: 30,
-                                            borderRadius: '50%',
-                                            background: isDone ? activeColor : '#fff',
-                                            border: `2px solid ${isDone ? activeColor : '#cbd5e1'}`,
-                                            color: isDone ? '#fff' : '#94a3b8',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            fontSize: 12,
-                                            fontWeight: 700,
-                                            boxShadow: isCurrent ? `0 0 0 4px ${isDelivered ? 'rgba(16,185,129,0.18)' : 'rgba(124,58,237,0.18)'}` : 'none',
-                                            transition: 'all 0.3s'
-                                          }}>
-                                            {isDone ? '✓' : s.step}
-                                          </div>
-                                          <span style={{ fontSize: 12, fontWeight: isCurrent ? 800 : isDone ? 700 : 500, color: isCurrent ? '#0f172a' : isDone ? '#334155' : '#94a3b8', marginTop: 6, whiteSpace: 'nowrap' }}>
-                                            {s.label}
-                                          </span>
-                                          <span style={{ fontSize: 10, color: isCurrent ? activeColor : '#94a3b8', fontWeight: isCurrent ? 700 : 400, whiteSpace: 'nowrap' }}>
-                                            {s.sub}
-                                          </span>
+                                    {/* Order Progress Stepper */}
+                                    {isCancelled ? (
+                                      <div style={{ background: '#fef2f2', border: '1px solid #fee2e2', borderRadius: 12, padding: '10px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#b91c1c', fontSize: 13, fontWeight: 600 }}>
+                                          <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                                          <span>Order Cancelled</span>
+                                          {order.cancellation_reason && (
+                                            <span style={{ fontSize: 12, color: '#7f1d1d', fontWeight: 400 }}>({order.cancellation_reason})</span>
+                                          )}
                                         </div>
-                                      );
-                                    })}
-                                  </div>
-                                )}
-                              </div>
-
-                              {/* 3. ORDER PRODUCT DETAILS ROW */}
-                              <div style={{ padding: '20px 24px', display: 'flex', gap: 18, alignItems: 'center', flexWrap: 'wrap' }}>
-                                {order.item.image ? (
-                                  <img
-                                    src={getImageUrl(order.item.image)}
-                                    alt={order.item.name}
-                                    loading="lazy"
-                                    decoding="async"
-                                    style={{ width: 88, height: 88, objectFit: 'cover', borderRadius: 14, border: '1px solid #f1f5f9', boxShadow: '0 2px 8px rgba(0,0,0,0.04)', flexShrink: 0 }}
-                                  />
-                                ) : (
-                                  <div style={{ width: 88, height: 88, background: '#f8fafc', borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#cbd5e1', border: '1px solid #f1f5f9', flexShrink: 0 }}>
-                                    <IconBox />
-                                  </div>
-                                )}
-
-                                <div style={{ flex: 1, minWidth: 200, display: 'flex', flexDirection: 'column', gap: 6 }}>
-                                  <div style={{ fontSize: 16, fontWeight: 700, color: '#0f172a', lineHeight: 1.4 }}>
-                                    {order.item.name}
-                                  </div>
-                                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-                                    {order.variation && (
-                                      <span style={{ fontSize: 12, color: '#7c3aed', background: '#f5f3ff', padding: '2px 8px', borderRadius: 6, fontWeight: 600 }}>
-                                        Variation: {order.variation}
-                                      </span>
+                                        <span style={{ fontSize: 11, color: '#ef4444', fontWeight: 600 }}>No payment charged • Stock restored</span>
+                                      </div>
+                                    ) : (
+                                      <div className="order-stepper-wrap" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'relative', width: '100%', maxWidth: 640, margin: '4px auto 0' }}>
+                                        <div style={{ position: 'absolute', top: 14, left: 24, right: 24, height: 3, background: '#e2e8f0', zIndex: 1 }}>
+                                          <div style={{ height: '100%', background: stepIdx >= 4 ? '#10b981' : '#7c3aed', width: stepIdx === 1 ? '0%' : stepIdx === 2 ? '33%' : stepIdx === 3 ? '66%' : '100%', transition: 'width 0.4s ease' }} />
+                                        </div>
+                                        {[
+                                          { step: 1, label: 'Order Placed', sub: 'Verified' },
+                                          { step: 2, label: 'Processing', sub: 'Packing' },
+                                          { step: 3, label: 'In Transit', sub: 'SPX Courier' },
+                                          { step: 4, label: 'Delivered', sub: 'Completed' }
+                                        ].map(s => {
+                                          const isDone = stepIdx >= s.step;
+                                          const isCurrent = stepIdx === s.step;
+                                          const isDelivered = stepIdx === 4;
+                                          const activeColor = isDelivered ? '#10b981' : '#7c3aed';
+                                          return (
+                                            <div key={s.step} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative', zIndex: 2, textAlign: 'center' }}>
+                                              <div style={{ width: 28, height: 28, borderRadius: '50%', background: isDone ? activeColor : '#fff', border: `2px solid ${isDone ? activeColor : '#cbd5e1'}`, color: isDone ? '#fff' : '#94a3b8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, boxShadow: isCurrent ? `0 0 0 4px ${isDelivered ? 'rgba(16,185,129,0.18)' : 'rgba(124,58,237,0.18)'}` : 'none', transition: 'all 0.3s' }}>
+                                                {isDone ? '✓' : s.step}
+                                              </div>
+                                              <span style={{ fontSize: 11, fontWeight: isCurrent ? 800 : isDone ? 700 : 500, color: isCurrent ? '#0f172a' : isDone ? '#334155' : '#94a3b8', marginTop: 5, whiteSpace: 'nowrap' }}>{s.label}</span>
+                                              <span style={{ fontSize: 10, color: isCurrent ? activeColor : '#94a3b8', fontWeight: isCurrent ? 700 : 400, whiteSpace: 'nowrap' }}>{s.sub}</span>
+                                            </div>
+                                          );
+                                        })}
+                                      </div>
                                     )}
-                                    <span style={{ fontSize: 13, color: '#64748b' }}>
-                                      Quantity: <strong style={{ color: '#0f172a' }}>x{order.quantity}</strong>
-                                    </span>
-                                  </div>
-                                  <div style={{ fontSize: 13, color: '#64748b' }}>
-                                    Unit Price: <span style={{ fontWeight: 600, color: '#0f172a' }}>₱{parseFloat(order.price).toFixed(2)}</span>
-                                  </div>
-                                </div>
 
-                                <div style={{ textAlign: 'right', flexShrink: 0, minWidth: 120 }}>
-                                  <div style={{ fontSize: 11, color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Item Subtotal</div>
-                                  <div style={{ fontSize: 16, fontWeight: 800, color: '#0f172a' }}>
-                                    ₱{orderTotal}
+                                    {/* Logistics Strip */}
+                                    <div style={{ background: '#fff', borderRadius: 12, padding: '10px 14px', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10, fontSize: 12 }}>
+                                      <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#334155' }}>
+                                          <span style={{ color: '#7c3aed', fontWeight: 700 }}>🚚 SPX:</span>
+                                          <span style={{ fontFamily: 'monospace', fontWeight: 700, color: '#0f172a' }}>{trackingCode}</span>
+                                          <button type="button" onClick={e => { e.stopPropagation(); if (navigator.clipboard) { navigator.clipboard.writeText(trackingCode); showToast(`Copied: ${trackingCode}`, "success"); } }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#7c3aed', padding: 0, fontSize: 11, fontWeight: 700 }} title="Copy">Copy</button>
+                                        </div>
+                                        <div style={{ color: '#64748b' }}>📍 <strong style={{ color: '#334155' }}>{orderAddress}</strong></div>
+                                      </div>
+                                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                        <span style={{ color: '#64748b' }}>Payment:</span>
+                                        <span style={{ background: '#ecfdf5', color: '#059669', padding: '2px 8px', borderRadius: 6, fontWeight: 700, border: '1px solid #a7f3d0' }}>💵 {paymentMethod}</span>
+                                      </div>
+                                    </div>
+
+                                    {/* Action Buttons Row */}
+                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}>
+                                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                        <span style={{ fontSize: 12, color: '#64748b' }}>Order Total:</span>
+                                        <span style={{ fontSize: 18, fontWeight: 800, color: '#ee4d2d' }}>₱{orderTotal}</span>
+                                        <span style={{ fontSize: 11, color: '#059669', background: '#ecfdf5', padding: '2px 8px', borderRadius: 6, fontWeight: 700 }}>Free Shipping</span>
+                                      </div>
+                                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                                        {/* Track */}
+                                        <button type="button" onClick={e => { e.stopPropagation(); setTrackingOrder(order); }} style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)', color: '#fff', border: 'none', padding: '7px 14px', borderRadius: 9, fontWeight: 600, fontSize: 12, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 5, boxShadow: '0 4px 10px rgba(124,58,237,0.2)' }}>
+                                          <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M1 3h15v13H1z"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                                          Track
+                                        </button>
+                                        {/* Invoice */}
+                                        <button type="button" onClick={e => { e.stopPropagation(); setReceiptOrder(order); }} style={{ background: '#fff', color: '#475569', border: '1.5px solid #cbd5e1', padding: '6px 12px', borderRadius: 9, fontWeight: 600, fontSize: 12, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+                                          <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                                          Invoice
+                                        </button>
+                                        {/* Buy Again */}
+                                        <button type="button" onClick={e => { e.stopPropagation(); handleBuyAgain(order); }} style={{ background: '#fff', color: '#0f172a', border: '1.5px solid #cbd5e1', padding: '6px 12px', borderRadius: 9, fontWeight: 600, fontSize: 12, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+                                          <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                                          Buy Again
+                                        </button>
+                                        {/* Chat Seller */}
+                                        <button type="button" onClick={e => { e.stopPropagation(); handleContactSeller(order.seller); }} style={{ background: '#fff', color: '#7c3aed', border: '1.5px solid #c4b5fd', padding: '6px 12px', borderRadius: 9, fontWeight: 600, fontSize: 12, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+                                          <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                                          Chat
+                                        </button>
+                                        {/* Cancel (Pending only) */}
+                                        {order.status === 'pending' && (
+                                          <button type="button" onClick={e => { e.stopPropagation(); setCancelModalOrder(order); setCancelReason("Changed mind / Found cheaper alternative"); }} style={{ background: '#fff', color: '#ef4444', border: '1.5px solid #fecaca', padding: '6px 12px', borderRadius: 9, fontWeight: 600, fontSize: 12, cursor: 'pointer' }}>
+                                            Cancel
+                                          </button>
+                                        )}
+                                        {/* Confirm Received (Shipped) */}
+                                        {order.status === 'shipped' && (
+                                          <button type="button" onClick={e => { e.stopPropagation(); handleReceiveOrder(order.id); }} style={{ background: 'linear-gradient(135deg,#10b981,#059669)', color: '#fff', border: 'none', padding: '7px 14px', borderRadius: 9, cursor: 'pointer', fontSize: 12, fontWeight: 700, boxShadow: '0 4px 12px rgba(16,185,129,0.25)' }}>
+                                            ✓ Confirm Received
+                                          </button>
+                                        )}
+                                        {/* Rate (Delivered) */}
+                                        {['delivered', 'completed'].includes(order.status) && (
+                                          <button type="button" onClick={e => { e.stopPropagation(); setReviewModalOrder(order); setReviewRating(5); setReviewComment(""); }} style={{ background: 'linear-gradient(135deg,#f59e0b,#d97706)', color: '#fff', border: 'none', padding: '7px 12px', borderRadius: 9, cursor: 'pointer', fontSize: 12, fontWeight: 700, boxShadow: '0 4px 10px rgba(245,158,11,0.25)', display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+                                            ★ Rate
+                                          </button>
+                                        )}
+                                      </div>
+                                    </div>
                                   </div>
-                                </div>
+                                )}
                               </div>
+                            );
+                          })}
+                        </div>
 
-                              {/* 4. LOGISTICS & PAYMENT STRIP */}
-                              <div
-                                style={{
-                                  margin: '0 24px 16px',
-                                  padding: '12px 18px',
-                                  background: '#f8fafc',
-                                  borderRadius: 14,
-                                  border: '1px solid #f1f5f9',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'space-between',
-                                  flexWrap: 'wrap',
-                                  gap: 12
-                                }}
-                              >
-                                <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap', fontSize: 12 }}>
-                                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#334155' }}>
-                                    <span style={{ color: '#7c3aed', fontWeight: 700 }}>🚚 SPX Express:</span>
-                                    <span style={{ fontFamily: 'monospace', fontWeight: 700, color: '#0f172a' }}>{trackingCode}</span>
-                                    <button
-                                      type="button"
-                                      onClick={() => {
-                                        if (navigator.clipboard) {
-                                          navigator.clipboard.writeText(trackingCode);
-                                          showToast(`Copied tracking number: ${trackingCode}`, "success");
-                                        }
-                                      }}
-                                      style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#7c3aed', padding: 0, fontSize: 11, fontWeight: 700 }}
-                                      title="Copy tracking number"
-                                    >
-                                      [Copy]
-                                    </button>
-                                  </div>
-
-                                  <div style={{ color: '#64748b', display: 'flex', alignItems: 'center', gap: 4 }}>
-                                    <span>📍 Deliver to:</span>
-                                    <strong style={{ color: '#334155' }}>{orderAddress}</strong>
-                                  </div>
-                                </div>
-
-                                <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12 }}>
-                                  <span style={{ color: '#64748b' }}>Payment:</span>
-                                  <span style={{ background: '#ecfdf5', color: '#059669', padding: '3px 8px', borderRadius: 6, fontWeight: 700, border: '1px solid #a7f3d0' }}>
-                                    💵 {paymentMethod}
-                                  </span>
-                                </div>
-                              </div>
-
-                              {/* 5. ORDER CARD ACTION FOOTER */}
-                              <div
-                                className="order-card-footer"
-                                style={{
-                                  padding: '14px 24px',
-                                  background: '#fafbfc',
-                                  borderTop: '1px solid #f1f5f9',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'space-between',
-                                  flexWrap: 'wrap',
-                                  gap: 14
-                                }}
-                              >
-                                <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-                                  <span style={{ fontSize: 13, color: '#64748b', fontWeight: 500 }}>Order Total:</span>
-                                  <span style={{ fontSize: 20, fontWeight: 800, color: '#ee4d2d' }}>
-                                    ₱{orderTotal}
-                                  </span>
-                                  <span style={{ fontSize: 11, color: '#059669', background: '#ecfdf5', padding: '2px 8px', borderRadius: 6, fontWeight: 700 }}>
-                                    Free Shipping
-                                  </span>
-                                </div>
-
-                                <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                                  {/* Track Shipment Modal Button */}
-                                  <button
-                                    type="button"
-                                    onClick={() => setTrackingOrder(order)}
-                                    style={{
-                                      background: 'linear-gradient(135deg, #7c3aed, #6366f1)',
-                                      color: '#fff',
-                                      border: 'none',
-                                      padding: '8px 16px',
-                                      borderRadius: 10,
-                                      fontWeight: 600,
-                                      fontSize: 12,
-                                      cursor: 'pointer',
-                                      display: 'inline-flex',
-                                      alignItems: 'center',
-                                      gap: 6,
-                                      boxShadow: '0 4px 10px rgba(124,58,237,0.2)',
-                                      transition: 'all 0.2s'
-                                    }}
-                                  >
-                                    <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M1 3h15v13H1z"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
-                                    Track Order
-                                  </button>
-
-                                  {/* Official Invoice / Receipt Button */}
-                                  <button
-                                    type="button"
-                                    onClick={() => setReceiptOrder(order)}
-                                    style={{
-                                      background: '#fff',
-                                      color: '#475569',
-                                      border: '1.5px solid #cbd5e1',
-                                      padding: '7px 14px',
-                                      borderRadius: 10,
-                                      fontWeight: 600,
-                                      fontSize: 12,
-                                      cursor: 'pointer',
-                                      display: 'inline-flex',
-                                      alignItems: 'center',
-                                      gap: 5,
-                                      transition: 'all 0.2s'
-                                    }}
-                                  >
-                                    <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9" /><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2" /><rect x="6" y="14" width="12" height="8" /></svg>
-                                    Invoice
-                                  </button>
-
-                                  {/* Buy Again Button */}
-                                  <button
-                                    type="button"
-                                    onClick={() => handleBuyAgain(order)}
-                                    style={{
-                                      background: '#fff',
-                                      color: '#0f172a',
-                                      border: '1.5px solid #cbd5e1',
-                                      padding: '7px 14px',
-                                      borderRadius: 10,
-                                      fontWeight: 600,
-                                      fontSize: 12,
-                                      cursor: 'pointer',
-                                      display: 'inline-flex',
-                                      alignItems: 'center',
-                                      gap: 5,
-                                      transition: 'all 0.2s'
-                                    }}
-                                  >
-                                    <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
-                                    Buy Again
-                                  </button>
-
-                                  {/* Cancel Order Button (Only for Pending orders) */}
-                                  {order.status === 'pending' && (
-                                    <button
-                                      type="button"
-                                      onClick={() => {
-                                        setCancelModalOrder(order);
-                                        setCancelReason("Changed mind / Found cheaper alternative");
-                                      }}
-                                      style={{
-                                        background: '#fff',
-                                        color: '#ef4444',
-                                        border: '1.5px solid #fecaca',
-                                        padding: '7px 14px',
-                                        borderRadius: 10,
-                                        fontWeight: 600,
-                                        fontSize: 12,
-                                        cursor: 'pointer',
-                                        transition: 'all 0.2s'
-                                      }}
-                                    >
-                                      Cancel Order
-                                    </button>
-                                  )}
-
-                                  {/* Mark as Received Button (When shipped) */}
-                                  {order.status === 'shipped' && (
-                                    <button
-                                      type="button"
-                                      onClick={() => handleReceiveOrder(order.id)}
-                                      style={{
-                                        background: 'linear-gradient(135deg, #10b981, #059669)',
-                                        color: '#fff',
-                                        border: 'none',
-                                        padding: '8px 16px',
-                                        borderRadius: 10,
-                                        cursor: 'pointer',
-                                        fontSize: 12,
-                                        fontWeight: 700,
-                                        boxShadow: '0 4px 12px rgba(16,185,129,0.25)',
-                                        transition: 'all 0.2s'
-                                      }}
-                                    >
-                                      ✓ Confirm Received
-                                    </button>
-                                  )}
-
-                                  {/* Write Review Button (When delivered or completed) */}
-                                  {['delivered', 'completed'].includes(order.status) && (
-                                    <button
-                                      type="button"
-                                      onClick={() => {
-                                        setReviewModalOrder(order);
-                                        setReviewRating(5);
-                                        setReviewComment("");
-                                      }}
-                                      style={{
-                                        background: 'linear-gradient(135deg, #f59e0b, #d97706)',
-                                        color: '#fff',
-                                        border: 'none',
-                                        padding: '8px 14px',
-                                        borderRadius: 10,
-                                        cursor: 'pointer',
-                                        fontSize: 12,
-                                        fontWeight: 700,
-                                        boxShadow: '0 4px 10px rgba(245,158,11,0.25)',
-                                        display: 'inline-flex',
-                                        alignItems: 'center',
-                                        gap: 5,
-                                        transition: 'all 0.2s'
-                                      }}
-                                    >
-                                      ★ Rate Product
-                                    </button>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                          );
-                        })
-                    )}
-                  </div>
+                        {/* Pagination */}
+                        {totalPages > 1 && (
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, paddingTop: 16 }}>
+                            <button
+                              type="button"
+                              disabled={ordersPage <= 1}
+                              onClick={() => setOrdersPage(p => Math.max(1, p - 1))}
+                              style={{ padding: '7px 14px', borderRadius: 9, border: '1.5px solid #e2e8f0', background: ordersPage <= 1 ? '#f8fafc' : '#fff', color: ordersPage <= 1 ? '#cbd5e1' : '#475569', fontWeight: 700, fontSize: 13, cursor: ordersPage <= 1 ? 'not-allowed' : 'pointer' }}
+                            >‹ Prev</button>
+                            {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
+                              <button
+                                key={p}
+                                type="button"
+                                onClick={() => setOrdersPage(p)}
+                                style={{ width: 34, height: 34, borderRadius: 9, border: p === ordersPage ? 'none' : '1.5px solid #e2e8f0', background: p === ordersPage ? '#7c3aed' : '#fff', color: p === ordersPage ? '#fff' : '#475569', fontWeight: 700, fontSize: 13, cursor: 'pointer', boxShadow: p === ordersPage ? '0 4px 10px rgba(124,58,237,0.22)' : 'none' }}
+                              >{p}</button>
+                            ))}
+                            <button
+                              type="button"
+                              disabled={ordersPage >= totalPages}
+                              onClick={() => setOrdersPage(p => Math.min(totalPages, p + 1))}
+                              style={{ padding: '7px 14px', borderRadius: 9, border: '1.5px solid #e2e8f0', background: ordersPage >= totalPages ? '#f8fafc' : '#fff', color: ordersPage >= totalPages ? '#cbd5e1' : '#475569', fontWeight: 700, fontSize: 13, cursor: ordersPage >= totalPages ? 'not-allowed' : 'pointer' }}
+                            >Next ›</button>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })()}
                 </div>
               </div>
             )}
@@ -8381,6 +8162,11 @@ export default function DashboardPage() {
             const paymentMethod = receiptOrder.payment_method || 'Cash on Delivery (COD)';
             const subtotal = parseFloat(receiptOrder.price) * receiptOrder.quantity;
             const vatAmount = subtotal * 0.12;
+            const isCancelledReceipt = ['cancelled', 'rejected'].includes(receiptOrder.status);
+            const isDeliveredReceipt = ['delivered', 'completed'].includes(receiptOrder.status);
+            const accentColor = isCancelledReceipt ? '#ef4444' : isDeliveredReceipt ? '#10b981' : '#7c3aed';
+            const accentLight = isCancelledReceipt ? '#fef2f2' : isDeliveredReceipt ? '#ecfdf5' : '#f5f3ff';
+            const statusLabel = isCancelledReceipt ? 'CANCELLED' : isDeliveredReceipt ? 'DELIVERED' : receiptOrder.status.toUpperCase();
 
             return (
               <div className="modal-overlay" onClick={() => setReceiptOrder(null)} style={{ padding: 16 }}>
@@ -8389,145 +8175,176 @@ export default function DashboardPage() {
                   onClick={e => e.stopPropagation()}
                   style={{
                     background: '#fff',
-                    maxWidth: 520,
+                    maxWidth: 540,
                     width: '100%',
                     borderRadius: 20,
-                    padding: '28px 32px',
+                    padding: 0,
                     boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)',
-                    border: '1px solid #e2e8f0',
-                    maxHeight: '92vh',
-                    overflowY: 'auto'
+                    border: `1.5px solid ${accentColor}30`,
+                    maxHeight: '94vh',
+                    overflowY: 'auto',
+                    display: 'flex',
+                    flexDirection: 'column'
                   }}
                 >
-                  {/* INVOICE TOP BAR */}
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '2px solid #7c3aed', paddingBottom: 16, marginBottom: 20 }}>
-                    <div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-                        <span style={{ fontSize: 22, fontWeight: 900, color: '#7c3aed', letterSpacing: '-0.5px' }}>Shopply</span>
-                        <span style={{ fontSize: 10, background: '#f5f3ff', color: '#7c3aed', border: '1px solid #ddd6fe', padding: '2px 8px', borderRadius: 12, fontWeight: 700 }}>OFFICIAL INVOICE</span>
-                      </div>
-                      <div style={{ fontSize: 11, color: '#64748b' }}>Republic of the Philippines • E-Commerce Sales Invoice</div>
-                      <div style={{ fontSize: 10, color: '#94a3b8' }}>BIR Electronic Registration: 2026-PH-SHOPPLY-ONLINE</div>
-                    </div>
-                    <div style={{ textAlign: 'right' }}>
-                      <div style={{ fontSize: 13, fontWeight: 800, color: '#0f172a', fontFamily: 'monospace' }}>{invoiceNum}</div>
-                      <div style={{ fontSize: 11, color: '#64748b', marginTop: 2 }}>{date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} • {date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
-                    </div>
-                  </div>
-
-                  {/* BILLED TO & SOLD BY SECTION */}
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16, background: '#f8fafc', padding: 14, borderRadius: 14, border: '1px solid #f1f5f9', marginBottom: 20 }}>
-                    <div>
-                      <div style={{ fontSize: 10, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: 4 }}>Billed To (Buyer)</div>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: '#0f172a' }}>{buyerName}</div>
-                      <div style={{ fontSize: 11, color: '#64748b' }}>{buyerEmail}</div>
-                      <div style={{ fontSize: 11, color: '#64748b', marginTop: 2 }}>📍 {deliveryAddress}</div>
-                    </div>
-                    <div style={{ borderLeft: '1px solid #e2e8f0', paddingLeft: 16 }}>
-                      <div style={{ fontSize: 10, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: 4 }}>Merchant / Seller</div>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: '#0f172a' }}>{sellerStoreName}</div>
-                      <div style={{ fontSize: 11, color: '#10b981', fontWeight: 600 }}>✓ Verified Shopply Merchant</div>
-                      <div style={{ fontSize: 11, color: '#64748b', marginTop: 2 }}>Order Ref: <strong style={{ color: '#0f172a', fontFamily: 'monospace' }}>#{orderCode}</strong></div>
-                    </div>
-                  </div>
-
-                  {/* LOGISTICS & PAYMENT BAR */}
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fafbfc', padding: '10px 14px', borderRadius: 10, border: '1px solid #f1f5f9', marginBottom: 20, fontSize: 12 }}>
-                    <div>
-                      <span style={{ color: '#64748b' }}>Tracking No: </span>
-                      <span style={{ fontFamily: 'monospace', fontWeight: 700, color: '#7c3aed' }}>{trackingNum}</span>
-                    </div>
-                    <div>
-                      <span style={{ color: '#64748b' }}>Payment: </span>
-                      <strong style={{ color: '#0f172a' }}>{paymentMethod}</strong>
-                    </div>
-                  </div>
-
-                  {/* ITEM DETAIL TABLE */}
-                  <div style={{ borderTop: '1px solid #e2e8f0', borderBottom: '1px solid #e2e8f0', padding: '14px 0', marginBottom: 16 }}>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr auto auto', gap: 12, fontSize: 11, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 8 }}>
-                      <span>Item Description</span>
-                      <span style={{ textAlign: 'center' }}>Qty</span>
-                      <span style={{ textAlign: 'right' }}>Amount</span>
-                    </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr auto auto', gap: 12, alignItems: 'center', fontSize: 13 }}>
+                  {/* COLORED HEADER BAND */}
+                  <div style={{ background: `linear-gradient(135deg, ${accentColor}, ${accentColor}cc)`, padding: '20px 24px', borderRadius: '18px 18px 0 0', color: '#fff' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                       <div>
-                        <div style={{ fontWeight: 700, color: '#0f172a' }}>{receiptOrder.item.name}</div>
-                        {receiptOrder.variation && (
-                          <div style={{ fontSize: 11, color: '#7c3aed', fontWeight: 600 }}>Variation: {receiptOrder.variation}</div>
-                        )}
-                        <div style={{ fontSize: 11, color: '#94a3b8' }}>Unit Price: ₱{parseFloat(receiptOrder.price).toFixed(2)}</div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                          <span style={{ fontSize: 20, fontWeight: 900, letterSpacing: '-0.5px' }}>Shopply</span>
+                          <span style={{ fontSize: 10, background: 'rgba(255,255,255,0.25)', color: '#fff', padding: '2px 8px', borderRadius: 10, fontWeight: 700, backdropFilter: 'blur(6px)' }}>OFFICIAL INVOICE</span>
+                        </div>
+                        <div style={{ fontSize: 11, opacity: 0.85 }}>Republic of the Philippines • E-Commerce Sales Invoice</div>
+                        <div style={{ fontSize: 10, opacity: 0.65, marginTop: 2 }}>BIR E-Registration: 2026-PH-SHOPPLY-ONLINE</div>
                       </div>
-                      <div style={{ fontWeight: 700, color: '#0f172a', textAlign: 'center' }}>x{receiptOrder.quantity}</div>
-                      <div style={{ fontWeight: 700, color: '#0f172a', textAlign: 'right' }}>₱{subtotal.toFixed(2)}</div>
+                      <div style={{ textAlign: 'right' }}>
+                        <div style={{ fontSize: 12, fontWeight: 800, fontFamily: 'monospace', opacity: 0.9 }}>{invoiceNum}</div>
+                        <div style={{ fontSize: 10, opacity: 0.7, marginTop: 3 }}>{date.toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
+                        <div style={{ fontSize: 10, opacity: 0.7 }}>{date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                      </div>
+                    </div>
+                    {/* Status pill */}
+                    <div style={{ marginTop: 12, display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(255,255,255,0.2)', padding: '4px 12px', borderRadius: 20, backdropFilter: 'blur(6px)' }}>
+                      <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#fff', display: 'inline-block' }} />
+                      <span style={{ fontSize: 11, fontWeight: 800 }}>{statusLabel}</span>
                     </div>
                   </div>
 
-                  {/* FINANCIAL BREAKDOWN */}
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: 12, marginBottom: 20 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', color: '#64748b' }}>
-                      <span>Items Subtotal:</span>
-                      <span style={{ fontWeight: 600, color: '#0f172a' }}>₱{subtotal.toFixed(2)}</span>
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', color: '#64748b' }}>
-                      <span>Standard Shipping (Shopply Express):</span>
-                      <span style={{ fontWeight: 700, color: '#10b981' }}>FREE (₱0.00)</span>
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', color: '#94a3b8', fontSize: 11 }}>
-                      <span>12% VAT (Inclusive):</span>
-                      <span>₱{vatAmount.toFixed(2)}</span>
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '2px dashed #e2e8f0', paddingTop: 10, marginTop: 4 }}>
-                      <span style={{ fontSize: 15, fontWeight: 800, color: '#0f172a' }}>Total Amount Paid:</span>
-                      <span style={{ fontSize: 22, fontWeight: 900, color: '#ee4d2d' }}>₱{subtotal.toFixed(2)}</span>
-                    </div>
-                  </div>
+                  {/* BODY */}
+                  <div style={{ padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: 16 }}>
 
-                  {/* QR CODE & VERIFICATION BADGE */}
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#fafbfc', padding: '12px 18px', borderRadius: 14, border: '1px solid #f1f5f9', marginBottom: 24 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                      <img
-                        src={`https://api.qrserver.com/v1/create-qr-code/?size=64x64&data=https://shop-ply.site/dashboard?order=${receiptOrder.id}`}
-                        alt="Verification QR"
-                        width={64}
-                        height={64}
-                        style={{ borderRadius: 8, border: '1px solid #e2e8f0' }}
-                      />
+                    {/* BILLED TO & SOLD BY */}
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+                      <div style={{ background: '#f8fafc', borderRadius: 12, padding: '12px 14px', border: '1px solid #f1f5f9' }}>
+                        <div style={{ fontSize: 9, fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: 6 }}>Billed To (Buyer)</div>
+                        <div style={{ fontSize: 13, fontWeight: 700, color: '#0f172a', marginBottom: 2 }}>{buyerName}</div>
+                        <div style={{ fontSize: 11, color: '#64748b', marginBottom: 2, wordBreak: 'break-all' }}>{buyerEmail}</div>
+                        <div style={{ fontSize: 11, color: '#64748b', display: 'flex', alignItems: 'flex-start', gap: 4 }}>
+                          <span>📍</span><span>{deliveryAddress}</span>
+                        </div>
+                      </div>
+                      <div style={{ background: '#f8fafc', borderRadius: 12, padding: '12px 14px', border: '1px solid #f1f5f9' }}>
+                        <div style={{ fontSize: 9, fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: 6 }}>Merchant / Seller</div>
+                        <div style={{ fontSize: 13, fontWeight: 700, color: '#0f172a', marginBottom: 2 }}>{sellerStoreName}</div>
+                        <div style={{ fontSize: 11, color: '#10b981', fontWeight: 600, marginBottom: 2 }}>✓ Verified Shopply Merchant</div>
+                        <div style={{ fontSize: 11, color: '#64748b' }}>Order: <span style={{ fontFamily: 'monospace', fontWeight: 700, color: '#0f172a' }}>#{orderCode}</span></div>
+                      </div>
+                    </div>
+
+                    {/* LOGISTICS BAR */}
+                    <div style={{ background: '#f8fafc', borderRadius: 10, padding: '10px 14px', border: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8, fontSize: 12 }}>
                       <div>
-                        <div style={{ fontSize: 12, fontWeight: 700, color: '#0f172a' }}>Digital Verification Seal</div>
-                        <div style={{ fontSize: 10, color: '#64748b', marginTop: 2 }}>Scan to authenticate order validity with Shopply Trust Network.</div>
+                        <span style={{ color: '#94a3b8', fontWeight: 600 }}>Tracking: </span>
+                        <span style={{ fontFamily: 'monospace', fontWeight: 700, color: accentColor }}>{trackingNum}</span>
+                      </div>
+                      <div>
+                        <span style={{ color: '#94a3b8', fontWeight: 600 }}>Payment: </span>
+                        <strong style={{ color: '#0f172a' }}>{paymentMethod}</strong>
                       </div>
                     </div>
-                    <div style={{ textAlign: 'right' }}>
-                      <span style={{ fontSize: 11, background: '#dcfce7', color: '#15803d', padding: '3px 10px', borderRadius: 20, fontWeight: 700 }}>
-                        ● {receiptOrder.status.toUpperCase()}
-                      </span>
-                    </div>
-                  </div>
 
-                  {/* ACTION BUTTONS */}
-                  <div className="receipt-actions no-print" style={{ display: 'flex', gap: 12 }}>
-                    <button
-                      type="button"
-                      style={{ flex: 1, padding: '12px', background: 'linear-gradient(135deg, #7c3aed, #6366f1)', color: '#fff', border: 'none', borderRadius: 12, cursor: 'pointer', fontWeight: 700, fontSize: 13, boxShadow: '0 4px 14px rgba(124,58,237,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
-                      onClick={() => window.print()}
-                    >
-                      <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9" /><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2" /><rect x="6" y="14" width="12" height="8" /></svg>
-                      Print / Save as PDF
-                    </button>
-                    <button
-                      type="button"
-                      style={{ padding: '12px 24px', background: '#f1f5f9', color: '#475569', border: '1px solid #cbd5e1', borderRadius: 12, cursor: 'pointer', fontWeight: 600, fontSize: 13 }}
-                      onClick={() => setReceiptOrder(null)}
-                    >
-                      Close
-                    </button>
+                    {/* PRODUCT TABLE */}
+                    <div style={{ borderRadius: 12, overflow: 'hidden', border: '1px solid #e2e8f0' }}>
+                      {/* Table header */}
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 48px 80px', gap: 0, background: '#f8fafc', padding: '8px 14px', borderBottom: '1px solid #e2e8f0' }}>
+                        <span style={{ fontSize: 10, fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Item</span>
+                        <span style={{ fontSize: 10, fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', textAlign: 'center' }}>Qty</span>
+                        <span style={{ fontSize: 10, fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', textAlign: 'right' }}>Amount</span>
+                      </div>
+                      {/* Table row */}
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 48px 80px', gap: 0, padding: '12px 14px', alignItems: 'center', background: '#fff' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                          {receiptOrder.item.image ? (
+                            <img src={getImageUrl(receiptOrder.item.image)} alt={receiptOrder.item.name} style={{ width: 40, height: 40, objectFit: 'cover', borderRadius: 8, border: '1px solid #f1f5f9', flexShrink: 0 }} />
+                          ) : (
+                            <div style={{ width: 40, height: 40, background: '#f1f5f9', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#cbd5e1', flexShrink: 0 }}><IconBox /></div>
+                          )}
+                          <div>
+                            <div style={{ fontSize: 13, fontWeight: 700, color: '#0f172a' }}>{receiptOrder.item.name}</div>
+                            {receiptOrder.variation && <div style={{ fontSize: 11, color: accentColor, fontWeight: 600 }}>Variation: {receiptOrder.variation}</div>}
+                            <div style={{ fontSize: 11, color: '#94a3b8' }}>Unit: ₱{parseFloat(receiptOrder.price).toFixed(2)}</div>
+                          </div>
+                        </div>
+                        <div style={{ fontSize: 13, fontWeight: 700, color: '#0f172a', textAlign: 'center' }}>×{receiptOrder.quantity}</div>
+                        <div style={{ fontSize: 14, fontWeight: 800, color: '#0f172a', textAlign: 'right' }}>₱{subtotal.toFixed(2)}</div>
+                      </div>
+                    </div>
+
+                    {/* FINANCIAL BREAKDOWN */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 7, fontSize: 12 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', color: '#64748b' }}>
+                        <span>Items Subtotal:</span>
+                        <span style={{ fontWeight: 600, color: '#0f172a' }}>₱{subtotal.toFixed(2)}</span>
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', color: '#64748b' }}>
+                        <span>Shipping (Shopply Express):</span>
+                        <span style={{ fontWeight: 700, color: '#10b981' }}>FREE (₱0.00)</span>
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', color: '#94a3b8', fontSize: 11 }}>
+                        <span>12% VAT (Inclusive):</span>
+                        <span>₱{vatAmount.toFixed(2)}</span>
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: `2px solid ${accentColor}25`, paddingTop: 10, marginTop: 2 }}>
+                        <span style={{ fontSize: 14, fontWeight: 800, color: '#0f172a' }}>Total {isCancelledReceipt ? 'Order Value' : 'Amount Paid'}:</span>
+                        <span style={{ fontSize: 22, fontWeight: 900, color: isCancelledReceipt ? '#ef4444' : '#ee4d2d', textDecoration: isCancelledReceipt ? 'line-through' : 'none', opacity: isCancelledReceipt ? 0.6 : 1 }}>₱{subtotal.toFixed(2)}</span>
+                      </div>
+                      {isCancelledReceipt && (
+                        <div style={{ background: '#fef2f2', border: '1px solid #fee2e2', borderRadius: 10, padding: '8px 14px', display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: '#b91c1c', fontWeight: 600 }}>
+                          <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                          Order cancelled — No charge was made. Stock has been restored.
+                        </div>
+                      )}
+                    </div>
+
+                    {/* QR + VERIFICATION */}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: accentLight, padding: '12px 16px', borderRadius: 12, border: `1px solid ${accentColor}20` }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                        <img
+                          src={`https://api.qrserver.com/v1/create-qr-code/?size=56x56&data=https://shop-ply.site/dashboard?order=${receiptOrder.id}`}
+                          alt="Verification QR"
+                          width={56}
+                          height={56}
+                          style={{ borderRadius: 8, border: `1px solid ${accentColor}30` }}
+                        />
+                        <div>
+                          <div style={{ fontSize: 12, fontWeight: 700, color: '#0f172a' }}>Digital Verification Seal</div>
+                          <div style={{ fontSize: 10, color: '#64748b', marginTop: 2 }}>Scan to verify with Shopply Trust Network</div>
+                          <div style={{ fontSize: 10, color: accentColor, fontWeight: 600, marginTop: 2, fontFamily: 'monospace' }}>{invoiceNum}</div>
+                        </div>
+                      </div>
+                      <div style={{ textAlign: 'right' }}>
+                        <div style={{ fontSize: 10, color: '#64748b', marginBottom: 4 }}>shop-ply.site</div>
+                        <div style={{ fontSize: 10, color: '#94a3b8' }}>Powered by</div>
+                        <div style={{ fontSize: 11, fontWeight: 700, color: accentColor }}>Shopply PH</div>
+                      </div>
+                    </div>
+
+                    {/* ACTION BUTTONS */}
+                    <div className="receipt-actions no-print" style={{ display: 'flex', gap: 10 }}>
+                      <button
+                        type="button"
+                        style={{ flex: 1, padding: '12px', background: `linear-gradient(135deg, ${accentColor}, ${accentColor}cc)`, color: '#fff', border: 'none', borderRadius: 12, cursor: 'pointer', fontWeight: 700, fontSize: 13, boxShadow: `0 4px 14px ${accentColor}35`, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
+                        onClick={() => window.print()}
+                      >
+                        <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                        Print / Save PDF
+                      </button>
+                      <button
+                        type="button"
+                        style={{ padding: '12px 22px', background: '#f1f5f9', color: '#475569', border: '1px solid #cbd5e1', borderRadius: 12, cursor: 'pointer', fontWeight: 600, fontSize: 13 }}
+                        onClick={() => setReceiptOrder(null)}
+                      >
+                        Close
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
             );
           })()
         )}
+
 
         {/* PARCEL TRACKING & COURIER TIMELINE MODAL */}
         {trackingOrder && (
