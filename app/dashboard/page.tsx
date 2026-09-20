@@ -55,17 +55,23 @@ interface ShopItem {
 }
 
 interface Order {
-  id: number;
-  item_id: number;
-  seller_id: number;
+  id: number | string;
+  item_id?: number | string;
+  seller_id?: number | string;
   price: string;
   quantity: number;
   status: string;
   created_at: string;
   variation?: string;
+  shipping_address?: string;
+  payment_method?: string;
+  tracking_number?: string;
+  courier?: string;
+  cancellation_reason?: string;
+  items?: any[];
   item: ShopItem;
-  seller: { id: number; name: string; };
-  buyer?: { id: number; name: string; };
+  seller: { id: number | string; name: string; avatar?: string | null };
+  buyer?: { id: number | string; name: string; email?: string; avatar?: string | null };
 }
 
 type SidebarTab = "profile" | "my-items" | "add-item" | "orders" | "store-orders" | "shop" | "notifications" | "messages" | "settings" | "logout";
@@ -1022,6 +1028,15 @@ export default function DashboardPage() {
   const [storeOrderTab, setStoreOrderTab] = useState("all");
   const [orderSearch, setOrderSearch] = useState("");
   const [receiptOrder, setReceiptOrder] = useState<Order | null>(null);
+  const [trackingOrder, setTrackingOrder] = useState<Order | null>(null);
+  const [copiedTracking, setCopiedTracking] = useState(false);
+  const [cancelModalOrder, setCancelModalOrder] = useState<Order | null>(null);
+  const [cancelReason, setCancelReason] = useState("Changed mind / Found cheaper alternative");
+  const [cancellingOrder, setCancellingOrder] = useState(false);
+  const [reviewModalOrder, setReviewModalOrder] = useState<Order | null>(null);
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewComment, setReviewComment] = useState("");
+  const [submittingReview, setSubmittingReview] = useState(false);
   const [activeStatChart, setActiveStatChart] = useState("Total Orders");
 
   // Scanner state
@@ -1839,7 +1854,7 @@ export default function DashboardPage() {
   const [detectingItemLoc, setDetectingItemLoc] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [deleteModal, setDeleteModal] = useState<number | null>(null);
-  const [rejectOrderModal, setRejectOrderModal] = useState<number | null>(null);
+  const [rejectOrderModal, setRejectOrderModal] = useState<number | string | null>(null);
   const [cartCount, setCartCount] = useState(0);
   const [isAiScanningImage, setIsAiScanningImage] = useState(false);
   const [aiPhotoDetectedItem, setAiPhotoDetectedItem] = useState<{
@@ -2338,7 +2353,7 @@ export default function DashboardPage() {
     }
   };
 
-  const handleAcceptOrder = async (orderId: number) => {
+  const handleAcceptOrder = async (orderId: number | string) => {
     const token = localStorage.getItem("token");
     try {
       const res = await fetch(`${API}/seller/orders/${orderId}/accept`, {
@@ -2362,7 +2377,7 @@ export default function DashboardPage() {
     }
   };
 
-  const handleRejectOrder = (orderId: number) => {
+  const handleRejectOrder = (orderId: number | string) => {
     setRejectOrderModal(orderId);
   };
 
@@ -2389,7 +2404,7 @@ export default function DashboardPage() {
     }
   };
 
-  const handleShipOrder = async (orderId: number) => {
+  const handleShipOrder = async (orderId: number | string) => {
     const token = localStorage.getItem("token");
     try {
       const res = await fetch(`${API}/seller/orders/${orderId}/ship`, {
@@ -2410,7 +2425,7 @@ export default function DashboardPage() {
     }
   };
 
-  const handleReceiveOrder = async (orderId: number) => {
+  const handleReceiveOrder = async (orderId: number | string) => {
     const token = localStorage.getItem("token");
     try {
       const res = await fetch(`${API}/orders/${orderId}/receive`, {
@@ -2418,7 +2433,8 @@ export default function DashboardPage() {
         headers: { Accept: "application/json", Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
-        setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status: 'delivered' } : o));
+        setOrders(prev => prev.map(o => String(o.id) === String(orderId) ? { ...o, status: 'delivered' } : o));
+        getApiCache().invalidate('/orders');
         localStorage.setItem('shopply_order_update', Date.now().toString());
         showToast("Order successfully marked as received!", "success");
       } else {
@@ -2428,6 +2444,103 @@ export default function DashboardPage() {
     } catch (err) {
       console.error(err);
       showToast("An error occurred.", "error");
+    }
+  };
+
+  const handleCancelOrder = async () => {
+    if (!cancelModalOrder) return;
+    setCancellingOrder(true);
+    const token = localStorage.getItem("token");
+    try {
+      const res = await fetch(`${API}/orders/${cancelModalOrder.id}/cancel`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", Accept: "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ reason: cancelReason })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setOrders(prev => prev.map(o => String(o.id) === String(cancelModalOrder.id) ? { ...o, status: 'cancelled', cancellation_reason: cancelReason } : o));
+        getApiCache().invalidate('/orders');
+        getApiCache().invalidate('/shop/items');
+        localStorage.setItem('shopply_order_update', Date.now().toString());
+        showToast("Order cancelled successfully.", "success");
+        setCancelModalOrder(null);
+      } else {
+        showToast(data.message || "Failed to cancel order", "error");
+      }
+    } catch (err) {
+      console.error(err);
+      showToast("An error occurred while cancelling order.", "error");
+    } finally {
+      setCancellingOrder(false);
+    }
+  };
+
+  const handleSubmitReview = async () => {
+    if (!reviewModalOrder) return;
+    setSubmittingReview(true);
+    const token = localStorage.getItem("token");
+    try {
+      const res = await fetch(`${API}/reviews`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          item_id: reviewModalOrder.item?.id || reviewModalOrder.item_id,
+          rating: reviewRating,
+          comment: reviewComment,
+          variation: reviewModalOrder.variation || "Standard"
+        })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        showToast("Thank you! Your product review has been submitted.", "success");
+        getApiCache().invalidate('/shop/items');
+        setReviewModalOrder(null);
+        setReviewComment("");
+        setReviewRating(5);
+      } else {
+        showToast(data.message || "Failed to submit review", "error");
+      }
+    } catch (err) {
+      console.error(err);
+      showToast("An error occurred while submitting review.", "error");
+    } finally {
+      setSubmittingReview(false);
+    }
+  };
+
+  const handleContactSeller = (seller: { id: number | string; name: string }) => {
+    setActiveTab("messages");
+    setActiveChatUser({ id: Number(seller.id), name: seller.name, avatar: null });
+    setIsActiveUserOnline(true);
+    setTimeout(() => chatInputRef.current?.focus(), 150);
+  };
+
+  const handleBuyAgain = async (order: Order) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      router.push("/shop");
+      return;
+    }
+    try {
+      const res = await fetch(`${API}/cart`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          item_id: order.item?.id || order.item_id,
+          quantity: 1,
+          variation: order.variation || ""
+        })
+      });
+      if (res.ok) {
+        getApiCache().invalidate('/cart');
+        showToast(`Added "${order.item.name}" back to your cart!`, "success");
+        router.push("/cart");
+      } else {
+        router.push("/shop");
+      }
+    } catch (err) {
+      router.push("/shop");
     }
   };
 
@@ -2979,6 +3092,25 @@ export default function DashboardPage() {
 
   const pendingSellerOrdersCount = sellerOrders.filter(o => o.status === 'pending').length;
 
+  const formatOrderDate = (dateString: string) => {
+    if (!dateString) return "";
+    try {
+      const d = new Date(dateString);
+      return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) + " • " + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    } catch (e) {
+      return dateString;
+    }
+  };
+
+  const getOrderStepIndex = (status: string) => {
+    const s = (status || "").toLowerCase();
+    if (s === 'delivered' || s === 'completed') return 4;
+    if (s === 'shipped') return 3;
+    if (s === 'processing') return 2;
+    if (s === 'pending') return 1;
+    return 0; // cancelled
+  };
+
   const renderStatusBadge = (status: string) => {
     const s = (status || "").toLowerCase();
     if (s === 'pending') {
@@ -3296,25 +3428,10 @@ export default function DashboardPage() {
         .order-guarantee-banner{display:flex;align-items:center;gap:12px;background:#f0fdf4;
           border:1px solid #bbf7d0;color:#16a34a;padding:16px;border-radius:12px;font-size:14px}
         
-        .orders-list{display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));gap:16px}
-        .order-card{background:#fff;border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,.03);
-          border:1px solid #f1f5f9;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;height:100%}
-        .order-card-header{padding:16px 24px;border-bottom:1px solid #f1f5f9;display:flex;
-          align-items:center;justify-content:space-between;font-size:14px}
-        .order-seller{display:flex;align-items:center;gap:8px;font-weight:600;color:#333}
-        .order-status{color:#ee4d2d;font-weight:600}
-        .order-card-body{padding:20px 24px;display:flex;gap:16px;align-items:center}
-        .order-img{width:90px;height:90px;object-fit:cover;border-radius:12px;border:1px solid #f1f5f9;flex-shrink:0}
-        .order-img-placeholder{width:90px;height:90px;background:#f8fafc;display:flex;
-          align-items:center;justify-content:center;color:#cbd5e1;border-radius:12px;border:1px solid #f1f5f9;flex-shrink:0}
-        .order-info{flex:1;display:flex;flex-direction:column;gap:4px}
-        .order-name{font-size:15px;color:#0f172a;line-height:1.4}
-        .order-qty{font-size:13px;color:#64748b}
-        .order-price{font-size:14px;color:#0f172a}
-        .order-card-footer{padding:16px 20px;background:#fafaf9;border-top:1px dashed #e2e8f0;
-          display:flex;align-items:center;justify-content:flex-end;gap:12px}
-        .order-total-label{font-size:13px;color:#64748b}
-        .order-total-price{font-size:20px;font-weight:600;color:#ee4d2d}
+        .orders-list{display:flex;flex-direction:column;gap:20px;width:100%}
+        .order-card{background:#fff;border-radius:20px;box-shadow:0 4px 20px rgba(0,0,0,.04);
+          border:1.5px solid #f1f5f9;overflow:hidden;display:flex;flex-direction:column;width:100%;transition:transform .2s,box-shadow .2s}
+        .order-card:hover{box-shadow:0 8px 30px rgba(0,0,0,.07)}
 
         /* Seller Notifications */
         .notification-banner{background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;
@@ -4094,75 +4211,621 @@ export default function DashboardPage() {
             {activeTab === "orders" && (
               <div className="orders-container">
                 <div className="orders-main">
-                  <div className="order-search-container">
-                    <div className="order-guarantee-banner" style={{ background: 'none', border: 'none', padding: 0 }}>
-                      <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /><polyline points="9 12 11 14 15 10" /></svg>
-                      <strong>Order guarantee</strong>
+                  {/* TRUST & GUARANTEE BANNER */}
+                  <div className="order-trust-hero" style={{ background: 'linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%)', borderRadius: 20, padding: '24px 28px', color: '#fff', boxShadow: '0 8px 24px rgba(124,58,237,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                      <div style={{ width: 52, height: 52, borderRadius: 16, background: 'rgba(255,255,255,0.18)', display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(8px)', flexShrink: 0 }}>
+                        <svg width="28" height="28" fill="none" stroke="#fff" strokeWidth="2.2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /><polyline points="9 12 11 14 15 10" /></svg>
+                      </div>
+                      <div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                          <h2 style={{ fontSize: 20, fontWeight: 800, margin: 0, color: '#fff' }}>Your Orders & Tracking</h2>
+                          <span style={{ fontSize: 11, background: '#10b981', color: '#fff', padding: '3px 10px', borderRadius: 20, fontWeight: 700, letterSpacing: '0.4px' }}>100% Shopply Protected</span>
+                        </div>
+                        <p style={{ margin: '4px 0 0', fontSize: 13, color: '#e0e7ff', opacity: 0.9 }}>
+                          Track parcel delivery in real-time, view verified electronic tax invoices, and contact sellers directly.
+                        </p>
+                      </div>
                     </div>
-                    <div className="order-search">
-                      <input
-                        type="text"
-                        placeholder="Item name / Order ID"
-                        value={orderSearch}
-                        onChange={e => setOrderSearch(e.target.value)}
-                      />
-                      <IconSearch />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+                      <div style={{ fontSize: 12, background: 'rgba(255,255,255,0.14)', padding: '6px 14px', borderRadius: 20, backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <span>⚡ 24h Dispatch</span>
+                      </div>
+                      <div style={{ fontSize: 12, background: 'rgba(255,255,255,0.14)', padding: '6px 14px', borderRadius: 20, backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <span>🔄 7-Day Easy Returns</span>
+                      </div>
+                      <div style={{ fontSize: 12, background: 'rgba(255,255,255,0.14)', padding: '6px 14px', borderRadius: 20, backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <span>💵 Cash on Delivery</span>
+                      </div>
                     </div>
                   </div>
 
-                  <div className="orders-list">
+                  {/* STATUS FILTER PILLS & SEARCH BAR */}
+                  <div className="order-control-bar" style={{ background: '#fff', borderRadius: 18, padding: '16px 20px', border: '1px solid #e2e8f0', boxShadow: '0 4px 16px rgba(0,0,0,0.02)', display: 'flex', flexDirection: 'column', gap: 14 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
+                      {/* Filter Tabs */}
+                      <div className="order-status-tabs" style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 4, flex: 1, minWidth: 280 }}>
+                        {[
+                          { id: 'all', label: 'All Orders', count: orders.length },
+                          { id: 'processing', label: 'Pending / To Ship', count: orders.filter(o => ['pending', 'processing'].includes(o.status)).length },
+                          { id: 'shipped', label: 'In Transit / To Receive', count: orders.filter(o => o.status === 'shipped').length },
+                          { id: 'delivered', label: 'Delivered', count: orders.filter(o => ['delivered', 'completed'].includes(o.status)).length },
+                          { id: 'returns', label: 'Cancelled', count: orders.filter(o => ['cancelled', 'rejected', 'returns'].includes(o.status)).length }
+                        ].map(tab => {
+                          const isActive = orderTab === tab.id;
+                          return (
+                            <button
+                              key={tab.id}
+                              type="button"
+                              onClick={() => setOrderTab(tab.id)}
+                              style={{
+                                padding: '8px 16px',
+                                borderRadius: 20,
+                                fontSize: 13,
+                                fontWeight: 600,
+                                border: 'none',
+                                cursor: 'pointer',
+                                whiteSpace: 'nowrap',
+                                transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+                                background: isActive ? '#7c3aed' : '#f1f5f9',
+                                color: isActive ? '#fff' : '#475569',
+                                boxShadow: isActive ? '0 4px 12px rgba(124,58,237,0.25)' : 'none',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: 6
+                              }}
+                            >
+                              <span>{tab.label}</span>
+                              <span style={{
+                                fontSize: 11,
+                                padding: '1px 7px',
+                                borderRadius: 10,
+                                background: isActive ? 'rgba(255,255,255,0.25)' : '#e2e8f0',
+                                color: isActive ? '#fff' : '#64748b',
+                                fontWeight: 700
+                              }}>
+                                {tab.count}
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      {/* Search Bar */}
+                      <div className="order-search" style={{ position: 'relative', width: '100%', maxWidth: 320 }}>
+                        <input
+                          type="text"
+                          placeholder="Search Order ID (#SHP), item, or seller..."
+                          value={orderSearch}
+                          onChange={e => setOrderSearch(e.target.value)}
+                          style={{
+                            width: '100%',
+                            padding: '10px 38px 10px 16px',
+                            border: '1.5px solid #e2e8f0',
+                            borderRadius: 12,
+                            fontSize: 13,
+                            outline: 'none',
+                            transition: 'border-color 0.2s',
+                            background: '#f8fafc'
+                          }}
+                        />
+                        <span style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', display: 'flex', pointerEvents: 'none' }}>
+                          <IconSearch />
+                        </span>
+                        {orderSearch && (
+                          <button
+                            type="button"
+                            onClick={() => setOrderSearch("")}
+                            style={{ position: 'absolute', right: 32, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', fontSize: 14, fontWeight: 700, padding: 0 }}
+                          >
+                            ✕
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* ORDERS LIST */}
+                  <div className="orders-list" style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
                     {orders.length === 0 ? (
-                      <div className="empty-state">
-                        <div className="empty-title">No orders found</div>
-                        <div className="empty-desc">When you buy an item, it will appear here.</div>
+                      <div className="empty-state" style={{ padding: '60px 20px', textAlign: 'center', background: '#fff', borderRadius: 20, border: '1px dashed #cbd5e1' }}>
+                        <div style={{ width: 64, height: 64, borderRadius: '50%', background: '#f1f5f9', color: '#94a3b8', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+                          <IconBox />
+                        </div>
+                        <div className="empty-title" style={{ fontSize: 18, fontWeight: 700, color: '#0f172a', marginBottom: 6 }}>No orders placed yet</div>
+                        <div className="empty-desc" style={{ color: '#64748b', fontSize: 14, marginBottom: 20 }}>Explore thousands of quality products from verified sellers on Shopply.</div>
+                        <Link href="/shop" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#7c3aed', color: '#fff', textDecoration: 'none', padding: '10px 22px', borderRadius: 12, fontWeight: 700, fontSize: 14, boxShadow: '0 4px 14px rgba(124,58,237,0.25)' }}>
+                          <IconShop /> Browse Marketplace
+                        </Link>
+                      </div>
+                    ) : orders
+                        .filter(o => {
+                          if (orderTab === 'all') return true;
+                          if (orderTab === 'processing') return ['pending', 'processing'].includes(o.status);
+                          if (orderTab === 'shipped') return o.status === 'shipped';
+                          if (orderTab === 'delivered') return ['delivered', 'completed'].includes(o.status);
+                          if (orderTab === 'returns') return ['cancelled', 'rejected', 'returns'].includes(o.status);
+                          return false;
+                        })
+                        .filter(o => {
+                          if (!orderSearch.trim()) return true;
+                          const q = orderSearch.toLowerCase();
+                          return (
+                            o.item.name.toLowerCase().includes(q) ||
+                            String(o.id).toLowerCase().includes(q) ||
+                            (o.seller?.name && o.seller.name.toLowerCase().includes(q)) ||
+                            (o.tracking_number && o.tracking_number.toLowerCase().includes(q))
+                          );
+                        }).length === 0 ? (
+                      <div className="empty-state" style={{ padding: '60px 20px', textAlign: 'center', background: '#fff', borderRadius: 20, border: '1px dashed #cbd5e1' }}>
+                        <div className="empty-title" style={{ fontSize: 17, fontWeight: 700, color: '#0f172a', marginBottom: 6 }}>No matching orders found</div>
+                        <div className="empty-desc" style={{ color: '#64748b', fontSize: 13, marginBottom: 16 }}>No orders match your selected filter or search term.</div>
+                        <button
+                          onClick={() => { setOrderTab('all'); setOrderSearch(""); }}
+                          style={{ background: '#f1f5f9', color: '#475569', border: '1px solid #cbd5e1', padding: '8px 18px', borderRadius: 10, fontWeight: 600, fontSize: 13, cursor: 'pointer' }}
+                        >
+                          Clear Filters
+                        </button>
                       </div>
                     ) : (
                       orders
                         .filter(o => {
                           if (orderTab === 'all') return true;
-                          if (orderTab === 'processing' && ['pending', 'processing'].includes(o.status)) return true;
-                          if (orderTab === 'shipped' && o.status === 'shipped') return true;
-                          if (orderTab === 'delivered' && ['delivered', 'completed'].includes(o.status)) return true;
-                          if (orderTab === 'returns' && ['cancelled', 'returns'].includes(o.status)) return true;
+                          if (orderTab === 'processing') return ['pending', 'processing'].includes(o.status);
+                          if (orderTab === 'shipped') return o.status === 'shipped';
+                          if (orderTab === 'delivered') return ['delivered', 'completed'].includes(o.status);
+                          if (orderTab === 'returns') return ['cancelled', 'rejected', 'returns'].includes(o.status);
                           return false;
                         })
-                        .filter(o => o.item.name.toLowerCase().includes(orderSearch.toLowerCase()))
-                        .map(order => (
-                          <div key={order.id} className="order-card" style={{ background: '#fff', borderRadius: 16, border: '1px solid #f1f5f9', boxShadow: '0 4px 20px rgba(0,0,0,0.03)', overflow: 'hidden' }}>
-                            <div className="order-card-header" style={{ padding: '16px 24px', borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                              <span className="order-seller" style={{ display: 'flex', alignItems: 'center', gap: 8, fontWeight: 700, color: '#0f172a' }}>
-                                <svg width="16" height="16" fill="none" stroke="#7c3aed" strokeWidth="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
-                                {order.seller?.name || 'Seller Store'}
-                              </span>
-                              {renderStatusBadge(order.status)}
-                            </div>
-                            <div className="order-card-body">
-                              {order.item.image ? (
-                                <img src={getImageUrl(order.item.image)} alt={order.item.name} loading="lazy" decoding="async" className="order-img" />
-                              ) : (
-                                <div className="order-img-placeholder"><IconBox /></div>
-                              )}
-                              <div className="order-info">
-                                <div className="order-name">{order.item.name}</div>
-                                <div className="order-qty">x{order.quantity}</div>
-                                {order.variation && <div className="order-qty" style={{ color: '#7c3aed', fontWeight: 600 }}>Variation: {order.variation}</div>}
+                        .filter(o => {
+                          if (!orderSearch.trim()) return true;
+                          const q = orderSearch.toLowerCase();
+                          return (
+                            o.item.name.toLowerCase().includes(q) ||
+                            String(o.id).toLowerCase().includes(q) ||
+                            (o.seller?.name && o.seller.name.toLowerCase().includes(q)) ||
+                            (o.tracking_number && o.tracking_number.toLowerCase().includes(q))
+                          );
+                        })
+                        .map(order => {
+                          const orderCode = `SHP-2026-${String(order.id).slice(-6)}`;
+                          const trackingCode = order.tracking_number || `SPX-PH-${String(order.id).slice(-8)}`;
+                          const courierName = order.courier || "Shopply Express (SPX Standard Local)";
+                          const stepIdx = getOrderStepIndex(order.status);
+                          const isCancelled = ['cancelled', 'rejected'].includes(order.status);
+                          const orderTotal = (parseFloat(order.price) * order.quantity).toFixed(2);
+                          const orderAddress = order.shipping_address || (user?.location ? `${user.location}, Philippines` : "Toledo City, Cebu, Philippines");
+                          const paymentMethod = order.payment_method || "Cash on Delivery (COD)";
+
+                          return (
+                            <div
+                              key={order.id}
+                              className="order-card"
+                              style={{
+                                background: '#fff',
+                                borderRadius: 20,
+                                border: '1.5px solid #f1f5f9',
+                                boxShadow: '0 4px 20px rgba(0,0,0,0.04)',
+                                overflow: 'hidden',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                transition: 'transform 0.2s, box-shadow 0.2s'
+                              }}
+                            >
+                              {/* 1. ORDER CARD TOP HEADER */}
+                              <div
+                                style={{
+                                  padding: '16px 24px',
+                                  background: '#fafbfc',
+                                  borderBottom: '1px solid #f1f5f9',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'space-between',
+                                  flexWrap: 'wrap',
+                                  gap: 12
+                                }}
+                              >
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                    <div style={{ width: 34, height: 34, borderRadius: '50%', background: 'linear-gradient(135deg, #7c3aed, #6366f1)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 700 }}>
+                                      <IconStore />
+                                    </div>
+                                    <div>
+                                      <span style={{ fontWeight: 800, color: '#0f172a', fontSize: 14 }}>
+                                        {order.seller?.name || 'Shopply Store'}
+                                      </span>
+                                      <span style={{ fontSize: 11, color: '#10b981', fontWeight: 600, marginLeft: 6, background: 'rgba(16,185,129,0.1)', padding: '1px 6px', borderRadius: 6 }}>
+                                        Verified Seller
+                                      </span>
+                                    </div>
+                                  </div>
+
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleContactSeller(order.seller)}
+                                      style={{
+                                        background: '#fff',
+                                        border: '1px solid #cbd5e1',
+                                        padding: '4px 10px',
+                                        borderRadius: 8,
+                                        fontSize: 12,
+                                        fontWeight: 600,
+                                        color: '#7c3aed',
+                                        cursor: 'pointer',
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: 5,
+                                        transition: 'all 0.2s'
+                                      }}
+                                      title="Chat with this seller"
+                                    >
+                                      <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                                      Chat Seller
+                                    </button>
+                                    <Link
+                                      href="/shop"
+                                      style={{
+                                        fontSize: 12,
+                                        color: '#64748b',
+                                        textDecoration: 'none',
+                                        fontWeight: 500,
+                                        padding: '4px 8px',
+                                        borderRadius: 8,
+                                        background: '#f1f5f9'
+                                      }}
+                                    >
+                                      View Shop
+                                    </Link>
+                                  </div>
+                                </div>
+
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+                                  <div style={{ textAlign: 'right' }}>
+                                    <div style={{ fontSize: 12, fontWeight: 700, color: '#0f172a', fontFamily: 'monospace', letterSpacing: '0.5px' }}>
+                                      #{orderCode}
+                                    </div>
+                                    <div style={{ fontSize: 11, color: '#94a3b8' }}>
+                                      {formatOrderDate(order.created_at)}
+                                    </div>
+                                  </div>
+                                  {renderStatusBadge(order.status)}
+                                </div>
                               </div>
-                              <div className="order-price">₱{parseFloat(order.price).toFixed(2)}</div>
+
+                              {/* 2. ORDER PROGRESS STEPPER */}
+                              <div style={{ padding: '16px 24px', background: '#fff', borderBottom: '1px solid #f8fafc' }}>
+                                {isCancelled ? (
+                                  <div style={{ background: '#fef2f2', border: '1px solid #fee2e2', borderRadius: 12, padding: '10px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#b91c1c', fontSize: 13, fontWeight: 600 }}>
+                                      <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                                      <span>Order Cancelled</span>
+                                      {order.cancellation_reason && (
+                                        <span style={{ fontSize: 12, color: '#7f1d1d', fontWeight: 400 }}>({order.cancellation_reason})</span>
+                                      )}
+                                    </div>
+                                    <span style={{ fontSize: 11, color: '#ef4444', fontWeight: 600 }}>No payment charged • Stock restored</span>
+                                  </div>
+                                ) : (
+                                  <div className="order-stepper-wrap" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'relative', width: '100%', maxWidth: 720, margin: '4px auto 0' }}>
+                                    {/* Connecting Progress Line */}
+                                    <div style={{ position: 'absolute', top: 14, left: 24, right: 24, height: 3, background: '#e2e8f0', zIndex: 1 }}>
+                                      <div style={{
+                                        height: '100%',
+                                        background: stepIdx >= 4 ? '#10b981' : '#7c3aed',
+                                        width: stepIdx === 1 ? '0%' : stepIdx === 2 ? '33%' : stepIdx === 3 ? '66%' : '100%',
+                                        transition: 'width 0.4s ease'
+                                      }} />
+                                    </div>
+
+                                    {[
+                                      { step: 1, label: 'Order Placed', sub: 'Verified' },
+                                      { step: 2, label: 'Processing', sub: 'Merchant Packing' },
+                                      { step: 3, label: 'In Transit', sub: 'SPX Courier' },
+                                      { step: 4, label: 'Delivered', sub: 'Completed' }
+                                    ].map(s => {
+                                      const isDone = stepIdx >= s.step;
+                                      const isCurrent = stepIdx === s.step;
+                                      const isDelivered = stepIdx === 4;
+                                      const activeColor = isDelivered ? '#10b981' : '#7c3aed';
+
+                                      return (
+                                        <div key={s.step} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative', zIndex: 2, textAlign: 'center' }}>
+                                          <div style={{
+                                            width: 30,
+                                            height: 30,
+                                            borderRadius: '50%',
+                                            background: isDone ? activeColor : '#fff',
+                                            border: `2px solid ${isDone ? activeColor : '#cbd5e1'}`,
+                                            color: isDone ? '#fff' : '#94a3b8',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            fontSize: 12,
+                                            fontWeight: 700,
+                                            boxShadow: isCurrent ? `0 0 0 4px ${isDelivered ? 'rgba(16,185,129,0.18)' : 'rgba(124,58,237,0.18)'}` : 'none',
+                                            transition: 'all 0.3s'
+                                          }}>
+                                            {isDone ? '✓' : s.step}
+                                          </div>
+                                          <span style={{ fontSize: 12, fontWeight: isCurrent ? 800 : isDone ? 700 : 500, color: isCurrent ? '#0f172a' : isDone ? '#334155' : '#94a3b8', marginTop: 6, whiteSpace: 'nowrap' }}>
+                                            {s.label}
+                                          </span>
+                                          <span style={{ fontSize: 10, color: isCurrent ? activeColor : '#94a3b8', fontWeight: isCurrent ? 700 : 400, whiteSpace: 'nowrap' }}>
+                                            {s.sub}
+                                          </span>
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                )}
+                              </div>
+
+                              {/* 3. ORDER PRODUCT DETAILS ROW */}
+                              <div style={{ padding: '20px 24px', display: 'flex', gap: 18, alignItems: 'center', flexWrap: 'wrap' }}>
+                                {order.item.image ? (
+                                  <img
+                                    src={getImageUrl(order.item.image)}
+                                    alt={order.item.name}
+                                    loading="lazy"
+                                    decoding="async"
+                                    style={{ width: 88, height: 88, objectFit: 'cover', borderRadius: 14, border: '1px solid #f1f5f9', boxShadow: '0 2px 8px rgba(0,0,0,0.04)', flexShrink: 0 }}
+                                  />
+                                ) : (
+                                  <div style={{ width: 88, height: 88, background: '#f8fafc', borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#cbd5e1', border: '1px solid #f1f5f9', flexShrink: 0 }}>
+                                    <IconBox />
+                                  </div>
+                                )}
+
+                                <div style={{ flex: 1, minWidth: 200, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                                  <div style={{ fontSize: 16, fontWeight: 700, color: '#0f172a', lineHeight: 1.4 }}>
+                                    {order.item.name}
+                                  </div>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+                                    {order.variation && (
+                                      <span style={{ fontSize: 12, color: '#7c3aed', background: '#f5f3ff', padding: '2px 8px', borderRadius: 6, fontWeight: 600 }}>
+                                        Variation: {order.variation}
+                                      </span>
+                                    )}
+                                    <span style={{ fontSize: 13, color: '#64748b' }}>
+                                      Quantity: <strong style={{ color: '#0f172a' }}>x{order.quantity}</strong>
+                                    </span>
+                                  </div>
+                                  <div style={{ fontSize: 13, color: '#64748b' }}>
+                                    Unit Price: <span style={{ fontWeight: 600, color: '#0f172a' }}>₱{parseFloat(order.price).toFixed(2)}</span>
+                                  </div>
+                                </div>
+
+                                <div style={{ textAlign: 'right', flexShrink: 0, minWidth: 120 }}>
+                                  <div style={{ fontSize: 11, color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Item Subtotal</div>
+                                  <div style={{ fontSize: 16, fontWeight: 800, color: '#0f172a' }}>
+                                    ₱{orderTotal}
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* 4. LOGISTICS & PAYMENT STRIP */}
+                              <div
+                                style={{
+                                  margin: '0 24px 16px',
+                                  padding: '12px 18px',
+                                  background: '#f8fafc',
+                                  borderRadius: 14,
+                                  border: '1px solid #f1f5f9',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'space-between',
+                                  flexWrap: 'wrap',
+                                  gap: 12
+                                }}
+                              >
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap', fontSize: 12 }}>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#334155' }}>
+                                    <span style={{ color: '#7c3aed', fontWeight: 700 }}>🚚 SPX Express:</span>
+                                    <span style={{ fontFamily: 'monospace', fontWeight: 700, color: '#0f172a' }}>{trackingCode}</span>
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        if (navigator.clipboard) {
+                                          navigator.clipboard.writeText(trackingCode);
+                                          showToast(`Copied tracking number: ${trackingCode}`, "success");
+                                        }
+                                      }}
+                                      style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#7c3aed', padding: 0, fontSize: 11, fontWeight: 700 }}
+                                      title="Copy tracking number"
+                                    >
+                                      [Copy]
+                                    </button>
+                                  </div>
+
+                                  <div style={{ color: '#64748b', display: 'flex', alignItems: 'center', gap: 4 }}>
+                                    <span>📍 Deliver to:</span>
+                                    <strong style={{ color: '#334155' }}>{orderAddress}</strong>
+                                  </div>
+                                </div>
+
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12 }}>
+                                  <span style={{ color: '#64748b' }}>Payment:</span>
+                                  <span style={{ background: '#ecfdf5', color: '#059669', padding: '3px 8px', borderRadius: 6, fontWeight: 700, border: '1px solid #a7f3d0' }}>
+                                    💵 {paymentMethod}
+                                  </span>
+                                </div>
+                              </div>
+
+                              {/* 5. ORDER CARD ACTION FOOTER */}
+                              <div
+                                className="order-card-footer"
+                                style={{
+                                  padding: '14px 24px',
+                                  background: '#fafbfc',
+                                  borderTop: '1px solid #f1f5f9',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'space-between',
+                                  flexWrap: 'wrap',
+                                  gap: 14
+                                }}
+                              >
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+                                  <span style={{ fontSize: 13, color: '#64748b', fontWeight: 500 }}>Order Total:</span>
+                                  <span style={{ fontSize: 20, fontWeight: 800, color: '#ee4d2d' }}>
+                                    ₱{orderTotal}
+                                  </span>
+                                  <span style={{ fontSize: 11, color: '#059669', background: '#ecfdf5', padding: '2px 8px', borderRadius: 6, fontWeight: 700 }}>
+                                    Free Shipping
+                                  </span>
+                                </div>
+
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                                  {/* Track Shipment Modal Button */}
+                                  <button
+                                    type="button"
+                                    onClick={() => setTrackingOrder(order)}
+                                    style={{
+                                      background: 'linear-gradient(135deg, #7c3aed, #6366f1)',
+                                      color: '#fff',
+                                      border: 'none',
+                                      padding: '8px 16px',
+                                      borderRadius: 10,
+                                      fontWeight: 600,
+                                      fontSize: 12,
+                                      cursor: 'pointer',
+                                      display: 'inline-flex',
+                                      alignItems: 'center',
+                                      gap: 6,
+                                      boxShadow: '0 4px 10px rgba(124,58,237,0.2)',
+                                      transition: 'all 0.2s'
+                                    }}
+                                  >
+                                    <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M1 3h15v13H1z"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                                    Track Order
+                                  </button>
+
+                                  {/* Official Invoice / Receipt Button */}
+                                  <button
+                                    type="button"
+                                    onClick={() => setReceiptOrder(order)}
+                                    style={{
+                                      background: '#fff',
+                                      color: '#475569',
+                                      border: '1.5px solid #cbd5e1',
+                                      padding: '7px 14px',
+                                      borderRadius: 10,
+                                      fontWeight: 600,
+                                      fontSize: 12,
+                                      cursor: 'pointer',
+                                      display: 'inline-flex',
+                                      alignItems: 'center',
+                                      gap: 5,
+                                      transition: 'all 0.2s'
+                                    }}
+                                  >
+                                    <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9" /><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2" /><rect x="6" y="14" width="12" height="8" /></svg>
+                                    Invoice
+                                  </button>
+
+                                  {/* Buy Again Button */}
+                                  <button
+                                    type="button"
+                                    onClick={() => handleBuyAgain(order)}
+                                    style={{
+                                      background: '#fff',
+                                      color: '#0f172a',
+                                      border: '1.5px solid #cbd5e1',
+                                      padding: '7px 14px',
+                                      borderRadius: 10,
+                                      fontWeight: 600,
+                                      fontSize: 12,
+                                      cursor: 'pointer',
+                                      display: 'inline-flex',
+                                      alignItems: 'center',
+                                      gap: 5,
+                                      transition: 'all 0.2s'
+                                    }}
+                                  >
+                                    <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                                    Buy Again
+                                  </button>
+
+                                  {/* Cancel Order Button (Only for Pending orders) */}
+                                  {order.status === 'pending' && (
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setCancelModalOrder(order);
+                                        setCancelReason("Changed mind / Found cheaper alternative");
+                                      }}
+                                      style={{
+                                        background: '#fff',
+                                        color: '#ef4444',
+                                        border: '1.5px solid #fecaca',
+                                        padding: '7px 14px',
+                                        borderRadius: 10,
+                                        fontWeight: 600,
+                                        fontSize: 12,
+                                        cursor: 'pointer',
+                                        transition: 'all 0.2s'
+                                      }}
+                                    >
+                                      Cancel Order
+                                    </button>
+                                  )}
+
+                                  {/* Mark as Received Button (When shipped) */}
+                                  {order.status === 'shipped' && (
+                                    <button
+                                      type="button"
+                                      onClick={() => handleReceiveOrder(order.id)}
+                                      style={{
+                                        background: 'linear-gradient(135deg, #10b981, #059669)',
+                                        color: '#fff',
+                                        border: 'none',
+                                        padding: '8px 16px',
+                                        borderRadius: 10,
+                                        cursor: 'pointer',
+                                        fontSize: 12,
+                                        fontWeight: 700,
+                                        boxShadow: '0 4px 12px rgba(16,185,129,0.25)',
+                                        transition: 'all 0.2s'
+                                      }}
+                                    >
+                                      ✓ Confirm Received
+                                    </button>
+                                  )}
+
+                                  {/* Write Review Button (When delivered or completed) */}
+                                  {['delivered', 'completed'].includes(order.status) && (
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setReviewModalOrder(order);
+                                        setReviewRating(5);
+                                        setReviewComment("");
+                                      }}
+                                      style={{
+                                        background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+                                        color: '#fff',
+                                        border: 'none',
+                                        padding: '8px 14px',
+                                        borderRadius: 10,
+                                        cursor: 'pointer',
+                                        fontSize: 12,
+                                        fontWeight: 700,
+                                        boxShadow: '0 4px 10px rgba(245,158,11,0.25)',
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: 5,
+                                        transition: 'all 0.2s'
+                                      }}
+                                    >
+                                      ★ Rate Product
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
                             </div>
-                            <div className="order-card-footer">
-                              <div className="order-total-label">Order Total:</div>
-                              <div className="order-total-price">₱{(parseFloat(order.price) * order.quantity).toFixed(2)}</div>
-                              {order.status === 'shipped' && (
-                                <button
-                                  onClick={() => handleReceiveOrder(order.id)}
-                                  style={{ marginLeft: 16, background: '#ee4d2d', color: '#fff', border: 'none', padding: '6px 12px', borderRadius: 4, cursor: 'pointer', fontSize: 13, fontWeight: 600 }}
-                                >
-                                  Mark as Received
-                                </button>
-                              )}
-                            </div>
-                          </div>
-                        ))
+                          );
+                        })
                     )}
                   </div>
                 </div>
@@ -7704,76 +8367,157 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* RECEIPT MODAL */}
+        {/* OFFICIAL BIR ELECTRONIC SALES INVOICE & RECEIPT MODAL */}
         {receiptOrder && (
           (() => {
             const date = new Date(receiptOrder.created_at);
-            const trackingNum = `TRK-${date.getFullYear()}${(date.getMonth() + 1).toString().padStart(2, '0')}${date.getDate().toString().padStart(2, '0')}-${String(receiptOrder.id).padStart(4, '0')}`;
-            
+            const invoiceNum = `INV-2026-${String(receiptOrder.id).slice(-8)}`;
+            const trackingNum = receiptOrder.tracking_number || `SPX-PH-${String(receiptOrder.id).slice(-8)}`;
+            const orderCode = `SHP-2026-${String(receiptOrder.id).slice(-6)}`;
+            const buyerName = receiptOrder.buyer?.name || user?.name || 'Shopply Customer';
+            const buyerEmail = receiptOrder.buyer?.email || user?.email || 'customer@shop-ply.site';
+            const deliveryAddress = receiptOrder.shipping_address || (user?.location ? `${user.location}, Philippines` : 'Toledo City, Cebu, Philippines');
+            const sellerStoreName = receiptOrder.seller?.name || 'Shopply Verified Merchant';
+            const paymentMethod = receiptOrder.payment_method || 'Cash on Delivery (COD)';
+            const subtotal = parseFloat(receiptOrder.price) * receiptOrder.quantity;
+            const vatAmount = subtotal * 0.12;
+
             return (
-              <div className="modal-overlay">
-                <div className="receipt-modal">
-                  <div className="receipt-header">
-                    <div className="receipt-logo">Shopply</div>
-                    <div className="receipt-title">Order Receipt</div>
-                    <div className="receipt-date">{date.toLocaleString()}</div>
-                  </div>
-
-                  <div className="receipt-row">
-                    <span className="receipt-label">Tracking No:</span>
-                    <span className="receipt-value" style={{ fontWeight: 700, color: '#7c3aed' }}>{trackingNum}</span>
-                  </div>
-                  <div className="receipt-row">
-                    <span className="receipt-label">Buyer Name:</span>
-                    <span className="receipt-value">{receiptOrder.buyer?.name || 'Unknown Buyer'}</span>
-                  </div>
-                  <div className="receipt-row">
-                    <span className="receipt-label">Status:</span>
-                    <span className="receipt-value" style={{ color: '#10b981', fontWeight: 700 }}>{receiptOrder.status.toUpperCase()}</span>
-                  </div>
-
-                  <div className="receipt-items-container" style={{ margin: '24px 0', borderTop: '1px solid #f1f5f9', paddingTop: '16px' }}>
-                    <div className="receipt-row">
-                      <span className="receipt-label" style={{ color: '#0f172a', fontWeight: 600 }}>Item</span>
-                      <span className="receipt-value" style={{ color: '#0f172a', fontWeight: 600 }}>Amount</span>
+              <div className="modal-overlay" onClick={() => setReceiptOrder(null)} style={{ padding: 16 }}>
+                <div
+                  className="receipt-modal"
+                  onClick={e => e.stopPropagation()}
+                  style={{
+                    background: '#fff',
+                    maxWidth: 520,
+                    width: '100%',
+                    borderRadius: 20,
+                    padding: '28px 32px',
+                    boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)',
+                    border: '1px solid #e2e8f0',
+                    maxHeight: '92vh',
+                    overflowY: 'auto'
+                  }}
+                >
+                  {/* INVOICE TOP BAR */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '2px solid #7c3aed', paddingBottom: 16, marginBottom: 20 }}>
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                        <span style={{ fontSize: 22, fontWeight: 900, color: '#7c3aed', letterSpacing: '-0.5px' }}>Shopply</span>
+                        <span style={{ fontSize: 10, background: '#f5f3ff', color: '#7c3aed', border: '1px solid #ddd6fe', padding: '2px 8px', borderRadius: 12, fontWeight: 700 }}>OFFICIAL INVOICE</span>
+                      </div>
+                      <div style={{ fontSize: 11, color: '#64748b' }}>Republic of the Philippines • E-Commerce Sales Invoice</div>
+                      <div style={{ fontSize: 10, color: '#94a3b8' }}>BIR Electronic Registration: 2026-PH-SHOPPLY-ONLINE</div>
                     </div>
-                    <div className="receipt-row">
-                      <span className="receipt-label">
-                        {receiptOrder.item.name}
-                        {receiptOrder.variation && <><br /><small style={{ fontSize: 12, color: '#7c3aed', fontWeight: 600 }}>Variation: {receiptOrder.variation}</small></>}
-                        <br /><small style={{ fontSize: 12 }}>x{receiptOrder.quantity}</small>
+                    <div style={{ textAlign: 'right' }}>
+                      <div style={{ fontSize: 13, fontWeight: 800, color: '#0f172a', fontFamily: 'monospace' }}>{invoiceNum}</div>
+                      <div style={{ fontSize: 11, color: '#64748b', marginTop: 2 }}>{date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} • {date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                    </div>
+                  </div>
+
+                  {/* BILLED TO & SOLD BY SECTION */}
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16, background: '#f8fafc', padding: 14, borderRadius: 14, border: '1px solid #f1f5f9', marginBottom: 20 }}>
+                    <div>
+                      <div style={{ fontSize: 10, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: 4 }}>Billed To (Buyer)</div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: '#0f172a' }}>{buyerName}</div>
+                      <div style={{ fontSize: 11, color: '#64748b' }}>{buyerEmail}</div>
+                      <div style={{ fontSize: 11, color: '#64748b', marginTop: 2 }}>📍 {deliveryAddress}</div>
+                    </div>
+                    <div style={{ borderLeft: '1px solid #e2e8f0', paddingLeft: 16 }}>
+                      <div style={{ fontSize: 10, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: 4 }}>Merchant / Seller</div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: '#0f172a' }}>{sellerStoreName}</div>
+                      <div style={{ fontSize: 11, color: '#10b981', fontWeight: 600 }}>✓ Verified Shopply Merchant</div>
+                      <div style={{ fontSize: 11, color: '#64748b', marginTop: 2 }}>Order Ref: <strong style={{ color: '#0f172a', fontFamily: 'monospace' }}>#{orderCode}</strong></div>
+                    </div>
+                  </div>
+
+                  {/* LOGISTICS & PAYMENT BAR */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fafbfc', padding: '10px 14px', borderRadius: 10, border: '1px solid #f1f5f9', marginBottom: 20, fontSize: 12 }}>
+                    <div>
+                      <span style={{ color: '#64748b' }}>Tracking No: </span>
+                      <span style={{ fontFamily: 'monospace', fontWeight: 700, color: '#7c3aed' }}>{trackingNum}</span>
+                    </div>
+                    <div>
+                      <span style={{ color: '#64748b' }}>Payment: </span>
+                      <strong style={{ color: '#0f172a' }}>{paymentMethod}</strong>
+                    </div>
+                  </div>
+
+                  {/* ITEM DETAIL TABLE */}
+                  <div style={{ borderTop: '1px solid #e2e8f0', borderBottom: '1px solid #e2e8f0', padding: '14px 0', marginBottom: 16 }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr auto auto', gap: 12, fontSize: 11, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 8 }}>
+                      <span>Item Description</span>
+                      <span style={{ textAlign: 'center' }}>Qty</span>
+                      <span style={{ textAlign: 'right' }}>Amount</span>
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr auto auto', gap: 12, alignItems: 'center', fontSize: 13 }}>
+                      <div>
+                        <div style={{ fontWeight: 700, color: '#0f172a' }}>{receiptOrder.item.name}</div>
+                        {receiptOrder.variation && (
+                          <div style={{ fontSize: 11, color: '#7c3aed', fontWeight: 600 }}>Variation: {receiptOrder.variation}</div>
+                        )}
+                        <div style={{ fontSize: 11, color: '#94a3b8' }}>Unit Price: ₱{parseFloat(receiptOrder.price).toFixed(2)}</div>
+                      </div>
+                      <div style={{ fontWeight: 700, color: '#0f172a', textAlign: 'center' }}>x{receiptOrder.quantity}</div>
+                      <div style={{ fontWeight: 700, color: '#0f172a', textAlign: 'right' }}>₱{subtotal.toFixed(2)}</div>
+                    </div>
+                  </div>
+
+                  {/* FINANCIAL BREAKDOWN */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: 12, marginBottom: 20 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', color: '#64748b' }}>
+                      <span>Items Subtotal:</span>
+                      <span style={{ fontWeight: 600, color: '#0f172a' }}>₱{subtotal.toFixed(2)}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', color: '#64748b' }}>
+                      <span>Standard Shipping (Shopply Express):</span>
+                      <span style={{ fontWeight: 700, color: '#10b981' }}>FREE (₱0.00)</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', color: '#94a3b8', fontSize: 11 }}>
+                      <span>12% VAT (Inclusive):</span>
+                      <span>₱{vatAmount.toFixed(2)}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '2px dashed #e2e8f0', paddingTop: 10, marginTop: 4 }}>
+                      <span style={{ fontSize: 15, fontWeight: 800, color: '#0f172a' }}>Total Amount Paid:</span>
+                      <span style={{ fontSize: 22, fontWeight: 900, color: '#ee4d2d' }}>₱{subtotal.toFixed(2)}</span>
+                    </div>
+                  </div>
+
+                  {/* QR CODE & VERIFICATION BADGE */}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#fafbfc', padding: '12px 18px', borderRadius: 14, border: '1px solid #f1f5f9', marginBottom: 24 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                      <img
+                        src={`https://api.qrserver.com/v1/create-qr-code/?size=64x64&data=https://shop-ply.site/dashboard?order=${receiptOrder.id}`}
+                        alt="Verification QR"
+                        width={64}
+                        height={64}
+                        style={{ borderRadius: 8, border: '1px solid #e2e8f0' }}
+                      />
+                      <div>
+                        <div style={{ fontSize: 12, fontWeight: 700, color: '#0f172a' }}>Digital Verification Seal</div>
+                        <div style={{ fontSize: 10, color: '#64748b', marginTop: 2 }}>Scan to authenticate order validity with Shopply Trust Network.</div>
+                      </div>
+                    </div>
+                    <div style={{ textAlign: 'right' }}>
+                      <span style={{ fontSize: 11, background: '#dcfce7', color: '#15803d', padding: '3px 10px', borderRadius: 20, fontWeight: 700 }}>
+                        ● {receiptOrder.status.toUpperCase()}
                       </span>
-                      <span className="receipt-value">${(parseFloat(receiptOrder.price) * receiptOrder.quantity).toFixed(2)}</span>
                     </div>
                   </div>
 
-                  <div className="receipt-total">
-                    <span>Total Paid</span>
-                    <span style={{ color: '#ee4d2d' }}>${(parseFloat(receiptOrder.price) * receiptOrder.quantity).toFixed(2)}</span>
-                  </div>
-
-                  <div className="receipt-qr-container" style={{ marginTop: 32, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                    <img
-                      src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${trackingNum}`}
-                      alt="QR Code"
-                      width={100}
-                      height={100}
-                      style={{ marginBottom: 8 }}
-                    />
-                    <div style={{ fontSize: 13, letterSpacing: 3, color: '#0f172a', fontFamily: 'monospace', fontWeight: 700 }}>
-                      {trackingNum}
-                    </div>
-                  </div>
-
-                  <div className="receipt-actions no-print">
+                  {/* ACTION BUTTONS */}
+                  <div className="receipt-actions no-print" style={{ display: 'flex', gap: 12 }}>
                     <button
-                      style={{ flex: 1, padding: '10px', background: '#7c3aed', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 600 }}
+                      type="button"
+                      style={{ flex: 1, padding: '12px', background: 'linear-gradient(135deg, #7c3aed, #6366f1)', color: '#fff', border: 'none', borderRadius: 12, cursor: 'pointer', fontWeight: 700, fontSize: 13, boxShadow: '0 4px 14px rgba(124,58,237,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
                       onClick={() => window.print()}
                     >
-                      Print Receipt
+                      <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9" /><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2" /><rect x="6" y="14" width="12" height="8" /></svg>
+                      Print / Save as PDF
                     </button>
                     <button
-                      style={{ flex: 1, padding: '10px', background: '#f1f5f9', color: '#475569', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 600 }}
+                      type="button"
+                      style={{ padding: '12px 24px', background: '#f1f5f9', color: '#475569', border: '1px solid #cbd5e1', borderRadius: 12, cursor: 'pointer', fontWeight: 600, fontSize: 13 }}
                       onClick={() => setReceiptOrder(null)}
                     >
                       Close
@@ -7783,6 +8527,413 @@ export default function DashboardPage() {
               </div>
             );
           })()
+        )}
+
+        {/* PARCEL TRACKING & COURIER TIMELINE MODAL */}
+        {trackingOrder && (
+          (() => {
+            const date = new Date(trackingOrder.created_at);
+            const trackingNum = trackingOrder.tracking_number || `SPX-PH-${String(trackingOrder.id).slice(-8)}`;
+            const orderCode = `SHP-2026-${String(trackingOrder.id).slice(-6)}`;
+            const deliveryAddress = trackingOrder.shipping_address || (user?.location ? `${user.location}, Philippines` : 'Toledo City, Cebu, Philippines');
+            const step = getOrderStepIndex(trackingOrder.status);
+            const isCancelled = ['cancelled', 'rejected'].includes(trackingOrder.status);
+
+            // Calculate realistic milestone timestamps
+            const orderTime = date.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+            const packedDate = new Date(date.getTime() + 45 * 60 * 1000);
+            const packedTime = packedDate.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+            const transitDate = new Date(date.getTime() + 18 * 3600 * 1000);
+            const transitTime = transitDate.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+            const outDate = new Date(date.getTime() + 36 * 3600 * 1000);
+            const outTime = outDate.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+            const deliveredDate = new Date(date.getTime() + 48 * 3600 * 1000);
+            const deliveredTime = deliveredDate.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+            return (
+              <div className="modal-overlay" onClick={() => setTrackingOrder(null)} style={{ padding: 16 }}>
+                <div
+                  className="receipt-modal"
+                  onClick={e => e.stopPropagation()}
+                  style={{
+                    background: '#fff',
+                    maxWidth: 540,
+                    width: '100%',
+                    borderRadius: 20,
+                    padding: '28px 30px',
+                    boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)',
+                    border: '1px solid #e2e8f0',
+                    maxHeight: '92vh',
+                    overflowY: 'auto'
+                  }}
+                >
+                  {/* MODAL HEADER */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #f1f5f9', paddingBottom: 16, marginBottom: 20 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                      <div style={{ width: 40, height: 40, borderRadius: 12, background: 'linear-gradient(135deg, #7c3aed, #4f46e5)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24"><path d="M1 3h15v13H1z"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                      </div>
+                      <div>
+                        <h3 style={{ fontSize: 17, fontWeight: 800, color: '#0f172a', margin: 0 }}>Parcel Tracking Details</h3>
+                        <p style={{ fontSize: 12, color: '#64748b', margin: 0 }}>Shopply Express (SPX Standard Local)</p>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setTrackingOrder(null)}
+                      style={{ border: 'none', background: '#f1f5f9', color: '#64748b', width: 32, height: 32, borderRadius: '50%', cursor: 'pointer', fontSize: 16, fontWeight: 700 }}
+                    >
+                      ✕
+                    </button>
+                  </div>
+
+                  {/* COURIER INFO CARD */}
+                  <div style={{ background: '#f8fafc', borderRadius: 14, padding: 16, border: '1px solid #e2e8f0', marginBottom: 20, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
+                    <div>
+                      <div style={{ fontSize: 11, color: '#64748b', fontWeight: 600 }}>Tracking Reference</div>
+                      <div style={{ fontSize: 15, fontWeight: 800, color: '#7c3aed', fontFamily: 'monospace' }}>{trackingNum}</div>
+                      <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>Order ID: #{orderCode}</div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (navigator.clipboard) {
+                          navigator.clipboard.writeText(trackingNum);
+                          setCopiedTracking(true);
+                          setTimeout(() => setCopiedTracking(false), 2000);
+                        }
+                      }}
+                      style={{
+                        padding: '7px 14px',
+                        borderRadius: 8,
+                        border: '1px solid #7c3aed',
+                        background: copiedTracking ? '#7c3aed' : '#f5f3ff',
+                        color: copiedTracking ? '#fff' : '#7c3aed',
+                        fontSize: 12,
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        transition: 'all 0.2s'
+                      }}
+                    >
+                      {copiedTracking ? '✓ Copied' : 'Copy Number'}
+                    </button>
+                  </div>
+
+                  {/* CURRENT STATUS HERO BOX */}
+                  <div style={{
+                    background: isCancelled ? '#fef2f2' : step === 4 ? '#ecfdf5' : '#eff6ff',
+                    border: `1.5px solid ${isCancelled ? '#fecaca' : step === 4 ? '#a7f3d0' : '#bfdbfe'}`,
+                    borderRadius: 14,
+                    padding: '14px 18px',
+                    marginBottom: 24,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 12
+                  }}>
+                    <span style={{ fontSize: 24 }}>
+                      {isCancelled ? '❌' : step === 4 ? '🎉' : step === 3 ? '🚚' : step === 2 ? '📦' : '⏳'}
+                    </span>
+                    <div>
+                      <div style={{ fontSize: 14, fontWeight: 800, color: isCancelled ? '#991b1b' : step === 4 ? '#065f46' : '#1e40af' }}>
+                        {isCancelled ? 'Order Cancelled' : step === 4 ? 'Parcel Delivered & Received' : step === 3 ? 'Parcel In Transit with SPX Rider' : step === 2 ? 'Merchant is Preparing & Packing Parcel' : 'Order Placed & Payment Method Verified'}
+                      </div>
+                      <div style={{ fontSize: 12, color: isCancelled ? '#b91c1c' : step === 4 ? '#047857' : '#3b82f6', marginTop: 2 }}>
+                        {isCancelled ? (trackingOrder.cancellation_reason || 'Order cancelled upon request. Reserved stock restored.') : step === 4 ? `Completed and signed on ${deliveredTime}` : `Estimated Delivery: ${transitTime} - ${deliveredTime}`}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* TIMELINE CHECKPOINTS */}
+                  <div style={{ position: 'relative', paddingLeft: 32, marginBottom: 24 }}>
+                    <div style={{ position: 'absolute', left: 11, top: 8, bottom: 8, width: 2, background: '#e2e8f0' }} />
+
+                    {[
+                      {
+                        title: 'Parcel Delivered',
+                        desc: 'Successfully received and signed at recipient address.',
+                        time: deliveredTime,
+                        active: step >= 4,
+                        isCurrent: step === 4
+                      },
+                      {
+                        title: 'Out for Delivery',
+                        desc: 'SPX delivery courier is out for delivery in your neighborhood.',
+                        time: outTime,
+                        active: step >= 3,
+                        isCurrent: step === 3
+                      },
+                      {
+                        title: 'Departed Central Sorting Hub',
+                        desc: 'Dispatched from Cebu Central Logistics Center to destination hub.',
+                        time: transitTime,
+                        active: step >= 3,
+                        isCurrent: false
+                      },
+                      {
+                        title: 'Parcel Picked Up & Scanned',
+                        desc: 'Shopply Express rider picked up item from merchant store.',
+                        time: packedTime,
+                        active: step >= 2,
+                        isCurrent: step === 2
+                      },
+                      {
+                        title: 'Order Placed & Confirmed',
+                        desc: 'Buyer placed order and checkout was approved.',
+                        time: orderTime,
+                        active: true,
+                        isCurrent: step === 1
+                      }
+                    ].map((cp, idx) => (
+                      <div key={idx} style={{ position: 'relative', marginBottom: 20 }}>
+                        {/* Dot */}
+                        <div style={{
+                          position: 'absolute',
+                          left: -32,
+                          top: 2,
+                          width: 24,
+                          height: 24,
+                          borderRadius: '50%',
+                          background: cp.isCurrent ? (step === 4 ? '#10b981' : '#7c3aed') : cp.active ? (step === 4 ? '#10b981' : '#7c3aed') : '#fff',
+                          border: `2px solid ${cp.active ? (step === 4 ? '#10b981' : '#7c3aed') : '#cbd5e1'}`,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          color: '#fff',
+                          fontSize: 10,
+                          fontWeight: 700,
+                          boxShadow: cp.isCurrent ? '0 0 0 4px rgba(124,58,237,0.2)' : 'none'
+                        }}>
+                          {cp.active ? '✓' : ''}
+                        </div>
+
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
+                          <div>
+                            <div style={{ fontSize: 13, fontWeight: cp.isCurrent ? 800 : cp.active ? 700 : 500, color: cp.active ? '#0f172a' : '#94a3b8' }}>
+                              {cp.title}
+                            </div>
+                            <div style={{ fontSize: 12, color: cp.active ? '#64748b' : '#94a3b8', marginTop: 2 }}>
+                              {cp.desc}
+                            </div>
+                          </div>
+                          {cp.active && (
+                            <span style={{ fontSize: 11, color: '#94a3b8', whiteSpace: 'nowrap' }}>
+                              {cp.time}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* DESTINATION SUMMARY */}
+                  <div style={{ background: '#f8fafc', padding: '12px 16px', borderRadius: 12, border: '1px solid #f1f5f9', marginBottom: 20, fontSize: 12, color: '#475569' }}>
+                    <div style={{ fontWeight: 700, color: '#0f172a', marginBottom: 2 }}>📍 Delivery Destination:</div>
+                    <div>{deliveryAddress}</div>
+                  </div>
+
+                  {/* MODAL FOOTER */}
+                  <div style={{ display: 'flex', gap: 12 }}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setTrackingOrder(null);
+                        handleContactSeller(trackingOrder.seller);
+                      }}
+                      style={{ flex: 1, padding: '11px', background: '#fff', color: '#7c3aed', border: '1.5px solid #7c3aed', borderRadius: 12, cursor: 'pointer', fontWeight: 700, fontSize: 13 }}
+                    >
+                      💬 Contact Seller
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setTrackingOrder(null)}
+                      style={{ flex: 1, padding: '11px', background: '#7c3aed', color: '#fff', border: 'none', borderRadius: 12, cursor: 'pointer', fontWeight: 700, fontSize: 13, boxShadow: '0 4px 14px rgba(124,58,237,0.2)' }}
+                    >
+                      Done
+                    </button>
+                  </div>
+                </div>
+              </div>
+            );
+          })()
+        )}
+
+        {/* CANCEL ORDER CONFIRMATION MODAL */}
+        {cancelModalOrder && (
+          <div className="modal-overlay" onClick={() => setCancelModalOrder(null)} style={{ padding: 16 }}>
+            <div
+              className="receipt-modal"
+              onClick={e => e.stopPropagation()}
+              style={{
+                background: '#fff',
+                maxWidth: 420,
+                width: '100%',
+                borderRadius: 20,
+                padding: '28px 26px',
+                textAlign: 'center',
+                boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)',
+                border: '1px solid #e2e8f0'
+              }}
+            >
+              <div style={{ width: 56, height: 56, borderRadius: '50%', background: '#fee2e2', color: '#ef4444', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+                <svg width="28" height="28" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+              </div>
+
+              <h3 style={{ fontSize: 18, fontWeight: 800, color: '#0f172a', marginBottom: 8 }}>
+                Cancel Order #SHP-2026-{String(cancelModalOrder.id).slice(-6)}?
+              </h3>
+              <p style={{ fontSize: 13, color: '#64748b', lineHeight: 1.5, marginBottom: 20 }}>
+                Are you sure you want to cancel this order for <strong>{cancelModalOrder.item.name}</strong>? Reserved items will be released back to product inventory.
+              </p>
+
+              <div style={{ textAlign: 'left', marginBottom: 24 }}>
+                <label style={{ fontSize: 12, fontWeight: 700, color: '#475569', display: 'block', marginBottom: 6 }}>
+                  Reason for Cancellation
+                </label>
+                <select
+                  value={cancelReason}
+                  onChange={e => setCancelReason(e.target.value)}
+                  style={{ width: '100%', padding: '10px 14px', borderRadius: 10, border: '1.5px solid #cbd5e1', fontSize: 13, outline: 'none', background: '#fff', color: '#0f172a' }}
+                >
+                  <option value="Changed mind / Found cheaper alternative">Changed mind / Found cheaper alternative</option>
+                  <option value="Need to modify delivery address or contact number">Need to modify delivery address or contact number</option>
+                  <option value="Need to change color, size, or product variation">Need to change color, size, or variation</option>
+                  <option value="Ordered by mistake">Ordered by mistake</option>
+                  <option value="Delivery time is too long">Delivery time is too long</option>
+                  <option value="Other reason">Other reason</option>
+                </select>
+              </div>
+
+              <div style={{ display: 'flex', gap: 12 }}>
+                <button
+                  type="button"
+                  onClick={() => setCancelModalOrder(null)}
+                  disabled={cancellingOrder}
+                  style={{ flex: 1, padding: '11px', background: '#fff', color: '#64748b', border: '1.5px solid #cbd5e1', borderRadius: 12, cursor: 'pointer', fontWeight: 600, fontSize: 13 }}
+                >
+                  Keep Order
+                </button>
+                <button
+                  type="button"
+                  onClick={handleCancelOrder}
+                  disabled={cancellingOrder}
+                  style={{ flex: 1, padding: '11px', background: 'linear-gradient(135deg, #ef4444, #dc2626)', color: '#fff', border: 'none', borderRadius: 12, cursor: cancellingOrder ? 'wait' : 'pointer', fontWeight: 700, fontSize: 13, boxShadow: '0 4px 12px rgba(239,68,68,0.25)' }}
+                >
+                  {cancellingOrder ? 'Cancelling...' : 'Confirm Cancel'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* RATE & REVIEW PRODUCT MODAL */}
+        {reviewModalOrder && (
+          <div className="modal-overlay" onClick={() => setReviewModalOrder(null)} style={{ padding: 16 }}>
+            <div
+              className="receipt-modal"
+              onClick={e => e.stopPropagation()}
+              style={{
+                background: '#fff',
+                maxWidth: 460,
+                width: '100%',
+                borderRadius: 20,
+                padding: '28px 28px',
+                boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)',
+                border: '1px solid #e2e8f0'
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #f1f5f9', paddingBottom: 14, marginBottom: 20 }}>
+                <h3 style={{ fontSize: 17, fontWeight: 800, color: '#0f172a', margin: 0 }}>Rate & Review Product</h3>
+                <button
+                  type="button"
+                  onClick={() => setReviewModalOrder(null)}
+                  style={{ border: 'none', background: '#f1f5f9', color: '#64748b', width: 30, height: 30, borderRadius: '50%', cursor: 'pointer', fontSize: 16, fontWeight: 700 }}
+                >
+                  ✕
+                </button>
+              </div>
+
+              {/* PRODUCT INFO */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 14, background: '#f8fafc', padding: 12, borderRadius: 14, border: '1px solid #f1f5f9', marginBottom: 20 }}>
+                {reviewModalOrder.item.image ? (
+                  <img src={getImageUrl(reviewModalOrder.item.image)} alt={reviewModalOrder.item.name} style={{ width: 56, height: 56, borderRadius: 10, objectFit: 'cover' }} />
+                ) : (
+                  <div style={{ width: 56, height: 56, borderRadius: 10, background: '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8' }}><IconBox /></div>
+                )}
+                <div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', lineHeight: 1.3 }}>{reviewModalOrder.item.name}</div>
+                  {reviewModalOrder.variation && (
+                    <div style={{ fontSize: 11, color: '#7c3aed', fontWeight: 600 }}>Variation: {reviewModalOrder.variation}</div>
+                  )}
+                </div>
+              </div>
+
+              {/* STAR RATING PICKER */}
+              <div style={{ textAlign: 'center', marginBottom: 20 }}>
+                <div style={{ fontSize: 12, color: '#64748b', fontWeight: 600, marginBottom: 8 }}>Overall Product Quality & Experience</div>
+                <div style={{ display: 'flex', justifyContent: 'center', gap: 8 }}>
+                  {[1, 2, 3, 4, 5].map(star => (
+                    <button
+                      key={star}
+                      type="button"
+                      onClick={() => setReviewRating(star)}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        cursor: 'pointer',
+                        fontSize: 34,
+                        color: star <= reviewRating ? '#f59e0b' : '#cbd5e1',
+                        transition: 'transform 0.15s',
+                        transform: star <= reviewRating ? 'scale(1.1)' : 'scale(1)'
+                      }}
+                    >
+                      ★
+                    </button>
+                  ))}
+                </div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#f59e0b', marginTop: 4 }}>
+                  {reviewRating === 5 && "⭐⭐⭐⭐⭐ Outstanding! Highly Recommended"}
+                  {reviewRating === 4 && "⭐⭐⭐⭐ Very Good! Happy with purchase"}
+                  {reviewRating === 3 && "⭐⭐⭐ Satisfactory / Average"}
+                  {reviewRating === 2 && "⭐⭐ Needs Improvement"}
+                  {reviewRating === 1 && "⭐ Disappointed"}
+                </div>
+              </div>
+
+              {/* COMMENT INPUT */}
+              <div style={{ marginBottom: 24 }}>
+                <label style={{ fontSize: 12, fontWeight: 700, color: '#475569', display: 'block', marginBottom: 6 }}>
+                  Detailed Feedback (Optional)
+                </label>
+                <textarea
+                  rows={4}
+                  value={reviewComment}
+                  onChange={e => setReviewComment(e.target.value)}
+                  placeholder="Share details about the packaging, quality, delivery speed, and seller service..."
+                  style={{ width: '100%', padding: '12px 14px', borderRadius: 12, border: '1.5px solid #cbd5e1', fontSize: 13, outline: 'none', resize: 'vertical' }}
+                />
+              </div>
+
+              {/* ACTIONS */}
+              <div style={{ display: 'flex', gap: 12 }}>
+                <button
+                  type="button"
+                  onClick={() => setReviewModalOrder(null)}
+                  disabled={submittingReview}
+                  style={{ flex: 1, padding: '11px', background: '#fff', color: '#64748b', border: '1.5px solid #cbd5e1', borderRadius: 12, cursor: 'pointer', fontWeight: 600, fontSize: 13 }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSubmitReview}
+                  disabled={submittingReview}
+                  style={{ flex: 1, padding: '11px', background: 'linear-gradient(135deg, #f59e0b, #d97706)', color: '#fff', border: 'none', borderRadius: 12, cursor: submittingReview ? 'wait' : 'pointer', fontWeight: 700, fontSize: 13, boxShadow: '0 4px 12px rgba(245,158,11,0.25)' }}
+                >
+                  {submittingReview ? 'Submitting...' : 'Post Review'}
+                </button>
+              </div>
+            </div>
+          </div>
         )}
 
         {/* SCANNER MODAL */}

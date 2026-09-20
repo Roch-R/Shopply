@@ -37,6 +37,10 @@ export async function GET(req: Request) {
       const itemImg = firstItem?.item?.image || firstItem?.image || o.item?.image || o.image_url || "";
       const itemPrice = firstItem?.price || firstItem?.item?.price || o.price || o.total_amount || 0;
       const itemQty = firstItem?.quantity || o.quantity || 1;
+      const defaultTracking = o.tracking_number || `SPX-PH-${String(o.id).slice(-8)}`;
+      const defaultCourier = o.courier || "Shopply Express (SPX Standard Local)";
+      const defaultAddress = o.shipping_address || (user.location ? `${user.location}, Philippines` : "Toledo City, Cebu, Philippines");
+      const defaultPayment = o.payment_method || "Cash on Delivery";
 
       return {
         id: o.id,
@@ -46,6 +50,12 @@ export async function GET(req: Request) {
         quantity: Number(itemQty),
         variation: o.variation || firstItem?.variation || "",
         created_at: o.created_at || new Date().toISOString(),
+        shipping_address: defaultAddress,
+        payment_method: defaultPayment,
+        tracking_number: defaultTracking,
+        courier: defaultCourier,
+        cancellation_reason: o.cancellation_reason || "",
+        items: o.items || [],
         item: {
           id: firstItem?.item_id || firstItem?.item?.id || o.item_id || "1",
           name: itemName,
@@ -55,6 +65,11 @@ export async function GET(req: Request) {
         seller: {
           id: o.seller_id || o.seller?.id || "1",
           name: o.seller_name || o.seller?.name || "Shopply Store"
+        },
+        buyer: {
+          id: user.id,
+          name: user.name || user.username || "Shopply Customer",
+          email: user.email || ""
         }
       };
     });
