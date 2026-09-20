@@ -6,6 +6,7 @@ import MeetupMap from "@/components/MeetupMap";
 import { SkeletonShopCard, SkeletonChatMessage } from "@/components/Skeleton";
 import { collection, query, where, onSnapshot, doc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import SiteLockSeal from "@/components/SiteLockSeal";
 
 interface ShopItem {
   id: number;
@@ -2945,6 +2946,80 @@ export default function ShopPage() {
             </div>
           )}
         </main>
+
+        {/* ——— OFFICIAL SHOPPLY MARKETPLACE FOOTER ——— */}
+        <footer style={{ background: '#fff', borderTop: '1px solid #e2e8f0', marginTop: 60, padding: '48px 24px 28px', color: '#475569' }}>
+          <div style={{ maxWidth: 1280, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 32, marginBottom: 40 }}>
+            {/* Column 1: Customer Service */}
+            <div>
+              <h4 style={{ fontSize: 13, fontWeight: 800, color: '#0f172a', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: 14 }}>
+                Customer Care
+              </h4>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8, fontSize: 13 }}>
+                <Link href="/guides" style={{ color: '#64748b', textDecoration: 'none' }}>Help Centre & FAQs</Link>
+                <Link href="/guides" style={{ color: '#64748b', textDecoration: 'none' }}>How to Buy on Shopply</Link>
+                <Link href="/dashboard" style={{ color: '#64748b', textDecoration: 'none' }}>Track SPX Delivery</Link>
+                <Link href="/terms" style={{ color: '#64748b', textDecoration: 'none' }}>7-Day Free Returns</Link>
+                <Link href="/contact" style={{ color: '#64748b', textDecoration: 'none' }}>Shopply Guarantee & COD</Link>
+              </div>
+            </div>
+
+            {/* Column 2: About Shopply */}
+            <div>
+              <h4 style={{ fontSize: 13, fontWeight: 800, color: '#0f172a', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: 14 }}>
+                About Shopply
+              </h4>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8, fontSize: 13 }}>
+                <Link href="/about" style={{ color: '#64748b', textDecoration: 'none' }}>About Shopply Philippines</Link>
+                <Link href="/careers" style={{ color: '#64748b', textDecoration: 'none' }}>Careers</Link>
+                <Link href="/privacy" style={{ color: '#64748b', textDecoration: 'none' }}>Privacy Policy</Link>
+                <Link href="/terms" style={{ color: '#64748b', textDecoration: 'none' }}>Terms of Service</Link>
+                <Link href="/cookies" style={{ color: '#64748b', textDecoration: 'none' }}>Cookie Policy</Link>
+              </div>
+            </div>
+
+            {/* Column 3: Logistics & Payment */}
+            <div>
+              <h4 style={{ fontSize: 13, fontWeight: 800, color: '#0f172a', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: 14 }}>
+                Payment & Logistics
+              </h4>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 16 }}>
+                <span style={{ fontSize: 11, fontWeight: 700, padding: '4px 8px', borderRadius: 6, background: '#f1f5f9', color: '#334155' }}>💵 Cash on Delivery</span>
+                <span style={{ fontSize: 11, fontWeight: 700, padding: '4px 8px', borderRadius: 6, background: '#f1f5f9', color: '#0284c7' }}>GCash</span>
+                <span style={{ fontSize: 11, fontWeight: 700, padding: '4px 8px', borderRadius: 6, background: '#f1f5f9', color: '#16a34a' }}>Maya</span>
+                <span style={{ fontSize: 11, fontWeight: 700, padding: '4px 8px', borderRadius: 6, background: '#f1f5f9', color: '#7c3aed' }}>🚚 SPX Express</span>
+              </div>
+              <p style={{ fontSize: 12, color: '#94a3b8', lineHeight: 1.5, margin: 0 }}>
+                100% Authentic Products • Secure Philippine Peso (₱) Checkout
+              </p>
+            </div>
+
+            {/* Column 4: Official Security & SiteLock Trust Seal */}
+            <div>
+              <h4 style={{ fontSize: 13, fontWeight: 800, color: '#0f172a', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: 14 }}>
+                Verified Security
+              </h4>
+              <div style={{ background: '#f8fafc', padding: 14, borderRadius: 14, border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {/* Official SiteLock Trust Seal */}
+                <SiteLockSeal size="md" showText={true} />
+                <div style={{ fontSize: 11, color: '#64748b', lineHeight: 1.4, borderTop: '1px solid #f1f5f9', paddingTop: 8 }}>
+                  🛡️ <strong>100% Shopply Protected:</strong> Real-time malware scanning, encrypted transactions, and official BIR electronic invoicing.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom Copyright Bar */}
+          <div style={{ maxWidth: 1280, margin: '0 auto', paddingTop: 20, borderTop: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12, fontSize: 12, color: '#94a3b8' }}>
+            <div>
+              © {new Date().getFullYear()} Shopply Inc. All Rights Reserved. • Philippines&apos; Premier E-Commerce Marketplace
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+              <span style={{ color: '#10b981', fontWeight: 600 }}>● All Systems Operational</span>
+              <span>Country: 🇵🇭 Philippines</span>
+            </div>
+          </div>
+        </footer>
 
         {/* PRODUCT DETAIL MODAL */}
         {viewItem && (

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Skeleton } from "@/components/Skeleton";
 import { getApiCache } from "@/lib/apiCache";
+import SiteLockSeal from "@/components/SiteLockSeal";
 
 function getAuth() {
   if (typeof window === "undefined") return { token: null, user: null };
@@ -423,12 +424,15 @@ export default function AboutPage() {
             </div>
           </div>
           
-          <div className="footer-bottom">
-            <p>© {new Date().getFullYear()} Shopply Inc. All rights reserved.</p>
-            <div className="footer-bottom-links">
-              <Link href="/privacy">Privacy Policy</Link>
-              <Link href="/terms">Terms of Service</Link>
-              <Link href="/cookies">Cookie Policy</Link>
+          <div className="footer-bottom" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}>
+            <p style={{ margin: 0 }}>© {new Date().getFullYear()} Shopply Inc. All rights reserved.</p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 20, flexWrap: 'wrap' }}>
+              <SiteLockSeal size="sm" showText={true} />
+              <div className="footer-bottom-links">
+                <Link href="/privacy">Privacy Policy</Link>
+                <Link href="/terms">Terms of Service</Link>
+                <Link href="/cookies">Cookie Policy</Link>
+              </div>
             </div>
           </div>
         </footer>
