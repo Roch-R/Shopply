@@ -110,6 +110,72 @@ const isFootwearCategory = (cat?: string | null) => {
   return c === "footwear" || c === "shoes" || c === "shoe";
 };
 
+const BANNERS = [
+  {
+    badge: "🔥 MEGA PAYDAY 9.21 SALE | LIVE NOW",
+    badgeBg: "#ef4444",
+    title: "UP TO 70% OFF + ₱0 MIN SPEND FREE SHIPPING",
+    subtitle: "Mega price cuts on premium tech, trending streetwear, and lifestyle favorites from verified Philippine sellers.",
+    voucher: "CODE: SHOPPLY70",
+    voucherCode: "SHOPPLY70",
+    shipping: "FREE SHIPPING VOUCHER",
+    gradient: "linear-gradient(135deg, #7c3aed 0%, #6366f1 50%, #d946ef 100%)",
+    primaryBtn: "Shop Mega Deals →",
+    secondaryBtn: "⚡ Flash Drops",
+    tag: "70% OFF"
+  },
+  {
+    badge: "💎 SHOPPLY OFFICIAL MALL",
+    badgeBg: "#10b981",
+    title: "100% AUTHENTIC BRANDS & DIRECT WHOLESALE",
+    subtitle: "Shop guaranteed authentic items with 7-day hassle-free returns, official store warranty, and verified buyer reviews.",
+    voucher: "CODE: MALLAUTHENTIC",
+    voucherCode: "MALLAUTHENTIC",
+    shipping: "7-DAY FREE RETURNS",
+    gradient: "linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #4338ca 100%)",
+    primaryBtn: "Explore Official Mall →",
+    secondaryBtn: "🛡️ Buyer Protection",
+    tag: "100% AUTHENTIC"
+  },
+  {
+    badge: "⚡ 24/7 FLASH DEALS & CRAZY DROPS",
+    badgeBg: "#f59e0b",
+    title: "LIMITED STOCK FLASH DEALS STARTING AT ₱49",
+    subtitle: "Lowest price guarantee refreshed every 4 hours! Grab tech accessories, footwear, and apparel before timer expires.",
+    voucher: "CODE: FLASHDROP49",
+    voucherCode: "FLASHDROP49",
+    shipping: "CASH ON DELIVERY",
+    gradient: "linear-gradient(135deg, #dc2626 0%, #ea580c 50%, #f59e0b 100%)",
+    primaryBtn: "Grab Flash Deals ⚡",
+    secondaryBtn: "⏰ View Schedule",
+    tag: "FLASH SALE"
+  }
+];
+
+const TRENDING_KEYWORDS = [
+  "Wireless Earbuds",
+  "Sneakers",
+  "Smart Watch",
+  "Oversized Tee",
+  "Phone Case",
+  "Perfume",
+  "Backpack",
+  "Hoodie"
+];
+
+const CURATED_CATEGORIES = [
+  { id: "All", label: "All Items", icon: "⚡", color: "#7c3aed" },
+  { id: "Electronics", label: "Electronics", icon: "📱", color: "#2563eb" },
+  { id: "Footwear", label: "Shoes & Footwear", icon: "👟", color: "#f97316" },
+  { id: "Fashion", label: "Fashion & Apparel", icon: "👗", color: "#ec4899" },
+  { id: "Beauty", label: "Health & Beauty", icon: "💄", color: "#e11d48" },
+  { id: "Home", label: "Home & Living", icon: "🏡", color: "#10b981" },
+  { id: "Accessories", label: "Watches & Bags", icon: "⌚", color: "#8b5cf6" },
+  { id: "Sports", label: "Sports & Fitness", icon: "⚽", color: "#06b6d4" },
+  { id: "Groceries", label: "Groceries & Food", icon: "🛒", color: "#84cc16" },
+  { id: "Gaming", label: "Gaming & Hobbies", icon: "🎮", color: "#6366f1" }
+];
+
 export default function ShopPage() {
   const [items, setItems] = useState<ShopItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -127,6 +193,11 @@ export default function ShopPage() {
   const [activeImageIdx, setActiveImageIdx] = useState<number>(0);
   const [followedSellers, setFollowedSellers] = useState<Record<number, boolean>>({});
   const [searchQuery, setSearchQuery] = useState("");
+  const [currentBannerIdx, setCurrentBannerIdx] = useState(0);
+  const [isBannerHovered, setIsBannerHovered] = useState(false);
+  const [flashCountdown, setFlashCountdown] = useState({ hours: 3, minutes: 42, seconds: 18 });
+  const [sortBy, setSortBy] = useState<"featured" | "price-asc" | "price-desc" | "rating" | "popular">("featured");
+  const [copiedVoucher, setCopiedVoucher] = useState<string | null>(null);
 
   // Chat States
   const [isChatOpen, setIsChatOpen] = useState(false);
@@ -270,6 +341,28 @@ export default function ShopPage() {
     checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Banner Carousel Auto-play (every 5 seconds, paused on hover)
+  useEffect(() => {
+    if (isBannerHovered) return;
+    const timer = setInterval(() => {
+      setCurrentBannerIdx(prev => (prev + 1) % BANNERS.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [isBannerHovered]);
+
+  // Flash Deals Countdown Timer
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setFlashCountdown(prev => {
+        if (prev.seconds > 0) return { ...prev, seconds: prev.seconds - 1 };
+        if (prev.minutes > 0) return { ...prev, minutes: 59, seconds: 59 };
+        if (prev.hours > 0) return { hours: prev.hours - 1, minutes: 59, seconds: 59 };
+        return { hours: 3, minutes: 59, seconds: 59 };
+      });
+    }, 1000);
+    return () => clearInterval(timer);
   }, []);
 
   const handleToggleFollow = async (userId: number) => {
@@ -1123,12 +1216,35 @@ export default function ShopPage() {
     }
   };
 
-  const filteredItems = items.filter(i => {
-    const matchesCategory = selectedCategory === "All" || i.category === selectedCategory;
-    const matchesSearch = i.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          (i.description || "").toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch;
-  });
+  const filteredItems = items
+    .filter(i => {
+      const matchesCategory = selectedCategory === "All" || 
+        (i.category && i.category.toLowerCase() === selectedCategory.toLowerCase()) ||
+        (selectedCategory === "Footwear" && isFootwearCategory(i.category)) ||
+        (selectedCategory === "Fashion" && (i.category?.toLowerCase().includes("cloth") || i.category?.toLowerCase().includes("fashion") || i.category?.toLowerCase().includes("shirt") || i.category?.toLowerCase().includes("hoodie") || i.category?.toLowerCase().includes("apparel"))) ||
+        (selectedCategory === "Electronics" && (i.category?.toLowerCase().includes("electr") || i.category?.toLowerCase().includes("tech") || i.category?.toLowerCase().includes("gadget") || i.category?.toLowerCase().includes("phone") || i.category?.toLowerCase().includes("earbud"))) ||
+        (selectedCategory === "Beauty" && (i.category?.toLowerCase().includes("beauty") || i.category?.toLowerCase().includes("skin") || i.category?.toLowerCase().includes("perfume") || i.category?.toLowerCase().includes("health"))) ||
+        (selectedCategory === "Home" && (i.category?.toLowerCase().includes("home") || i.category?.toLowerCase().includes("living") || i.category?.toLowerCase().includes("kitchen"))) ||
+        (selectedCategory === "Accessories" && (i.category?.toLowerCase().includes("watch") || i.category?.toLowerCase().includes("bag") || i.category?.toLowerCase().includes("accessory") || i.category?.toLowerCase().includes("jewelry"))) ||
+        (selectedCategory === "Sports" && (i.category?.toLowerCase().includes("sport") || i.category?.toLowerCase().includes("fitness") || i.category?.toLowerCase().includes("gym"))) ||
+        (selectedCategory === "Groceries" && (i.category?.toLowerCase().includes("grocer") || i.category?.toLowerCase().includes("food") || i.category?.toLowerCase().includes("snack"))) ||
+        (selectedCategory === "Gaming" && (i.category?.toLowerCase().includes("game") || i.category?.toLowerCase().includes("gaming") || i.category?.toLowerCase().includes("toy")));
+      const q = searchQuery.trim().toLowerCase();
+      const matchesSearch = !q || 
+        i.name.toLowerCase().includes(q) || 
+        (i.description || "").toLowerCase().includes(q) || 
+        (i.category || "").toLowerCase().includes(q) ||
+        (i.user?.name || "").toLowerCase().includes(q) ||
+        (i.user?.location || "").toLowerCase().includes(q);
+      return matchesCategory && matchesSearch;
+    })
+    .sort((a, b) => {
+      if (sortBy === 'price-asc') return parseFloat(a.price) - parseFloat(b.price);
+      if (sortBy === 'price-desc') return parseFloat(b.price) - parseFloat(a.price);
+      if (sortBy === 'rating') return Number(b.reviews_avg_rating || 0) - Number(a.reviews_avg_rating || 0);
+      if (sortBy === 'popular') return Number(b.sold_count || b.reviews_count || 0) - Number(a.sold_count || a.reviews_count || 0);
+      return 0; // featured default
+    });
 
   return (
     <>
@@ -1557,6 +1673,260 @@ export default function ShopPage() {
         .seller-stat-label{font-size:10px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:0.3px}
         .seller-stat-val{font-size:13px;font-weight:700;color:#7c3aed}
         .seller-stat-val.dark{color:#0f172a}
+
+        /* E-COMMERCE STOREFRONT UPGRADE STYLES */
+        .ecommerce-hero-section {
+          margin-bottom: 24px;
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+        }
+        .hero-banner-grid {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 16px;
+        }
+        @media (min-width: 960px) {
+          .hero-banner-grid {
+            grid-template-columns: 2.2fr 1fr;
+            gap: 18px;
+          }
+        }
+        .main-carousel-card {
+          position: relative;
+          border-radius: 24px;
+          overflow: hidden;
+          min-height: 310px;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          padding: 36px 36px 24px;
+          box-shadow: 0 16px 36px rgba(0,0,0,0.12);
+          transition: all 0.3s ease;
+        }
+        @media (max-width: 640px) {
+          .main-carousel-card {
+            padding: 24px 20px 20px;
+            min-height: 280px;
+          }
+        }
+        .carousel-arrow {
+          position: absolute;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 38px;
+          height: 38px;
+          border-radius: 50%;
+          background: rgba(255, 255, 255, 0.25);
+          backdrop-filter: blur(8px);
+          border: 1px solid rgba(255,255,255,0.4);
+          color: #fff;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          font-size: 20px;
+          font-weight: 700;
+          transition: all 0.2s;
+          z-index: 10;
+        }
+        .carousel-arrow:hover {
+          background: rgba(255, 255, 255, 0.45);
+          transform: translateY(-50%) scale(1.08);
+        }
+        .carousel-arrow.prev { left: 12px; }
+        .carousel-arrow.next { right: 12px; }
+        
+        .carousel-dots {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+        }
+        .carousel-dot {
+          height: 8px;
+          border-radius: 4px;
+          transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+          cursor: pointer;
+          border: none;
+          background: rgba(255, 255, 255, 0.4);
+          width: 8px;
+        }
+        .carousel-dot.active {
+          width: 26px;
+          background: #fff;
+          box-shadow: 0 0 10px rgba(255,255,255,0.8);
+        }
+
+        .side-promos-container {
+          display: flex;
+          flex-direction: column;
+          gap: 14px;
+          justify-content: space-between;
+        }
+        @media (max-width: 959px) {
+          .side-promos-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+          }
+        }
+        @media (max-width: 580px) {
+          .side-promos-container {
+            grid-template-columns: 1fr;
+          }
+        }
+        .side-promo-card {
+          border-radius: 20px;
+          padding: 18px 20px;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          transition: all 0.2s;
+          box-shadow: 0 4px 16px rgba(0,0,0,0.03);
+          flex: 1;
+        }
+        .side-promo-card:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 8px 22px rgba(0,0,0,0.06);
+        }
+
+        /* 5-PILLAR TRUST BAR */
+        .trust-props-bar {
+          background: #fff;
+          border-radius: 20px;
+          padding: 14px 18px;
+          border: 1px solid #e2e8f0;
+          box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+          display: grid;
+          grid-template-columns: repeat(5, minmax(0, 1fr));
+          gap: 12px;
+        }
+        @media (max-width: 1024px) {
+          .trust-props-bar {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+          }
+        }
+        @media (max-width: 680px) {
+          .trust-props-bar {
+            display: flex;
+            overflow-x: auto;
+            gap: 12px;
+            padding-bottom: 12px;
+            scrollbar-width: none;
+          }
+          .trust-prop-item {
+            min-width: 180px;
+            flex-shrink: 0;
+          }
+        }
+        .trust-prop-item {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          padding: 4px 6px;
+        }
+
+        /* SEARCH & DELIVERY HEADER */
+        .marketplace-search-box {
+          background: #fff;
+          border-radius: 24px;
+          padding: 18px 22px;
+          border: 1.5px solid #e2e8f0;
+          box-shadow: 0 8px 28px rgba(124,58,237,0.04);
+          display: flex;
+          flex-direction: column;
+          gap: 14px;
+        }
+
+        /* VISUAL CATEGORY TILES */
+        .category-tiles-container {
+          display: flex;
+          gap: 12px;
+          overflow-x: auto;
+          padding: 4px 2px 14px;
+          scrollbar-width: none;
+          -webkit-overflow-scrolling: touch;
+        }
+        .category-tiles-container::-webkit-scrollbar { display: none; }
+        .category-tile-btn {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          min-width: 90px;
+          padding: 14px 10px 12px;
+          background: #fff;
+          border: 1.5px solid #e2e8f0;
+          border-radius: 18px;
+          cursor: pointer;
+          transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+          box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+          text-align: center;
+          flex-shrink: 0;
+          gap: 6px;
+        }
+        .category-tile-btn:hover {
+          transform: translateY(-3px);
+          border-color: #7c3aed;
+          box-shadow: 0 8px 20px rgba(124,58,237,0.12);
+        }
+        .category-tile-btn.active {
+          background: linear-gradient(135deg, #7c3aed, #6366f1);
+          border-color: #7c3aed;
+          color: #fff;
+          transform: translateY(-2px);
+          box-shadow: 0 8px 24px rgba(124,58,237,0.25);
+        }
+
+        /* FLASH DEALS SECTION */
+        .flash-deals-banner {
+          background: linear-gradient(135deg, #fff5f5 0%, #fff 50%, #fef2f2 100%);
+          border-radius: 24px;
+          padding: 22px;
+          border: 1.5px solid #fecaca;
+          box-shadow: 0 6px 24px rgba(239,68,68,0.06);
+          margin-bottom: 28px;
+          display: flex;
+          flex-direction: column;
+          gap: 18px;
+        }
+        .flash-clock-box {
+          background: #1e1b4b;
+          color: #fff;
+          font-weight: 800;
+          font-size: 14px;
+          padding: 4px 8px;
+          border-radius: 6px;
+          letter-spacing: 0.5px;
+          display: inline-block;
+          min-width: 30px;
+          text-align: center;
+          box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+        .flash-items-slider {
+          display: grid;
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+          gap: 14px;
+        }
+        @media (max-width: 900px) {
+          .flash-items-slider {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+          }
+        }
+        @media (max-width: 500px) {
+          .flash-items-slider {
+            display: flex;
+            overflow-x: auto;
+            gap: 12px;
+            padding-bottom: 6px;
+            scrollbar-width: none;
+          }
+          .flash-card-box {
+            min-width: 190px;
+            flex-shrink: 0;
+          }
+        }
       `}</style>
 
       <div className="root">
@@ -1590,165 +1960,789 @@ export default function ShopPage() {
           </div>
         </nav>
 
-        <main className="main">
-          <div className="header" style={{ position: 'relative', overflow: 'hidden', padding: isMobile ? '32px 16px' : '72px 20px', marginBottom: isMobile ? '24px' : '48px', borderRadius: isMobile ? '20px' : '32px', background: 'linear-gradient(135deg, #faf5ff 0%, #f0f4ff 100%)', border: '1px solid rgba(124, 58, 237, 0.12)', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', boxShadow: '0 20px 40px -15px rgba(124, 58, 237, 0.05)' }}>
-            {/* Background decorative blobs */}
-            <div style={{ position: 'absolute', top: '-50%', left: '-10%', width: '300px', height: '300px', background: 'rgba(124, 58, 237, 0.15)', filter: 'blur(60px)', borderRadius: '50%' }}></div>
-            <div style={{ position: 'absolute', bottom: '-50%', right: '-10%', width: '300px', height: '300px', background: 'rgba(37, 99, 235, 0.15)', filter: 'blur(60px)', borderRadius: '50%' }}></div>
-            
-            <span style={{ position: 'relative', display: 'inline-block', padding: '6px 16px', background: '#fff', border: '1px solid #e2e8f0', borderRadius: '100px', fontSize: '12px', fontWeight: 800, color: '#7c3aed', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '20px', boxShadow: '0 4px 12px rgba(124,58,237,0.05)' }}>
-              Shopply Marketplace
-            </span>
-            <h1 className="title" style={{ position: 'relative', margin: '0 0 16px 0', background: 'linear-gradient(135deg, #0f172a, #475569)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', lineHeight: 1.2 }}>
-              Discover Amazing Items
-            </h1>
-            <p className="subtitle" style={{ position: 'relative', fontSize: '17px', maxWidth: '600px', color: '#475569', marginBottom: '14px' }}>
-              Browse the latest premium products published by our community. Find exactly what you&apos;re looking for, seamlessly and beautifully.
-            </p>
-
-            {/* USER LOCATION DETECTION BAR */}
-            <div style={{
-              position: 'relative',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 8,
-              background: 'rgba(255, 255, 255, 0.95)',
-              backdropFilter: 'blur(8px)',
-              border: '1px solid #e2e8f0',
-              padding: '6px 14px',
-              borderRadius: '20px',
-              fontSize: '13px',
-              color: '#334155',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
-              flexWrap: 'wrap'
-            }}>
-              <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontWeight: 700, color: '#7c3aed' }}>
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="#ef4444"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-                Delivering to:
-              </span>
-              <span style={{ fontWeight: 700, color: '#0f172a' }}>
-                {buyerLocation || (detectingBuyerLoc ? "Detecting location..." : "Philippines")}
-              </span>
-              <button 
-                type="button"
-                onClick={detectBuyerLocation}
-                disabled={detectingBuyerLoc}
+        <main className="main" id="shop-catalog">
+          {/* 1. HERO PROMOTIONAL CAMPAIGN CAROUSEL & DESKTOP SIDE BANNERS */}
+          <section className="ecommerce-hero-section">
+            <div className="hero-banner-grid">
+              {/* Main Banner Slider */}
+              <div 
+                className="main-carousel-card"
+                onMouseEnter={() => setIsBannerHovered(true)}
+                onMouseLeave={() => setIsBannerHovered(false)}
                 style={{
-                  background: '#f3e8ff',
-                  border: '1px solid #d8b4fe',
-                  color: '#7c3aed',
-                  fontWeight: 700,
-                  fontSize: '11px',
-                  borderRadius: '12px',
-                  padding: '2px 8px',
-                  cursor: detectingBuyerLoc ? 'wait' : 'pointer',
-                  transition: 'all 0.2s',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 3
+                  background: BANNERS[currentBannerIdx].gradient,
+                  position: 'relative'
                 }}
               >
-                {detectingBuyerLoc ? "Detecting..." : (buyerLocation ? "Refresh" : "Detect")}
-              </button>
-            </div>
-            
-            {/* SEARCH INPUT BAR */}
-            <div 
-              style={{
-                position: 'relative',
-                marginTop: '28px',
-                width: '100%',
-                maxWidth: '480px',
-                height: '48px',
-                borderRadius: '24px',
-                background: '#fff',
-                border: '1px solid #e2e8f0',
-                padding: '0 12px 0 16px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                boxShadow: '0 4px 20px rgba(0,0,0,0.03)',
-                transition: 'all 0.25s ease',
-              }}
-              onFocus={(e) => {
-                e.currentTarget.style.borderColor = '#7c3aed';
-                e.currentTarget.style.boxShadow = '0 8px 30px rgba(124,58,237,0.08)';
-                e.currentTarget.style.transform = 'translateY(-1px)';
-              }}
-              onBlur={(e) => {
-                e.currentTarget.style.borderColor = '#e2e8f0';
-                e.currentTarget.style.boxShadow = '0 4px 20px rgba(0,0,0,0.03)';
-                e.currentTarget.style.transform = 'none';
-              }}
-            >
-              <svg width="18" height="18" fill="none" stroke="#64748b" strokeWidth="2.5" viewBox="0 0 24 24" style={{ flexShrink: 0 }}>
-                <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
-              </svg>
-              <input
-                type="text"
-                placeholder="Search premium products..."
-                value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
-                style={{
-                  border: 'none',
-                  outline: 'none',
-                  background: 'transparent',
-                  width: '100%',
-                  fontSize: '14px',
-                  color: '#0f172a',
-                  fontFamily: 'Inter, sans-serif'
-                }}
-              />
-              {searchQuery && (
+                {/* Background lighting blobs */}
+                <div style={{ position: 'absolute', top: '-30%', right: '-15%', width: 280, height: 280, borderRadius: '50%', background: 'rgba(255,255,255,0.18)', filter: 'blur(50px)', pointerEvents: 'none' }} />
+                <div style={{ position: 'absolute', bottom: '-30%', left: '-10%', width: 260, height: 260, borderRadius: '50%', background: 'rgba(0,0,0,0.2)', filter: 'blur(40px)', pointerEvents: 'none' }} />
+
+                {/* Left Arrow */}
                 <button
                   type="button"
-                  onClick={() => setSearchQuery("")}
-                  style={{
-                    background: '#f1f5f9',
-                    border: 'none',
-                    width: '24px',
-                    height: '24px',
-                    borderRadius: '50%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: '#64748b',
-                    fontSize: '11px',
-                    cursor: 'pointer',
-                    flexShrink: 0,
-                    transition: 'all 0.2s'
+                  aria-label="Previous Slide"
+                  className="carousel-arrow prev"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setCurrentBannerIdx(prev => (prev - 1 + BANNERS.length) % BANNERS.length);
                   }}
-                  onMouseEnter={(e) => e.currentTarget.style.background = '#e2e8f0'}
-                  onMouseLeave={(e) => e.currentTarget.style.background = '#f1f5f9'}
                 >
-                  ✕
+                  ‹
+                </button>
+
+                {/* Right Arrow */}
+                <button
+                  type="button"
+                  aria-label="Next Slide"
+                  className="carousel-arrow next"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setCurrentBannerIdx(prev => (prev + 1) % BANNERS.length);
+                  }}
+                >
+                  ›
+                </button>
+
+                {/* Slide Content */}
+                <div style={{ position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+                    <span style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 6,
+                      background: BANNERS[currentBannerIdx].badgeBg,
+                      color: '#fff',
+                      fontSize: 11,
+                      fontWeight: 800,
+                      padding: '4px 12px',
+                      borderRadius: 20,
+                      letterSpacing: '0.4px',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
+                    }}>
+                      {BANNERS[currentBannerIdx].badge}
+                    </span>
+                    <span style={{
+                      background: 'rgba(255,255,255,0.22)',
+                      backdropFilter: 'blur(6px)',
+                      color: '#fff',
+                      fontSize: 11,
+                      fontWeight: 700,
+                      padding: '4px 10px',
+                      borderRadius: 14,
+                      border: '1px solid rgba(255,255,255,0.3)'
+                    }}>
+                      {BANNERS[currentBannerIdx].tag}
+                    </span>
+                  </div>
+
+                  <h1 style={{
+                    fontSize: isMobile ? 22 : 32,
+                    fontWeight: 900,
+                    color: '#fff',
+                    lineHeight: 1.15,
+                    margin: 0,
+                    letterSpacing: '-0.5px',
+                    textShadow: '0 2px 10px rgba(0,0,0,0.2)'
+                  }}>
+                    {BANNERS[currentBannerIdx].title}
+                  </h1>
+
+                  <p style={{
+                    fontSize: isMobile ? 13 : 14,
+                    color: '#f8fafc',
+                    maxWidth: 580,
+                    margin: 0,
+                    lineHeight: 1.5,
+                    opacity: 0.95
+                  }}>
+                    {BANNERS[currentBannerIdx].subtitle}
+                  </p>
+
+                  {/* Vouchers & Badges Bar */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginTop: 4 }}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (typeof navigator !== 'undefined' && navigator.clipboard) {
+                          navigator.clipboard.writeText(BANNERS[currentBannerIdx].voucherCode);
+                          setCopiedVoucher(BANNERS[currentBannerIdx].voucherCode);
+                          setTimeout(() => setCopiedVoucher(null), 2500);
+                        }
+                      }}
+                      style={{
+                        background: 'rgba(255,255,255,0.95)',
+                        border: 'none',
+                        color: '#0f172a',
+                        fontSize: 12,
+                        fontWeight: 800,
+                        padding: '6px 14px',
+                        borderRadius: 10,
+                        cursor: 'pointer',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 6,
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                        transition: 'all 0.2s'
+                      }}
+                    >
+                      <span>🎟️ {copiedVoucher === BANNERS[currentBannerIdx].voucherCode ? 'COPIED!' : BANNERS[currentBannerIdx].voucher}</span>
+                      <span style={{ fontSize: 10, color: '#7c3aed', background: '#f3e8ff', padding: '1px 6px', borderRadius: 6 }}>
+                        {copiedVoucher === BANNERS[currentBannerIdx].voucherCode ? '✓' : 'Copy'}
+                      </span>
+                    </button>
+
+                    <div style={{
+                      background: 'rgba(255,255,255,0.18)',
+                      backdropFilter: 'blur(6px)',
+                      color: '#fff',
+                      fontSize: 12,
+                      fontWeight: 700,
+                      padding: '6px 12px',
+                      borderRadius: 10,
+                      border: '1px solid rgba(255,255,255,0.25)',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 6
+                    }}>
+                      <span>🚚 {BANNERS[currentBannerIdx].shipping}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Bottom Row: CTA & Dots */}
+                <div style={{ position: 'relative', zIndex: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12, marginTop: 18, paddingTop: 14, borderTop: '1px solid rgba(255,255,255,0.2)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <a
+                      href="#catalog-products"
+                      style={{
+                        padding: '10px 22px',
+                        borderRadius: 12,
+                        background: '#fff',
+                        color: '#0f172a',
+                        fontWeight: 800,
+                        fontSize: 13,
+                        textDecoration: 'none',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 6,
+                        boxShadow: '0 4px 14px rgba(0,0,0,0.15)',
+                        transition: 'transform 0.2s'
+                      }}
+                    >
+                      {BANNERS[currentBannerIdx].primaryBtn}
+                    </a>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const el = document.getElementById("flash-deals-anchor");
+                        if (el) el.scrollIntoView({ behavior: 'smooth' });
+                      }}
+                      style={{
+                        padding: '10px 18px',
+                        borderRadius: 12,
+                        background: 'rgba(255,255,255,0.15)',
+                        backdropFilter: 'blur(8px)',
+                        color: '#fff',
+                        fontWeight: 700,
+                        fontSize: 13,
+                        border: '1px solid rgba(255,255,255,0.35)',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s'
+                      }}
+                    >
+                      {BANNERS[currentBannerIdx].secondaryBtn}
+                    </button>
+                  </div>
+
+                  {/* Dot Indicators */}
+                  <div className="carousel-dots">
+                    {BANNERS.map((_, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        aria-label={`Go to slide ${idx + 1}`}
+                        className={`carousel-dot ${currentBannerIdx === idx ? 'active' : ''}`}
+                        onClick={() => setCurrentBannerIdx(idx)}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Side Promo Stack (Desktop) */}
+              <div className="side-promos-container">
+                {/* Promo Card 1: New User Gift */}
+                <div className="side-promo-card" style={{ background: 'linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%)', border: '1.5px solid #fecdd3' }}>
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                      <span style={{ fontSize: 11, fontWeight: 800, background: '#ef4444', color: '#fff', padding: '3px 9px', borderRadius: 12, letterSpacing: '0.3px' }}>
+                        🎁 NEW USER PACK
+                      </span>
+                      <span style={{ fontSize: 12, fontWeight: 700, color: '#e11d48' }}>₱100 OFF</span>
+                    </div>
+                    <div style={{ fontSize: 15, fontWeight: 800, color: '#9f1239', lineHeight: 1.25 }}>
+                      Welcome Voucher
+                    </div>
+                    <p style={{ fontSize: 12, color: '#881337', margin: '4px 0 0', opacity: 0.85 }}>
+                      Enjoy ₱100 discount on your first marketplace checkout!
+                    </p>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 12, paddingTop: 10, borderTop: '1px dashed #fecdd3' }}>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: '#475569', background: '#fff', padding: '4px 8px', borderRadius: 6, border: '1px solid #fda4af' }}>
+                      NEWUSER100
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (typeof navigator !== 'undefined' && navigator.clipboard) {
+                          navigator.clipboard.writeText("NEWUSER100");
+                          setCopiedVoucher("NEWUSER100");
+                          setTimeout(() => setCopiedVoucher(null), 2500);
+                        }
+                      }}
+                      style={{ background: '#e11d48', color: '#fff', border: 'none', borderRadius: 8, padding: '5px 12px', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}
+                    >
+                      {copiedVoucher === "NEWUSER100" ? "Copied! ✓" : "Claim Code"}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Promo Card 2: Shopply Express Guarantee */}
+                <div className="side-promo-card" style={{ background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)', border: '1.5px solid #bbf7d0' }}>
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                      <span style={{ fontSize: 11, fontWeight: 800, background: '#10b981', color: '#fff', padding: '3px 9px', borderRadius: 12, letterSpacing: '0.3px' }}>
+                        ⚡ SPX EXPRESS
+                      </span>
+                      <span style={{ fontSize: 12, fontWeight: 700, color: '#059669' }}>Fast Local</span>
+                    </div>
+                    <div style={{ fontSize: 15, fontWeight: 800, color: '#065f46', lineHeight: 1.25 }}>
+                      24-48h Fast Dispatch
+                    </div>
+                    <p style={{ fontSize: 12, color: '#047857', margin: '4px 0 0', opacity: 0.85 }}>
+                      Real-time live courier tracking with Shopply SPX rider.
+                    </p>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 12, paddingTop: 10, borderTop: '1px dashed #bbf7d0' }}>
+                    <span style={{ fontSize: 11, fontWeight: 600, color: '#065f46' }}>COD Available</span>
+                    <Link
+                      href="/dashboard?tab=orders"
+                      style={{ background: '#059669', color: '#fff', border: 'none', borderRadius: 8, padding: '5px 12px', fontSize: 11, fontWeight: 700, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 4 }}
+                    >
+                      <span>Track 📦</span>
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* 2. FIVE-PILLAR MARKETPLACE VALUE PROPOSITIONS (TRUST BAR) */}
+          <section style={{ marginBottom: 24 }}>
+            <div className="trust-props-bar">
+              <div className="trust-prop-item">
+                <div style={{ width: 40, height: 40, borderRadius: 12, background: '#f0fdf4', color: '#16a34a', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, flexShrink: 0 }}>
+                  🚚
+                </div>
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ fontSize: 13, fontWeight: 800, color: '#0f172a' }}>Free Shipping</div>
+                  <div style={{ fontSize: 11, color: '#64748b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>₱0 Min. spend vouchers</div>
+                </div>
+              </div>
+
+              <div className="trust-prop-item">
+                <div style={{ width: 40, height: 40, borderRadius: 12, background: '#faf5ff', color: '#7c3aed', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, flexShrink: 0 }}>
+                  🛡️
+                </div>
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ fontSize: 13, fontWeight: 800, color: '#0f172a' }}>Buyer Protection</div>
+                  <div style={{ fontSize: 11, color: '#64748b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>100% Money-back guarantee</div>
+                </div>
+              </div>
+
+              <div className="trust-prop-item">
+                <div style={{ width: 40, height: 40, borderRadius: 12, background: '#fefce8', color: '#ca8a04', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, flexShrink: 0 }}>
+                  💵
+                </div>
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ fontSize: 13, fontWeight: 800, color: '#0f172a' }}>Cash on Delivery</div>
+                  <div style={{ fontSize: 11, color: '#64748b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Inspect parcel before paying</div>
+                </div>
+              </div>
+
+              <div className="trust-prop-item">
+                <div style={{ width: 40, height: 40, borderRadius: 12, background: '#eff6ff', color: '#2563eb', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, flexShrink: 0 }}>
+                  ⚡
+                </div>
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ fontSize: 13, fontWeight: 800, color: '#0f172a' }}>24h Dispatch</div>
+                  <div style={{ fontSize: 11, color: '#64748b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Shopply Express SPX</div>
+                </div>
+              </div>
+
+              <div className="trust-prop-item">
+                <div style={{ width: 40, height: 40, borderRadius: 12, background: '#fdf2f8', color: '#db2777', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, flexShrink: 0 }}>
+                  🔄
+                </div>
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ fontSize: 13, fontWeight: 800, color: '#0f172a' }}>7-Day Returns</div>
+                  <div style={{ fontSize: 11, color: '#64748b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Hassle-free refund policy</div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* 3. SEARCH, LOCATION PIN & TRENDING KEYWORDS */}
+          <section style={{ marginBottom: 28 }}>
+            <div className="marketplace-search-box">
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
+                {/* Delivery Location Chip */}
+                <div style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  background: '#f8fafc',
+                  border: '1.5px solid #e2e8f0',
+                  padding: '7px 14px',
+                  borderRadius: 20,
+                  fontSize: 13,
+                  color: '#334155'
+                }}>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontWeight: 700, color: '#7c3aed' }}>
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="#ef4444"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                    Deliver to:
+                  </span>
+                  <span style={{ fontWeight: 700, color: '#0f172a' }}>
+                    {buyerLocation || (detectingBuyerLoc ? "Detecting location..." : "Philippines")}
+                  </span>
+                  <button 
+                    type="button"
+                    onClick={detectBuyerLocation}
+                    disabled={detectingBuyerLoc}
+                    style={{
+                      background: '#f3e8ff',
+                      border: '1px solid #d8b4fe',
+                      color: '#7c3aed',
+                      fontWeight: 700,
+                      fontSize: 11,
+                      borderRadius: 12,
+                      padding: '2px 8px',
+                      cursor: detectingBuyerLoc ? 'wait' : 'pointer',
+                      transition: 'all 0.2s',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 3
+                    }}
+                  >
+                    {detectingBuyerLoc ? "..." : (buyerLocation ? "Refresh" : "Detect")}
+                  </button>
+                </div>
+
+                {/* Primary Marketplace Search Bar */}
+                <div style={{
+                  position: 'relative',
+                  flex: 1,
+                  minWidth: 280,
+                  height: 48,
+                  borderRadius: 24,
+                  background: '#f8fafc',
+                  border: '1.5px solid #e2e8f0',
+                  padding: '0 6px 0 16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 10,
+                  transition: 'all 0.2s'
+                }}>
+                  <svg width="18" height="18" fill="none" stroke="#64748b" strokeWidth="2.5" viewBox="0 0 24 24" style={{ flexShrink: 0 }}>
+                    <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+                  </svg>
+                  <input
+                    type="text"
+                    placeholder="Search electronics, footwear, apparel, gadgets, brands..."
+                    value={searchQuery}
+                    onChange={e => setSearchQuery(e.target.value)}
+                    style={{
+                      border: 'none',
+                      outline: 'none',
+                      background: 'transparent',
+                      width: '100%',
+                      fontSize: 14,
+                      color: '#0f172a',
+                      fontFamily: 'Inter, sans-serif'
+                    }}
+                  />
+                  {searchQuery && (
+                    <button
+                      type="button"
+                      onClick={() => setSearchQuery("")}
+                      style={{
+                        background: '#e2e8f0',
+                        border: 'none',
+                        width: 22,
+                        height: 22,
+                        borderRadius: '50%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: '#64748b',
+                        fontSize: 11,
+                        cursor: 'pointer',
+                        flexShrink: 0
+                      }}
+                    >
+                      ✕
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const el = document.getElementById("catalog-products");
+                      if (el) el.scrollIntoView({ behavior: 'smooth' });
+                    }}
+                    style={{
+                      background: 'linear-gradient(135deg, #7c3aed, #4f46e5)',
+                      color: '#fff',
+                      border: 'none',
+                      padding: '8px 20px',
+                      borderRadius: 20,
+                      fontWeight: 700,
+                      fontSize: 13,
+                      cursor: 'pointer',
+                      flexShrink: 0,
+                      boxShadow: '0 2px 8px rgba(124,58,237,0.3)',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 6
+                    }}
+                  >
+                    <span>Search</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Trending Searches Row */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', paddingTop: 6 }}>
+                <span style={{ fontSize: 12, fontWeight: 700, color: '#7c3aed', display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <span>🔥 Trending:</span>
+                </span>
+                {TRENDING_KEYWORDS.map(tag => (
+                  <button
+                    key={tag}
+                    type="button"
+                    onClick={() => {
+                      setSearchQuery(tag);
+                      const el = document.getElementById("catalog-products");
+                      if (el) el.scrollIntoView({ behavior: 'smooth' });
+                    }}
+                    style={{
+                      padding: '4px 12px',
+                      borderRadius: 16,
+                      fontSize: 12,
+                      fontWeight: 600,
+                      background: searchQuery === tag ? '#f3e8ff' : '#f1f5f9',
+                      color: searchQuery === tag ? '#7c3aed' : '#475569',
+                      border: searchQuery === tag ? '1px solid #d8b4fe' : '1px solid transparent',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s'
+                    }}
+                  >
+                    {tag}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          {/* 4. CURATED VISUAL CATEGORY GRID (Shopee / Lazada Category Bar) */}
+          <section style={{ marginBottom: 28 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+              <h2 style={{ fontSize: 18, fontWeight: 800, color: '#0f172a', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ color: '#7c3aed' }}>📂</span> Categories
+              </h2>
+              {selectedCategory !== "All" && (
+                <button
+                  type="button"
+                  onClick={() => setSelectedCategory("All")}
+                  style={{ fontSize: 12, fontWeight: 700, color: '#7c3aed', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                >
+                  View All Items →
                 </button>
               )}
             </div>
-          </div>
 
-          <div className="categories-wrapper" style={{display: 'flex', gap: '12px', marginBottom: '32px', overflowX: 'auto', paddingBottom: '8px', WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none'}}>
-            {["All", ...Array.from(new Set(items.map(i => i.category).filter(Boolean)))].map(cat => (
-              <button 
-                key={cat} 
-                onClick={() => setSelectedCategory(cat as string)}
-                style={{
-                  padding: '8px 24px',
-                  borderRadius: '100px',
-                  border: '1px solid ' + (selectedCategory === cat ? '#7c3aed' : '#e2e8f0'),
-                  background: selectedCategory === cat ? '#7c3aed' : '#fff',
-                  color: selectedCategory === cat ? '#fff' : '#475569',
-                  fontSize: '14px',
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  whiteSpace: 'nowrap',
-                  transition: 'all 0.2s',
-                  boxShadow: selectedCategory === cat ? '0 4px 12px rgba(124, 58, 237, 0.2)' : 'none'
-                }}
-              >
-                {cat as string}
-              </button>
-            ))}
+            <div className="category-tiles-container">
+              {CURATED_CATEGORIES.map(cat => {
+                const isActive = selectedCategory === cat.id;
+                const count = cat.id === "All" 
+                  ? items.length 
+                  : items.filter(i => {
+                      if (cat.id === "Footwear") return isFootwearCategory(i.category);
+                      if (cat.id === "Fashion") return i.category?.toLowerCase().includes("cloth") || i.category?.toLowerCase().includes("fashion") || i.category?.toLowerCase().includes("shirt") || i.category?.toLowerCase().includes("hoodie");
+                      if (cat.id === "Electronics") return i.category?.toLowerCase().includes("electr") || i.category?.toLowerCase().includes("tech") || i.category?.toLowerCase().includes("gadget") || i.category?.toLowerCase().includes("phone");
+                      if (cat.id === "Beauty") return i.category?.toLowerCase().includes("beauty") || i.category?.toLowerCase().includes("skin") || i.category?.toLowerCase().includes("perfume");
+                      if (cat.id === "Home") return i.category?.toLowerCase().includes("home") || i.category?.toLowerCase().includes("living") || i.category?.toLowerCase().includes("kitchen");
+                      if (cat.id === "Accessories") return i.category?.toLowerCase().includes("watch") || i.category?.toLowerCase().includes("bag") || i.category?.toLowerCase().includes("accessory");
+                      if (cat.id === "Sports") return i.category?.toLowerCase().includes("sport") || i.category?.toLowerCase().includes("fitness");
+                      if (cat.id === "Groceries") return i.category?.toLowerCase().includes("grocer") || i.category?.toLowerCase().includes("food");
+                      if (cat.id === "Gaming") return i.category?.toLowerCase().includes("game") || i.category?.toLowerCase().includes("toy");
+                      return i.category?.toLowerCase() === cat.id.toLowerCase();
+                    }).length;
+
+                return (
+                  <button
+                    key={cat.id}
+                    type="button"
+                    className={`category-tile-btn ${isActive ? 'active' : ''}`}
+                    onClick={() => setSelectedCategory(cat.id)}
+                  >
+                    <div style={{
+                      width: 44,
+                      height: 44,
+                      borderRadius: 14,
+                      background: isActive ? 'rgba(255,255,255,0.22)' : `${cat.color}15`,
+                      color: isActive ? '#fff' : cat.color,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: 22,
+                      transition: 'all 0.2s'
+                    }}>
+                      {cat.icon}
+                    </div>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: isActive ? '#fff' : '#0f172a', whiteSpace: 'nowrap' }}>
+                      {cat.label}
+                    </span>
+                    <span style={{
+                      fontSize: 10,
+                      fontWeight: 700,
+                      padding: '1px 6px',
+                      borderRadius: 8,
+                      background: isActive ? 'rgba(255,255,255,0.25)' : '#f1f5f9',
+                      color: isActive ? '#fff' : '#64748b'
+                    }}>
+                      {count}
+                    </span>
+                  </button>
+                );
+              })}
+
+              {/* Dynamic Categories from Sellers that are not in curated list */}
+              {Array.from(new Set(items.map(i => i.category).filter(Boolean))).map(sellerCat => {
+                const sCat = sellerCat as string;
+                if (CURATED_CATEGORIES.some(c => c.id.toLowerCase() === sCat.toLowerCase() || c.label.toLowerCase() === sCat.toLowerCase())) {
+                  return null;
+                }
+                const isActive = selectedCategory.toLowerCase() === sCat.toLowerCase();
+                const count = items.filter(i => i.category?.toLowerCase() === sCat.toLowerCase()).length;
+                return (
+                  <button
+                    key={sCat}
+                    type="button"
+                    className={`category-tile-btn ${isActive ? 'active' : ''}`}
+                    onClick={() => setSelectedCategory(sCat)}
+                  >
+                    <div style={{
+                      width: 44,
+                      height: 44,
+                      borderRadius: 14,
+                      background: isActive ? 'rgba(255,255,255,0.22)' : '#f3e8ff',
+                      color: isActive ? '#fff' : '#7c3aed',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: 22
+                    }}>
+                      🏷️
+                    </div>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: isActive ? '#fff' : '#0f172a', whiteSpace: 'nowrap' }}>
+                      {sCat}
+                    </span>
+                    <span style={{
+                      fontSize: 10,
+                      fontWeight: 700,
+                      padding: '1px 6px',
+                      borderRadius: 8,
+                      background: isActive ? 'rgba(255,255,255,0.25)' : '#f1f5f9',
+                      color: isActive ? '#fff' : '#64748b'
+                    }}>
+                      {count}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </section>
+
+          {/* 5. FLASH DEALS LIVE TICKER & SHOWCASE */}
+          {items.length > 0 && (
+            <section id="flash-deals-anchor" className="flash-deals-banner">
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 14 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ fontSize: 22 }}>⚡</span>
+                    <h2 style={{ fontSize: 20, fontWeight: 900, color: '#dc2626', margin: 0, letterSpacing: '-0.3px' }}>
+                      FLASH DEALS
+                    </h2>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: '#475569', fontWeight: 700 }}>
+                    <span>Ends in:</span>
+                    <span className="flash-clock-box">{String(flashCountdown.hours).padStart(2, '0')}</span>
+                    <span style={{ fontWeight: 800, color: '#dc2626' }}>:</span>
+                    <span className="flash-clock-box">{String(flashCountdown.minutes).padStart(2, '0')}</span>
+                    <span style={{ fontWeight: 800, color: '#dc2626' }}>:</span>
+                    <span className="flash-clock-box">{String(flashCountdown.seconds).padStart(2, '0')}</span>
+                  </div>
+                </div>
+                <span style={{ fontSize: 12, fontWeight: 700, color: '#ef4444', background: '#fee2e2', padding: '4px 12px', borderRadius: 20 }}>
+                  🔥 Up to 50% OFF Limited Time
+                </span>
+              </div>
+
+              {/* Flash Deals Slider Cards */}
+              <div className="flash-items-slider">
+                {items.slice(0, 4).map((fItem, fIdx) => {
+                  const fStock = calculateTotalStock(fItem);
+                  const fPct = Math.min(96, Math.max(45, 100 - (fStock * 8)));
+                  const discountPct = 25 + (fIdx * 10);
+                  return (
+                    <div
+                      key={fItem.id}
+                      className="flash-card-box"
+                      onClick={() => handleViewItem(fItem)}
+                      style={{
+                        background: '#fff',
+                        borderRadius: 16,
+                        border: '1.5px solid #fecaca',
+                        padding: 12,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'space-between',
+                        gap: 8,
+                        boxShadow: '0 2px 10px rgba(239,68,68,0.06)',
+                        transition: 'transform 0.2s, box-shadow 0.2s'
+                      }}
+                    >
+                      <div style={{ position: 'relative', width: '100%', aspectRatio: '1/1', borderRadius: 12, overflow: 'hidden', background: '#f8fafc' }}>
+                        {fItem.image ? (
+                          <img
+                            src={getImageUrl(fItem.image)}
+                            alt={fItem.name}
+                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                          />
+                        ) : (
+                          <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#cbd5e1' }}>
+                            <svg width="32" height="32" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/></svg>
+                          </div>
+                        )}
+                        <span style={{
+                          position: 'absolute',
+                          top: 8,
+                          left: 8,
+                          background: 'linear-gradient(135deg, #ef4444, #dc2626)',
+                          color: '#fff',
+                          fontSize: 10,
+                          fontWeight: 900,
+                          padding: '2px 7px',
+                          borderRadius: 6,
+                          boxShadow: '0 2px 6px rgba(0,0,0,0.2)'
+                        }}>
+                          🔥 -{discountPct}%
+                        </span>
+                      </div>
+
+                      <div>
+                        <h4 style={{ fontSize: 13, fontWeight: 700, color: '#0f172a', margin: '0 0 4px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          {fItem.name}
+                        </h4>
+                        <div style={{ fontSize: 16, fontWeight: 900, color: '#dc2626' }}>
+                          {formatPriceDisplay(fItem)}
+                        </div>
+                      </div>
+
+                      {/* Stock Claimed Progress Bar */}
+                      <div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, fontWeight: 700, color: '#ef4444', marginBottom: 4 }}>
+                          <span>⚡ {fPct}% CLAIMED</span>
+                          <span>{fStock > 0 ? `${fStock} left` : 'Out'}</span>
+                        </div>
+                        <div style={{ height: 6, background: '#fee2e2', borderRadius: 4, overflow: 'hidden' }}>
+                          <div style={{ width: `${fPct}%`, height: '100%', background: 'linear-gradient(90deg, #ef4444, #f97316)', borderRadius: 4 }} />
+                        </div>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setBuyModal({ item: fItem, variation: fItem.attributes?.colors?.[0] || "", price: fItem.attributes?.variant_prices?.[0] || fItem.price, variantIdx: 0 });
+                        }}
+                        style={{
+                          background: 'linear-gradient(135deg, #ef4444, #dc2626)',
+                          color: '#fff',
+                          border: 'none',
+                          padding: '6px 12px',
+                          borderRadius: 8,
+                          fontWeight: 700,
+                          fontSize: 12,
+                          cursor: 'pointer',
+                          width: '100%',
+                          textAlign: 'center',
+                          boxShadow: '0 2px 8px rgba(239,68,68,0.25)'
+                        }}
+                      >
+                        Buy Now
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+          )}
+
+          {/* 6. MAIN CATALOG HEADER WITH FILTER SORT CONTROLS */}
+          <div id="catalog-products" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 14, marginBottom: 20 }}>
+            <div>
+              <h3 style={{ fontSize: 20, fontWeight: 800, color: '#0f172a', margin: 0 }}>
+                {selectedCategory === "All" ? "All Marketplace Products" : `${selectedCategory} Collection`}
+              </h3>
+              <p style={{ fontSize: 13, color: '#64748b', margin: '2px 0 0' }}>
+                Showing <strong>{filteredItems.length}</strong> verified items from local sellers
+              </p>
+            </div>
+
+            {/* Sorting Controls */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+              <span style={{ fontSize: 12, fontWeight: 600, color: '#64748b' }}>Sort by:</span>
+              {[
+                { id: 'featured', label: '✨ Featured' },
+                { id: 'popular', label: '🔥 Popular' },
+                { id: 'rating', label: '⭐ Top Rated' },
+                { id: 'price-asc', label: '₱ Price: Low to High' },
+                { id: 'price-desc', label: '₱ Price: High to Low' }
+              ].map(s => (
+                <button
+                  key={s.id}
+                  type="button"
+                  onClick={() => setSortBy(s.id as any)}
+                  style={{
+                    padding: '6px 12px',
+                    borderRadius: 10,
+                    fontSize: 12,
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                    background: sortBy === s.id ? '#7c3aed' : '#fff',
+                    color: sortBy === s.id ? '#fff' : '#475569',
+                    border: sortBy === s.id ? '1px solid #7c3aed' : '1px solid #e2e8f0',
+                    boxShadow: sortBy === s.id ? '0 2px 8px rgba(124,58,237,0.2)' : 'none'
+                  }}
+                >
+                  {s.label}
+                </button>
+              ))}
+            </div>
           </div>
 
           {searchQuery && (
@@ -1780,34 +2774,88 @@ export default function ShopPage() {
           ) : (
             <div className="grid">
               {filteredItems.map((item) => (
-                <div key={item.id} className="item-card" onClick={() => handleViewItem(item)} style={{cursor:'pointer'}}>
-                  {item.image ? (
-                    <img
-                      src={getImageUrl(item.image)}
-                      alt={item.name}
-                      className="item-card-img"
-                      loading="lazy"
-                      decoding="async"
-                      onError={(e) => {
-                        e.currentTarget.onerror = null;
-                        e.currentTarget.style.display = 'none';
-                        const card = e.currentTarget.closest('.item-card');
-                        const placeholder = card?.querySelector('.item-image-placeholder') as HTMLElement;
-                        if (placeholder) placeholder.style.display = 'flex';
-                      }}
-                    />
-                  ) : null}
-                  <div className="item-image-placeholder" style={{ display: item.image ? 'none' : 'flex' }}>
-                    <svg width="48" height="48" fill="none" stroke="#cbd5e1" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                <div key={item.id} className="item-card" onClick={() => handleViewItem(item)} style={{cursor:'pointer', position: 'relative'}}>
+                  <div style={{ position: 'relative', width: '100%', overflow: 'hidden' }}>
+                    {item.image ? (
+                      <img
+                        src={getImageUrl(item.image)}
+                        alt={item.name}
+                        className="item-card-img"
+                        loading="lazy"
+                        decoding="async"
+                        onError={(e) => {
+                          e.currentTarget.onerror = null;
+                          e.currentTarget.style.display = 'none';
+                          const card = e.currentTarget.closest('.item-card');
+                          const placeholder = card?.querySelector('.item-image-placeholder') as HTMLElement;
+                          if (placeholder) placeholder.style.display = 'flex';
+                        }}
+                      />
+                    ) : null}
+                    <div className="item-image-placeholder" style={{ display: item.image ? 'none' : 'flex' }}>
+                      <svg width="48" height="48" fill="none" stroke="#cbd5e1" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                    </div>
+
+                    {/* E-Commerce Floating Badges */}
+                    <span style={{
+                      position: 'absolute',
+                      top: 8,
+                      left: 8,
+                      background: 'linear-gradient(135deg, #10b981, #059669)',
+                      color: '#fff',
+                      fontSize: 10,
+                      fontWeight: 800,
+                      padding: '3px 7px',
+                      borderRadius: 6,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 4,
+                      boxShadow: '0 2px 6px rgba(0,0,0,0.18)',
+                      zIndex: 2
+                    }}>
+                      🚚 FREE SHIP
+                    </span>
+
+                    <span style={{
+                      position: 'absolute',
+                      top: 8,
+                      right: 8,
+                      background: 'rgba(239, 68, 68, 0.95)',
+                      color: '#fff',
+                      fontSize: 10,
+                      fontWeight: 800,
+                      padding: '3px 7px',
+                      borderRadius: 6,
+                      zIndex: 2,
+                      boxShadow: '0 2px 6px rgba(0,0,0,0.18)'
+                    }}>
+                      -30%
+                    </span>
                   </div>
+
                   <div className="item-content">
-                    <div className="item-meta-row" style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:8}}>
-                      <h3 className="item-name">{item.name}</h3>
-                      <div style={{display:'flex',alignItems:'center',gap:4}}>
+                    <div className="item-meta-row" style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:6}}>
+                      <div style={{ flex: 1, minWidth: 0, marginRight: 6 }}>
+                        <span style={{ fontSize: 10, fontWeight: 700, color: '#7c3aed', background: '#f3e8ff', padding: '2px 6px', borderRadius: 4, display: 'inline-block', marginBottom: 3 }}>
+                          {item.category || "General"}
+                        </span>
+                        <h3 className="item-name" style={{ margin: 0 }}>{item.name}</h3>
+                      </div>
+                      <div style={{display:'flex',alignItems:'center',gap:4, flexShrink: 0}}>
                         <StarRating rating={Math.round(Number(item.reviews_avg_rating || 0))} size={12} />
                         <span style={{fontSize:11,color:'#94a3b8'}}>({Number(item.reviews_avg_rating || 0).toFixed(1)})</span>
                       </div>
                     </div>
+                    
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8, flexWrap: 'wrap' }}>
+                      <span style={{ fontSize: 10, background: '#f0fdf4', color: '#16a34a', padding: '2px 6px', borderRadius: 4, fontWeight: 700, border: '1px solid #bbf7d0' }}>
+                        💵 COD
+                      </span>
+                      <span style={{ fontSize: 11, color: '#64748b' }}>
+                        • {item.sold_count ? `${item.sold_count} sold` : `${(item.reviews_count || 0) * 4 + 18} sold`}
+                      </span>
+                    </div>
+
                     <p className="item-desc">{item.description || "No description provided."}</p>
                     <div className="item-stock-row" style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom: isMobile ? 8 : 16}}>
                       <div style={{fontSize: 13, color: '#64748b'}}>
