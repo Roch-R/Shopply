@@ -11,7 +11,7 @@ export const metadata: Metadata = {
     default: "Shopply | Online Shopping & Marketplace Philippines",
     template: "%s | Shopply",
   },
-  description: "Shop quality electronics, gadgets, clothes, shoes, household tools, and beauty essentials on Shopply (shop-ply.site). Fast shipping, secure checkout, and verified sellers across the Philippines.",
+  description: "Shop quality electronics, gadgets, clothes, tools, and beauty essentials on Shopply. Fast shipping and verified sellers across the Philippines.",
   keywords: [
     "Shopply",
     "shop-ply",
