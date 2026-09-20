@@ -75,6 +75,9 @@ export const metadata: Metadata = {
   },
   verification: {
     google: "ed3b42f783975a11",
+    other: {
+      "msvalidate.01": "D9584555342261FD80C421BF65B3B1E3",
+    },
   },
 };
 
@@ -97,6 +100,9 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head>
+        {/* Microsoft Bing Webmaster Verification */}
+        <meta name="msvalidate.01" content="D9584555342261FD80C421BF65B3B1E3" />
+
         {/* Favicons & Brand Icons (Google Search guidelines: multiple of 48px square) */}
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="icon" type="image/png" sizes="48x48" href="/icon-48x48.png" />
