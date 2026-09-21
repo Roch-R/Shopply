@@ -1992,31 +1992,28 @@ export default function ShopPage() {
           box-shadow: 0 8px 24px rgba(124,58,237,0.25);
         }
 
-        /* FLASH DEALS SECTION - FLAT NEO-BRUTALISM */
+        /* FLASH DEALS SECTION */
         .flash-deals-banner {
-          background: #ffffff;
-          border-radius: 12px;
-          padding: 20px;
-          border: 2px solid #000000;
-          box-shadow: none !important;
+          background: linear-gradient(135deg, #fff5f5 0%, #fff 50%, #fef2f2 100%);
+          border-radius: 24px;
+          padding: 22px;
+          border: 1.5px solid #fecaca;
           margin-bottom: 28px;
           display: flex;
           flex-direction: column;
           gap: 18px;
         }
         .flash-clock-box {
-          background: #000000;
-          color: #ffffff;
-          font-weight: 900;
+          background: #1e1b4b;
+          color: #fff;
+          font-weight: 800;
           font-size: 14px;
           padding: 4px 8px;
-          border-radius: 4px;
+          border-radius: 6px;
           letter-spacing: 0.5px;
           display: inline-block;
-          min-width: 32px;
+          min-width: 30px;
           text-align: center;
-          border: 1px solid #000000;
-          box-shadow: none !important;
         }
         .flash-items-slider {
           display: grid;
@@ -2767,29 +2764,29 @@ export default function ShopPage() {
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 14 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <span style={{ fontSize: 22 }}>⚡</span>
+                      <span style={{ fontSize: 22, color: '#f97316' }}>⚡</span>
                       <h2 style={{ fontSize: 20, fontWeight: 900, color: '#dc2626', margin: 0, letterSpacing: '-0.3px' }}>
                         FLASH DEALS
                       </h2>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: '#000000', fontWeight: 800 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: '#475569', fontWeight: 700 }}>
                       <span>{hasEnded ? "Status:" : "Ends in:"}</span>
                       {hasEnded ? (
-                        <span style={{ background: '#fecaca', color: '#dc2626', padding: '3px 8px', borderRadius: 4, fontWeight: 900, fontSize: 12, border: '1px solid #000' }}>
+                        <span style={{ background: '#fee2e2', color: '#dc2626', padding: '3px 10px', borderRadius: 6, fontWeight: 800, fontSize: 12 }}>
                           ENDED
                         </span>
                       ) : (
                         <>
                           <span className="flash-clock-box">{String(flashCountdown.hours).padStart(2, '0')}</span>
-                          <span style={{ fontWeight: 900, color: '#dc2626' }}>:</span>
+                          <span style={{ fontWeight: 800, color: '#dc2626' }}>:</span>
                           <span className="flash-clock-box">{String(flashCountdown.minutes).padStart(2, '0')}</span>
-                          <span style={{ fontWeight: 900, color: '#dc2626' }}>:</span>
+                          <span style={{ fontWeight: 800, color: '#dc2626' }}>:</span>
                           <span className="flash-clock-box">{String(flashCountdown.seconds).padStart(2, '0')}</span>
                         </>
                       )}
                     </div>
                   </div>
-                  <span style={{ fontSize: 12, fontWeight: 900, color: '#dc2626', background: '#fee2e2', padding: '5px 14px', borderRadius: 6, border: '2px solid #000000', boxShadow: 'none' }}>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: '#ef4444', background: '#fee2e2', padding: '4px 14px', borderRadius: 20 }}>
                     {flashConfig.badge_text || "🔥 Up to 50% OFF Limited Time"}
                   </span>
                 </div>
@@ -2809,20 +2806,19 @@ export default function ShopPage() {
                         className="flash-card-box"
                         onClick={() => handleViewItem(fItem)}
                         style={{
-                          background: '#ffffff',
-                          borderRadius: 12,
-                          border: '2px solid #000000',
+                          background: '#fff',
+                          borderRadius: 16,
+                          border: '1.5px solid #fecaca',
                           padding: 12,
                           cursor: 'pointer',
                           display: 'flex',
                           flexDirection: 'column',
                           justifyContent: 'space-between',
-                          gap: 10,
-                          boxShadow: 'none',
-                          transition: 'transform 0.15s ease'
+                          gap: 8,
+                          transition: 'transform 0.2s ease'
                         }}
                       >
-                        <div style={{ position: 'relative', width: '100%', aspectRatio: '1/1', borderRadius: 8, overflow: 'hidden', background: '#f8fafc', border: '1.5px solid #000000' }}>
+                        <div style={{ position: 'relative', width: '100%', aspectRatio: '1/1', borderRadius: 12, overflow: 'hidden', background: '#f8fafc' }}>
                           {fItem.image ? (
                             <img
                               src={getImageUrl(fItem.image)}
@@ -2838,29 +2834,27 @@ export default function ShopPage() {
                             position: 'absolute',
                             top: 8,
                             left: 8,
-                            background: '#dc2626',
-                            color: '#ffffff',
-                            fontSize: 11,
+                            background: 'linear-gradient(135deg, #ef4444, #dc2626)',
+                            color: '#fff',
+                            fontSize: 10,
                             fontWeight: 900,
-                            padding: '3px 8px',
-                            borderRadius: 4,
-                            border: '1.5px solid #000000',
-                            boxShadow: 'none'
+                            padding: '2px 7px',
+                            borderRadius: 6
                           }}>
-                            ⚡ -{discountPct}%
+                            🔥 -{discountPct}%
                           </span>
                         </div>
 
                         <div>
-                          <h4 style={{ fontSize: 13, fontWeight: 800, color: '#000000', margin: '0 0 6px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          <h4 style={{ fontSize: 13, fontWeight: 700, color: '#0f172a', margin: '0 0 4px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                             {fItem.name}
                           </h4>
-                          <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, flexWrap: 'wrap' }}>
-                            <span style={{ fontSize: 18, fontWeight: 900, color: '#dc2626' }}>
+                          <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
+                            <span style={{ fontSize: 16, fontWeight: 900, color: '#dc2626' }}>
                               ₱{flashPrice.toFixed(2)}
                             </span>
                             {originalPrice > flashPrice && (
-                              <span style={{ fontSize: 12, fontWeight: 700, color: '#64748b', textDecoration: 'line-through' }}>
+                              <span style={{ fontSize: 12, fontWeight: 600, color: '#94a3b8', textDecoration: 'line-through' }}>
                                 ₱{originalPrice.toFixed(2)}
                               </span>
                             )}
@@ -2869,12 +2863,12 @@ export default function ShopPage() {
 
                         {/* Stock Claimed Progress Bar */}
                         <div>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, fontWeight: 800, color: '#dc2626', marginBottom: 4 }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, fontWeight: 700, color: '#ef4444', marginBottom: 4 }}>
                             <span>⚡ {claimedPct}% CLAIMED</span>
                             <span style={{ color: '#64748b' }}>{stockRemaining > 0 ? `${stockRemaining} left` : 'Out'}</span>
                           </div>
-                          <div style={{ height: 8, background: '#fee2e2', borderRadius: 4, border: '1.5px solid #000000', overflow: 'hidden' }}>
-                            <div style={{ width: `${claimedPct}%`, height: '100%', background: '#dc2626', borderRadius: 0 }} />
+                          <div style={{ height: 6, background: '#fee2e2', borderRadius: 4, overflow: 'hidden' }}>
+                            <div style={{ width: `${claimedPct}%`, height: '100%', background: 'linear-gradient(90deg, #ef4444, #f97316)', borderRadius: 4 }} />
                           </div>
                         </div>
 
@@ -2890,22 +2884,20 @@ export default function ShopPage() {
                             });
                           }}
                           style={{
-                            background: '#dc2626',
-                            color: '#ffffff',
-                            border: '2px solid #000000',
+                            background: 'linear-gradient(135deg, #ef4444, #dc2626)',
+                            color: '#fff',
+                            border: 'none',
                             padding: '8px 12px',
-                            borderRadius: 6,
-                            fontWeight: 900,
+                            borderRadius: 8,
+                            fontWeight: 700,
                             fontSize: 12,
                             cursor: 'pointer',
                             width: '100%',
                             textAlign: 'center',
-                            boxShadow: 'none',
-                            letterSpacing: '0.3px',
-                            transition: 'transform 0.1s ease'
+                            transition: 'opacity 0.2s ease'
                           }}
                         >
-                          Buy Now ⚡
+                          Buy Now
                         </button>
                       </div>
                     );

@@ -9145,6 +9145,7 @@ export default function DashboardPage() {
             )}
           
             {/* ——— FLASH DEALS CONTROLLER TAB ——— */}
+            {/* ——— FLASH DEALS CONTROLLER TAB ——— */}
             {activeTab === "flash-deals" && (() => {
               const productPool = allShopItemsForFlash.length > 0 ? allShopItemsForFlash : items;
               const hasEnded = flashLiveRemaining.hours === 0 && flashLiveRemaining.minutes === 0 && flashLiveRemaining.seconds === 0;
@@ -9155,19 +9156,19 @@ export default function DashboardPage() {
                   <div style={{ marginBottom: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
                     <div>
                       <div style={{ marginBottom: 8 }}>
-                        <span style={{ display: 'inline-block', background: '#fee2e2', color: '#dc2626', fontSize: 11, fontWeight: 900, textTransform: 'uppercase', letterSpacing: 1, padding: '4px 12px', borderRadius: 6, border: '2px solid #000000', boxShadow: 'none' }}>
+                        <span style={{ display: 'inline-block', background: '#fee2e2', color: '#dc2626', fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 0.8, padding: '4px 12px', borderRadius: 20 }}>
                           ⚡ SELLER HUB & PROMOTIONS
                         </span>
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                        <div style={{ width: 44, height: 44, borderRadius: 10, background: '#fee2e2', border: '2.5px solid #000000', boxShadow: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, color: '#dc2626', fontSize: 22, fontWeight: 900 }}>
+                        <div style={{ width: 44, height: 44, borderRadius: 12, background: '#fee2e2', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, color: '#dc2626', fontSize: 22, fontWeight: 900 }}>
                           ⚡
                         </div>
                         <div>
-                          <h2 style={{ fontSize: 24, fontWeight: 900, color: '#000000', letterSpacing: '-0.5px', margin: 0 }}>
+                          <h2 style={{ fontSize: 24, fontWeight: 800, color: '#0f172a', letterSpacing: '-0.5px', margin: 0 }}>
                             Flash Deals Controller
                           </h2>
-                          <p style={{ color: '#475569', fontSize: 13, fontWeight: 700, margin: '2px 0 0' }}>
+                          <p style={{ color: '#64748b', fontSize: 13, fontWeight: 600, margin: '2px 0 0' }}>
                             Full real-time control of public countdown timer, promotional badges, and flash discounts
                           </p>
                         </div>
@@ -9183,14 +9184,13 @@ export default function DashboardPage() {
                           alignItems: 'center',
                           gap: 6,
                           background: '#ffffff',
-                          color: '#000000',
-                          border: '2px solid #000000',
+                          color: '#334155',
+                          border: '1.5px solid #e2e8f0',
                           padding: '10px 16px',
-                          borderRadius: 8,
-                          fontWeight: 800,
+                          borderRadius: 10,
+                          fontWeight: 700,
                           fontSize: 13,
-                          textDecoration: 'none',
-                          boxShadow: 'none'
+                          textDecoration: 'none'
                         }}
                       >
                         <span>Preview on /shop</span>
@@ -9205,15 +9205,14 @@ export default function DashboardPage() {
                           display: 'inline-flex',
                           alignItems: 'center',
                           gap: 8,
-                          background: '#dc2626',
+                          background: 'linear-gradient(135deg, #ef4444, #dc2626)',
                           color: '#ffffff',
-                          border: '2px solid #000000',
+                          border: 'none',
                           padding: '10px 20px',
-                          borderRadius: 8,
-                          fontWeight: 900,
+                          borderRadius: 10,
+                          fontWeight: 800,
                           fontSize: 14,
-                          cursor: 'pointer',
-                          boxShadow: 'none'
+                          cursor: 'pointer'
                         }}
                       >
                         {savingFlashDeals ? "Saving Changes..." : "💾 Save & Publish Live"}
@@ -9223,14 +9222,14 @@ export default function DashboardPage() {
 
                   {/* Notification Toasts */}
                   {flashDealsSuccessMsg && (
-                    <div style={{ background: '#dcfce7', border: '2px solid #000000', borderRadius: 8, padding: '12px 18px', color: '#166534', fontWeight: 800, fontSize: 14, marginBottom: 20, display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <div style={{ background: '#dcfce7', border: '1px solid #86efac', borderRadius: 10, padding: '12px 18px', color: '#166534', fontWeight: 700, fontSize: 14, marginBottom: 20, display: 'flex', alignItems: 'center', gap: 10 }}>
                       <span style={{ fontSize: 18 }}>✅</span>
                       <span>{flashDealsSuccessMsg}</span>
                     </div>
                   )}
 
                   {flashDealsErrorMsg && (
-                    <div style={{ background: '#fee2e2', border: '2px solid #000000', borderRadius: 8, padding: '12px 18px', color: '#991b1b', fontWeight: 800, fontSize: 14, marginBottom: 20, display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <div style={{ background: '#fee2e2', border: '1px solid #fca5a5', borderRadius: 10, padding: '12px 18px', color: '#991b1b', fontWeight: 700, fontSize: 14, marginBottom: 20, display: 'flex', alignItems: 'center', gap: 10 }}>
                       <span style={{ fontSize: 18 }}>⚠️</span>
                       <span>{flashDealsErrorMsg}</span>
                     </div>
@@ -9239,17 +9238,17 @@ export default function DashboardPage() {
                   {/* Top Control Cards: Master Switch & Countdown Timer */}
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 16, marginBottom: 24 }}>
                     {/* Card 1: Master Status & Badge */}
-                    <div style={{ background: '#ffffff', border: '2.5px solid #000000', borderRadius: 12, padding: 18, boxShadow: 'none' }}>
-                      <h3 style={{ fontSize: 15, fontWeight: 900, color: '#000000', margin: '0 0 14px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                    <div style={{ background: '#ffffff', border: '1.5px solid #e2e8f0', borderRadius: 16, padding: 18 }}>
+                      <h3 style={{ fontSize: 14, fontWeight: 800, color: '#0f172a', margin: '0 0 14px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                         1. Promotion Status & Header
                       </h3>
 
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 14px', background: flashDealsConfig.is_active ? '#f0fdf4' : '#f8fafc', border: '2px solid #000000', borderRadius: 8, marginBottom: 16 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 14px', background: flashDealsConfig.is_active ? '#f0fdf4' : '#f8fafc', border: '1px solid', borderColor: flashDealsConfig.is_active ? '#bbf7d0' : '#e2e8f0', borderRadius: 10, marginBottom: 16 }}>
                         <div>
-                          <div style={{ fontSize: 13, fontWeight: 900, color: flashDealsConfig.is_active ? '#166534' : '#64748b' }}>
+                          <div style={{ fontSize: 13, fontWeight: 800, color: flashDealsConfig.is_active ? '#166534' : '#64748b' }}>
                             {flashDealsConfig.is_active ? "● ACTIVE & VISIBLE ON SHOP" : "○ PAUSED / HIDDEN FROM SHOP"}
                           </div>
-                          <div style={{ fontSize: 11, fontWeight: 700, color: '#64748b', marginTop: 2 }}>
+                          <div style={{ fontSize: 11, fontWeight: 600, color: '#64748b', marginTop: 2 }}>
                             {flashDealsConfig.is_active ? "Flash Deals ticker is live for all buyers." : "Hidden from shop visitors."}
                           </div>
                         </div>
@@ -9260,13 +9259,12 @@ export default function DashboardPage() {
                           style={{
                             background: flashDealsConfig.is_active ? '#22c55e' : '#94a3b8',
                             color: '#ffffff',
-                            border: '2px solid #000000',
-                            padding: '6px 14px',
-                            borderRadius: 6,
-                            fontWeight: 900,
+                            border: 'none',
+                            padding: '7px 16px',
+                            borderRadius: 8,
+                            fontWeight: 700,
                             fontSize: 12,
-                            cursor: 'pointer',
-                            boxShadow: 'none'
+                            cursor: 'pointer'
                           }}
                         >
                           {flashDealsConfig.is_active ? "Turn OFF" : "Turn ON"}
@@ -9274,7 +9272,7 @@ export default function DashboardPage() {
                       </div>
 
                       <div>
-                        <label style={{ display: 'block', fontSize: 12, fontWeight: 800, color: '#000000', marginBottom: 6 }}>
+                        <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#334155', marginBottom: 6 }}>
                           Promotion Badge Text
                         </label>
                         <input
@@ -9285,26 +9283,25 @@ export default function DashboardPage() {
                           style={{
                             width: '100%',
                             padding: '10px 12px',
-                            border: '2px solid #000000',
+                            border: '1.5px solid #e2e8f0',
                             borderRadius: 8,
                             fontSize: 13,
-                            fontWeight: 700,
-                            color: '#000000',
-                            outline: 'none',
-                            boxShadow: 'none'
+                            fontWeight: 600,
+                            color: '#0f172a',
+                            outline: 'none'
                           }}
                         />
                       </div>
                     </div>
 
                     {/* Card 2: Countdown Timer Control */}
-                    <div style={{ background: '#ffffff', border: '2.5px solid #000000', borderRadius: 12, padding: 18, boxShadow: 'none' }}>
+                    <div style={{ background: '#ffffff', border: '1.5px solid #e2e8f0', borderRadius: 16, padding: 18 }}>
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-                        <h3 style={{ fontSize: 15, fontWeight: 900, color: '#000000', margin: 0, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                        <h3 style={{ fontSize: 14, fontWeight: 800, color: '#0f172a', margin: 0, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                           2. Live Countdown Timer
                         </h3>
                         {/* Live Timer Preview Box */}
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 4, background: '#000000', color: '#ffffff', padding: '4px 10px', borderRadius: 6, border: '1.5px solid #000000', fontWeight: 900, fontSize: 13 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 4, background: '#1e1b4b', color: '#ffffff', padding: '4px 10px', borderRadius: 6, fontWeight: 800, fontSize: 13 }}>
                           <span>{String(flashLiveRemaining.hours).padStart(2, '0')}</span>
                           <span style={{ color: '#dc2626' }}>:</span>
                           <span>{String(flashLiveRemaining.minutes).padStart(2, '0')}</span>
@@ -9313,7 +9310,7 @@ export default function DashboardPage() {
                         </div>
                       </div>
 
-                      <div style={{ fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 10 }}>
+                      <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 10 }}>
                         Quick Expiration Presets:
                       </div>
 
@@ -9331,14 +9328,13 @@ export default function DashboardPage() {
                             onClick={() => handleSetTimerPreset(preset.hours)}
                             style={{
                               background: '#f8fafc',
-                              color: '#000000',
-                              border: '1.5px solid #000000',
+                              color: '#334155',
+                              border: '1px solid #e2e8f0',
                               padding: '6px 12px',
                               borderRadius: 6,
-                              fontWeight: 800,
+                              fontWeight: 700,
                               fontSize: 11,
-                              cursor: 'pointer',
-                              boxShadow: 'none'
+                              cursor: 'pointer'
                             }}
                           >
                             {preset.label}
@@ -9347,7 +9343,7 @@ export default function DashboardPage() {
                       </div>
 
                       <div>
-                        <label style={{ display: 'block', fontSize: 12, fontWeight: 800, color: '#000000', marginBottom: 6 }}>
+                        <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#334155', marginBottom: 6 }}>
                           Custom Expiration Date & Time:
                         </label>
                         <input
@@ -9361,13 +9357,12 @@ export default function DashboardPage() {
                           style={{
                             width: '100%',
                             padding: '8px 12px',
-                            border: '2px solid #000000',
+                            border: '1.5px solid #e2e8f0',
                             borderRadius: 8,
                             fontSize: 13,
-                            fontWeight: 700,
-                            color: '#000000',
-                            outline: 'none',
-                            boxShadow: 'none'
+                            fontWeight: 600,
+                            color: '#0f172a',
+                            outline: 'none'
                           }}
                         />
                       </div>
@@ -9375,13 +9370,13 @@ export default function DashboardPage() {
                   </div>
 
                   {/* Section 3: Enrolled Products Manager */}
-                  <div style={{ background: '#ffffff', border: '2.5px solid #000000', borderRadius: 12, padding: 20, boxShadow: 'none', marginBottom: 24 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 14, marginBottom: 18, borderBottom: '2px solid #000000', paddingBottom: 16 }}>
+                  <div style={{ background: '#ffffff', border: '1.5px solid #e2e8f0', borderRadius: 16, padding: 20, marginBottom: 24 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 14, marginBottom: 18, borderBottom: '1px solid #f1f5f9', paddingBottom: 16 }}>
                       <div>
-                        <h3 style={{ fontSize: 17, fontWeight: 900, color: '#000000', margin: 0 }}>
+                        <h3 style={{ fontSize: 16, fontWeight: 800, color: '#0f172a', margin: 0 }}>
                           3. Enrolled Flash Deal Products ({flashDealsConfig.items.length})
                         </h3>
-                        <p style={{ fontSize: 12, color: '#64748b', fontWeight: 700, margin: '3px 0 0' }}>
+                        <p style={{ fontSize: 12, color: '#64748b', fontWeight: 600, margin: '3px 0 0' }}>
                           Add products and set real discounted sale prices, claim progress, and allocated stock.
                         </p>
                       </div>
@@ -9393,15 +9388,14 @@ export default function DashboardPage() {
                           onChange={(e) => setSelectedProductToAdd(e.target.value)}
                           style={{
                             padding: '9px 12px',
-                            border: '2px solid #000000',
+                            border: '1.5px solid #e2e8f0',
                             borderRadius: 8,
                             fontSize: 13,
-                            fontWeight: 700,
-                            color: '#000000',
+                            fontWeight: 600,
+                            color: '#0f172a',
                             background: '#ffffff',
                             outline: 'none',
-                            maxWidth: 280,
-                            boxShadow: 'none'
+                            maxWidth: 280
                           }}
                         >
                           <option value="">-- Choose Product from Catalog --</option>
@@ -9417,16 +9411,15 @@ export default function DashboardPage() {
                           onClick={handleAddFlashDealItem}
                           disabled={!selectedProductToAdd}
                           style={{
-                            background: '#dc2626',
+                            background: 'linear-gradient(135deg, #ef4444, #dc2626)',
                             color: '#ffffff',
-                            border: '2px solid #000000',
+                            border: 'none',
                             padding: '9px 16px',
                             borderRadius: 8,
-                            fontWeight: 900,
+                            fontWeight: 700,
                             fontSize: 13,
                             cursor: selectedProductToAdd ? 'pointer' : 'not-allowed',
-                            opacity: selectedProductToAdd ? 1 : 0.6,
-                            boxShadow: 'none'
+                            opacity: selectedProductToAdd ? 1 : 0.6
                           }}
                         >
                           + Add to Flash Deals
@@ -9435,12 +9428,12 @@ export default function DashboardPage() {
                     </div>
 
                     {flashDealsConfig.items.length === 0 ? (
-                      <div style={{ textAlign: 'center', padding: '36px 16px', border: '2px dashed #000000', borderRadius: 10, background: '#f8fafc' }}>
+                      <div style={{ textAlign: 'center', padding: '36px 16px', border: '1.5px dashed #cbd5e1', borderRadius: 12, background: '#f8fafc' }}>
                         <span style={{ fontSize: 32 }}>⚡</span>
-                        <h4 style={{ fontSize: 16, fontWeight: 900, color: '#000000', margin: '8px 0 4px' }}>
+                        <h4 style={{ fontSize: 15, fontWeight: 700, color: '#0f172a', margin: '8px 0 4px' }}>
                           No Products in Flash Deals Yet
                         </h4>
-                        <p style={{ fontSize: 13, color: '#64748b', fontWeight: 700, margin: '0 0 16px' }}>
+                        <p style={{ fontSize: 13, color: '#64748b', fontWeight: 500, margin: '0 0 16px' }}>
                           Select any product from your catalog above to add it to the Flash Sale ticker.
                         </p>
                       </div>
@@ -9460,15 +9453,14 @@ export default function DashboardPage() {
                                 flexWrap: 'wrap',
                                 gap: 14,
                                 background: '#f8fafc',
-                                border: '2px solid #000000',
-                                borderRadius: 10,
-                                padding: 14,
-                                boxShadow: 'none'
+                                border: '1px solid #e2e8f0',
+                                borderRadius: 12,
+                                padding: 14
                               }}
                             >
                               {/* Product Info */}
                               <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 200, flex: '1 1 200px' }}>
-                                <div style={{ width: 54, height: 54, borderRadius: 8, border: '1.5px solid #000000', overflow: 'hidden', background: '#ffffff', flexShrink: 0 }}>
+                                <div style={{ width: 54, height: 54, borderRadius: 10, border: '1px solid #e2e8f0', overflow: 'hidden', background: '#ffffff', flexShrink: 0 }}>
                                   {product?.image ? (
                                     <img
                                       src={getImageUrl(product.image)}
@@ -9482,10 +9474,10 @@ export default function DashboardPage() {
                                   )}
                                 </div>
                                 <div>
-                                  <div style={{ fontSize: 14, fontWeight: 900, color: '#000000' }}>
+                                  <div style={{ fontSize: 14, fontWeight: 700, color: '#0f172a' }}>
                                     {product?.name || `Item #${dealItem.item_id}`}
                                   </div>
-                                  <div style={{ fontSize: 12, fontWeight: 700, color: '#64748b', marginTop: 2 }}>
+                                  <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginTop: 2 }}>
                                     Original Price: <span style={{ textDecoration: 'line-through' }}>₱{origPrice.toFixed(2)}</span>
                                   </div>
                                 </div>
@@ -9495,7 +9487,7 @@ export default function DashboardPage() {
                               <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
                                 {/* Flash Price */}
                                 <div>
-                                  <label style={{ display: 'block', fontSize: 11, fontWeight: 800, color: '#475569', marginBottom: 4 }}>
+                                  <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#64748b', marginBottom: 4 }}>
                                     Flash Price (₱)
                                   </label>
                                   <input
@@ -9507,30 +9499,30 @@ export default function DashboardPage() {
                                     style={{
                                       width: 100,
                                       padding: '7px 10px',
-                                      border: '2px solid #000000',
+                                      border: '1.5px solid #fecaca',
                                       borderRadius: 6,
                                       fontSize: 13,
-                                      fontWeight: 900,
+                                      fontWeight: 800,
                                       color: '#dc2626',
                                       outline: 'none',
-                                      boxShadow: 'none'
+                                      background: '#fff'
                                     }}
                                   />
                                 </div>
 
                                 {/* Discount % Badge */}
                                 <div>
-                                  <label style={{ display: 'block', fontSize: 11, fontWeight: 800, color: '#475569', marginBottom: 4 }}>
+                                  <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#64748b', marginBottom: 4 }}>
                                     Discount
                                   </label>
-                                  <span style={{ display: 'inline-block', background: '#fee2e2', color: '#dc2626', border: '1.5px solid #000000', padding: '6px 10px', borderRadius: 6, fontWeight: 900, fontSize: 13 }}>
+                                  <span style={{ display: 'inline-block', background: '#fee2e2', color: '#dc2626', padding: '6px 10px', borderRadius: 6, fontWeight: 800, fontSize: 13 }}>
                                     ⚡ -{dealItem.discount_pct}%
                                   </span>
                                 </div>
 
                                 {/* Claimed % */}
                                 <div>
-                                  <label style={{ display: 'block', fontSize: 11, fontWeight: 800, color: '#475569', marginBottom: 4 }}>
+                                  <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#64748b', marginBottom: 4 }}>
                                     Claimed %
                                   </label>
                                   <input
@@ -9542,20 +9534,20 @@ export default function DashboardPage() {
                                     style={{
                                       width: 75,
                                       padding: '7px 10px',
-                                      border: '2px solid #000000',
+                                      border: '1.5px solid #e2e8f0',
                                       borderRadius: 6,
                                       fontSize: 13,
-                                      fontWeight: 800,
-                                      color: '#000000',
+                                      fontWeight: 700,
+                                      color: '#0f172a',
                                       outline: 'none',
-                                      boxShadow: 'none'
+                                      background: '#fff'
                                     }}
                                   />
                                 </div>
 
                                 {/* Stock Quantity */}
                                 <div>
-                                  <label style={{ display: 'block', fontSize: 11, fontWeight: 800, color: '#475569', marginBottom: 4 }}>
+                                  <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#64748b', marginBottom: 4 }}>
                                     Stock Allocation
                                   </label>
                                   <input
@@ -9566,13 +9558,13 @@ export default function DashboardPage() {
                                     style={{
                                       width: 75,
                                       padding: '7px 10px',
-                                      border: '2px solid #000000',
+                                      border: '1.5px solid #e2e8f0',
                                       borderRadius: 6,
                                       fontSize: 13,
-                                      fontWeight: 800,
-                                      color: '#000000',
+                                      fontWeight: 700,
+                                      color: '#0f172a',
                                       outline: 'none',
-                                      boxShadow: 'none'
+                                      background: '#fff'
                                     }}
                                   />
                                 </div>
@@ -9583,15 +9575,14 @@ export default function DashboardPage() {
                                     type="button"
                                     onClick={() => handleRemoveFlashDealItem(dealItem.item_id)}
                                     style={{
-                                      background: '#ffffff',
-                                      color: '#dc2626',
-                                      border: '2px solid #000000',
+                                      background: '#fff',
+                                      color: '#ef4444',
+                                      border: '1px solid #fca5a5',
                                       padding: '7px 12px',
                                       borderRadius: 6,
-                                      fontWeight: 900,
+                                      fontWeight: 700,
                                       fontSize: 12,
-                                      cursor: 'pointer',
-                                      boxShadow: 'none'
+                                      cursor: 'pointer'
                                     }}
                                   >
                                     ✕ Remove
@@ -9606,12 +9597,12 @@ export default function DashboardPage() {
                   </div>
 
                   {/* Bottom Save Action Bar */}
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 14, background: '#ffffff', border: '2.5px solid #000000', borderRadius: 12, padding: 18, boxShadow: 'none' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 14, background: '#ffffff', border: '1.5px solid #e2e8f0', borderRadius: 16, padding: 18 }}>
                     <div>
-                      <div style={{ fontSize: 14, fontWeight: 900, color: '#000000' }}>
+                      <div style={{ fontSize: 14, fontWeight: 800, color: '#0f172a' }}>
                         Ready to update Flash Deals?
                       </div>
-                      <div style={{ fontSize: 12, fontWeight: 700, color: '#64748b', marginTop: 2 }}>
+                      <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginTop: 2 }}>
                         Saving will instantly broadcast new pricing and countdown to all active shoppers on /shop.
                       </div>
                     </div>
@@ -9621,15 +9612,14 @@ export default function DashboardPage() {
                       onClick={handleSaveFlashDeals}
                       disabled={savingFlashDeals}
                       style={{
-                        background: '#dc2626',
+                        background: 'linear-gradient(135deg, #ef4444, #dc2626)',
                         color: '#ffffff',
-                        border: '2px solid #000000',
+                        border: 'none',
                         padding: '12px 28px',
-                        borderRadius: 8,
-                        fontWeight: 900,
+                        borderRadius: 10,
+                        fontWeight: 800,
                         fontSize: 15,
                         cursor: 'pointer',
-                        boxShadow: 'none',
                         letterSpacing: '0.3px'
                       }}
                     >
