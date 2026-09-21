@@ -3184,12 +3184,10 @@ export default function DashboardPage() {
       <style suppressHydrationWarning>{`
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800;900&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background: #f6f5f0; font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; color: #000; }
+        body { background: #f8fafc; font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; color: #000; }
         .root {
           min-height: 100vh;
-          background-color: #f6f5f0;
-          background-image: radial-gradient(#00000018 1.5px, transparent 1.5px);
-          background-size: 24px 24px;
+          background: #f8fafc;
         }
 
         /* --- NEO-BRUTALIST NAVIGATION --- */
@@ -3325,14 +3323,14 @@ export default function DashboardPage() {
           min-height: 100vh;
         }
 
-        /* --- NEO-BRUTALIST SIDEBAR (FLUSH TO TOP, BOTTOM & LEFT - NO GAP) --- */
+        /* --- NEO-BRUTALIST SIDEBAR (FLUSH - NO GAP, NO SHADOW) --- */
         .sidebar {
           background: #ffffff;
           border-radius: 0px !important;
           padding: 20px 14px 24px 14px;
-          box-shadow: 5px 0px 0px #000000;
-          border: none;
-          border-right: 3.5px solid #000000;
+          box-shadow: none !important;
+          border: none !important;
+          border-right: 3px solid #000000 !important;
           display: flex;
           flex-direction: column;
           gap: 6px;
@@ -4193,12 +4191,13 @@ export default function DashboardPage() {
             width: 280px !important;
             height: 100vh !important;
             max-height: 100vh !important;
-            box-shadow: 6px 0px 0px #000000 !important;
+            box-shadow: none !important;
             z-index: 100;
             padding: 16px 12px !important;
             padding-top: max(16px, env(safe-area-inset-top, 16px)) !important;
             border-radius: 0px !important;
-            border-right: 3.5px solid #000000 !important;
+            border: none !important;
+            border-right: 3px solid #000000 !important;
           }
           .sidebar-profile-header { padding: 8px 10px !important; margin-bottom: 8px !important; }
           .sidebar-backdrop {
