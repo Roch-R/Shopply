@@ -3321,30 +3321,36 @@ export default function DashboardPage() {
         .dashboard-layout {
           display: block;
           max-width: 100%;
-          padding: 94px 24px 24px 24px;
-          min-height: calc(100vh - 70px);
+          padding: 70px 0 0 0;
+          min-height: 100vh;
         }
 
-        /* --- NEO-BRUTALIST SIDEBAR (NO RADIUS) --- */
+        /* --- NEO-BRUTALIST SIDEBAR (FLUSH TO TOP, BOTTOM & LEFT - NO GAP) --- */
         .sidebar {
           background: #ffffff;
           border-radius: 0px !important;
-          padding: 18px 14px;
-          box-shadow: 5px 5px 0px #000000;
-          border: 3px solid #000000;
+          padding: 20px 14px 24px 14px;
+          box-shadow: 5px 0px 0px #000000;
+          border: none;
+          border-right: 3.5px solid #000000;
           display: flex;
           flex-direction: column;
           gap: 6px;
           position: fixed;
-          top: 94px;
-          left: 24px;
-          width: 252px;
+          top: 70px;
+          left: 0;
+          bottom: 0;
+          width: 260px;
           z-index: 40;
-          max-height: calc(100vh - 114px);
+          height: calc(100vh - 70px);
+          max-height: calc(100vh - 70px);
           overflow-y: auto;
           overflow-x: hidden;
         }
-        .content { margin-left: 284px; }
+        .content {
+          margin-left: 260px;
+          padding: 24px 28px 40px 28px;
+        }
 
         .sidebar-section { display: flex; flex-direction: column; gap: 4px; width: 100%; }
         .sidebar-menu-scrollable {
@@ -4175,8 +4181,8 @@ export default function DashboardPage() {
         /* --- RESPONSIVE MEDIA QUERIES --- */
         @media (max-width: 768px) {
           .menu-toggle-btn { display: flex !important; }
-          .dashboard-layout { padding: 78px 12px 24px 12px !important; gap: 12px; }
-          .content { margin-left: 0 !important; }
+          .dashboard-layout { padding: 62px 0 0 0 !important; }
+          .content { margin-left: 0 !important; padding: 16px 14px 28px 14px !important; }
           .sidebar {
             display: none !important;
           }
