@@ -2030,6 +2030,7 @@ export default function ShopPage() {
           display: flex;
           flex-direction: column;
           gap: 18px;
+          scroll-margin-top: 100px;
         }
         .flash-clock-box {
           background: #1e1b4b;
