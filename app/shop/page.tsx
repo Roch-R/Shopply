@@ -1168,6 +1168,7 @@ export default function ShopPage() {
 
     setBuying(true);
     try {
+      const savedCoupon = typeof window !== 'undefined' ? localStorage.getItem('claimed_voucher') : null;
       const res = await fetch(`${API}/orders`, {
         method: "POST",
         headers: {
@@ -1175,7 +1176,13 @@ export default function ShopPage() {
           Accept: "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ item_id: buyModal.item.id, quantity: 1, price: buyModal.price, variation: buyModal.variation }),
+        body: JSON.stringify({
+          item_id: buyModal.item.id,
+          quantity: 1,
+          price: buyModal.price,
+          variation: buyModal.variation,
+          coupon_code: savedCoupon || undefined
+        }),
       });
 
       const data = await res.json();
@@ -1210,7 +1217,11 @@ export default function ShopPage() {
         getApiCache().invalidate('/orders');
         getApiCache().invalidate('/shop/items');
         window.dispatchEvent(new Event('order_placed'));
-        setSuccessMsg(`You successfully purchased "${buyModal.item.name}" for ₱${parseFloat(buyModal.price).toFixed(2)}!`);
+        if (data.order && Number(data.order.discount_amount) > 0) {
+          setSuccessMsg(`Order placed! Paid ₱${parseFloat(data.order.total_amount).toFixed(2)} (saved ₱${parseFloat(data.order.discount_amount).toFixed(2)} with voucher ${data.order.coupon_code})!`);
+        } else {
+          setSuccessMsg(`You successfully purchased "${buyModal.item.name}" for ₱${parseFloat(buyModal.price).toFixed(2)}!`);
+        }
         setTimeout(() => setSuccessMsg(null), 4000);
       } else {
         setErrorMsg(data.message || "Failed to place order.");
@@ -2113,11 +2124,15 @@ export default function ShopPage() {
                     <button
                       type="button"
                       onClick={() => {
+                        const code = BANNERS[currentBannerIdx].voucherCode;
                         if (typeof navigator !== 'undefined' && navigator.clipboard) {
-                          navigator.clipboard.writeText(BANNERS[currentBannerIdx].voucherCode);
-                          setCopiedVoucher(BANNERS[currentBannerIdx].voucherCode);
-                          setTimeout(() => setCopiedVoucher(null), 2500);
+                          navigator.clipboard.writeText(code);
                         }
+                        if (typeof window !== 'undefined') {
+                          localStorage.setItem('claimed_voucher', code);
+                        }
+                        setCopiedVoucher(code);
+                        setTimeout(() => setCopiedVoucher(null), 3000);
                       }}
                       style={{
                         background: 'rgba(255,255,255,0.95)',
@@ -2135,9 +2150,16 @@ export default function ShopPage() {
                         transition: 'all 0.2s'
                       }}
                     >
-                      <span>🎟️ {copiedVoucher === BANNERS[currentBannerIdx].voucherCode ? 'COPIED!' : BANNERS[currentBannerIdx].voucher}</span>
-                      <span style={{ fontSize: 10, color: '#7c3aed', background: '#f3e8ff', padding: '1px 6px', borderRadius: 6 }}>
-                        {copiedVoucher === BANNERS[currentBannerIdx].voucherCode ? '✓' : 'Copy'}
+                      <span>🎟️ {copiedVoucher === BANNERS[currentBannerIdx].voucherCode ? 'CLAIMED! ✓' : BANNERS[currentBannerIdx].voucher}</span>
+                      <span style={{
+                        fontSize: 10,
+                        color: copiedVoucher === BANNERS[currentBannerIdx].voucherCode ? '#16a34a' : '#7c3aed',
+                        background: copiedVoucher === BANNERS[currentBannerIdx].voucherCode ? '#dcfce7' : '#f3e8ff',
+                        padding: '2px 8px',
+                        borderRadius: 6,
+                        fontWeight: 800
+                      }}>
+                        {copiedVoucher === BANNERS[currentBannerIdx].voucherCode ? 'Saved to Cart' : 'Claim Voucher'}
                       </span>
                     </button>
 
@@ -2163,7 +2185,13 @@ export default function ShopPage() {
                 <div style={{ position: 'relative', zIndex: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12, marginTop: 18, paddingTop: 14, borderTop: '1px solid rgba(255,255,255,0.2)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                     <a
-                      href="#catalog-products"
+                      href={currentBannerIdx === 2 ? "#flash-deals-anchor" : "#catalog-products"}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        const targetId = currentBannerIdx === 2 ? "flash-deals-anchor" : "catalog-products";
+                        const el = document.getElementById(targetId);
+                        if (el) el.scrollIntoView({ behavior: 'smooth' });
+                      }}
                       style={{
                         padding: '10px 22px',
                         borderRadius: 12,
@@ -2176,7 +2204,8 @@ export default function ShopPage() {
                         alignItems: 'center',
                         gap: 6,
                         boxShadow: '0 4px 14px rgba(0,0,0,0.15)',
-                        transition: 'transform 0.2s'
+                        transition: 'transform 0.2s',
+                        cursor: 'pointer'
                       }}
                     >
                       {BANNERS[currentBannerIdx].primaryBtn}
@@ -2184,7 +2213,8 @@ export default function ShopPage() {
                     <button
                       type="button"
                       onClick={() => {
-                        const el = document.getElementById("flash-deals-anchor");
+                        const targetId = currentBannerIdx === 1 ? "catalog-products" : "flash-deals-anchor";
+                        const el = document.getElementById(targetId);
                         if (el) el.scrollIntoView({ behavior: 'smooth' });
                       }}
                       style={{

@@ -736,7 +736,7 @@ export default function CartPage() {
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                     <input
                       type="text"
-                      placeholder="e.g. NEWUSER100"
+                      placeholder="e.g. FLASHDROP49"
                       value={voucherInput}
                       onChange={(e) => {
                         setVoucherInput(e.target.value.toUpperCase());
