@@ -1026,6 +1026,10 @@ export default function DashboardPage() {
   const [sellerOrders, setSellerOrders] = useState<Order[]>([]);
   const [orderTab, setOrderTab] = useState("all");
   const [storeOrderTab, setStoreOrderTab] = useState("all");
+  const [storeOrderSearch, setStoreOrderSearch] = useState("");
+  const [storeOrdersPage, setStoreOrdersPage] = useState(1);
+  const [storeOrderViewMode, setStoreOrderViewMode] = useState<"grid" | "table">("grid");
+  const STORE_ORDERS_PER_PAGE = 8;
   const [orderSearch, setOrderSearch] = useState("");
   const [receiptOrder, setReceiptOrder] = useState<Order | null>(null);
   const [trackingOrder, setTrackingOrder] = useState<Order | null>(null);
@@ -3125,21 +3129,21 @@ export default function DashboardPage() {
   const renderStatusBadge = (status: string) => {
     const s = (status || "").toLowerCase();
     if (s === 'pending') {
-      return <span style={{ background: '#fffbeb', color: '#d97706', border: '1px solid #fde68a', padding: '4px 12px', borderRadius: 20, fontSize: 11, fontWeight: 700, letterSpacing: '0.5px', textTransform: 'uppercase', display: 'inline-flex', alignItems: 'center' }}>● Pending</span>;
+      return <span style={{ background: '#fffbeb', color: '#b45309', border: '1.5px solid #000000', padding: '3px 10px', borderRadius: 6, fontSize: 11, fontWeight: 900, letterSpacing: '0.5px', textTransform: 'uppercase', display: 'inline-flex', alignItems: 'center', boxShadow: 'none' }}>● Pending</span>;
     }
     if (s === 'processing') {
-      return <span style={{ background: '#f0fdf4', color: '#16a34a', border: '1px solid #bbf7d0', padding: '4px 12px', borderRadius: 20, fontSize: 11, fontWeight: 700, letterSpacing: '0.5px', textTransform: 'uppercase', display: 'inline-flex', alignItems: 'center' }}>● Processing</span>;
+      return <span style={{ background: '#dcfce7', color: '#15803d', border: '1.5px solid #000000', padding: '3px 10px', borderRadius: 6, fontSize: 11, fontWeight: 900, letterSpacing: '0.5px', textTransform: 'uppercase', display: 'inline-flex', alignItems: 'center', boxShadow: 'none' }}>● Processing</span>;
     }
     if (s === 'shipped') {
-      return <span style={{ background: '#eff6ff', color: '#2563eb', border: '1px solid #bfdbfe', padding: '4px 12px', borderRadius: 20, fontSize: 11, fontWeight: 700, letterSpacing: '0.5px', textTransform: 'uppercase', display: 'inline-flex', alignItems: 'center' }}>● Shipped</span>;
+      return <span style={{ background: '#dbeafe', color: '#1d4ed8', border: '1.5px solid #000000', padding: '3px 10px', borderRadius: 6, fontSize: 11, fontWeight: 900, letterSpacing: '0.5px', textTransform: 'uppercase', display: 'inline-flex', alignItems: 'center', boxShadow: 'none' }}>● Shipped</span>;
     }
     if (s === 'delivered' || s === 'completed') {
-      return <span style={{ background: '#f5f3ff', color: '#7c3aed', border: '1px solid #ddd6fe', padding: '4px 12px', borderRadius: 20, fontSize: 11, fontWeight: 700, letterSpacing: '0.5px', textTransform: 'uppercase', display: 'inline-flex', alignItems: 'center' }}>● Delivered</span>;
+      return <span style={{ background: '#f5f3ff', color: '#7c3aed', border: '1.5px solid #000000', padding: '3px 10px', borderRadius: 6, fontSize: 11, fontWeight: 900, letterSpacing: '0.5px', textTransform: 'uppercase', display: 'inline-flex', alignItems: 'center', boxShadow: 'none' }}>● Delivered</span>;
     }
     if (s === 'cancelled' || s === 'rejected') {
-      return <span style={{ background: '#fef2f2', color: '#ef4444', border: '1px solid #fecaca', padding: '4px 12px', borderRadius: 20, fontSize: 11, fontWeight: 700, letterSpacing: '0.5px', textTransform: 'uppercase', display: 'inline-flex', alignItems: 'center' }}>● Cancelled</span>;
+      return <span style={{ background: '#fee2e2', color: '#b91c1c', border: '1.5px solid #000000', padding: '3px 10px', borderRadius: 6, fontSize: 11, fontWeight: 900, letterSpacing: '0.5px', textTransform: 'uppercase', display: 'inline-flex', alignItems: 'center', boxShadow: 'none' }}>● Cancelled</span>;
     }
-    return <span style={{ background: '#f8fafc', color: '#64748b', border: '1px solid #e2e8f0', padding: '4px 12px', borderRadius: 20, fontSize: 11, fontWeight: 700, letterSpacing: '0.5px', textTransform: 'uppercase', display: 'inline-flex', alignItems: 'center' }}>● {status}</span>;
+    return <span style={{ background: '#f8fafc', color: '#000000', border: '1.5px solid #000000', padding: '3px 10px', borderRadius: 6, fontSize: 11, fontWeight: 900, letterSpacing: '0.5px', textTransform: 'uppercase', display: 'inline-flex', alignItems: 'center', boxShadow: 'none' }}>● {status}</span>;
   };
 
   const formatPriceDisplay = (item: ShopItem) => {
@@ -3857,6 +3861,53 @@ export default function DashboardPage() {
           box-shadow: none !important;
         }
         .orders-list { display: flex; flex-direction: column; gap: 16px; width: 100%; }
+        .store-orders-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+          gap: 16px;
+          width: 100%;
+        }
+        @media (max-width: 768px) {
+          .store-orders-grid {
+            grid-template-columns: 1fr;
+          }
+        }
+        .store-orders-table-wrapper {
+          background: #ffffff;
+          border: 2.5px solid #000000;
+          border-radius: 12px;
+          overflow-x: auto;
+          box-shadow: none;
+          width: 100%;
+        }
+        .store-orders-table {
+          width: 100%;
+          border-collapse: collapse;
+          text-align: left;
+          font-size: 13px;
+          min-width: 680px;
+        }
+        .store-orders-table th {
+          background: #f5f3ff;
+          border-bottom: 2px solid #000000;
+          padding: 12px 16px;
+          font-weight: 900;
+          color: #000000;
+          font-size: 12px;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+        .store-orders-table td {
+          padding: 12px 16px;
+          border-bottom: 1.5px solid #e2e8f0;
+          vertical-align: middle;
+        }
+        .store-orders-table tr:last-child td {
+          border-bottom: none;
+        }
+        .store-orders-table tr:hover td {
+          background: #faf5ff;
+        }
         .order-card {
           background: #ffffff;
           border-radius: 14px;
@@ -5807,146 +5858,472 @@ export default function DashboardPage() {
             )}
 
             {/* ——— STORE ORDERS TAB ——— */}
-            {activeTab === "store-orders" && (
-              <div className="orders-container">
-                <div className="store-orders-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-                  <div>
-                    <h2 style={{ fontSize: 20, color: '#0f172a', fontWeight: 700 }}>Store Orders</h2>
-                    <p style={{ color: '#64748b', fontSize: 14 }}>Manage incoming orders for your products.</p>
-                  </div>
-                  <button
-                    onClick={() => setShowScanner(true)}
-                    style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#7c3aed', color: '#fff', border: '2px solid #000000', padding: '10px 16px', borderRadius: 8, fontWeight: 800, cursor: 'pointer', boxShadow: 'none' }}
-                  >
-                    <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4z" /><path d="M14 14h6v6h-6z" /><path d="M1 1h22v22H1z" /></svg>
-                    Scan Receipt to Ship
-                  </button>
-                </div>
+            {activeTab === "store-orders" && (() => {
+              const filteredSellerOrders = sellerOrders
+                .filter(o => {
+                  if (storeOrderTab === 'all') return true;
+                  if (storeOrderTab === 'cancelled') return ['cancelled', 'rejected'].includes(o.status);
+                  if (storeOrderTab === 'delivered') return ['delivered', 'completed'].includes(o.status);
+                  return o.status === storeOrderTab;
+                })
+                .filter(o => {
+                  if (!storeOrderSearch.trim()) return true;
+                  const q = storeOrderSearch.toLowerCase();
+                  return (
+                    (o.item?.name && o.item.name.toLowerCase().includes(q)) ||
+                    String(o.id).toLowerCase().includes(q) ||
+                    (o.buyer?.name && o.buyer.name.toLowerCase().includes(q)) ||
+                    (o.buyer?.email && o.buyer.email.toLowerCase().includes(q)) ||
+                    (o.variation && o.variation.toLowerCase().includes(q))
+                  );
+                });
 
-                {/* STATUS FILTER TABS */}
-                <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 8, marginBottom: 20, borderBottom: '1px solid #f1f5f9' }}>
-                  {[
-                    { id: 'all', label: 'All Orders', count: sellerOrders.length },
-                    { id: 'pending', label: 'Pending', count: sellerOrders.filter(o => o.status === 'pending').length },
-                    { id: 'processing', label: 'Processing', count: sellerOrders.filter(o => o.status === 'processing').length },
-                    { id: 'shipped', label: 'Shipped', count: sellerOrders.filter(o => o.status === 'shipped').length },
-                    { id: 'delivered', label: 'Delivered', count: sellerOrders.filter(o => ['delivered', 'completed'].includes(o.status)).length },
-                    { id: 'cancelled', label: 'Cancelled', count: sellerOrders.filter(o => ['cancelled', 'rejected'].includes(o.status)).length },
-                  ].map(tab => (
+              const totalStorePages = Math.max(1, Math.ceil(filteredSellerOrders.length / STORE_ORDERS_PER_PAGE));
+              const currentStorePage = Math.min(storeOrdersPage, totalStorePages);
+              const paginatedSellerOrders = filteredSellerOrders.slice(
+                (currentStorePage - 1) * STORE_ORDERS_PER_PAGE,
+                currentStorePage * STORE_ORDERS_PER_PAGE
+              );
+
+              return (
+                <div className="orders-container">
+                  {/* TOP HEADER */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 16, marginBottom: 20 }}>
+                    <div>
+                      <h2 style={{ fontSize: 24, color: '#000000', fontWeight: 900, letterSpacing: '-0.5px' }}>Store Orders</h2>
+                      <p style={{ color: '#475569', fontSize: 13, fontWeight: 600, marginTop: 4 }}>Manage incoming orders, track shipments, and issue official receipts.</p>
+                    </div>
                     <button
-                      key={tab.id}
-                      type="button"
-                      onClick={() => setStoreOrderTab(tab.id)}
-                      style={{
-                        padding: '8px 16px',
-                        borderRadius: 20,
-                        fontSize: 13,
-                        fontWeight: 600,
-                        border: 'none',
-                        cursor: 'pointer',
-                        whiteSpace: 'nowrap',
-                        transition: 'all 0.2s ease',
-                        background: storeOrderTab === tab.id ? '#7c3aed' : '#f8fafc',
-                        color: storeOrderTab === tab.id ? '#fff' : '#64748b',
-                        boxShadow: storeOrderTab === tab.id ? '0 4px 12px rgba(124,58,237,0.2)' : 'none'
-                      }}
+                      onClick={() => setShowScanner(true)}
+                      style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#7c3aed', color: '#fff', border: '2px solid #000000', padding: '10px 18px', borderRadius: 8, fontWeight: 800, fontSize: 13, cursor: 'pointer', boxShadow: 'none' }}
                     >
-                      {tab.label} ({tab.count})
+                      <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4z" /><path d="M14 14h6v6h-6z" /><path d="M1 1h22v22H1z" /></svg>
+                      Scan Receipt to Ship
                     </button>
-                  ))}
-                </div>
+                  </div>
 
-                <div className="orders-list">
-                  {sellerOrders.filter(o => {
-                    if (storeOrderTab === 'all') return true;
-                    if (storeOrderTab === 'cancelled') return ['cancelled', 'rejected'].includes(o.status);
-                    if (storeOrderTab === 'delivered') return ['delivered', 'completed'].includes(o.status);
-                    return o.status === storeOrderTab;
-                  }).length === 0 ? (
-                    <div className="empty-state" style={{ marginTop: 20, gridColumn: '1 / -1' }}>
-                      <div className="empty-title">No orders found</div>
-                      <div className="empty-desc">No orders match the selected status filter.</div>
+                  {/* QUICK STATS METRICS */}
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 12, marginBottom: 20 }}>
+                    <div style={{ background: '#ffffff', border: '2px solid #000000', borderRadius: 10, padding: '12px 16px', boxShadow: 'none' }}>
+                      <div style={{ fontSize: 11, fontWeight: 800, color: '#7c3aed', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total Orders</div>
+                      <div style={{ fontSize: 22, fontWeight: 900, color: '#000000', marginTop: 2 }}>{sellerOrders.length}</div>
+                    </div>
+                    <div style={{ background: '#ffffff', border: '2px solid #000000', borderRadius: 10, padding: '12px 16px', boxShadow: 'none' }}>
+                      <div style={{ fontSize: 11, fontWeight: 800, color: '#b45309', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Pending</div>
+                      <div style={{ fontSize: 22, fontWeight: 900, color: '#000000', marginTop: 2 }}>{sellerOrders.filter(o => o.status === 'pending').length}</div>
+                    </div>
+                    <div style={{ background: '#ffffff', border: '2px solid #000000', borderRadius: 10, padding: '12px 16px', boxShadow: 'none' }}>
+                      <div style={{ fontSize: 11, fontWeight: 800, color: '#1d4ed8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>To Ship</div>
+                      <div style={{ fontSize: 22, fontWeight: 900, color: '#000000', marginTop: 2 }}>{sellerOrders.filter(o => ['processing', 'shipped'].includes(o.status)).length}</div>
+                    </div>
+                    <div style={{ background: '#ffffff', border: '2px solid #000000', borderRadius: 10, padding: '12px 16px', boxShadow: 'none' }}>
+                      <div style={{ fontSize: 11, fontWeight: 800, color: '#15803d', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Delivered</div>
+                      <div style={{ fontSize: 22, fontWeight: 900, color: '#000000', marginTop: 2 }}>{sellerOrders.filter(o => ['delivered', 'completed'].includes(o.status)).length}</div>
+                    </div>
+                    <div style={{ background: '#ffffff', border: '2px solid #000000', borderRadius: 10, padding: '12px 16px', boxShadow: 'none' }}>
+                      <div style={{ fontSize: 11, fontWeight: 800, color: '#b91c1c', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Cancelled</div>
+                      <div style={{ fontSize: 22, fontWeight: 900, color: '#000000', marginTop: 2 }}>{sellerOrders.filter(o => ['cancelled', 'rejected'].includes(o.status)).length}</div>
+                    </div>
+                  </div>
+
+                  {/* CONTROLS CARD: TABS + SEARCH + VIEW SWITCHER */}
+                  <div style={{
+                    background: '#ffffff',
+                    border: '2.5px solid #000000',
+                    borderRadius: 12,
+                    padding: '16px',
+                    boxShadow: 'none',
+                    marginBottom: 20,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 14
+                  }}>
+                    {/* Filter Tabs */}
+                    <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 4 }}>
+                      {[
+                        { id: 'all', label: 'All Orders', count: sellerOrders.length },
+                        { id: 'pending', label: 'Pending', count: sellerOrders.filter(o => o.status === 'pending').length },
+                        { id: 'processing', label: 'Processing', count: sellerOrders.filter(o => o.status === 'processing').length },
+                        { id: 'shipped', label: 'Shipped', count: sellerOrders.filter(o => o.status === 'shipped').length },
+                        { id: 'delivered', label: 'Delivered', count: sellerOrders.filter(o => ['delivered', 'completed'].includes(o.status)).length },
+                        { id: 'cancelled', label: 'Cancelled', count: sellerOrders.filter(o => ['cancelled', 'rejected'].includes(o.status)).length },
+                      ].map(tab => (
+                        <button
+                          key={tab.id}
+                          type="button"
+                          onClick={() => { setStoreOrderTab(tab.id); setStoreOrdersPage(1); }}
+                          style={{
+                            padding: '8px 16px',
+                            borderRadius: 8,
+                            fontSize: 13,
+                            fontWeight: 800,
+                            border: '2px solid #000000',
+                            cursor: 'pointer',
+                            whiteSpace: 'nowrap',
+                            transition: 'all 0.15s ease',
+                            background: storeOrderTab === tab.id ? '#7c3aed' : '#ffffff',
+                            color: storeOrderTab === tab.id ? '#ffffff' : '#000000',
+                            boxShadow: 'none'
+                          }}
+                        >
+                          {tab.label} ({tab.count})
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Search & View Mode Switcher */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+                      <div style={{ position: 'relative', flex: 1, minWidth: 260, maxWidth: 460 }}>
+                        <input
+                          type="text"
+                          placeholder="Search buyer name, product, or order ID..."
+                          value={storeOrderSearch}
+                          onChange={e => { setStoreOrderSearch(e.target.value); setStoreOrdersPage(1); }}
+                          style={{
+                            width: '100%',
+                            padding: '9px 36px 9px 14px',
+                            border: '2px solid #000000',
+                            borderRadius: 8,
+                            fontSize: 13,
+                            fontWeight: 700,
+                            outline: 'none',
+                            background: '#f8fafc',
+                            color: '#000000',
+                            boxShadow: 'none'
+                          }}
+                        />
+                        {storeOrderSearch && (
+                          <button
+                            type="button"
+                            onClick={() => { setStoreOrderSearch(""); setStoreOrdersPage(1); }}
+                            style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', fontSize: 14, fontWeight: 800 }}
+                          >
+                            ✕
+                          </button>
+                        )}
+                      </div>
+
+                      {/* View Mode Toggle */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <span style={{ fontSize: 12, fontWeight: 800, color: '#475569', textTransform: 'uppercase' }}>View:</span>
+                        <button
+                          type="button"
+                          onClick={() => setStoreOrderViewMode('grid')}
+                          title="Card Grid View"
+                          style={{
+                            padding: '7px 14px',
+                            borderRadius: 8,
+                            border: '2px solid #000000',
+                            background: storeOrderViewMode === 'grid' ? '#7c3aed' : '#ffffff',
+                            color: storeOrderViewMode === 'grid' ? '#ffffff' : '#000000',
+                            fontWeight: 800,
+                            fontSize: 12,
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 6,
+                            boxShadow: 'none'
+                          }}
+                        >
+                          <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+                          Cards
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setStoreOrderViewMode('table')}
+                          title="Compact Table View"
+                          style={{
+                            padding: '7px 14px',
+                            borderRadius: 8,
+                            border: '2px solid #000000',
+                            background: storeOrderViewMode === 'table' ? '#7c3aed' : '#ffffff',
+                            color: storeOrderViewMode === 'table' ? '#ffffff' : '#000000',
+                            fontWeight: 800,
+                            fontSize: 12,
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 6,
+                            boxShadow: 'none'
+                          }}
+                        >
+                          <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                          Table
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* ORDERS DISPLAY */}
+                  {filteredSellerOrders.length === 0 ? (
+                    <div className="empty-state" style={{ padding: '60px 20px', textAlign: 'center', background: '#ffffff', borderRadius: 12, border: '2.5px solid #000000', boxShadow: 'none' }}>
+                      <div style={{ width: 60, height: 60, borderRadius: 12, border: '2px solid #000000', background: '#f5f3ff', color: '#7c3aed', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+                        <IconBox />
+                      </div>
+                      <div className="empty-title" style={{ fontSize: 18, fontWeight: 900, color: '#000000', marginBottom: 6 }}>No orders found</div>
+                      <div className="empty-desc" style={{ color: '#475569', fontSize: 13, fontWeight: 600 }}>No orders match your selected status filter or search criteria.</div>
+                    </div>
+                  ) : storeOrderViewMode === 'grid' ? (
+                    /* COMPACT CARD GRID (No more stretched single column!) */
+                    <div className="store-orders-grid">
+                      {paginatedSellerOrders.map(order => {
+                        const orderCode = `SHP-2026-${String(order.id).slice(-6)}`;
+                        const orderTotal = (parseFloat(order.price) * order.quantity).toFixed(2);
+                        return (
+                          <div
+                            key={order.id}
+                            style={{
+                              background: '#ffffff',
+                              borderRadius: 12,
+                              border: '2.5px solid #000000',
+                              boxShadow: 'none',
+                              overflow: 'hidden',
+                              display: 'flex',
+                              flexDirection: 'column',
+                              justifyContent: 'space-between',
+                              transition: 'transform 0.15s ease'
+                            }}
+                          >
+                            {/* Card Header: Buyer info & status badge */}
+                            <div style={{ padding: '12px 16px', borderBottom: '2px solid #000000', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#f5f3ff', gap: 8 }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
+                                <div style={{ width: 34, height: 34, borderRadius: 8, border: '1.5px solid #000000', background: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#7c3aed', flexShrink: 0, fontWeight: 900 }}>
+                                  <IconUser />
+                                </div>
+                                <div style={{ minWidth: 0 }}>
+                                  <div style={{ fontSize: 13, fontWeight: 800, color: '#000000', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                    {order.buyer?.name || 'Shopply Customer'}
+                                  </div>
+                                  <div style={{ fontSize: 10, color: '#64748b', fontWeight: 700, fontFamily: 'monospace' }}>
+                                    #{orderCode} • {formatOrderDate(order.created_at)}
+                                  </div>
+                                </div>
+                              </div>
+                              <div style={{ flexShrink: 0 }}>
+                                {renderStatusBadge(order.status)}
+                              </div>
+                            </div>
+
+                            {/* Card Body: Thumbnail & product specs */}
+                            <div style={{ padding: '14px 16px', display: 'flex', gap: 14, alignItems: 'center', flex: 1 }}>
+                              {order.item.image ? (
+                                <img src={getImageUrl(order.item.image)} alt={order.item.name} loading="lazy" decoding="async" style={{ width: 68, height: 68, objectFit: 'cover', borderRadius: 8, border: '2px solid #000000', flexShrink: 0 }} />
+                              ) : (
+                                <div style={{ width: 68, height: 68, background: '#f8fafc', borderRadius: 8, border: '2px solid #000000', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b', flexShrink: 0 }}>
+                                  <IconBox />
+                                </div>
+                              )}
+
+                              <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 3 }}>
+                                <div style={{ fontSize: 14, fontWeight: 800, color: '#000000', overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', lineHeight: 1.3 }}>
+                                  {order.item.name}
+                                </div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginTop: 2 }}>
+                                  <span style={{ fontSize: 12, fontWeight: 700, color: '#475569' }}>Qty: <strong style={{ color: '#000000' }}>x{order.quantity}</strong></span>
+                                  {order.variation && (
+                                    <span style={{ fontSize: 10, color: '#7c3aed', fontWeight: 800, background: '#f5f3ff', border: '1.5px solid #000000', padding: '1px 6px', borderRadius: 6 }}>
+                                      {order.variation}
+                                    </span>
+                                  )}
+                                </div>
+                                <div style={{ fontSize: 11, color: '#64748b', fontWeight: 700, marginTop: 2 }}>
+                                  Unit Price: ₱{parseFloat(order.price).toFixed(2)}
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Card Footer: Total price & Action buttons */}
+                            <div style={{ padding: '12px 16px', background: '#f8fafc', borderTop: '2px solid #000000', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+                              <div>
+                                <div style={{ fontSize: 10, color: '#64748b', fontWeight: 800, textTransform: 'uppercase' }}>Total</div>
+                                <div style={{ fontSize: 16, fontWeight: 900, color: '#000000' }}>₱{orderTotal}</div>
+                              </div>
+
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                                <button
+                                  className="btn-print"
+                                  onClick={() => setReceiptOrder(order)}
+                                  style={{ background: '#ffffff', color: '#000000', border: '2px solid #000000', padding: '6px 12px', borderRadius: 8, fontWeight: 800, fontSize: 11, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4, boxShadow: 'none' }}
+                                >
+                                  <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9" /><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2" /><rect x="6" y="14" width="12" height="8" /></svg>
+                                  Receipt
+                                </button>
+
+                                {order.status === 'pending' && (
+                                  <>
+                                    <button onClick={() => handleAcceptOrder(order.id)} style={{ background: '#10b981', color: '#ffffff', border: '2px solid #000000', padding: '6px 12px', borderRadius: 8, fontWeight: 800, fontSize: 11, cursor: 'pointer', boxShadow: 'none' }}>Accept</button>
+                                    <button onClick={() => handleRejectOrder(order.id)} style={{ background: '#fee2e2', color: '#ef4444', border: '2px solid #000000', padding: '6px 12px', borderRadius: 8, fontWeight: 800, fontSize: 11, cursor: 'pointer', boxShadow: 'none' }}>Reject</button>
+                                  </>
+                                )}
+                                {order.status === 'processing' && (
+                                  <button onClick={() => handleShipOrder(order.id)} style={{ background: '#7c3aed', color: '#ffffff', border: '2px solid #000000', padding: '6px 14px', borderRadius: 8, fontWeight: 800, fontSize: 11, cursor: 'pointer', boxShadow: 'none' }}>Mark as Shipped</button>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
                   ) : (
-                    sellerOrders
-                      .filter(o => {
-                        if (storeOrderTab === 'all') return true;
-                        if (storeOrderTab === 'cancelled') return ['cancelled', 'rejected'].includes(o.status);
-                        if (storeOrderTab === 'delivered') return ['delivered', 'completed'].includes(o.status);
-                        return o.status === storeOrderTab;
-                      })
-                      .map(order => (
-                        <div key={order.id} className="order-card" style={{ background: '#ffffff', borderRadius: 16, border: '1px solid #e2e8f0', boxShadow: 'none', overflow: 'hidden', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%' }}>
-                          {/* Card Header */}
-                          <div className="order-card-header" style={{ padding: '14px 18px', borderBottom: '2px solid #000000', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#f5f3ff' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                              <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b' }}>
-                                <IconUser />
-                              </div>
-                              <div>
-                                <div style={{ fontSize: 10, color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Buyer</div>
-                                <div style={{ fontSize: 13, fontWeight: 700, color: '#0f172a' }}>{order.buyer?.name || 'Shopply Customer'}</div>
-                              </div>
-                            </div>
-                            {renderStatusBadge(order.status)}
-                          </div>
+                    /* COMPACT TABLE VIEW */
+                    <div className="store-orders-table-wrapper">
+                      <table className="store-orders-table">
+                        <thead>
+                          <tr>
+                            <th>Order ID & Date</th>
+                            <th>Buyer</th>
+                            <th>Product Details</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                            <th style={{ textAlign: 'right' }}>Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {paginatedSellerOrders.map(order => {
+                            const orderCode = `SHP-2026-${String(order.id).slice(-6)}`;
+                            const orderTotal = (parseFloat(order.price) * order.quantity).toFixed(2);
+                            return (
+                              <tr key={order.id}>
+                                <td>
+                                  <div style={{ fontFamily: 'monospace', fontWeight: 900, color: '#7c3aed' }}>#{orderCode}</div>
+                                  <div style={{ fontSize: 11, color: '#64748b', fontWeight: 600, marginTop: 2 }}>{formatOrderDate(order.created_at)}</div>
+                                </td>
+                                <td>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                    <div style={{ width: 28, height: 28, borderRadius: 6, border: '1.5px solid #000000', background: '#f5f3ff', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#7c3aed', fontWeight: 800, fontSize: 11 }}>
+                                      {order.buyer?.name ? order.buyer.name.charAt(0).toUpperCase() : 'U'}
+                                    </div>
+                                    <span style={{ fontWeight: 800, color: '#000000' }}>{order.buyer?.name || 'Shopply Customer'}</span>
+                                  </div>
+                                </td>
+                                <td>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                                    {order.item.image ? (
+                                      <img src={getImageUrl(order.item.image)} alt={order.item.name} style={{ width: 42, height: 42, borderRadius: 6, border: '1.5px solid #000000', objectFit: 'cover' }} />
+                                    ) : (
+                                      <div style={{ width: 42, height: 42, borderRadius: 6, border: '1.5px solid #000000', background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b' }}><IconBox /></div>
+                                    )}
+                                    <div>
+                                      <div style={{ fontWeight: 800, color: '#000000', maxWidth: 220, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{order.item.name}</div>
+                                      <div style={{ fontSize: 11, color: '#64748b', fontWeight: 600 }}>
+                                        Qty: <strong>x{order.quantity}</strong> {order.variation ? `• ${order.variation}` : ''}
+                                      </div>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td>
+                                  <span style={{ fontSize: 15, fontWeight: 900, color: '#000000' }}>₱{orderTotal}</span>
+                                </td>
+                                <td>
+                                  {renderStatusBadge(order.status)}
+                                </td>
+                                <td style={{ textAlign: 'right' }}>
+                                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                                    <button
+                                      className="btn-print"
+                                      onClick={() => setReceiptOrder(order)}
+                                      style={{ background: '#ffffff', color: '#000000', border: '1.5px solid #000000', padding: '5px 10px', borderRadius: 6, fontWeight: 800, fontSize: 11, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4, boxShadow: 'none' }}
+                                    >
+                                      Receipt
+                                    </button>
+                                    {order.status === 'pending' && (
+                                      <>
+                                        <button onClick={() => handleAcceptOrder(order.id)} style={{ background: '#10b981', color: '#ffffff', border: '1.5px solid #000000', padding: '5px 10px', borderRadius: 6, fontWeight: 800, fontSize: 11, cursor: 'pointer', boxShadow: 'none' }}>Accept</button>
+                                        <button onClick={() => handleRejectOrder(order.id)} style={{ background: '#fee2e2', color: '#ef4444', border: '1.5px solid #000000', padding: '5px 10px', borderRadius: 6, fontWeight: 800, fontSize: 11, cursor: 'pointer', boxShadow: 'none' }}>Reject</button>
+                                      </>
+                                    )}
+                                    {order.status === 'processing' && (
+                                      <button onClick={() => handleShipOrder(order.id)} style={{ background: '#7c3aed', color: '#ffffff', border: '1.5px solid #000000', padding: '5px 12px', borderRadius: 6, fontWeight: 800, fontSize: 11, cursor: 'pointer', boxShadow: 'none' }}>Ship</button>
+                                    )}
+                                  </div>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
 
-                          {/* Card Body */}
-                          <div className="order-card-body" style={{ padding: '14px 18px', display: 'flex', gap: 14, alignItems: 'center', flex: 1 }}>
-                            {order.item.image ? (
-                              <img src={getImageUrl(order.item.image)} alt={order.item.name} loading="lazy" decoding="async" style={{ width: 76, height: 76, objectFit: 'cover', borderRadius: 12, border: '1px solid #f1f5f9', flexShrink: 0 }} />
-                            ) : (
-                              <div style={{ width: 76, height: 76, background: '#f8fafc', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#cbd5e1', border: '1px solid #f1f5f9', flexShrink: 0 }}>
-                                <IconBox />
-                              </div>
-                            )}
-
-                            <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 3 }}>
-                              <div style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{order.item.name}</div>
-                              <div style={{ fontSize: 12, color: '#64748b', fontWeight: 500 }}>Quantity: <strong style={{ color: '#0f172a' }}>x{order.quantity}</strong></div>
-                              {order.variation && <div style={{ fontSize: 11, color: '#7c3aed', fontWeight: 600, background: '#f5f3ff', padding: '2px 6px', borderRadius: 6, width: 'fit-content' }}>Variation: {order.variation}</div>}
-                            </div>
-
-                            <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                              <div style={{ fontSize: 10, color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Unit Price</div>
-                              <div style={{ fontSize: 14, fontWeight: 700, color: '#0f172a' }}>₱{parseFloat(order.price).toFixed(2)}</div>
-                            </div>
-                          </div>
-
-                          {/* Card Footer */}
-                          <div className="order-card-footer" style={{ padding: '12px 18px', background: '#f8fafc', borderTop: '2px solid #000000', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-                              <button
-                                className="btn-print"
-                                onClick={() => setReceiptOrder(order)}
-                                style={{ background: '#ffffff', color: '#000000', border: '2px solid #000000', padding: '5px 12px', borderRadius: 8, fontWeight: 800, fontSize: 11, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4, boxShadow: 'none' }}
-                              >
-                                <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9" /><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2" /><rect x="6" y="14" width="12" height="8" /></svg>
-                                Receipt
-                              </button>
-
-                              {order.status === 'pending' && (
-                                <>
-                                  <button onClick={() => handleAcceptOrder(order.id)} style={{ background: '#10b981', color: '#ffffff', border: '2px solid #000000', padding: '6px 14px', borderRadius: 8, fontWeight: 800, fontSize: 12, cursor: 'pointer', boxShadow: 'none' }}>Accept</button>
-                                  <button onClick={() => handleRejectOrder(order.id)} style={{ background: '#fee2e2', color: '#ef4444', border: '2px solid #000000', padding: '6px 14px', borderRadius: 8, fontWeight: 800, fontSize: 12, cursor: 'pointer', boxShadow: 'none' }}>Reject</button>
-                                </>
-                              )}
-                              {order.status === 'processing' && (
-                                <button onClick={() => handleShipOrder(order.id)} style={{ background: '#7c3aed', color: '#ffffff', border: '2px solid #000000', padding: '6px 14px', borderRadius: 8, fontWeight: 800, fontSize: 12, cursor: 'pointer', boxShadow: 'none' }}>Mark as Shipped</button>
-                              )}
-                            </div>
-
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                              <span style={{ fontSize: 12, color: '#64748b', fontWeight: 500 }}>Total:</span>
-                              <span style={{ fontSize: 16, fontWeight: 800, color: '#ee4d2d' }}>₱{(parseFloat(order.price) * order.quantity).toFixed(2)}</span>
-                            </div>
-                          </div>
-                        </div>
-                      ))
+                  {/* PAGINATION CONTROLS */}
+                  {totalStorePages > 1 && (
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      padding: '14px 18px',
+                      background: '#ffffff',
+                      borderRadius: 12,
+                      border: '2.5px solid #000000',
+                      boxShadow: 'none',
+                      marginTop: 20,
+                      flexWrap: 'wrap',
+                      gap: 12
+                    }}>
+                      <span style={{ fontSize: 13, fontWeight: 800, color: '#000000' }}>
+                        Showing {(currentStorePage - 1) * STORE_ORDERS_PER_PAGE + 1}–{Math.min(currentStorePage * STORE_ORDERS_PER_PAGE, filteredSellerOrders.length)} of {filteredSellerOrders.length} orders
+                      </span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <button
+                          disabled={currentStorePage === 1}
+                          onClick={() => setStoreOrdersPage(p => Math.max(1, p - 1))}
+                          style={{
+                            padding: '6px 14px',
+                            borderRadius: 8,
+                            border: '2px solid #000000',
+                            background: currentStorePage === 1 ? '#f1f5f9' : '#ffffff',
+                            color: currentStorePage === 1 ? '#94a3b8' : '#000000',
+                            fontWeight: 800,
+                            fontSize: 12,
+                            cursor: currentStorePage === 1 ? 'not-allowed' : 'pointer',
+                            boxShadow: 'none'
+                          }}
+                        >
+                          ← Prev
+                        </button>
+                        {Array.from({ length: totalStorePages }, (_, i) => i + 1).map(p => (
+                          <button
+                            key={p}
+                            onClick={() => setStoreOrdersPage(p)}
+                            style={{
+                              width: 34,
+                              height: 34,
+                              borderRadius: 8,
+                              border: '2px solid #000000',
+                              background: currentStorePage === p ? '#7c3aed' : '#ffffff',
+                              color: currentStorePage === p ? '#ffffff' : '#000000',
+                              fontWeight: 900,
+                              fontSize: 12,
+                              cursor: 'pointer',
+                              boxShadow: 'none'
+                            }}
+                          >
+                            {p}
+                          </button>
+                        ))}
+                        <button
+                          disabled={currentStorePage === totalStorePages}
+                          onClick={() => setStoreOrdersPage(p => Math.min(totalStorePages, p + 1))}
+                          style={{
+                            padding: '6px 14px',
+                            borderRadius: 8,
+                            border: '2px solid #000000',
+                            background: currentStorePage === totalStorePages ? '#f1f5f9' : '#ffffff',
+                            color: currentStorePage === totalStorePages ? '#94a3b8' : '#000000',
+                            fontWeight: 800,
+                            fontSize: 12,
+                            cursor: currentStorePage === totalStorePages ? 'not-allowed' : 'pointer',
+                            boxShadow: 'none'
+                          }}
+                        >
+                          Next →
+                        </button>
+                      </div>
+                    </div>
                   )}
                 </div>
-              </div>
-            )}
+              );
+            })()}
 
             {/* ——— MY ITEMS TAB ——— */}
             {activeTab === "my-items" && (
