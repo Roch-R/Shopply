@@ -4158,76 +4158,7 @@ export default function DashboardPage() {
         }
         .chat-input-textarea:focus { border-color: #7c3aed; }
 
-        /* --- RESPONSIVE MEDIA QUERIES --- */
-        @media (max-width: 768px) {
-          .menu-toggle-btn { display: flex !important; }
-          .dashboard-layout { padding: 62px 0 0 0 !important; }
-          .content { margin-left: 0 !important; padding: 16px 14px 28px 14px !important; }
-          .sidebar {
-            display: none !important;
-          }
-          .sidebar.mobile-open {
-            display: flex !important;
-            position: fixed !important;
-            top: 0 !important; left: 0 !important; bottom: 0 !important;
-            width: 280px !important;
-            height: 100vh !important;
-            max-height: 100vh !important;
-            box-shadow: none !important;
-            z-index: 100;
-            padding: 16px 12px !important;
-            padding-top: max(16px, env(safe-area-inset-top, 16px)) !important;
-            border-radius: 0px !important;
-            border: none !important;
-            border-right: 3px solid #000000 !important;
-          }
-          .sidebar-profile-header { padding: 8px 10px !important; margin-bottom: 8px !important; border-bottom: 2.5px solid #000000 !important; }
-          .sidebar-backdrop {
-            position: fixed; inset: 0;
-            background: rgba(15,23,42,0.65);
-            backdrop-filter: blur(4px);
-            z-index: 95;
-            animation: fadeIn 0.2s ease-out;
-          }
-          .profile-header { flex-direction: column; text-align: center; padding: 22px 14px !important; gap: 16px !important; }
-          .profile-avatar { width: 80px !important; height: 80px !important; font-size: 28px !important; margin: 0 auto !important; }
-          .profile-info { width: 100%; }
-          .profile-info h2 { font-size: 22px !important; }
-          .profile-stats {
-            margin-left: 0 !important; width: 100% !important;
-            grid-template-columns: repeat(2, 1fr) !important; gap: 12px 14px !important;
-            padding: 14px !important;
-          }
-          .profile-stat { font-size: 13px !important; gap: 8px !important; }
-          .form-row { grid-template-columns: 1fr; }
-          .items-grid { grid-template-columns: 1fr; }
-          .nav { padding: 0 14px !important; height: 62px !important; }
-          .nav-right { gap: 8px !important; }
-          .nav-name { display: none !important; }
-          .logo-text { font-size: 17px !important; }
-          .info-cards { grid-template-columns: 1fr !important; gap: 14px !important; }
-          .info-card { padding: 18px !important; }
-          .order-search-container { flex-direction: column !important; align-items: stretch !important; gap: 12px !important; padding: 14px !important; }
-          .order-search { width: 100% !important; }
-          .order-search input { width: 100% !important; }
-          .chat-card-container {
-            height: calc(100vh - 120px) !important;
-            border-radius: 14px !important;
-          }
-          .chat-left-pane { width: 100% !important; border-right: none !important; }
-          .chat-left-pane.mobile-hidden { display: none !important; }
-          .chat-right-pane { width: 100% !important; }
-          .chat-right-pane.mobile-hidden { display: none !important; }
-          .chat-back-btn { display: flex !important; }
-          .chat-close-btn { display: none !important; }
-        }
-
-        @keyframes pulse {
-          0% { transform: scale(0.95); opacity: 0.5; }
-          50% { transform: scale(1.05); opacity: 0.8; }
-          100% { transform: scale(0.95); opacity: 0.5; }
-        }
-        /* --- SETTINGS & PERFORMANCE (FLAT BRUTALISM) --- */
+        /* --- SETTINGS & PERFORMANCE BASE STYLES --- */
         .settings-stats-grid {
           display: grid;
           grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -4247,6 +4178,35 @@ export default function DashboardPage() {
         }
         .settings-stat-box:hover {
           box-shadow: none;
+        }
+        .settings-stat-icon-box {
+          width: 48px;
+          height: 48px;
+          border-radius: 10px;
+          border: 2px solid #000000;
+          box-shadow: none;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 22px;
+          flex-shrink: 0;
+        }
+        .settings-stat-info {
+          display: flex;
+          flex-direction: column;
+          min-width: 0;
+        }
+        .settings-stat-val {
+          font-size: 24px;
+          font-weight: 900;
+          color: #000000;
+        }
+        .settings-stat-lbl {
+          font-size: 12px;
+          color: #475569;
+          font-weight: 800;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
         }
         .settings-section-card {
           background: #ffffff;
@@ -4275,6 +4235,36 @@ export default function DashboardPage() {
         .my-stat-card:hover {
           box-shadow: none;
         }
+        .my-stat-card-icon {
+          width: 48px;
+          height: 48px;
+          border-radius: 10px;
+          border: 2px solid #000000;
+          box-shadow: none;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-bottom: 12px;
+        }
+        .my-stat-card-val {
+          font-size: 26px;
+          font-weight: 900;
+          color: #000000;
+          margin-bottom: 4px;
+        }
+        .my-stat-card-lbl {
+          font-size: 12px;
+          font-weight: 800;
+          color: #000000;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+        .settings-activity-chart {
+          position: relative;
+          height: 280px;
+          display: flex;
+          padding-bottom: 24px;
+        }
         .cache-control-grid {
           display: grid;
           grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -4294,6 +4284,12 @@ export default function DashboardPage() {
         .cache-item-card:hover {
           box-shadow: none;
         }
+        .flex-responsive-row {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 12px;
+        }
         .perf-actions-grid {
           display: grid;
           grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -4310,6 +4306,14 @@ export default function DashboardPage() {
           flex-direction: column;
           justify-content: space-between;
         }
+        .perf-tips-box {
+          background: #f5f3ff;
+          border-radius: 16px;
+          padding: 28px;
+          border: 3px solid #000000;
+          box-shadow: none;
+          color: #000000;
+        }
         .perf-tips-grid {
           display: grid;
           grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -4324,9 +4328,440 @@ export default function DashboardPage() {
           color: #000000;
         }
 
+        /* --- STORE METRICS BASE STYLES --- */
+        .store-metrics-strip {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+          gap: 12px;
+          margin-bottom: 20px;
+        }
+        .store-metric-card {
+          background: #ffffff;
+          border: 2px solid #000000;
+          border-radius: 10px;
+          padding: 12px 16px;
+          box-shadow: none;
+        }
+        .store-metric-label {
+          font-size: 11px;
+          font-weight: 800;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+        .store-metric-val {
+          font-size: 22px;
+          font-weight: 900;
+          color: #000000;
+          margin-top: 2px;
+        }
+
+        /* Animations */
+        @keyframes pulse {
+          0% { transform: scale(0.95); opacity: 0.5; }
+          50% { transform: scale(1.05); opacity: 0.8; }
+          100% { transform: scale(0.95); opacity: 0.5; }
+        }
         .pulse-ring { animation: pulse 1.8s infinite ease-in-out; }
         @keyframes callingDot { 0% { opacity: .2; } 20% { opacity: 1; } 100% { opacity: .2; } }
         .calling-dots::after { content: ' . . .'; animation: callingDot 1.4s infinite both; }
+
+        /* =========================================================
+           RESPONSIVE MOBILE STABILITY (MAX-WIDTH: 768PX)
+           ========================================================= */
+        @media (max-width: 768px) {
+          /* Shell & Layout */
+          .menu-toggle-btn { display: flex !important; }
+          .dashboard-layout {
+            padding: 62px 0 0 0 !important;
+            overflow-x: hidden !important;
+            width: 100% !important;
+            max-width: 100vw !important;
+          }
+          .content {
+            margin-left: 0 !important;
+            padding: 14px 12px 32px 12px !important;
+            width: 100% !important;
+            max-width: 100vw !important;
+            box-sizing: border-box !important;
+            overflow-x: hidden !important;
+          }
+          .tab-content {
+            width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            overflow-x: hidden !important;
+          }
+
+          /* Navbar */
+          .nav { padding: 0 12px !important; height: 62px !important; }
+          .nav-right { gap: 8px !important; }
+          .nav-name { display: none !important; }
+          .logo-text { font-size: 16px !important; }
+          .shop-link { padding: 6px 12px !important; font-size: 13px !important; }
+
+          /* Sidebar Drawer on Mobile */
+          .sidebar { display: none !important; }
+          .sidebar.mobile-open {
+            display: flex !important;
+            position: fixed !important;
+            top: 0 !important; left: 0 !important; bottom: 0 !important;
+            width: 280px !important;
+            max-width: 85vw !important;
+            height: 100vh !important;
+            max-height: 100vh !important;
+            box-shadow: none !important;
+            z-index: 100;
+            padding: 16px 12px !important;
+            padding-top: max(16px, env(safe-area-inset-top, 16px)) !important;
+            border-radius: 0px !important;
+            border: none !important;
+            border-right: 3px solid #000000 !important;
+          }
+          .sidebar-close-btn { display: flex !important; }
+          .sidebar-profile-header {
+            padding: 8px 10px !important;
+            margin-bottom: 8px !important;
+            border-bottom: 2.5px solid #000000 !important;
+          }
+          .sidebar-backdrop {
+            position: fixed; inset: 0;
+            background: rgba(15,23,42,0.65);
+            backdrop-filter: blur(4px);
+            z-index: 95;
+            animation: fadeIn 0.2s ease-out;
+          }
+
+          /* Settings & Performance Tab (Compact & Balanced Mobile Layout) */
+          .settings-stats-grid {
+            grid-template-columns: repeat(3, 1fr) !important;
+            gap: 8px !important;
+            margin-bottom: 16px !important;
+          }
+          .settings-stat-box {
+            padding: 10px 6px !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            text-align: center !important;
+            gap: 6px !important;
+            min-width: 0 !important;
+            border-radius: 10px !important;
+            border-width: 2px !important;
+          }
+          .settings-stat-icon-box {
+            width: 36px !important;
+            height: 36px !important;
+            border-radius: 8px !important;
+            font-size: 16px !important;
+            margin: 0 auto !important;
+            flex-shrink: 0 !important;
+          }
+          .settings-stat-icon-box svg {
+            width: 18px !important;
+            height: 18px !important;
+          }
+          .settings-stat-info {
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            width: 100% !important;
+            min-width: 0 !important;
+          }
+          .settings-stat-val {
+            font-size: 16px !important;
+            font-weight: 900 !important;
+            line-height: 1.1 !important;
+            word-break: break-word !important;
+          }
+          .settings-stat-lbl {
+            font-size: 9px !important;
+            font-weight: 800 !important;
+            letter-spacing: 0.3px !important;
+            text-transform: uppercase !important;
+            line-height: 1.1 !important;
+            margin-top: 2px !important;
+            text-align: center !important;
+            white-space: normal !important;
+          }
+
+          .settings-section-card {
+            padding: 16px 12px !important;
+            margin-bottom: 16px !important;
+            border-radius: 12px !important;
+            border-width: 2.5px !important;
+          }
+          .my-stats-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 8px !important;
+          }
+          .my-stat-card {
+            padding: 12px 8px !important;
+            border-radius: 10px !important;
+            border-width: 2px !important;
+          }
+          .my-stat-card-icon {
+            width: 36px !important;
+            height: 36px !important;
+            margin-bottom: 6px !important;
+          }
+          .my-stat-card-val {
+            font-size: 18px !important;
+            margin-bottom: 2px !important;
+          }
+          .my-stat-card-lbl {
+            font-size: 9.5px !important;
+            text-align: center !important;
+          }
+          .settings-activity-chart {
+            height: 190px !important;
+          }
+          .cache-control-grid {
+            grid-template-columns: 1fr !important;
+            gap: 8px !important;
+            margin-top: 12px !important;
+          }
+          .cache-item-card {
+            padding: 10px 12px !important;
+            border-radius: 8px !important;
+          }
+          .flex-responsive-row {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 12px !important;
+          }
+          .flex-responsive-row > button {
+            width: 100% !important;
+            justify-content: center !important;
+          }
+          .perf-actions-grid {
+            grid-template-columns: 1fr !important;
+            gap: 12px !important;
+            margin-bottom: 16px !important;
+          }
+          .perf-action-card {
+            padding: 16px 12px !important;
+            border-radius: 10px !important;
+          }
+          .perf-tips-box {
+            padding: 16px 12px !important;
+            border-radius: 12px !important;
+          }
+          .perf-tips-grid {
+            grid-template-columns: 1fr !important;
+            gap: 8px !important;
+          }
+          .perf-tip-card {
+            padding: 10px 12px !important;
+            border-radius: 8px !important;
+          }
+
+          /* Store Orders Mobile Layout */
+          .store-metrics-strip {
+            grid-template-columns: repeat(3, 1fr) !important;
+            gap: 8px !important;
+            margin-bottom: 14px !important;
+          }
+          .store-metric-card {
+            padding: 8px 10px !important;
+            border-radius: 8px !important;
+          }
+          .store-metric-label {
+            font-size: 9.5px !important;
+          }
+          .store-metric-val {
+            font-size: 18px !important;
+          }
+          .store-orders-grid {
+            grid-template-columns: 1fr !important;
+            gap: 12px !important;
+          }
+
+          /* Profile Header on Mobile */
+          .profile-header {
+            flex-direction: column !important;
+            text-align: center !important;
+            padding: 18px 14px !important;
+            gap: 14px !important;
+            border-radius: 12px !important;
+          }
+          .profile-avatar {
+            width: 72px !important;
+            height: 72px !important;
+            font-size: 26px !important;
+            margin: 0 auto !important;
+            border-radius: 10px !important;
+          }
+          .profile-info { width: 100% !important; }
+          .profile-info h2 { font-size: 20px !important; }
+          .profile-stats {
+            margin-left: 0 !important;
+            width: 100% !important;
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 8px 10px !important;
+            padding: 10px 12px !important;
+            border-radius: 10px !important;
+          }
+          .profile-stat {
+            font-size: 12px !important;
+            gap: 6px !important;
+            word-break: break-word !important;
+          }
+          .profile-stat-icon {
+            width: 28px !important;
+            height: 28px !important;
+            border-radius: 6px !important;
+          }
+          .profile-stat-val {
+            padding: 2px 6px !important;
+            font-size: 11.5px !important;
+            margin-left: 4px !important;
+          }
+          .info-cards {
+            grid-template-columns: 1fr !important;
+            gap: 12px !important;
+          }
+          .info-card {
+            padding: 16px 14px !important;
+            border-radius: 10px !important;
+          }
+
+          /* Buyer Orders Mobile Layout */
+          .order-trust-hero {
+            padding: 16px 12px !important;
+            border-radius: 12px !important;
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 12px !important;
+          }
+          .order-control-bar {
+            padding: 12px !important;
+            border-radius: 10px !important;
+          }
+          .order-search-container {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 10px !important;
+            padding: 12px !important;
+            border-radius: 10px !important;
+          }
+          .order-search { width: 100% !important; max-width: 100% !important; }
+          .order-search input { width: 100% !important; }
+          .order-card {
+            border-radius: 10px !important;
+            border-width: 2px !important;
+          }
+
+          /* My Items Grid on Mobile */
+          .items-grid {
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)) !important;
+            gap: 12px !important;
+          }
+          .item-card {
+            border-radius: 10px !important;
+            border-width: 2px !important;
+          }
+          .item-card-img, .item-card-placeholder {
+            height: 160px !important;
+          }
+          .item-card-body {
+            padding: 14px 12px !important;
+          }
+          .item-card-name {
+            font-size: 16px !important;
+          }
+
+          /* Add Item Form on Mobile */
+          .add-form {
+            padding: 16px 12px !important;
+            border-radius: 12px !important;
+            border-width: 2.5px !important;
+          }
+          .form-row { grid-template-columns: 1fr !important; gap: 14px !important; }
+          .form-group { margin-bottom: 14px !important; }
+          .image-upload {
+            padding: 20px 12px !important;
+            border-radius: 10px !important;
+          }
+          .submit-btn {
+            padding: 12px !important;
+            font-size: 14px !important;
+          }
+
+          /* Chat on Mobile */
+          .chat-card-container {
+            height: calc(100vh - 110px) !important;
+            border-radius: 12px !important;
+            border-width: 2.5px !important;
+          }
+          .chat-left-pane { width: 100% !important; border-right: none !important; }
+          .chat-left-pane.mobile-hidden { display: none !important; }
+          .chat-right-pane { width: 100% !important; }
+          .chat-right-pane.mobile-hidden { display: none !important; }
+          .chat-back-btn { display: flex !important; }
+          .chat-close-btn { display: none !important; }
+          .chat-messages-area {
+            padding: 14px 12px !important;
+            gap: 10px !important;
+          }
+          .chat-input-form {
+            padding: 10px 12px !important;
+            gap: 8px !important;
+          }
+          .chat-input-textarea {
+            padding: 10px 12px !important;
+            font-size: 13px !important;
+          }
+
+          /* Modals & Overlays on Mobile */
+          .receipt-modal {
+            width: calc(100vw - 24px) !important;
+            max-width: 440px !important;
+            padding: 0 !important;
+            border-radius: 12px !important;
+            margin: 0 auto !important;
+          }
+          .toast {
+            bottom: 12px !important;
+            right: 12px !important;
+            left: 12px !important;
+            max-width: calc(100vw - 24px) !important;
+            width: auto !important;
+            font-size: 13px !important;
+            padding: 10px 14px !important;
+          }
+        }
+
+        /* =========================================================
+           ULTRA-COMPACT MOBILE TWEAKS (MAX-WIDTH: 480PX)
+           ========================================================= */
+        @media (max-width: 480px) {
+          .items-grid {
+            grid-template-columns: 1fr !important;
+          }
+          .store-metrics-strip {
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 6px !important;
+          }
+          .store-metrics-strip > div:last-child {
+            grid-column: span 2 !important;
+          }
+          .settings-stats-grid {
+            grid-template-columns: repeat(3, 1fr) !important;
+            gap: 6px !important;
+          }
+          .settings-stat-box {
+            padding: 8px 4px !important;
+          }
+          .settings-stat-icon-box {
+            width: 30px !important;
+            height: 30px !important;
+          }
+          .settings-stat-val {
+            font-size: 14px !important;
+          }
+          .settings-stat-lbl {
+            font-size: 8px !important;
+          }
+        }
 `}</style>
 
       <div className="root">
@@ -4397,10 +4832,34 @@ export default function DashboardPage() {
                   user?.name ? user.name.charAt(0).toUpperCase() : 'U'
                 )}
               </div>
-              <div style={{ minWidth: 0 }}>
+              <div style={{ minWidth: 0, flex: 1 }}>
                   <div style={{ fontSize: 13, fontWeight: 800, color: '#000000', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user?.name || 'User'}</div>
                   <div style={{ fontSize: 11, color: '#475569', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user?.email || user?.username || 'Shopply Member'}</div>
-                </div>
+              </div>
+              <button
+                type="button"
+                className="sidebar-close-btn"
+                onClick={() => setIsMobileMenuOpen(false)}
+                title="Close Menu"
+                style={{
+                  display: 'none',
+                  background: '#f5f3ff',
+                  border: '2px solid #000000',
+                  borderRadius: 6,
+                  width: 30,
+                  height: 30,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  fontSize: 14,
+                  fontWeight: 900,
+                  color: '#000000',
+                  flexShrink: 0,
+                  boxShadow: 'none'
+                }}
+              >
+                ✕
+              </button>
             </div>
 
             {/* CATEGORIZED ITEMS */}
@@ -4765,13 +5224,13 @@ export default function DashboardPage() {
                                 borderRadius: 20,
                                 fontSize: 13,
                                 fontWeight: 600,
-                                border: 'none',
                                 cursor: 'pointer',
                                 whiteSpace: 'nowrap',
                                 transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
                                 background: isActive ? '#7c3aed' : '#f1f5f9',
                                 color: isActive ? '#fff' : '#475569',
-                                boxShadow: isActive ? '0 4px 12px rgba(124,58,237,0.25)' : 'none',
+                                boxShadow: 'none',
+                                border: isActive ? '2px solid #000000' : '2px solid transparent',
                                 display: 'inline-flex',
                                 alignItems: 'center',
                                 gap: 6
@@ -5903,26 +6362,26 @@ export default function DashboardPage() {
                   </div>
 
                   {/* QUICK STATS METRICS */}
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 12, marginBottom: 20 }}>
-                    <div style={{ background: '#ffffff', border: '2px solid #000000', borderRadius: 10, padding: '12px 16px', boxShadow: 'none' }}>
-                      <div style={{ fontSize: 11, fontWeight: 800, color: '#7c3aed', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total Orders</div>
-                      <div style={{ fontSize: 22, fontWeight: 900, color: '#000000', marginTop: 2 }}>{sellerOrders.length}</div>
+                  <div className="store-metrics-strip">
+                    <div className="store-metric-card" style={{ background: '#ffffff', border: '2px solid #000000', borderRadius: 10, padding: '12px 16px', boxShadow: 'none' }}>
+                      <div className="store-metric-label" style={{ fontSize: 11, fontWeight: 800, color: '#7c3aed', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total Orders</div>
+                      <div className="store-metric-val" style={{ fontSize: 22, fontWeight: 900, color: '#000000', marginTop: 2 }}>{sellerOrders.length}</div>
                     </div>
-                    <div style={{ background: '#ffffff', border: '2px solid #000000', borderRadius: 10, padding: '12px 16px', boxShadow: 'none' }}>
-                      <div style={{ fontSize: 11, fontWeight: 800, color: '#b45309', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Pending</div>
-                      <div style={{ fontSize: 22, fontWeight: 900, color: '#000000', marginTop: 2 }}>{sellerOrders.filter(o => o.status === 'pending').length}</div>
+                    <div className="store-metric-card" style={{ background: '#ffffff', border: '2px solid #000000', borderRadius: 10, padding: '12px 16px', boxShadow: 'none' }}>
+                      <div className="store-metric-label" style={{ fontSize: 11, fontWeight: 800, color: '#b45309', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Pending</div>
+                      <div className="store-metric-val" style={{ fontSize: 22, fontWeight: 900, color: '#000000', marginTop: 2 }}>{sellerOrders.filter(o => o.status === 'pending').length}</div>
                     </div>
-                    <div style={{ background: '#ffffff', border: '2px solid #000000', borderRadius: 10, padding: '12px 16px', boxShadow: 'none' }}>
-                      <div style={{ fontSize: 11, fontWeight: 800, color: '#1d4ed8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>To Ship</div>
-                      <div style={{ fontSize: 22, fontWeight: 900, color: '#000000', marginTop: 2 }}>{sellerOrders.filter(o => ['processing', 'shipped'].includes(o.status)).length}</div>
+                    <div className="store-metric-card" style={{ background: '#ffffff', border: '2px solid #000000', borderRadius: 10, padding: '12px 16px', boxShadow: 'none' }}>
+                      <div className="store-metric-label" style={{ fontSize: 11, fontWeight: 800, color: '#1d4ed8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>To Ship</div>
+                      <div className="store-metric-val" style={{ fontSize: 22, fontWeight: 900, color: '#000000', marginTop: 2 }}>{sellerOrders.filter(o => ['processing', 'shipped'].includes(o.status)).length}</div>
                     </div>
-                    <div style={{ background: '#ffffff', border: '2px solid #000000', borderRadius: 10, padding: '12px 16px', boxShadow: 'none' }}>
-                      <div style={{ fontSize: 11, fontWeight: 800, color: '#15803d', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Delivered</div>
-                      <div style={{ fontSize: 22, fontWeight: 900, color: '#000000', marginTop: 2 }}>{sellerOrders.filter(o => ['delivered', 'completed'].includes(o.status)).length}</div>
+                    <div className="store-metric-card" style={{ background: '#ffffff', border: '2px solid #000000', borderRadius: 10, padding: '12px 16px', boxShadow: 'none' }}>
+                      <div className="store-metric-label" style={{ fontSize: 11, fontWeight: 800, color: '#15803d', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Delivered</div>
+                      <div className="store-metric-val" style={{ fontSize: 22, fontWeight: 900, color: '#000000', marginTop: 2 }}>{sellerOrders.filter(o => ['delivered', 'completed'].includes(o.status)).length}</div>
                     </div>
-                    <div style={{ background: '#ffffff', border: '2px solid #000000', borderRadius: 10, padding: '12px 16px', boxShadow: 'none' }}>
-                      <div style={{ fontSize: 11, fontWeight: 800, color: '#b91c1c', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Cancelled</div>
-                      <div style={{ fontSize: 22, fontWeight: 900, color: '#000000', marginTop: 2 }}>{sellerOrders.filter(o => ['cancelled', 'rejected'].includes(o.status)).length}</div>
+                    <div className="store-metric-card" style={{ background: '#ffffff', border: '2px solid #000000', borderRadius: 10, padding: '12px 16px', boxShadow: 'none' }}>
+                      <div className="store-metric-label" style={{ fontSize: 11, fontWeight: 800, color: '#b91c1c', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Cancelled</div>
+                      <div className="store-metric-val" style={{ fontSize: 22, fontWeight: 900, color: '#000000', marginTop: 2 }}>{sellerOrders.filter(o => ['cancelled', 'rejected'].includes(o.status)).length}</div>
                     </div>
                   </div>
 
@@ -8518,10 +8977,10 @@ export default function DashboardPage() {
                 { label: 'Cache Status', value: lsKeys.length > 0 ? 'Active' : 'Empty', icon: <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M3 12a9 9 0 109-9 9.75 9.75 0 00-6.74 2.74L3 8" /><polyline points="3 3 3 8 8 8" /></svg>, color: '#0f172a', bg: lsKeys.length > 0 ? '#dcfce7' : '#f1f5f9' },
               ].map((stat, i) => (
                 <div key={i} className="settings-stat-box">
-                  <div style={{ width: 48, height: 48, borderRadius: 10, border: '2px solid #000000', boxShadow: 'none', background: stat.bg, color: stat.color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22 }}>{stat.icon}</div>
-                  <div>
-                    <div style={{ fontSize: 24, fontWeight: 900, color: '#000000' }}>{stat.value}</div>
-                    <div style={{ fontSize: 12, color: '#475569', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{stat.label}</div>
+                  <div className="settings-stat-icon-box" style={{ width: 48, height: 48, borderRadius: 10, border: '2px solid #000000', boxShadow: 'none', background: stat.bg, color: stat.color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22 }}>{stat.icon}</div>
+                  <div className="settings-stat-info">
+                    <div className="settings-stat-val" style={{ fontSize: 24, fontWeight: 900, color: '#000000' }}>{stat.value}</div>
+                    <div className="settings-stat-lbl" style={{ fontSize: 12, color: '#475569', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{stat.label}</div>
                   </div>
                 </div>
               ))}
@@ -8558,11 +9017,11 @@ export default function DashboardPage() {
                       boxShadow: 'none',
                       transform: 'none',
                     }}>
-                    <div style={{ width: 48, height: 48, borderRadius: 10, border: '2px solid #000000', boxShadow: 'none', background: stat.bg, color: stat.color, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12 }}>
+                    <div className="my-stat-card-icon" style={{ width: 48, height: 48, borderRadius: 10, border: '2px solid #000000', boxShadow: 'none', background: stat.bg, color: stat.color, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12 }}>
                       {stat.icon}
                     </div>
-                    <div style={{ fontSize: 26, fontWeight: 900, color: '#000000', marginBottom: 4 }}>{stat.value}</div>
-                    <div style={{ fontSize: 12, fontWeight: 800, color: '#000000', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{stat.label}</div>
+                    <div className="my-stat-card-val" style={{ fontSize: 26, fontWeight: 900, color: '#000000', marginBottom: 4 }}>{stat.value}</div>
+                    <div className="my-stat-card-lbl" style={{ fontSize: 12, fontWeight: 800, color: '#000000', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{stat.label}</div>
                   </div>
                 ))}
               </div>
@@ -8622,7 +9081,7 @@ export default function DashboardPage() {
                         </span>
                       </div>
                     </div>
-                    <div style={{ position: 'relative', height: 280, display: 'flex', paddingBottom: 24 }}>
+                    <div className="settings-activity-chart" style={{ position: 'relative', height: 280, display: 'flex', paddingBottom: 24 }}>
                       {/* Y-axis labels */}
                       <div style={{ display: 'flex', flexDirection: 'column-reverse', justifyContent: 'space-between', paddingRight: 16, width: 40, boxSizing: 'border-box' }}>
                         {yLabels.map(val => (
@@ -8877,7 +9336,7 @@ export default function DashboardPage() {
             </div>
 
             {/* Performance Tips */}
-            <div style={{ background: '#f5f3ff', borderRadius: 16, padding: 28, border: '3px solid #000000', boxShadow: 'none', color: '#000000' }}>
+            <div className="perf-tips-box" style={{ background: '#f5f3ff', borderRadius: 16, padding: 28, border: '3px solid #000000', boxShadow: 'none', color: '#000000' }}>
               <h4 style={{ fontSize: 17, fontWeight: 900, marginBottom: 18, display: 'flex', alignItems: 'center', gap: 8, color: '#7c3aed' }}>
                 <span><svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M9 18h6M10 22h4M12 2v2m5.657-1.343l-1.414 1.414M22 12h-2m-1.343 5.657l-1.414-1.414M12 22v-2M6.343 20.657l1.414-1.414M2 12h2m1.343-5.657l1.414 1.414"/></svg></span> Performance Tips & Hacks
               </h4>
