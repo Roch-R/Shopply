@@ -200,7 +200,55 @@ export default function ShopPage() {
   const [sortBy, setSortBy] = useState<"featured" | "price-asc" | "price-desc" | "rating" | "popular">("featured");
   const [copiedVoucher, setCopiedVoucher] = useState<string | null>(null);
 
-  // Chat States
+  // Live Promo Voucher from Firestore
+  const [activeVoucher, setActiveVoucher] = useState<{
+    code: string;
+    title?: string;
+    description?: string;
+    badge?: string;
+    discount_type?: string;
+    discount_value?: number;
+    discount?: number;
+    min_spend?: number;
+    is_active?: boolean;
+    expiry_date?: string;
+  } | null>(null);
+
+  useEffect(() => {
+    try {
+      const couponsRef = collection(db, "coupons");
+      const unsubscribe = onSnapshot(couponsRef, (snapshot) => {
+        const list: any[] = [];
+        snapshot.forEach((docSnap) => {
+          const data = docSnap.data();
+          if (data && data.is_active !== false) {
+            list.push({
+              code: (data.code || docSnap.id).toUpperCase(),
+              title: data.title || "Welcome Voucher",
+              description: data.description || "Enjoy discount on your marketplace checkout!",
+              badge: data.badge || "🎁 PROMO PACK",
+              discount_type: data.discount_type || "fixed",
+              discount_value: Number(data.discount_value ?? data.discount ?? 100),
+              discount: Number(data.discount ?? data.discount_value ?? 10),
+              min_spend: Number(data.min_spend || 0),
+              is_active: data.is_active !== false,
+              expiry_date: data.expiry_date || "Dec 31, 2026"
+            });
+          }
+        });
+        if (list.length > 0) {
+          setActiveVoucher(list[0]);
+        } else {
+          setActiveVoucher(null);
+        }
+      }, (err) => {
+        console.warn("Error fetching coupons from Firestore:", err);
+      });
+      return () => unsubscribe();
+    } catch (e) {
+      console.warn("Firestore coupon subscription error:", e);
+    }
+  }, []);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [activeChatUser, setActiveChatUser] = useState<{ id: number; name: string; avatar?: string | null } | null>(null);
   const [isActiveUserOnline, setIsActiveUserOnline] = useState(false);
@@ -2173,41 +2221,65 @@ export default function ShopPage() {
 
               {/* Side Promo Stack (Desktop) */}
               <div className="side-promos-container">
-                {/* Promo Card 1: New User Gift */}
-                <div className="side-promo-card" style={{ background: 'linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%)', border: '1.5px solid #fecdd3' }}>
-                  <div>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                      <span style={{ fontSize: 11, fontWeight: 800, background: '#ef4444', color: '#fff', padding: '3px 9px', borderRadius: 12, letterSpacing: '0.3px' }}>
-                        🎁 NEW USER PACK
+                {/* Promo Card 1: Dynamic Voucher from Firestore or Empty State */}
+                {activeVoucher ? (
+                  <div className="side-promo-card" style={{ background: 'linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%)', border: '1.5px solid #fecdd3' }}>
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                        <span style={{ fontSize: 11, fontWeight: 800, background: '#ef4444', color: '#fff', padding: '3px 9px', borderRadius: 12, letterSpacing: '0.3px' }}>
+                          {activeVoucher.badge || "🎁 PROMO PACK"}
+                        </span>
+                        <span style={{ fontSize: 12, fontWeight: 700, color: '#e11d48' }}>
+                          {activeVoucher.discount_type === 'percent' ? `${activeVoucher.discount_value || activeVoucher.discount}% OFF` : `₱${activeVoucher.discount_value || 100} OFF`}
+                        </span>
+                      </div>
+                      <div style={{ fontSize: 15, fontWeight: 800, color: '#9f1239', lineHeight: 1.25 }}>
+                        {activeVoucher.title || "Welcome Voucher"}
+                      </div>
+                      <p style={{ fontSize: 12, color: '#881337', margin: '4px 0 0', opacity: 0.85 }}>
+                        {activeVoucher.description || "Enjoy discount on your first marketplace checkout!"}
+                      </p>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 12, paddingTop: 10, borderTop: '1px dashed #fecdd3' }}>
+                      <span style={{ fontSize: 11, fontWeight: 700, color: '#475569', background: '#fff', padding: '4px 8px', borderRadius: 6, border: '1px solid #fda4af', fontFamily: 'monospace' }}>
+                        {activeVoucher.code}
                       </span>
-                      <span style={{ fontSize: 12, fontWeight: 700, color: '#e11d48' }}>₱100 OFF</span>
-                    </div>
-                    <div style={{ fontSize: 15, fontWeight: 800, color: '#9f1239', lineHeight: 1.25 }}>
-                      Welcome Voucher
-                    </div>
-                    <p style={{ fontSize: 12, color: '#881337', margin: '4px 0 0', opacity: 0.85 }}>
-                      Enjoy ₱100 discount on your first marketplace checkout!
-                    </p>
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 12, paddingTop: 10, borderTop: '1px dashed #fecdd3' }}>
-                    <span style={{ fontSize: 11, fontWeight: 700, color: '#475569', background: '#fff', padding: '4px 8px', borderRadius: 6, border: '1px solid #fda4af' }}>
-                      NEWUSER100
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (typeof navigator !== 'undefined' && navigator.clipboard) {
-                          navigator.clipboard.writeText("NEWUSER100");
-                          setCopiedVoucher("NEWUSER100");
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (typeof navigator !== 'undefined' && navigator.clipboard) {
+                            navigator.clipboard.writeText(activeVoucher.code);
+                          }
+                          if (typeof window !== 'undefined') {
+                            localStorage.setItem('claimed_voucher', activeVoucher.code);
+                          }
+                          setCopiedVoucher(activeVoucher.code);
                           setTimeout(() => setCopiedVoucher(null), 2500);
-                        }
-                      }}
-                      style={{ background: '#e11d48', color: '#fff', border: 'none', borderRadius: 8, padding: '5px 12px', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}
-                    >
-                      {copiedVoucher === "NEWUSER100" ? "Copied! ✓" : "Claim Code"}
-                    </button>
+                        }}
+                        style={{ background: '#e11d48', color: '#fff', border: 'none', borderRadius: 8, padding: '5px 12px', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}
+                      >
+                        {copiedVoucher === activeVoucher.code ? "Claimed! ✓" : "Claim Code"}
+                      </button>
+                    </div>
                   </div>
-                </div>
+                ) : (
+                  <div className="side-promo-card" style={{ background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)', border: '1.5px dashed #cbd5e1' }}>
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                        <span style={{ fontSize: 11, fontWeight: 700, background: '#64748b', color: '#fff', padding: '3px 9px', borderRadius: 12, letterSpacing: '0.3px' }}>
+                          🏷️ VOUCHERS
+                        </span>
+                        <span style={{ fontSize: 11, fontWeight: 600, color: '#64748b' }}>Check Back Soon</span>
+                      </div>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: '#334155', lineHeight: 1.25 }}>
+                        No Active Promo Vouchers
+                      </div>
+                      <p style={{ fontSize: 11.5, color: '#64748b', margin: '4px 0 0', opacity: 0.85 }}>
+                        Stay tuned! New promo discount vouchers will appear here when released by admin.
+                      </p>
+                    </div>
+                  </div>
+                )}
 
                 {/* Promo Card 2: Shopply Express Guarantee */}
                 <div className="side-promo-card" style={{ background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)', border: '1.5px solid #bbf7d0' }}>

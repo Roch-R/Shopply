@@ -90,7 +90,7 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { item_id, cart_item_ids, shipping_address, payment_method, price, quantity, variation } = body;
+    const { item_id, cart_item_ids, shipping_address, payment_method, price, quantity, variation, coupon_code } = body;
 
     const orderItems: any[] = [];
     let totalAmount = 0;
@@ -184,6 +184,44 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: "No items selected for checkout." }, { status: 422 });
     }
 
+    // Process Promo Voucher Discount if provided
+    let discountApplied = 0;
+    let validatedCouponCode: string | null = null;
+
+    if (coupon_code && typeof coupon_code === 'string') {
+      try {
+        const cleanCoupon = coupon_code.trim().toUpperCase();
+        const couponRef = doc(db, "coupons", cleanCoupon);
+        const couponSnap = await getDoc(couponRef);
+        if (couponSnap.exists()) {
+          const couponData = couponSnap.data();
+          if (couponData && couponData.is_active !== false) {
+            const minSpend = Number(couponData.min_spend || 0);
+            if (minSpend <= 0 || totalAmount >= minSpend) {
+              const dType = couponData.discount_type || (couponData.discount_value ? "fixed" : "percent");
+              const dVal = Number(couponData.discount_value ?? couponData.discount ?? 0);
+              if (dType === "percent") {
+                discountApplied = (totalAmount * dVal) / 100;
+              } else {
+                discountApplied = dVal;
+              }
+              discountApplied = Math.min(discountApplied, totalAmount);
+              totalAmount = Math.max(0, totalAmount - discountApplied);
+              validatedCouponCode = cleanCoupon;
+
+              // Increment usage_count in Firestore
+              const currentUsage = Number(couponData.usage_count || 0);
+              await updateDoc(couponRef, {
+                usage_count: currentUsage + 1
+              });
+            }
+          }
+        }
+      } catch (couponErr) {
+        console.warn("Error processing coupon during order creation:", couponErr);
+      }
+    }
+
     const orderId = Date.now(); // numeric ID
     const orderDocRef = doc(db, "orders", String(orderId));
 
@@ -203,6 +241,8 @@ export async function POST(req: Request) {
       },
       items: orderItems,
       total_amount: totalAmount.toFixed(2),
+      coupon_code: validatedCouponCode || "",
+      discount_amount: discountApplied.toFixed(2),
       shipping_address: shipping_address || "Default Address",
       payment_method: payment_method || "COD",
       status: "pending",
