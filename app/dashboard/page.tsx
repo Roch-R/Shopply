@@ -3896,12 +3896,15 @@ export default function DashboardPage() {
           font-size: 12px;
           text-transform: uppercase;
           letter-spacing: 0.5px;
+          white-space: nowrap !important;
         }
         .store-orders-table td {
           padding: 12px 16px;
           border-bottom: 1.5px solid #e2e8f0;
           vertical-align: middle;
+          white-space: nowrap !important;
         }
+        .desktop-hidden { display: none !important; }
         .store-orders-table tr:last-child td {
           border-bottom: none;
         }
@@ -4555,24 +4558,54 @@ export default function DashboardPage() {
           }
 
           /* Store Orders Mobile Layout */
-          .store-metrics-strip {
-            grid-template-columns: repeat(3, 1fr) !important;
+          .store-view-toggle {
+            display: none !important;
+          }
+          .mobile-hidden {
+            display: none !important;
+          }
+          .desktop-hidden {
+            display: flex !important;
+            flex-direction: column !important;
             gap: 8px !important;
-            margin-bottom: 14px !important;
+          }
+          .store-metrics-strip {
+            display: flex !important;
+            overflow-x: auto !important;
+            gap: 8px !important;
+            padding-bottom: 4px !important;
+            margin-bottom: 12px !important;
+            scrollbar-width: none !important;
+          }
+          .store-metrics-strip::-webkit-scrollbar {
+            display: none !important;
           }
           .store-metric-card {
-            padding: 8px 10px !important;
+            flex: 0 0 auto !important;
+            padding: 6px 12px !important;
             border-radius: 8px !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 8px !important;
           }
           .store-metric-label {
-            font-size: 9.5px !important;
+            font-size: 10px !important;
+            margin-top: 0 !important;
           }
           .store-metric-val {
-            font-size: 18px !important;
+            font-size: 16px !important;
+            margin-top: 0 !important;
           }
           .store-orders-grid {
-            grid-template-columns: 1fr !important;
-            gap: 12px !important;
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 8px !important;
+            width: 100% !important;
+          }
+          .store-order-compact-card {
+            padding: 10px 12px !important;
+            border-radius: 8px !important;
+            gap: 8px !important;
           }
 
           /* Profile Header on Mobile */
@@ -6462,8 +6495,8 @@ export default function DashboardPage() {
                         )}
                       </div>
 
-                      {/* View Mode Toggle */}
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                      {/* View Mode Toggle (Desktop only) */}
+                      <div className="store-view-toggle" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                         <span style={{ fontSize: 12, fontWeight: 800, color: '#475569', textTransform: 'uppercase' }}>View:</span>
                         <button
                           type="button"
@@ -6522,186 +6555,189 @@ export default function DashboardPage() {
                       <div className="empty-title" style={{ fontSize: 18, fontWeight: 900, color: '#000000', marginBottom: 6 }}>No orders found</div>
                       <div className="empty-desc" style={{ color: '#475569', fontSize: 13, fontWeight: 600 }}>No orders match your selected status filter or search criteria.</div>
                     </div>
-                  ) : storeOrderViewMode === 'grid' ? (
-                    /* COMPACT CARD GRID (No more stretched single column!) */
-                    <div className="store-orders-grid">
-                      {paginatedSellerOrders.map(order => {
-                        const orderCode = `SHP-2026-${String(order.id).slice(-6)}`;
-                        const orderTotal = (parseFloat(order.price) * order.quantity).toFixed(2);
-                        return (
-                          <div
-                            key={order.id}
-                            style={{
-                              background: '#ffffff',
-                              borderRadius: 12,
-                              border: '2.5px solid #000000',
-                              boxShadow: 'none',
-                              overflow: 'hidden',
-                              display: 'flex',
-                              flexDirection: 'column',
-                              justifyContent: 'space-between',
-                              transition: 'transform 0.15s ease'
-                            }}
-                          >
-                            {/* Card Header: Buyer info & status badge */}
-                            <div style={{ padding: '12px 16px', borderBottom: '2px solid #000000', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#f5f3ff', gap: 8 }}>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
-                                <div style={{ width: 34, height: 34, borderRadius: 8, border: '1.5px solid #000000', background: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#7c3aed', flexShrink: 0, fontWeight: 900 }}>
-                                  <IconUser />
-                                </div>
-                                <div style={{ minWidth: 0 }}>
-                                  <div style={{ fontSize: 13, fontWeight: 800, color: '#000000', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                                    {order.buyer?.name || 'Shopply Customer'}
-                                  </div>
-                                  <div style={{ fontSize: 10, color: '#64748b', fontWeight: 700, fontFamily: 'monospace' }}>
-                                    #{orderCode} • {formatOrderDate(order.created_at)}
-                                  </div>
-                                </div>
-                              </div>
-                              <div style={{ flexShrink: 0 }}>
-                                {renderStatusBadge(order.status)}
-                              </div>
-                            </div>
-
-                            {/* Card Body: Thumbnail & product specs */}
-                            <div style={{ padding: '14px 16px', display: 'flex', gap: 14, alignItems: 'center', flex: 1 }}>
-                              {order.item.image ? (
-                                <img src={getImageUrl(order.item.image)} alt={order.item.name} loading="lazy" decoding="async" style={{ width: 68, height: 68, objectFit: 'cover', borderRadius: 8, border: '2px solid #000000', flexShrink: 0 }} />
-                              ) : (
-                                <div style={{ width: 68, height: 68, background: '#f8fafc', borderRadius: 8, border: '2px solid #000000', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b', flexShrink: 0 }}>
-                                  <IconBox />
-                                </div>
-                              )}
-
-                              <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 3 }}>
-                                <div style={{ fontSize: 14, fontWeight: 800, color: '#000000', overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', lineHeight: 1.3 }}>
-                                  {order.item.name}
-                                </div>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginTop: 2 }}>
-                                  <span style={{ fontSize: 12, fontWeight: 700, color: '#475569' }}>Qty: <strong style={{ color: '#000000' }}>x{order.quantity}</strong></span>
-                                  {order.variation && (
-                                    <span style={{ fontSize: 10, color: '#7c3aed', fontWeight: 800, background: '#f5f3ff', border: '1.5px solid #000000', padding: '1px 6px', borderRadius: 6 }}>
-                                      {order.variation}
-                                    </span>
-                                  )}
-                                </div>
-                                <div style={{ fontSize: 11, color: '#64748b', fontWeight: 700, marginTop: 2 }}>
-                                  Unit Price: ₱{parseFloat(order.price).toFixed(2)}
-                                </div>
-                              </div>
-                            </div>
-
-                            {/* Card Footer: Total price & Action buttons */}
-                            <div style={{ padding: '12px 16px', background: '#f8fafc', borderTop: '2px solid #000000', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-                              <div>
-                                <div style={{ fontSize: 10, color: '#64748b', fontWeight: 800, textTransform: 'uppercase' }}>Total</div>
-                                <div style={{ fontSize: 16, fontWeight: 900, color: '#000000' }}>₱{orderTotal}</div>
-                              </div>
-
-                              <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-                                <button
-                                  className="btn-print"
-                                  onClick={() => setReceiptOrder(order)}
-                                  style={{ background: '#ffffff', color: '#000000', border: '2px solid #000000', padding: '6px 12px', borderRadius: 8, fontWeight: 800, fontSize: 11, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4, boxShadow: 'none' }}
-                                >
-                                  <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9" /><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2" /><rect x="6" y="14" width="12" height="8" /></svg>
-                                  Receipt
-                                </button>
-
-                                {order.status === 'pending' && (
-                                  <>
-                                    <button onClick={() => handleAcceptOrder(order.id)} style={{ background: '#10b981', color: '#ffffff', border: '2px solid #000000', padding: '6px 12px', borderRadius: 8, fontWeight: 800, fontSize: 11, cursor: 'pointer', boxShadow: 'none' }}>Accept</button>
-                                    <button onClick={() => handleRejectOrder(order.id)} style={{ background: '#fee2e2', color: '#ef4444', border: '2px solid #000000', padding: '6px 12px', borderRadius: 8, fontWeight: 800, fontSize: 11, cursor: 'pointer', boxShadow: 'none' }}>Reject</button>
-                                  </>
-                                )}
-                                {order.status === 'processing' && (
-                                  <button onClick={() => handleShipOrder(order.id)} style={{ background: '#7c3aed', color: '#ffffff', border: '2px solid #000000', padding: '6px 14px', borderRadius: 8, fontWeight: 800, fontSize: 11, cursor: 'pointer', boxShadow: 'none' }}>Mark as Shipped</button>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
                   ) : (
-                    /* COMPACT TABLE VIEW */
-                    <div className="store-orders-table-wrapper">
-                      <table className="store-orders-table">
-                        <thead>
-                          <tr>
-                            <th>Order ID & Date</th>
-                            <th>Buyer</th>
-                            <th>Product Details</th>
-                            <th>Total</th>
-                            <th>Status</th>
-                            <th style={{ textAlign: 'right' }}>Actions</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {paginatedSellerOrders.map(order => {
-                            const orderCode = `SHP-2026-${String(order.id).slice(-6)}`;
-                            const orderTotal = (parseFloat(order.price) * order.quantity).toFixed(2);
-                            return (
-                              <tr key={order.id}>
-                                <td>
-                                  <div style={{ fontFamily: 'monospace', fontWeight: 900, color: '#7c3aed' }}>#{orderCode}</div>
-                                  <div style={{ fontSize: 11, color: '#64748b', fontWeight: 600, marginTop: 2 }}>{formatOrderDate(order.created_at)}</div>
-                                </td>
-                                <td>
-                                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                    <div style={{ width: 28, height: 28, borderRadius: 6, border: '1.5px solid #000000', background: '#f5f3ff', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#7c3aed', fontWeight: 800, fontSize: 11 }}>
-                                      {order.buyer?.name ? order.buyer.name.charAt(0).toUpperCase() : 'U'}
-                                    </div>
-                                    <span style={{ fontWeight: 800, color: '#000000' }}>{order.buyer?.name || 'Shopply Customer'}</span>
-                                  </div>
-                                </td>
-                                <td>
-                                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                                    {order.item.image ? (
-                                      <img src={getImageUrl(order.item.image)} alt={order.item.name} style={{ width: 42, height: 42, borderRadius: 6, border: '1.5px solid #000000', objectFit: 'cover' }} />
-                                    ) : (
-                                      <div style={{ width: 42, height: 42, borderRadius: 6, border: '1.5px solid #000000', background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b' }}><IconBox /></div>
-                                    )}
-                                    <div>
-                                      <div style={{ fontWeight: 800, color: '#000000', maxWidth: 220, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{order.item.name}</div>
-                                      <div style={{ fontSize: 11, color: '#64748b', fontWeight: 600 }}>
-                                        Qty: <strong>x{order.quantity}</strong> {order.variation ? `• ${order.variation}` : ''}
-                                      </div>
-                                    </div>
-                                  </div>
-                                </td>
-                                <td>
-                                  <span style={{ fontSize: 15, fontWeight: 900, color: '#000000' }}>₱{orderTotal}</span>
-                                </td>
-                                <td>
+                    /* DUAL-MODE RESPONSIVE ORDERS: SLEEK COMPACT CARDS (MOBILE & GRID) + DESKTOP TABLE */
+                    <>
+                      {/* COMPACT FLAT-BRUTALIST ORDER CARDS (Always on mobile, and on desktop when grid is active) */}
+                      <div className={`store-orders-grid ${storeOrderViewMode === 'table' ? 'desktop-hidden' : ''}`}>
+                        {paginatedSellerOrders.map(order => {
+                          const orderCode = `SHP-2026-${String(order.id).slice(-6)}`;
+                          const orderTotal = (parseFloat(order.price) * order.quantity).toFixed(2);
+                          return (
+                            <div
+                              key={order.id}
+                              className="store-order-compact-card"
+                              style={{
+                                background: '#ffffff',
+                                borderRadius: 10,
+                                border: '2px solid #000000',
+                                boxShadow: 'none',
+                                padding: '12px 14px',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: 10,
+                                transition: 'border-color 0.15s ease'
+                              }}
+                            >
+                              {/* Top Bar: Order Code, Date & Status Badge */}
+                              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, flexWrap: 'nowrap' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0, overflow: 'hidden' }}>
+                                  <span style={{ fontFamily: 'monospace', fontWeight: 900, color: '#7c3aed', fontSize: 12, whiteSpace: 'nowrap' }}>
+                                    #{orderCode}
+                                  </span>
+                                  <span style={{ fontSize: 11, color: '#64748b', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                    • {formatOrderDate(order.created_at)}
+                                  </span>
+                                </div>
+                                <div style={{ flexShrink: 0 }}>
                                   {renderStatusBadge(order.status)}
-                                </td>
-                                <td style={{ textAlign: 'right' }}>
-                                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                                </div>
+                              </div>
+
+                              {/* Middle Row: Thumbnail + Item Details + Total & Actions */}
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                                {order.item.image ? (
+                                  <img
+                                    src={getImageUrl(order.item.image)}
+                                    alt={order.item.name}
+                                    loading="lazy"
+                                    decoding="async"
+                                    style={{ width: 48, height: 48, borderRadius: 8, border: '1.5px solid #000000', objectFit: 'cover', flexShrink: 0 }}
+                                  />
+                                ) : (
+                                  <div style={{ width: 48, height: 48, borderRadius: 8, border: '1.5px solid #000000', background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b', flexShrink: 0 }}>
+                                    <IconBox />
+                                  </div>
+                                )}
+
+                                <div style={{ flex: 1, minWidth: 0 }}>
+                                  <div style={{ fontSize: 13, fontWeight: 800, color: '#000000', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                    {order.item.name}
+                                  </div>
+                                  <div style={{ fontSize: 11, color: '#64748b', fontWeight: 600, marginTop: 2, display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                                    <span>Qty: <strong style={{ color: '#000000' }}>x{order.quantity}</strong></span>
+                                    {order.variation && (
+                                      <span style={{ fontSize: 10, color: '#7c3aed', fontWeight: 800, background: '#f5f3ff', border: '1px solid #000000', padding: '0 4px', borderRadius: 4 }}>
+                                        {order.variation}
+                                      </span>
+                                    )}
+                                    <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 140 }}>
+                                      • Buyer: <strong style={{ color: '#000000' }}>{order.buyer?.name || 'Customer'}</strong>
+                                    </span>
+                                  </div>
+                                </div>
+
+                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6, flexShrink: 0 }}>
+                                  <div style={{ fontSize: 15, fontWeight: 900, color: '#000000', whiteSpace: 'nowrap' }}>
+                                    ₱{orderTotal}
+                                  </div>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
                                     <button
                                       className="btn-print"
                                       onClick={() => setReceiptOrder(order)}
-                                      style={{ background: '#ffffff', color: '#000000', border: '1.5px solid #000000', padding: '5px 10px', borderRadius: 6, fontWeight: 800, fontSize: 11, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4, boxShadow: 'none' }}
+                                      style={{ background: '#ffffff', color: '#000000', border: '1.5px solid #000000', padding: '4px 8px', borderRadius: 6, fontWeight: 800, fontSize: 11, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 3, boxShadow: 'none' }}
                                     >
                                       Receipt
                                     </button>
+
                                     {order.status === 'pending' && (
                                       <>
-                                        <button onClick={() => handleAcceptOrder(order.id)} style={{ background: '#10b981', color: '#ffffff', border: '1.5px solid #000000', padding: '5px 10px', borderRadius: 6, fontWeight: 800, fontSize: 11, cursor: 'pointer', boxShadow: 'none' }}>Accept</button>
-                                        <button onClick={() => handleRejectOrder(order.id)} style={{ background: '#fee2e2', color: '#ef4444', border: '1.5px solid #000000', padding: '5px 10px', borderRadius: 6, fontWeight: 800, fontSize: 11, cursor: 'pointer', boxShadow: 'none' }}>Reject</button>
+                                        <button onClick={() => handleAcceptOrder(order.id)} style={{ background: '#10b981', color: '#ffffff', border: '1.5px solid #000000', padding: '4px 8px', borderRadius: 6, fontWeight: 800, fontSize: 11, cursor: 'pointer', boxShadow: 'none' }}>Accept</button>
+                                        <button onClick={() => handleRejectOrder(order.id)} style={{ background: '#fee2e2', color: '#ef4444', border: '1.5px solid #000000', padding: '4px 8px', borderRadius: 6, fontWeight: 800, fontSize: 11, cursor: 'pointer', boxShadow: 'none' }}>Reject</button>
                                       </>
                                     )}
                                     {order.status === 'processing' && (
-                                      <button onClick={() => handleShipOrder(order.id)} style={{ background: '#7c3aed', color: '#ffffff', border: '1.5px solid #000000', padding: '5px 12px', borderRadius: 6, fontWeight: 800, fontSize: 11, cursor: 'pointer', boxShadow: 'none' }}>Ship</button>
+                                      <button onClick={() => handleShipOrder(order.id)} style={{ background: '#7c3aed', color: '#ffffff', border: '1.5px solid #000000', padding: '4px 10px', borderRadius: 6, fontWeight: 800, fontSize: 11, cursor: 'pointer', boxShadow: 'none' }}>Ship</button>
                                     )}
                                   </div>
-                                </td>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      {/* DESKTOP TABLE VIEW (Hidden on mobile, visible on desktop when table mode is active) */}
+                      {storeOrderViewMode === 'table' && (
+                        <div className="store-orders-table-wrapper mobile-hidden">
+                          <table className="store-orders-table">
+                            <thead>
+                              <tr>
+                                <th>Order ID & Date</th>
+                                <th>Buyer</th>
+                                <th>Product Details</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                                <th style={{ textAlign: 'right' }}>Actions</th>
                               </tr>
-                            );
-                          })}
-                        </tbody>
-                      </table>
-                    </div>
+                            </thead>
+                            <tbody>
+                              {paginatedSellerOrders.map(order => {
+                                const orderCode = `SHP-2026-${String(order.id).slice(-6)}`;
+                                const orderTotal = (parseFloat(order.price) * order.quantity).toFixed(2);
+                                return (
+                                  <tr key={order.id}>
+                                    <td>
+                                      <div style={{ fontFamily: 'monospace', fontWeight: 900, color: '#7c3aed', whiteSpace: 'nowrap' }}>#{orderCode}</div>
+                                      <div style={{ fontSize: 11, color: '#64748b', fontWeight: 600, marginTop: 2, whiteSpace: 'nowrap' }}>{formatOrderDate(order.created_at)}</div>
+                                    </td>
+                                    <td>
+                                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, whiteSpace: 'nowrap' }}>
+                                        <div style={{ width: 28, height: 28, borderRadius: 6, border: '1.5px solid #000000', background: '#f5f3ff', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#7c3aed', fontWeight: 800, fontSize: 11 }}>
+                                          {order.buyer?.name ? order.buyer.name.charAt(0).toUpperCase() : 'U'}
+                                        </div>
+                                        <span style={{ fontWeight: 800, color: '#000000' }}>{order.buyer?.name || 'Shopply Customer'}</span>
+                                      </div>
+                                    </td>
+                                    <td>
+                                      <div style={{ display: 'flex', alignItems: 'center', gap: 10, whiteSpace: 'nowrap' }}>
+                                        {order.item.image ? (
+                                          <img src={getImageUrl(order.item.image)} alt={order.item.name} style={{ width: 42, height: 42, borderRadius: 6, border: '1.5px solid #000000', objectFit: 'cover' }} />
+                                        ) : (
+                                          <div style={{ width: 42, height: 42, borderRadius: 6, border: '1.5px solid #000000', background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b' }}><IconBox /></div>
+                                        )}
+                                        <div>
+                                          <div style={{ fontWeight: 800, color: '#000000', maxWidth: 220, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{order.item.name}</div>
+                                          <div style={{ fontSize: 11, color: '#64748b', fontWeight: 600 }}>
+                                            Qty: <strong>x{order.quantity}</strong> {order.variation ? `• ${order.variation}` : ''}
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </td>
+                                    <td>
+                                      <span style={{ fontSize: 15, fontWeight: 900, color: '#000000', whiteSpace: 'nowrap' }}>₱{orderTotal}</span>
+                                    </td>
+                                    <td>
+                                      {renderStatusBadge(order.status)}
+                                    </td>
+                                    <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
+                                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                                        <button
+                                          className="btn-print"
+                                          onClick={() => setReceiptOrder(order)}
+                                          style={{ background: '#ffffff', color: '#000000', border: '1.5px solid #000000', padding: '5px 10px', borderRadius: 6, fontWeight: 800, fontSize: 11, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4, boxShadow: 'none' }}
+                                        >
+                                          Receipt
+                                        </button>
+                                        {order.status === 'pending' && (
+                                          <>
+                                            <button onClick={() => handleAcceptOrder(order.id)} style={{ background: '#10b981', color: '#ffffff', border: '1.5px solid #000000', padding: '5px 10px', borderRadius: 6, fontWeight: 800, fontSize: 11, cursor: 'pointer', boxShadow: 'none' }}>Accept</button>
+                                            <button onClick={() => handleRejectOrder(order.id)} style={{ background: '#fee2e2', color: '#ef4444', border: '1.5px solid #000000', padding: '5px 10px', borderRadius: 6, fontWeight: 800, fontSize: 11, cursor: 'pointer', boxShadow: 'none' }}>Reject</button>
+                                          </>
+                                        )}
+                                        {order.status === 'processing' && (
+                                          <button onClick={() => handleShipOrder(order.id)} style={{ background: '#7c3aed', color: '#ffffff', border: '1.5px solid #000000', padding: '5px 12px', borderRadius: 6, fontWeight: 800, fontSize: 11, cursor: 'pointer', boxShadow: 'none' }}>Ship</button>
+                                        )}
+                                      </div>
+                                    </td>
+                                  </tr>
+                                );
+                              })}
+                            </tbody>
+                          </table>
+                        </div>
+                      )}
+                    </>
                   )}
 
                   {/* PAGINATION CONTROLS */}
