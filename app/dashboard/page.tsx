@@ -3325,10 +3325,10 @@ export default function DashboardPage() {
           min-height: calc(100vh - 70px);
         }
 
-        /* --- NEO-BRUTALIST SIDEBAR --- */
+        /* --- NEO-BRUTALIST SIDEBAR (NO RADIUS) --- */
         .sidebar {
           background: #ffffff;
-          border-radius: 16px;
+          border-radius: 0px !important;
           padding: 18px 14px;
           box-shadow: 5px 5px 0px #000000;
           border: 3px solid #000000;
@@ -3359,7 +3359,7 @@ export default function DashboardPage() {
         .sidebar-menu-scrollable::-webkit-scrollbar { width: 5px; }
         .sidebar-menu-scrollable::-webkit-scrollbar-thumb {
           background: #000000;
-          border-radius: 4px;
+          border-radius: 0px;
         }
         .sidebar-menu-scrollable::-webkit-scrollbar-track { background: transparent; }
 
@@ -3377,7 +3377,7 @@ export default function DashboardPage() {
           align-items: center;
           gap: 12px;
           padding: 10px 14px;
-          border-radius: 10px;
+          border-radius: 0px !important;
           font-size: 13.5px;
           font-weight: 800;
           color: #000000;
@@ -3393,6 +3393,7 @@ export default function DashboardPage() {
           background: #fef08a;
           color: #000000;
           border-color: #000000;
+          border-radius: 0px !important;
           box-shadow: 3px 3px 0px #000000;
           transform: translate(-2px, -2px);
         }
@@ -3404,6 +3405,7 @@ export default function DashboardPage() {
           background: #a855f7 !important;
           color: #ffffff !important;
           border: 2.5px solid #000000 !important;
+          border-radius: 0px !important;
           box-shadow: 4px 4px 0px #000000 !important;
           font-weight: 900;
         }
@@ -3421,7 +3423,7 @@ export default function DashboardPage() {
           font-size: 11px;
           font-weight: 900;
           padding: 2px 7px;
-          border-radius: 8px;
+          border-radius: 0px !important;
           border: 2px solid #000000;
           box-shadow: 2px 2px 0px #000000;
         }
@@ -3457,7 +3459,7 @@ export default function DashboardPage() {
           font-size: 12.5px;
           font-weight: 700;
           color: #000000;
-          border-radius: 8px;
+          border-radius: 0px !important;
           border: 1.5px solid transparent;
           background: none;
           cursor: pointer;
@@ -4189,7 +4191,7 @@ export default function DashboardPage() {
             z-index: 100;
             padding: 16px 12px !important;
             padding-top: max(16px, env(safe-area-inset-top, 16px)) !important;
-            border-radius: 0 18px 18px 0 !important;
+            border-radius: 0px !important;
             border-right: 3.5px solid #000000 !important;
           }
           .sidebar-profile-header { padding: 8px 10px !important; margin-bottom: 8px !important; }
@@ -4404,9 +4406,9 @@ export default function DashboardPage() {
 
             {/* PROFILE HEADER IN SIDEBAR */}
             <div className="sidebar-profile-header">
-              <div style={{ width: 40, height: 40, borderRadius: 10, border: '2.5px solid #000000', boxShadow: '2px 2px 0px #000000', background: '#a855f7', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: 16, flexShrink: 0, overflow: 'hidden' }}>
+              <div style={{ width: 40, height: 40, borderRadius: 0, border: '2.5px solid #000000', boxShadow: '2px 2px 0px #000000', background: '#a855f7', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: 16, flexShrink: 0, overflow: 'hidden' }}>
                 {user?.avatar ? (
-                  <img src={getAvatarUrl(user.avatar)} alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <img src={getAvatarUrl(user.avatar)} alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 0 }} />
                 ) : (
                   user?.name ? user.name.charAt(0).toUpperCase() : 'U'
                 )}
