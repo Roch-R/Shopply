@@ -256,6 +256,22 @@ export default function ShopPage() {
     discount_value?: number;
     discount?: number;
     min_spend?: number;
+    category?: string;
+    is_active?: boolean;
+    expiry_date?: string;
+  } | null>(null);
+
+  // Live Flash Coupon specifically controlling Flash Deals
+  const [flashCoupon, setFlashCoupon] = useState<{
+    code: string;
+    title?: string;
+    description?: string;
+    badge?: string;
+    discount_type?: string;
+    discount_value?: number;
+    discount?: number;
+    min_spend?: number;
+    category?: string;
     is_active?: boolean;
     expiry_date?: string;
   } | null>(null);
@@ -277,13 +293,25 @@ export default function ShopPage() {
               discount_value: Number(data.discount_value ?? data.discount ?? 100),
               discount: Number(data.discount ?? data.discount_value ?? 10),
               min_spend: Number(data.min_spend || 0),
+              category: data.category || "All Products",
               is_active: data.is_active !== false,
               expiry_date: data.expiry_date || "Dec 31, 2026"
             });
           }
         });
-        if (list.length > 0) {
-          setActiveVoucher(list[0]);
+
+        // Find coupon specially assigned to Flash Deals (e.g. FLASHDROP49 from C# Admin)
+        const fCoupon = list.find(c =>
+          (c.category && c.category.toLowerCase().includes("flash")) ||
+          (c.badge && c.badge.toLowerCase().includes("flash")) ||
+          (c.code && c.code.toLowerCase().includes("flash"))
+        );
+        setFlashCoupon(fCoupon || null);
+
+        // General voucher for promo banner (prefer non-flash coupon, or first)
+        const genVoucher = list.find(c => c !== fCoupon) || list[0];
+        if (genVoucher) {
+          setActiveVoucher(genVoucher);
         } else {
           setActiveVoucher(null);
         }
@@ -2732,7 +2760,7 @@ export default function ShopPage() {
           {flashConfig.is_active && items.length > 0 && (() => {
             const hasEnded = flashCountdown.hours === 0 && flashCountdown.minutes === 0 && flashCountdown.seconds === 0;
             
-            // Match admin-configured flash deals with catalog products
+            // Match admin-configured flash deals OR live Flash Deals coupon (e.g. FLASHDROP49 from C# Admin)
             const enrolledDeals = flashConfig.items.length > 0
               ? flashConfig.items
                   .map(deal => {
@@ -2743,8 +2771,24 @@ export default function ShopPage() {
                   .filter(Boolean) as Array<{ product: ShopItem; deal: typeof flashConfig.items[0] }>
               : items.slice(0, 4).map((fItem, fIdx) => {
                   const orig = parseFloat(fItem.price) || 100;
-                  const discountPct = 25 + (fIdx * 5);
-                  const flashPrice = Math.max(1, Math.round(orig * (1 - discountPct / 100) * 100) / 100);
+                  let flashPrice: number;
+                  let discountPct: number;
+
+                  if (flashCoupon) {
+                    if (flashCoupon.discount_type === 'percent') {
+                      discountPct = flashCoupon.discount || 20;
+                      flashPrice = Math.max(1, Math.round(orig * (1 - discountPct / 100) * 100) / 100);
+                    } else {
+                      // Fixed amount discount e.g. ₱49 OFF from FLASHDROP49 voucher
+                      const discVal = flashCoupon.discount_value || 49;
+                      flashPrice = Math.max(1, Math.round((orig - discVal) * 100) / 100);
+                      discountPct = Math.max(1, Math.min(99, Math.round((discVal / orig) * 100)));
+                    }
+                  } else {
+                    discountPct = 25 + (fIdx * 5);
+                    flashPrice = Math.max(1, Math.round(orig * (1 - discountPct / 100) * 100) / 100);
+                  }
+
                   return {
                     product: fItem,
                     deal: {
@@ -2786,9 +2830,43 @@ export default function ShopPage() {
                       )}
                     </div>
                   </div>
-                  <span style={{ fontSize: 12, fontWeight: 700, color: '#ef4444', background: '#fee2e2', padding: '4px 14px', borderRadius: 20 }}>
-                    {flashConfig.badge_text || "🔥 Up to 50% OFF Limited Time"}
-                  </span>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                    {flashCoupon && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          navigator.clipboard.writeText(flashCoupon.code);
+                          localStorage.setItem('claimed_voucher', flashCoupon.code);
+                          setCopiedVoucher(flashCoupon.code);
+                          setTimeout(() => setCopiedVoucher(null), 3000);
+                        }}
+                        style={{
+                          fontSize: 12,
+                          fontWeight: 800,
+                          color: '#dc2626',
+                          background: '#fff',
+                          border: '1.5px solid #fecaca',
+                          padding: '4px 12px',
+                          borderRadius: 20,
+                          cursor: 'pointer',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: 6,
+                          transition: 'all 0.2s ease'
+                        }}
+                        title="Click to copy voucher code"
+                      >
+                        <span>🏷️ {flashCoupon.code}</span>
+                        <span style={{ fontSize: 11, fontWeight: 700, color: copiedVoucher === flashCoupon.code ? '#16a34a' : '#ef4444' }}>
+                          {copiedVoucher === flashCoupon.code ? 'Copied! ✓' : (flashCoupon.discount_type === 'percent' ? `${flashCoupon.discount}% OFF` : `₱${flashCoupon.discount_value} OFF`)}
+                        </span>
+                      </button>
+                    )}
+                    <span style={{ fontSize: 12, fontWeight: 700, color: '#ef4444', background: '#fee2e2', padding: '4px 14px', borderRadius: 20 }}>
+                      {flashCoupon ? (flashCoupon.badge || `🔥 FLASH SALE ₱${flashCoupon.discount_value} OFF`) : (flashConfig.badge_text || "🔥 Up to 50% OFF Limited Time")}
+                    </span>
+                  </div>
                 </div>
 
                 {/* Flash Deals Slider Cards */}
@@ -2876,6 +2954,9 @@ export default function ShopPage() {
                           type="button"
                           onClick={(e) => {
                             e.stopPropagation();
+                            if (flashCoupon) {
+                              localStorage.setItem('claimed_voucher', flashCoupon.code);
+                            }
                             setBuyModal({
                               item: fItem,
                               variation: fItem.attributes?.colors?.[0] || "",
