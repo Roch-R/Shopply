@@ -4238,6 +4238,106 @@ export default function DashboardPage() {
           50% { transform: scale(1.05); opacity: 0.8; }
           100% { transform: scale(0.95); opacity: 0.5; }
         }
+        /* SETTINGS & PERFORMANCE NEO-BRUTALISM */
+        .settings-stats-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+          gap: 18px;
+          margin-bottom: 28px;
+        }
+        .settings-stat-box {
+          background: #ffffff;
+          border: 3px solid #000000;
+          border-radius: 16px;
+          box-shadow: 4px 4px 0px #000000;
+          padding: 18px 22px;
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+        .settings-stat-box:hover {
+          transform: translate(-2px, -2px);
+          box-shadow: 6px 6px 0px #000000;
+        }
+        .settings-section-card {
+          background: #ffffff;
+          border: 3.5px solid #000000;
+          border-radius: 20px;
+          box-shadow: 6px 6px 0px #000000;
+          padding: 30px;
+          margin-bottom: 28px;
+        }
+        .my-stats-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          gap: 16px;
+        }
+        .my-stat-card {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          padding: 22px 16px;
+          border-radius: 14px;
+          border: 3px solid #000000;
+          cursor: pointer;
+          transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+        .my-stat-card:hover {
+          transform: translate(-2px, -2px);
+          box-shadow: 5px 5px 0px #000000;
+        }
+        .cache-control-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+          gap: 14px;
+          margin-top: 18px;
+        }
+        .cache-item-card {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 14px 18px;
+          border-radius: 14px;
+          border: 2.5px solid #000000;
+          box-shadow: 3px 3px 0px #000000;
+          transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+        .cache-item-card:hover {
+          transform: translate(-2px, -2px);
+          box-shadow: 5px 5px 0px #000000;
+        }
+        .perf-actions-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+          gap: 20px;
+          margin-bottom: 28px;
+        }
+        .perf-action-card {
+          background: #ffffff;
+          border: 3.5px solid #000000;
+          border-radius: 18px;
+          box-shadow: 5px 5px 0px #000000;
+          padding: 24px;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+        }
+        .perf-tips-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+          gap: 14px;
+        }
+        .perf-tip-card {
+          background: #ffffff;
+          border: 2.5px solid #000000;
+          border-radius: 14px;
+          box-shadow: 3px 3px 0px #000000;
+          padding: 16px;
+          color: #000000;
+        }
+
         .pulse-ring { animation: pulse 1.8s infinite ease-in-out; }
         @keyframes callingDot { 0% { opacity: .2; } 20% { opacity: 1; } 100% { opacity: .2; } }
         .calling-dots::after { content: ' . . .'; animation: callingDot 1.4s infinite both; }
@@ -4653,7 +4753,7 @@ export default function DashboardPage() {
                   </div>
 
                   {/* STATUS FILTER PILLS & SEARCH BAR */}
-                  <div className="order-control-bar" style={{ background: '#fff', borderRadius: 18, padding: '16px 20px', border: '1px solid #e2e8f0', boxShadow: '0 4px 16px rgba(0,0,0,0.02)', display: 'flex', flexDirection: 'column', gap: 14 }}>
+                  <div className="order-control-bar" style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
                       {/* Filter Tabs */}
                       <div className="order-status-tabs" style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 4, flex: 1, minWidth: 280 }}>
@@ -5034,21 +5134,21 @@ export default function DashboardPage() {
                   ) : (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                       {pendingSellerOrdersCount > 0 && (
-                        <div className="order-card" style={{ borderLeft: '4px solid #f59e0b', padding: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 20 }}>
+                        <div className="order-card" style={{ border: '3px solid #000000', boxShadow: '5px 5px 0px #000000', borderRadius: 16, padding: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 20 }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
-                            <div style={{ width: 56, height: 56, borderRadius: '50%', background: '#fef3c7', color: '#f59e0b', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                            <div style={{ width: 56, height: 56, borderRadius: 12, border: '2.5px solid #000000', boxShadow: '2px 2px 0px #000000', background: '#ffde59', color: '#000000', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                               <IconStore />
                             </div>
                             <div>
-                              <h4 style={{ fontSize: 16, fontWeight: 700, color: '#0f172a', marginBottom: 4 }}>New Store Orders Pending Approval</h4>
-                              <p style={{ fontSize: 14, color: '#64748b', margin: 0 }}>
+                              <h4 style={{ fontSize: 16, fontWeight: 900, color: '#000000', marginBottom: 4 }}>New Store Orders Pending Approval</h4>
+                              <p style={{ fontSize: 14, color: '#475569', fontWeight: 600, margin: 0 }}>
                                 You have <strong>{pendingSellerOrdersCount}</strong> order{pendingSellerOrdersCount > 1 ? 's' : ''} waiting for your review. Please accept or reject to proceed with fulfillment.
                               </p>
                             </div>
                           </div>
                           <button
                             onClick={() => setActiveTab('store-orders')}
-                            style={{ background: '#7c3aed', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: 10, fontWeight: 600, cursor: 'pointer', boxShadow: '0 4px 12px rgba(124,58,237,0.2)', transition: 'all .2s', whiteSpace: 'nowrap' }}
+                            style={{ background: '#a855f7', color: '#ffffff', border: '2.5px solid #000000', padding: '10px 20px', borderRadius: 10, fontWeight: 900, cursor: 'pointer', boxShadow: '3px 3px 0px #000000', transition: 'all .15s', whiteSpace: 'nowrap' }}
                           >
                             Review Orders
                           </button>
@@ -5056,14 +5156,14 @@ export default function DashboardPage() {
                       )}
 
                       {orders.filter(o => o.status === 'shipped').map(order => (
-                        <div key={order.id} className="order-card" style={{ borderLeft: '4px solid #3b82f6', padding: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 20 }}>
+                        <div key={order.id} className="order-card" style={{ border: '3px solid #000000', boxShadow: '5px 5px 0px #000000', borderRadius: 16, padding: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 20 }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
-                            <div style={{ width: 56, height: 56, borderRadius: '50%', background: '#eff6ff', color: '#3b82f6', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                            <div style={{ width: 56, height: 56, borderRadius: 12, border: '2.5px solid #000000', boxShadow: '2px 2px 0px #000000', background: '#60a5fa', color: '#000000', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                               <IconBox />
                             </div>
                             <div>
-                              <h4 style={{ fontSize: 16, fontWeight: 700, color: '#0f172a', marginBottom: 4 }}>Order Shipped: {order.item.name}</h4>
-                              <p style={{ fontSize: 14, color: '#64748b', margin: 0 }}>
+                              <h4 style={{ fontSize: 16, fontWeight: 900, color: '#000000', marginBottom: 4 }}>Order Shipped: {order.item.name}</h4>
+                              <p style={{ fontSize: 14, color: '#475569', fontWeight: 600, margin: 0 }}>
                                 Your purchased item has been shipped by <strong>{order.seller.name}</strong>. Track your delivery status.
                               </p>
                             </div>
@@ -5072,7 +5172,7 @@ export default function DashboardPage() {
                             onClick={() => {
                               setActiveTab('orders');
                             }}
-                            style={{ background: '#3b82f6', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: 10, fontWeight: 600, cursor: 'pointer', boxShadow: '0 4px 12px rgba(59,130,246,0.2)', transition: 'all .2s', whiteSpace: 'nowrap' }}
+                            style={{ background: '#ffde59', color: '#000000', border: '2.5px solid #000000', padding: '10px 20px', borderRadius: 10, fontWeight: 900, cursor: 'pointer', boxShadow: '3px 3px 0px #000000', transition: 'all .15s', whiteSpace: 'nowrap' }}
                           >
                             View Order
                           </button>
@@ -5837,9 +5937,9 @@ export default function DashboardPage() {
                         return o.status === storeOrderTab;
                       })
                       .map(order => (
-                        <div key={order.id} className="order-card" style={{ background: '#fff', borderRadius: 16, border: '1px solid #f1f5f9', boxShadow: '0 4px 20px rgba(0,0,0,0.03)', overflow: 'hidden', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%' }}>
+                        <div key={order.id} className="order-card" style={{ background: '#ffffff', borderRadius: 16, border: '3px solid #000000', boxShadow: '5px 5px 0px #000000', overflow: 'hidden', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%' }}>
                           {/* Card Header */}
-                          <div className="order-card-header" style={{ padding: '12px 18px', borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#fafafa' }}>
+                          <div className="order-card-header" style={{ padding: '14px 18px', borderBottom: '2.5px solid #000000', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#f8fafc' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                               <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b' }}>
                                 <IconUser />
@@ -5875,7 +5975,7 @@ export default function DashboardPage() {
                           </div>
 
                           {/* Card Footer */}
-                          <div className="order-card-footer" style={{ padding: '10px 18px', background: '#fafaf9', borderTop: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+                          <div className="order-card-footer" style={{ padding: '12px 18px', background: '#f8fafc', borderTop: '2.5px solid #000000', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
                               <button
                                 className="btn-print"
@@ -8066,25 +8166,30 @@ export default function DashboardPage() {
           const lsKeys = typeof window !== 'undefined' ? Object.keys(localStorage).filter(k => k.startsWith('shopply_cache_')) : [];
           const lsBytes = lsKeys.reduce((sum, k) => sum + (localStorage.getItem(k)?.length || 0) * 2, 0);
           const endpoints = [
-            { label: 'My Profile', key: '/me', icon: <IconUser />, color: '#7c3aed' },
+            { label: 'My Profile', key: '/me', icon: <IconUser />, color: '#a855f7' },
             { label: 'Shop Items', key: '/shop/items', icon: <IconShop />, color: '#2563eb' },
-            { label: 'My Items', key: '/items', icon: <IconBox />, color: '#059669' },
-            { label: 'Cart', key: '/cart', icon: <IconCart />, color: '#d97706' },
-            { label: 'My Orders', key: '/orders', icon: <IconOrders />, color: '#dc2626' },
-            { label: 'Store Orders', key: '/seller/orders', icon: <IconStore />, color: '#7c3aed' },
-            { label: 'Messages', key: '/chat/conversations', icon: <IconChat />, color: '#0891b2' },
+            { label: 'My Items', key: '/items', icon: <IconBox />, color: '#10b981' },
+            { label: 'Cart', key: '/cart', icon: <IconCart />, color: '#f59e0b' },
+            { label: 'My Orders', key: '/orders', icon: <IconOrders />, color: '#ef4444' },
+            { label: 'Store Orders', key: '/seller/orders', icon: <IconStore />, color: '#a855f7' },
+            { label: 'Messages', key: '/chat/conversations', icon: <IconChat />, color: '#06b6d4' },
           ];
           return (
           <div className="tab-content" style={{ animation: 'fadeIn 0.3s ease-out' }}>
             {/* Header */}
             <div style={{ marginBottom: 32 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 6 }}>
-                <div style={{ width: 44, height: 44, borderRadius: 14, background: 'linear-gradient(135deg,#7c3aed,#4f46e5)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 20px rgba(124,58,237,.3)' }}>
-                  <svg width="22" height="22" fill="none" stroke="#fff" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+              <div style={{ marginBottom: 8 }}>
+                <span style={{ display: 'inline-block', background: '#ffde59', color: '#000000', fontSize: 11, fontWeight: 900, textTransform: 'uppercase', letterSpacing: 1, padding: '3px 10px', borderRadius: 6, border: '2px solid #000000', boxShadow: '2px 2px 0px #000000' }}>
+                  SYSTEM CONTROL & PERFORMANCE
+                </span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                <div style={{ width: 48, height: 48, borderRadius: 14, background: '#a855f7', border: '3px solid #000000', boxShadow: '3px 3px 0px #000000', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <svg width="24" height="24" fill="none" stroke="#fff" strokeWidth="2.2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
                 </div>
                 <div>
-                  <h2 style={{ fontSize: 26, fontWeight: 800, color: '#0f172a', letterSpacing: '-0.5px', margin: 0 }}>Settings & Performance</h2>
-                  <p style={{ color: '#64748b', fontSize: 14, margin: 0 }}>Control caching, data freshness, and app performance</p>
+                  <h2 style={{ fontSize: 26, fontWeight: 900, color: '#000000', letterSpacing: '-0.5px', margin: 0 }}>Settings & Performance</h2>
+                  <p style={{ color: '#475569', fontSize: 14, fontWeight: 700, margin: '3px 0 0' }}>Control caching, data freshness, and app performance</p>
                 </div>
               </div>
             </div>
@@ -8092,25 +8197,25 @@ export default function DashboardPage() {
             {/* Live Stats Bar */}
             <div className="settings-stats-grid">
               {[
-                { label: 'Cached Endpoints', value: lsKeys.length, icon: <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" /></svg>, color: '#7c3aed', bg: 'rgba(124,58,237,.08)' },
-                { label: 'Local Storage Used', value: lsBytes > 1024 ? `${(lsBytes/1024).toFixed(1)} KB` : `${lsBytes} B`, icon: <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z" /><polyline points="17 21 17 13 7 13 7 21" /><polyline points="7 3 7 8 15 8" /></svg>, color: '#2563eb', bg: 'rgba(37,99,235,.08)' },
-                { label: 'Cache Status', value: lsKeys.length > 0 ? 'Active' : 'Empty', icon: <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M3 12a9 9 0 109-9 9.75 9.75 0 00-6.74 2.74L3 8" /><polyline points="3 3 3 8 8 8" /></svg>, color: lsKeys.length > 0 ? '#059669' : '#94a3b8', bg: lsKeys.length > 0 ? 'rgba(5,150,105,.08)' : '#f8fafc' },
+                { label: 'Cached Endpoints', value: lsKeys.length, icon: <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" /></svg>, color: '#000000', bg: '#f3e8ff' },
+                { label: 'Local Storage Used', value: lsBytes > 1024 ? `${(lsBytes/1024).toFixed(1)} KB` : `${lsBytes} B`, icon: <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z" /><polyline points="17 21 17 13 7 13 7 21" /><polyline points="7 3 7 8 15 8" /></svg>, color: '#000000', bg: '#dbeafe' },
+                { label: 'Cache Status', value: lsKeys.length > 0 ? 'Active' : 'Empty', icon: <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M3 12a9 9 0 109-9 9.75 9.75 0 00-6.74 2.74L3 8" /><polyline points="3 3 3 8 8 8" /></svg>, color: '#000000', bg: lsKeys.length > 0 ? '#4ade80' : '#ffde59' },
               ].map((stat, i) => (
-                <div key={i} style={{ background: '#fff', borderRadius: 18, padding: '20px 24px', border: '1px solid #f1f5f9', boxShadow: '0 4px 16px rgba(0,0,0,.04)', display: 'flex', alignItems: 'center', gap: 16 }}>
-                  <div style={{ width: 44, height: 44, borderRadius: 12, background: stat.bg, color: stat.color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22 }}>{stat.icon}</div>
+                <div key={i} className="settings-stat-box">
+                  <div style={{ width: 48, height: 48, borderRadius: 12, border: '2.5px solid #000000', boxShadow: '2px 2px 0px #000000', background: stat.bg, color: stat.color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22 }}>{stat.icon}</div>
                   <div>
-                    <div style={{ fontSize: 22, fontWeight: 800, color: stat.color }}>{stat.value}</div>
-                    <div style={{ fontSize: 12, color: '#94a3b8', fontWeight: 500 }}>{stat.label}</div>
+                    <div style={{ fontSize: 24, fontWeight: 900, color: '#000000' }}>{stat.value}</div>
+                    <div style={{ fontSize: 12, color: '#475569', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{stat.label}</div>
                   </div>
                 </div>
               ))}
             </div>
 
             {/* My Statistics */}
-            <div style={{ background: '#fff', borderRadius: 24, padding: 32, boxShadow: '0 4px 24px rgba(0,0,0,.05)', border: '1px solid #f1f5f9', marginBottom: 24 }}>
+            <div className="settings-section-card">
               <div style={{ marginBottom: 24 }}>
-                <h3 style={{ fontSize: 17, fontWeight: 700, color: '#0f172a', margin: 0, display: 'flex', alignItems: 'center' }}>
-                  <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 32, height: 32, borderRadius: 8, background: 'rgba(124,58,237,0.1)', color: '#7c3aed', marginRight: 10 }}>
+                <h3 style={{ fontSize: 18, fontWeight: 900, color: '#000000', margin: 0, display: 'flex', alignItems: 'center' }}>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 34, height: 34, borderRadius: 10, background: '#ffde59', color: '#000000', border: '2px solid #000000', boxShadow: '2px 2px 0px #000000', marginRight: 12 }}>
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                       <line x1="18" y1="20" x2="18" y2="10" />
                       <line x1="12" y1="20" x2="12" y2="4" />
@@ -8119,30 +8224,28 @@ export default function DashboardPage() {
                   </span>
                   My Statistics
                 </h3>
-                <p style={{ fontSize: 13, color: '#94a3b8', margin: '4px 0 0' }}>Overview of your account activity and performance</p>
+                <p style={{ fontSize: 13, color: '#475569', fontWeight: 700, margin: '6px 0 0' }}>Overview of your account activity and performance</p>
               </div>
               <div className="my-stats-grid">
                 {[
-                  { label: 'Published Items', value: publishedCount, icon: <IconBox />, color: '#10b981', bg: 'rgba(16,185,129,.1)' },
-                  { label: 'Pending Orders', value: pendingSellerOrdersCount, icon: <IconOrders />, color: '#f59e0b', bg: 'rgba(245,158,11,.1)' },
-                  { label: 'Total Orders', value: sellerOrders.length, icon: <IconStore />, color: '#3b82f6', bg: 'rgba(59,130,246,.1)' },
-                  { label: 'Followers', value: user.followers_count || 0, icon: <IconUser />, color: '#8b5cf6', bg: 'rgba(139,92,246,.1)' }
+                  { label: 'Published Items', value: publishedCount, icon: <IconBox />, color: '#000000', bg: '#4ade80' },
+                  { label: 'Pending Orders', value: pendingSellerOrdersCount, icon: <IconOrders />, color: '#000000', bg: '#ffde59' },
+                  { label: 'Total Orders', value: sellerOrders.length, icon: <IconStore />, color: '#000000', bg: '#60a5fa' },
+                  { label: 'Followers', value: user.followers_count || 0, icon: <IconUser />, color: '#000000', bg: '#c084fc' }
                 ].map((stat, i) => (
                   <div key={i} 
+                    className="my-stat-card"
                     onClick={() => setActiveStatChart(stat.label)}
                     style={{ 
-                      display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', 
-                      background: activeStatChart === stat.label ? `${stat.color}10` : '#f8fafc', 
-                      padding: '24px 16px', borderRadius: 16, 
-                      border: `1.5px solid ${activeStatChart === stat.label ? stat.color : '#f1f5f9'}`,
-                      cursor: 'pointer', transition: 'all 0.2s',
-                      boxShadow: activeStatChart === stat.label ? `0 4px 12px ${stat.color}15` : 'none'
+                      background: activeStatChart === stat.label ? '#ffde59' : '#ffffff', 
+                      boxShadow: activeStatChart === stat.label ? '4px 4px 0px #000000' : '3px 3px 0px #000000',
+                      transform: activeStatChart === stat.label ? 'translate(-2px, -2px)' : 'none',
                     }}>
-                    <div style={{ width: 48, height: 48, borderRadius: '50%', background: stat.bg, color: stat.color, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12 }}>
+                    <div style={{ width: 48, height: 48, borderRadius: 12, border: '2.5px solid #000000', boxShadow: '2px 2px 0px #000000', background: stat.bg, color: stat.color, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12 }}>
                       {stat.icon}
                     </div>
-                    <div style={{ fontSize: 24, fontWeight: 800, color: '#0f172a', marginBottom: 4 }}>{stat.value}</div>
-                    <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{stat.label}</div>
+                    <div style={{ fontSize: 26, fontWeight: 900, color: '#000000', marginBottom: 4 }}>{stat.value}</div>
+                    <div style={{ fontSize: 12, fontWeight: 900, color: '#000000', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{stat.label}</div>
                   </div>
                 ))}
               </div>
@@ -8179,7 +8282,7 @@ export default function DashboardPage() {
                     blue = dayOrders.filter(o => o.status === 'completed' || o.status === 'delivered').length;
                     orange = dayOrders.filter(o => o.status !== 'completed' && o.status !== 'delivered').length;
                   } else if (activeStatChart === "Followers") {
-                    blue = 0; // We don't have historical follower data
+                    blue = 0;
                   }
                   
                   return { date: dateStr, blue, orange };
@@ -8187,18 +8290,26 @@ export default function DashboardPage() {
 
                 const maxDataVal = Math.max(...chartData.map(d => d.blue + d.orange));
                 const maxVal = maxDataVal < 5 ? 5 : Math.ceil(maxDataVal / 5) * 5;
-                
-                // Generate 6 labels based on maxVal
                 const yLabels = Array.from({ length: 6 }).map((_, i) => Math.round((maxVal / 5) * i));
 
                 return (
-                  <div style={{ marginTop: 40, borderTop: '1px solid #f1f5f9', paddingTop: 32 }}>
-                    <h4 style={{ fontSize: 16, fontWeight: 700, color: '#0f172a', marginBottom: 24 }}>{activeStatChart} Activity (Last 4 Days)</h4>
+                  <div style={{ marginTop: 36, borderTop: '3px solid #000000', paddingTop: 28 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12, marginBottom: 20 }}>
+                      <h4 style={{ fontSize: 16, fontWeight: 900, color: '#000000', margin: 0 }}>{activeStatChart} Activity (Last 4 Days)</h4>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 800, color: '#000000' }}>
+                          <span style={{ width: 12, height: 12, background: '#60a5fa', border: '1.5px solid #000000', borderRadius: 3, display: 'inline-block' }}></span> {activeStatChart === 'Total Orders' ? 'Delivered' : 'Primary'}
+                        </span>
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 800, color: '#000000' }}>
+                          <span style={{ width: 12, height: 12, background: '#ffde59', border: '1.5px solid #000000', borderRadius: 3, display: 'inline-block' }}></span> {activeStatChart === 'Total Orders' ? 'Active' : 'Secondary'}
+                        </span>
+                      </div>
+                    </div>
                     <div style={{ position: 'relative', height: 280, display: 'flex', paddingBottom: 24 }}>
                       {/* Y-axis labels */}
                       <div style={{ display: 'flex', flexDirection: 'column-reverse', justifyContent: 'space-between', paddingRight: 16, width: 40, boxSizing: 'border-box' }}>
                         {yLabels.map(val => (
-                          <div key={val} style={{ fontSize: 12, color: '#94a3b8', textAlign: 'right', transform: 'translateY(50%)' }}>{val}</div>
+                          <div key={val} style={{ fontSize: 12, fontWeight: 800, color: '#000000', textAlign: 'right', transform: 'translateY(50%)' }}>{val}</div>
                         ))}
                       </div>
                       
@@ -8207,7 +8318,7 @@ export default function DashboardPage() {
                         {/* Grid lines */}
                         <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column-reverse', justifyContent: 'space-between', zIndex: 0 }}>
                           {yLabels.map(val => (
-                            <div key={`grid-${val}`} style={{ borderBottom: '1px solid #e2e8f0', width: '100%', height: 1 }}></div>
+                            <div key={`grid-${val}`} style={{ borderBottom: '2px dashed #000000', opacity: 0.25, width: '100%', height: 1 }}></div>
                           ))}
                         </div>
                         
@@ -8219,10 +8330,10 @@ export default function DashboardPage() {
                             return (
                               <div key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '16%', height: '100%', position: 'relative' }} title={`Blue: ${data.blue}, Orange: ${data.orange}`}>
                                 <div style={{ position: 'absolute', bottom: 0, width: '100%', height: `${Math.min(blueHeight + orangeHeight, 100)}%`, display: 'flex', flexDirection: 'column-reverse', transition: 'height 0.3s ease' }}>
-                                  <div style={{ width: '100%', background: '#0277cc', height: `${data.blue + data.orange > 0 ? (data.blue / (data.blue + data.orange)) * 100 : 0}%`, minHeight: data.blue > 0 ? '2px' : '0', transition: 'all 0.3s ease' }}></div>
-                                  <div style={{ width: '100%', background: '#f39c12', height: `${data.blue + data.orange > 0 ? (data.orange / (data.blue + data.orange)) * 100 : 0}%`, minHeight: data.orange > 0 ? '2px' : '0', transition: 'all 0.3s ease' }}></div>
+                                  <div style={{ width: '100%', background: '#60a5fa', border: '2px solid #000000', borderBottom: 'none', height: `${data.blue + data.orange > 0 ? (data.blue / (data.blue + data.orange)) * 100 : 0}%`, minHeight: data.blue > 0 ? '4px' : '0', transition: 'all 0.3s ease', boxShadow: '2px 0px 0px #000000' }}></div>
+                                  <div style={{ width: '100%', background: '#ffde59', border: '2px solid #000000', borderRadius: '4px 4px 0 0', height: `${data.blue + data.orange > 0 ? (data.orange / (data.blue + data.orange)) * 100 : 0}%`, minHeight: data.orange > 0 ? '4px' : '0', transition: 'all 0.3s ease', boxShadow: '2px 0px 0px #000000' }}></div>
                                 </div>
-                                <div style={{ position: 'absolute', bottom: -28, fontSize: 13, color: '#64748b', whiteSpace: 'nowrap' }}>{data.date}</div>
+                                <div style={{ position: 'absolute', bottom: -28, fontSize: 13, fontWeight: 900, color: '#000000', whiteSpace: 'nowrap' }}>{data.date}</div>
                               </div>
                             )
                           })}
@@ -8235,11 +8346,11 @@ export default function DashboardPage() {
             </div>
 
             {/* Cache Control Panel */}
-            <div style={{ background: '#fff', borderRadius: 24, padding: 32, boxShadow: '0 4px 24px rgba(0,0,0,.05)', border: '1px solid #f1f5f9', marginBottom: 24 }}>
-              <div className="flex-responsive-row" style={{ marginBottom: 24 }}>
+            <div className="settings-section-card">
+              <div className="flex-responsive-row" style={{ marginBottom: 24, alignItems: 'center', justifyContent: 'space-between' }}>
                 <div>
-                  <h3 style={{ fontSize: 17, fontWeight: 700, color: '#0f172a', margin: 0, display: 'flex', alignItems: 'center' }}>
-                    <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 32, height: 32, borderRadius: 8, background: 'rgba(59,130,246,0.1)', color: '#3b82f6', marginRight: 10 }}>
+                  <h3 style={{ fontSize: 18, fontWeight: 900, color: '#000000', margin: 0, display: 'flex', alignItems: 'center' }}>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 34, height: 34, borderRadius: 10, background: '#60a5fa', color: '#000000', border: '2px solid #000000', boxShadow: '2px 2px 0px #000000', marginRight: 12 }}>
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                         <ellipse cx="12" cy="5" rx="9" ry="3" />
                         <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
@@ -8248,7 +8359,7 @@ export default function DashboardPage() {
                     </span>
                     Cache Control Center
                   </h3>
-                  <p style={{ fontSize: 13, color: '#94a3b8', margin: '4px 0 0' }}>Clear specific data or wipe everything at once</p>
+                  <p style={{ fontSize: 13, color: '#475569', fontWeight: 700, margin: '6px 0 0' }}>Clear specific data or wipe everything at once</p>
                 </div>
                 <button
                   onClick={() => {
@@ -8256,9 +8367,7 @@ export default function DashboardPage() {
                     showToast('✅ All cache cleared! Refreshing data...', 'success');
                     setTimeout(() => window.location.reload(), 1200);
                   }}
-                  style={{ padding: '12px 22px', borderRadius: 12, border: 'none', background: 'linear-gradient(135deg,#ef4444,#dc2626)', color: '#fff', fontWeight: 700, fontSize: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, boxShadow: '0 4px 14px rgba(239,68,68,.3)', transition: 'all .2s', whiteSpace: 'nowrap' }}
-                  onMouseOver={e => (e.currentTarget.style.transform = 'translateY(-2px)')}
-                  onMouseOut={e => (e.currentTarget.style.transform = 'translateY(0)')}
+                  style={{ padding: '12px 22px', borderRadius: 10, border: '2.5px solid #000000', background: '#ef4444', color: '#ffffff', fontWeight: 900, fontSize: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, boxShadow: '3px 3px 0px #000000', transition: 'all .15s', whiteSpace: 'nowrap' }}
                 >
                   <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
                   Clear ALL & Refresh
@@ -8269,12 +8378,12 @@ export default function DashboardPage() {
                 {endpoints.map((ep, i) => {
                   const hasCache = lsKeys.some(k => k.includes(ep.key));
                   return (
-                    <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 18px', borderRadius: 14, background: hasCache ? `${ep.color}08` : '#f8fafc', border: `1.5px solid ${hasCache ? ep.color + '22' : '#f1f5f9'}`, transition: 'all .2s' }}>
+                    <div key={i} className="cache-item-card" style={{ background: hasCache ? '#fef9c3' : '#ffffff' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                        <div style={{ width: 38, height: 38, borderRadius: 10, background: hasCache ? `${ep.color}15` : '#f1f5f9', color: hasCache ? ep.color : '#94a3b8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>{ep.icon}</div>
+                        <div style={{ width: 38, height: 38, borderRadius: 10, border: '2px solid #000000', boxShadow: '2px 2px 0px #000000', background: ep.color, color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>{ep.icon}</div>
                         <div>
-                          <div style={{ fontSize: 14, fontWeight: 600, color: '#0f172a' }}>{ep.label}</div>
-                          <div style={{ fontSize: 11, color: hasCache ? ep.color : '#94a3b8', fontWeight: 500 }}>{hasCache ? '● Cached' : '○ No cache'}</div>
+                          <div style={{ fontSize: 14, fontWeight: 900, color: '#000000' }}>{ep.label}</div>
+                          <div style={{ fontSize: 11, color: hasCache ? '#b45309' : '#64748b', fontWeight: 800 }}>{hasCache ? '● CACHED' : '○ NO CACHE'}</div>
                         </div>
                       </div>
                       <button
@@ -8282,9 +8391,7 @@ export default function DashboardPage() {
                           getApiCache().invalidate(ep.key);
                           showToast(`🗑️ ${ep.label} cache cleared`, 'success');
                         }}
-                        style={{ padding: '7px 14px', borderRadius: 9, border: `1.5px solid ${hasCache ? ep.color : '#e2e8f0'}`, background: hasCache ? '#fff' : '#f8fafc', color: hasCache ? ep.color : '#94a3b8', fontWeight: 600, fontSize: 12, cursor: hasCache ? 'pointer' : 'default', transition: 'all .2s' }}
-                        onMouseOver={e => hasCache && (e.currentTarget.style.background = ep.color, e.currentTarget.style.color = '#fff')}
-                        onMouseOut={e => hasCache && (e.currentTarget.style.background = '#fff', e.currentTarget.style.color = ep.color)}
+                        style={{ padding: '7px 14px', borderRadius: 8, border: '2px solid #000000', background: hasCache ? '#ffffff' : '#f1f5f9', color: '#000000', fontWeight: 900, fontSize: 12, cursor: hasCache ? 'pointer' : 'default', transition: 'all .15s', boxShadow: hasCache ? '2px 2px 0px #000000' : 'none' }}
                       >
                         Clear
                       </button>
@@ -8295,18 +8402,18 @@ export default function DashboardPage() {
             </div>
 
             {/* Privacy & Cookies Panel */}
-            <div style={{ background: '#fff', borderRadius: 24, padding: 32, boxShadow: '0 4px 24px rgba(0,0,0,.05)', border: '1px solid #f1f5f9', marginBottom: 24 }}>
-              <div className="flex-responsive-row">
+            <div className="settings-section-card">
+              <div className="flex-responsive-row" style={{ alignItems: 'center', justifyContent: 'space-between' }}>
                 <div>
-                  <h3 style={{ fontSize: 17, fontWeight: 700, color: '#0f172a', margin: 0, display: 'flex', alignItems: 'center' }}>
-                    <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 32, height: 32, borderRadius: 8, background: 'rgba(245,158,11,0.1)', color: '#f59e0b', marginRight: 10 }}>
+                  <h3 style={{ fontSize: 18, fontWeight: 900, color: '#000000', margin: 0, display: 'flex', alignItems: 'center' }}>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 34, height: 34, borderRadius: 10, background: '#facc15', color: '#000000', border: '2px solid #000000', boxShadow: '2px 2px 0px #000000', marginRight: 12 }}>
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                       </svg>
                     </span>
                     Privacy & Cookies
                   </h3>
-                  <p style={{ fontSize: 13, color: '#94a3b8', margin: '4px 0 0' }}>Manage your cookie preferences and consent</p>
+                  <p style={{ fontSize: 13, color: '#475569', fontWeight: 700, margin: '6px 0 0' }}>Manage your cookie preferences and consent</p>
                 </div>
                 <button
                   onClick={() => {
@@ -8314,23 +8421,21 @@ export default function DashboardPage() {
                     showToast('✅ Cookie consent reset! Refreshing...', 'success');
                     setTimeout(() => window.location.reload(), 1200);
                   }}
-                  style={{ padding: '10px 20px', borderRadius: 10, border: '1.5px solid #e2e8f0', background: '#fff', color: '#475569', fontWeight: 600, fontSize: 13, cursor: 'pointer', transition: 'all .2s', display: 'flex', alignItems: 'center', gap: 6 }}
-                  onMouseOver={e => { e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.borderColor = '#cbd5e1'; }}
-                  onMouseOut={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.borderColor = '#e2e8f0'; }}
+                  style={{ padding: '10px 20px', borderRadius: 10, border: '2.5px solid #000000', background: '#ffde59', color: '#000000', fontWeight: 900, fontSize: 13, cursor: 'pointer', transition: 'all .15s', display: 'flex', alignItems: 'center', gap: 6, boxShadow: '3px 3px 0px #000000' }}
                 >
-                  <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
+                  <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
                   Reset Cookie Consent
                 </button>
               </div>
             </div>
 
             {/* Lag Optimization Center */}
-            <div style={{ background: '#fff', borderRadius: 24, padding: 32, boxShadow: '0 4px 24px rgba(0,0,0,.05)', border: '1px solid #f1f5f9', marginBottom: 24 }}>
+            <div className="settings-section-card">
               <div className="flex-responsive-row" style={{ alignItems: 'flex-start' }}>
                 <div style={{ flex: 1 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 6 }}>
-                    <h3 style={{ fontSize: 17, fontWeight: 700, color: '#0f172a', margin: 0, display: 'flex', alignItems: 'center' }}>
-                      <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 32, height: 32, borderRadius: 8, background: 'rgba(16,185,129,0.1)', color: '#10b981', marginRight: 10 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 8 }}>
+                    <h3 style={{ fontSize: 18, fontWeight: 900, color: '#000000', margin: 0, display: 'flex', alignItems: 'center' }}>
+                      <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 34, height: 34, borderRadius: 10, background: '#4ade80', color: '#000000', border: '2px solid #000000', boxShadow: '2px 2px 0px #000000', marginRight: 12 }}>
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                           <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
                         </svg>
@@ -8338,18 +8443,20 @@ export default function DashboardPage() {
                       Lag Optimization Center
                     </h3>
                     <span style={{
-                      padding: '4px 10px',
-                      borderRadius: 12,
-                      fontSize: 11,
-                      fontWeight: 700,
-                      background: smoothMode ? '#dcfce7' : '#f1f5f9',
-                      color: smoothMode ? '#15803d' : '#475569',
-                      transition: 'all 0.3s ease'
+                      padding: '4px 12px',
+                      borderRadius: 8,
+                      fontSize: 12,
+                      fontWeight: 900,
+                      border: '2px solid #000000',
+                      boxShadow: '2px 2px 0px #000000',
+                      background: smoothMode ? '#4ade80' : '#f1f5f9',
+                      color: '#000000',
+                      transition: 'all 0.2s ease'
                     }}>
-                      {smoothMode ? '● Smooth Mode Active' : '○ Standard Mode'}
+                      {smoothMode ? '● SMOOTH MODE ACTIVE' : '○ STANDARD MODE'}
                     </span>
                   </div>
-                  <p style={{ fontSize: 13, color: '#94a3b8', margin: '6px 0 0', lineHeight: 1.5 }}>
+                  <p style={{ fontSize: 13, color: '#475569', fontWeight: 700, margin: '6px 0 0', lineHeight: 1.5 }}>
                     Optimize rendering speed and network usage. Smooth Mode reduces background refresh loops, throttles polling, and avoids cache flashes during tab switching to eliminate visual lag.
                   </p>
                 </div>
@@ -8359,20 +8466,18 @@ export default function DashboardPage() {
                     style={{
                       padding: '10px 20px',
                       borderRadius: 10,
-                      border: 'none',
-                      background: smoothMode ? 'linear-gradient(135deg,#22c55e,#16a34a)' : 'linear-gradient(135deg,#7c3aed,#6366f1)',
-                      color: '#fff',
-                      fontWeight: 700,
+                      border: '2.5px solid #000000',
+                      background: smoothMode ? '#4ade80' : '#a855f7',
+                      color: smoothMode ? '#000000' : '#ffffff',
+                      fontWeight: 900,
                       fontSize: 13,
                       cursor: 'pointer',
-                      boxShadow: smoothMode ? '0 4px 12px rgba(34,197,94,0.2)' : '0 4px 12px rgba(124,58,237,0.2)',
-                      transition: 'all .2s',
+                      boxShadow: '3px 3px 0px #000000',
+                      transition: 'all .15s',
                       display: 'flex',
                       alignItems: 'center',
                       gap: 6
                     }}
-                    onMouseOver={e => (e.currentTarget.style.transform = 'translateY(-1px)')}
-                    onMouseOut={e => (e.currentTarget.style.transform = 'translateY(0)')}
                   >
                     <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
@@ -8388,19 +8493,18 @@ export default function DashboardPage() {
                     style={{
                       padding: '10px 20px',
                       borderRadius: 10,
-                      border: '1.5px solid #e2e8f0',
-                      background: '#fff',
-                      color: '#475569',
-                      fontWeight: 600,
+                      border: '2.5px solid #000000',
+                      background: '#ffde59',
+                      color: '#000000',
+                      fontWeight: 900,
                       fontSize: 13,
                       cursor: 'pointer',
-                      transition: 'all .2s',
+                      transition: 'all .15s',
+                      boxShadow: '3px 3px 0px #000000',
                       display: 'flex',
                       alignItems: 'center',
                       gap: 6
                     }}
-                    onMouseOver={e => { e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.borderColor = '#cbd5e1'; }}
-                    onMouseOut={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.borderColor = '#e2e8f0'; }}
                   >
                     <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
@@ -8414,17 +8518,17 @@ export default function DashboardPage() {
             {/* Performance Actions */}
             <div className="perf-actions-grid">
               {/* Hard Reload */}
-              <div style={{ background: '#fff', borderRadius: 20, padding: 24, border: '1px solid #f1f5f9', boxShadow: '0 4px 16px rgba(0,0,0,.04)' }}>
-                <div style={{ fontSize: 28, marginBottom: 12, display: 'inline-flex', padding: 12, borderRadius: 14, background: 'rgba(245,158,11,.1)', color: '#f59e0b' }}>
-                  <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" /></svg>
+              <div className="perf-action-card">
+                <div>
+                  <div style={{ fontSize: 24, marginBottom: 12, display: 'inline-flex', padding: 12, borderRadius: 12, border: '2.5px solid #000000', boxShadow: '2px 2px 0px #000000', background: '#ffde59', color: '#000000' }}>
+                    <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" /></svg>
+                  </div>
+                  <h4 style={{ fontSize: 16, fontWeight: 900, color: '#000000', marginBottom: 8 }}>Force Hard Reload</h4>
+                  <p style={{ fontSize: 13, color: '#475569', fontWeight: 600, lineHeight: 1.5, marginBottom: 16 }}>Bypass all browser cache and reload every asset fresh from the server. Fixes visual glitches and script errors.</p>
                 </div>
-                <h4 style={{ fontSize: 15, fontWeight: 700, color: '#0f172a', marginBottom: 8 }}>Force Hard Reload</h4>
-                <p style={{ fontSize: 13, color: '#64748b', lineHeight: 1.5, marginBottom: 16 }}>Bypass all browser cache and reload every asset fresh from the server. Fixes visual glitches and script errors.</p>
                 <button
                   onClick={() => window.location.reload()}
-                  style={{ width: '100%', padding: '11px', borderRadius: 11, border: 'none', background: 'linear-gradient(135deg,#f59e0b,#d97706)', color: '#fff', fontWeight: 700, fontSize: 14, cursor: 'pointer', boxShadow: '0 4px 14px rgba(245,158,11,.3)', transition: 'all .2s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
-                  onMouseOver={e => (e.currentTarget.style.transform = 'translateY(-2px)')}
-                  onMouseOut={e => (e.currentTarget.style.transform = 'translateY(0)')}
+                  style={{ width: '100%', padding: '12px', borderRadius: 10, border: '2.5px solid #000000', background: '#ffde59', color: '#000000', fontWeight: 900, fontSize: 14, cursor: 'pointer', boxShadow: '3px 3px 0px #000000', transition: 'all .15s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
                 >
                   <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M3 12a9 9 0 109-9 9.75 9.75 0 00-6.74 2.74L3 8" /><polyline points="3 3 3 8 8 8" /></svg>
                   Reload Page
@@ -8432,48 +8536,47 @@ export default function DashboardPage() {
               </div>
 
               {/* Clear localStorage */}
-              <div style={{ background: '#fff', borderRadius: 20, padding: 24, border: '1px solid #f1f5f9', boxShadow: '0 4px 16px rgba(0,0,0,.04)' }}>
-                <div style={{ fontSize: 28, marginBottom: 12, display: 'inline-flex', padding: 12, borderRadius: 14, background: 'rgba(239,68,68,.1)', color: '#ef4444' }}>
-                  <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M3 3l18 18M15 9l-6 6M10 14L4 20a2.82 2.82 0 01-4 0v0a2.82 2.82 0 010-4l6-6" /></svg>
+              <div className="perf-action-card">
+                <div>
+                  <div style={{ fontSize: 24, marginBottom: 12, display: 'inline-flex', padding: 12, borderRadius: 12, border: '2.5px solid #000000', boxShadow: '2px 2px 0px #000000', background: '#fee2e2', color: '#ef4444' }}>
+                    <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M3 3l18 18M15 9l-6 6M10 14L4 20a2.82 2.82 0 01-4 0v0a2.82 2.82 0 010-4l6-6" /></svg>
+                  </div>
+                  <h4 style={{ fontSize: 16, fontWeight: 900, color: '#000000', marginBottom: 8 }}>Clear All Saved Data</h4>
+                  <p style={{ fontSize: 13, color: '#475569', fontWeight: 600, lineHeight: 1.5, marginBottom: 16 }}>Removes all Shopply data stored in your browser — cache, preferences, and session hints. You stay logged in.</p>
                 </div>
-                <h4 style={{ fontSize: 15, fontWeight: 700, color: '#0f172a', marginBottom: 8 }}>Clear All Saved Data</h4>
-                <p style={{ fontSize: 13, color: '#64748b', lineHeight: 1.5, marginBottom: 16 }}>Removes all Shopply data stored in your browser — cache, preferences, and session hints. You stay logged in.</p>
                 <button
                   onClick={() => {
                     getApiCache().invalidateAll();
-                    // Remove any shopply_ prefixed keys only
                     Object.keys(localStorage).filter(k => k.startsWith('shopply_') || k.startsWith('last_order')).forEach(k => localStorage.removeItem(k));
                     showToast('🧹 All app data cleared! Refreshing...', 'success');
                     setTimeout(() => window.location.reload(), 1200);
                   }}
-                  style={{ width: '100%', padding: '11px', borderRadius: 11, border: 'none', background: 'linear-gradient(135deg,#7c3aed,#4f46e5)', color: '#fff', fontWeight: 700, fontSize: 14, cursor: 'pointer', boxShadow: '0 4px 14px rgba(124,58,237,.3)', transition: 'all .2s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
-                  onMouseOver={e => (e.currentTarget.style.transform = 'translateY(-2px)')}
-                  onMouseOut={e => (e.currentTarget.style.transform = 'translateY(0)')}
+                  style={{ width: '100%', padding: '12px', borderRadius: 10, border: '2.5px solid #000000', background: '#a855f7', color: '#ffffff', fontWeight: 900, fontSize: 14, cursor: 'pointer', boxShadow: '3px 3px 0px #000000', transition: 'all .15s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
                 >
-                  <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M3 3l18 18M15 9l-6 6M10 14L4 20a2.82 2.82 0 01-4 0v0a2.82 2.82 0 010-4l6-6" /></svg>
+                  <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M3 3l18 18M15 9l-6 6M10 14L4 20a2.82 2.82 0 01-4 0v0a2.82 2.82 0 010-4l6-6" /></svg>
                   Deep Clean & Refresh
                 </button>
               </div>
             </div>
 
             {/* Performance Tips */}
-            <div style={{ background: 'linear-gradient(135deg,#0f172a,#1e293b)', borderRadius: 20, padding: 28, color: '#fff' }}>
-              <h4 style={{ fontSize: 16, fontWeight: 700, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span><svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M9 18h6M10 22h4M12 2v2m5.657-1.343l-1.414 1.414M22 12h-2m-1.343 5.657l-1.414-1.414M12 22v-2M6.343 20.657l1.414-1.414M2 12h2m1.343-5.657l1.414 1.414"/></svg></span> Performance Tips
+            <div style={{ background: '#ffde59', borderRadius: 20, padding: 28, border: '3.5px solid #000000', boxShadow: '6px 6px 0px #000000', color: '#000000' }}>
+              <h4 style={{ fontSize: 17, fontWeight: 900, marginBottom: 18, display: 'flex', alignItems: 'center', gap: 8, color: '#000000' }}>
+                <span><svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M9 18h6M10 22h4M12 2v2m5.657-1.343l-1.414 1.414M22 12h-2m-1.343 5.657l-1.414-1.414M12 22v-2M6.343 20.657l1.414-1.414M2 12h2m1.343-5.657l1.414 1.414"/></svg></span> Performance Tips & Hacks
               </h4>
               <div className="perf-tips-grid">
                 {[
-                  { icon: <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" /></svg>, title: 'Experiencing lag?', tip: 'Click "Clear ALL & Refresh" above — this forces the app to re-fetch all data fresh.' },
+                  { icon: <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" /></svg>, title: 'Experiencing lag?', tip: 'Click "Clear ALL & Refresh" above — this forces the app to re-fetch all data fresh.' },
                   { icon: <IconBox />, title: 'Old stock showing?', tip: 'Clear the "Shop Items" cache to immediately see the latest product inventory.' },
                   { icon: <IconCart />, title: 'Cart not updating?', tip: 'Clear the "Cart" cache, then navigate away and back to reload your cart.' },
                   { icon: <IconOrders />, title: 'Orders not showing?', tip: 'Clear "My Orders" and "Store Orders" cache to see the most recent order status.' },
                 ].map((tip, i) => (
-                  <div key={i} style={{ background: 'rgba(255,255,255,.06)', borderRadius: 14, padding: '14px 16px', border: '1px solid rgba(255,255,255,.08)' }}>
+                  <div key={i} className="perf-tip-card">
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-                      <span style={{ fontSize: 18 }}>{tip.icon}</span>
-                      <span style={{ fontSize: 13, fontWeight: 700, color: '#e2e8f0' }}>{tip.title}</span>
+                      <span style={{ fontSize: 18, color: '#000000' }}>{tip.icon}</span>
+                      <span style={{ fontSize: 13, fontWeight: 900, color: '#000000' }}>{tip.title}</span>
                     </div>
-                    <p style={{ fontSize: 12, color: '#94a3b8', margin: 0, lineHeight: 1.5 }}>{tip.tip}</p>
+                    <p style={{ fontSize: 12, color: '#334155', fontWeight: 600, margin: 0, lineHeight: 1.5 }}>{tip.tip}</p>
                   </div>
                 ))}
               </div>
@@ -8491,7 +8594,7 @@ export default function DashboardPage() {
             onClick={() => setVariantZoomPhoto(null)}
           >
             <div
-              style={{ position: 'relative', maxWidth: 640, width: '100%', background: '#fff', borderRadius: 24, overflow: 'hidden', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)' }}
+              style={{ position: 'relative', maxWidth: 640, width: '100%', background: '#fff', borderRadius: 20, overflow: 'hidden', border: '3.5px solid #000000', boxShadow: '8px 8px 0px #000000' }}
               onClick={e => e.stopPropagation()}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 20px', borderBottom: '1px solid #f1f5f9', background: '#fff' }}>
@@ -8514,7 +8617,7 @@ export default function DashboardPage() {
               </div>
               <div style={{ padding: '12px 20px', background: '#f8fafc', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span style={{ fontSize: 12, color: '#64748b' }}>Click anywhere outside or press Close to dismiss</span>
-                <button type="button" onClick={() => setVariantZoomPhoto(null)} style={{ padding: '8px 20px', background: '#7c3aed', color: '#fff', border: 'none', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'all .2s' }}>Close</button>
+                <button type="button" onClick={() => setVariantZoomPhoto(null)} style={{ padding: '8px 20px', background: '#ffde59', color: '#000000', border: '2px solid #000000', borderRadius: 8, fontSize: 13, fontWeight: 900, cursor: 'pointer', boxShadow: '2px 2px 0px #000000' }}>Close</button>
               </div>
             </div>
           </div>
