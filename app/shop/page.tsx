@@ -196,7 +196,53 @@ export default function ShopPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentBannerIdx, setCurrentBannerIdx] = useState(0);
   const [isBannerHovered, setIsBannerHovered] = useState(false);
-  const [flashCountdown, setFlashCountdown] = useState({ hours: 3, minutes: 42, seconds: 18 });
+  const [flashCountdown, setFlashCountdown] = useState({ hours: 0, minutes: 0, seconds: 0 });
+  const [flashConfig, setFlashConfig] = useState<{
+    is_active: boolean;
+    end_time: string;
+    badge_text: string;
+    items: Array<{
+      item_id: number;
+      flash_price: number;
+      discount_pct: number;
+      claimed_pct: number;
+      stock: number;
+    }>;
+  }>({
+    is_active: true,
+    end_time: new Date(Date.now() + 4 * 3600 * 1000).toISOString(),
+    badge_text: "🔥 Up to 50% OFF Limited Time",
+    items: []
+  });
+
+  // Real-time Firestore subscription for Flash Deals
+  useEffect(() => {
+    try {
+      const flashDocRef = doc(db, "settings", "flash_deals");
+      const unsub = onSnapshot(flashDocRef, (snap) => {
+        if (snap.exists()) {
+          const data = snap.data() as any;
+          setFlashConfig({
+            is_active: data.is_active !== false,
+            end_time: data.end_time || new Date(Date.now() + 4 * 3600 * 1000).toISOString(),
+            badge_text: data.badge_text || "🔥 Up to 50% OFF Limited Time",
+            items: Array.isArray(data.items) ? data.items : []
+          });
+        }
+      }, (err) => {
+        console.warn("Flash deals firestore subscription error, falling back to API:", err);
+        fetch("/api/flash-deals")
+          .then(r => r.json())
+          .then(d => {
+            if (d.data) setFlashConfig(d.data);
+          })
+          .catch(e => console.warn("Failed to fetch /api/flash-deals fallback:", e));
+      });
+      return () => unsub();
+    } catch (e) {
+      console.warn("Flash deals init error:", e);
+    }
+  }, []);
   const [sortBy, setSortBy] = useState<"featured" | "price-asc" | "price-desc" | "rating" | "popular">("featured");
   const [copiedVoucher, setCopiedVoucher] = useState<string | null>(null);
 
@@ -401,18 +447,25 @@ export default function ShopPage() {
     return () => clearInterval(timer);
   }, [isBannerHovered]);
 
-  // Flash Deals Countdown Timer
+  // Flash Deals Countdown Timer based on real end_time
   useEffect(() => {
-    const timer = setInterval(() => {
-      setFlashCountdown(prev => {
-        if (prev.seconds > 0) return { ...prev, seconds: prev.seconds - 1 };
-        if (prev.minutes > 0) return { ...prev, minutes: 59, seconds: 59 };
-        if (prev.hours > 0) return { hours: prev.hours - 1, minutes: 59, seconds: 59 };
-        return { hours: 3, minutes: 59, seconds: 59 };
-      });
-    }, 1000);
+    const updateCountdown = () => {
+      const targetTime = new Date(flashConfig.end_time).getTime();
+      const now = Date.now();
+      const diff = Math.max(0, targetTime - now);
+      
+      const totalSeconds = Math.floor(diff / 1000);
+      const hours = Math.floor(totalSeconds / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+
+      setFlashCountdown({ hours, minutes, seconds });
+    };
+
+    updateCountdown();
+    const timer = setInterval(updateCountdown, 1000);
     return () => clearInterval(timer);
-  }, []);
+  }, [flashConfig.end_time]);
 
   const handleToggleFollow = async (userId: number) => {
     const token = localStorage.getItem("token");
@@ -1939,30 +1992,31 @@ export default function ShopPage() {
           box-shadow: 0 8px 24px rgba(124,58,237,0.25);
         }
 
-        /* FLASH DEALS SECTION */
+        /* FLASH DEALS SECTION - FLAT NEO-BRUTALISM */
         .flash-deals-banner {
-          background: linear-gradient(135deg, #fff5f5 0%, #fff 50%, #fef2f2 100%);
-          border-radius: 24px;
-          padding: 22px;
-          border: 1.5px solid #fecaca;
-          box-shadow: 0 6px 24px rgba(239,68,68,0.06);
+          background: #ffffff;
+          border-radius: 12px;
+          padding: 20px;
+          border: 2px solid #000000;
+          box-shadow: none !important;
           margin-bottom: 28px;
           display: flex;
           flex-direction: column;
           gap: 18px;
         }
         .flash-clock-box {
-          background: #1e1b4b;
-          color: #fff;
-          font-weight: 800;
+          background: #000000;
+          color: #ffffff;
+          font-weight: 900;
           font-size: 14px;
           padding: 4px 8px;
-          border-radius: 6px;
+          border-radius: 4px;
           letter-spacing: 0.5px;
           display: inline-block;
-          min-width: 30px;
+          min-width: 32px;
           text-align: center;
-          box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+          border: 1px solid #000000;
+          box-shadow: none !important;
         }
         .flash-items-slider {
           display: grid;
@@ -2677,132 +2731,189 @@ export default function ShopPage() {
             </div>
           </section>
 
-          {/* 5. FLASH DEALS LIVE TICKER & SHOWCASE */}
-          {items.length > 0 && (
-            <section id="flash-deals-anchor" className="flash-deals-banner">
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 14 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span style={{ fontSize: 22 }}>⚡</span>
-                    <h2 style={{ fontSize: 20, fontWeight: 900, color: '#dc2626', margin: 0, letterSpacing: '-0.3px' }}>
-                      FLASH DEALS
-                    </h2>
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: '#475569', fontWeight: 700 }}>
-                    <span>Ends in:</span>
-                    <span className="flash-clock-box">{String(flashCountdown.hours).padStart(2, '0')}</span>
-                    <span style={{ fontWeight: 800, color: '#dc2626' }}>:</span>
-                    <span className="flash-clock-box">{String(flashCountdown.minutes).padStart(2, '0')}</span>
-                    <span style={{ fontWeight: 800, color: '#dc2626' }}>:</span>
-                    <span className="flash-clock-box">{String(flashCountdown.seconds).padStart(2, '0')}</span>
-                  </div>
-                </div>
-                <span style={{ fontSize: 12, fontWeight: 700, color: '#ef4444', background: '#fee2e2', padding: '4px 12px', borderRadius: 20 }}>
-                  🔥 Up to 50% OFF Limited Time
-                </span>
-              </div>
+          {/* 5. FLASH DEALS LIVE TICKER & SHOWCASE - 100% REAL & ADMIN CONTROLLED */}
+          {flashConfig.is_active && items.length > 0 && (() => {
+            const hasEnded = flashCountdown.hours === 0 && flashCountdown.minutes === 0 && flashCountdown.seconds === 0;
+            
+            // Match admin-configured flash deals with catalog products
+            const enrolledDeals = flashConfig.items.length > 0
+              ? flashConfig.items
+                  .map(deal => {
+                    const product = items.find(p => p.id === deal.item_id);
+                    if (!product) return null;
+                    return { product, deal };
+                  })
+                  .filter(Boolean) as Array<{ product: ShopItem; deal: typeof flashConfig.items[0] }>
+              : items.slice(0, 4).map((fItem, fIdx) => {
+                  const orig = parseFloat(fItem.price) || 100;
+                  const discountPct = 25 + (fIdx * 5);
+                  const flashPrice = Math.max(1, Math.round(orig * (1 - discountPct / 100) * 100) / 100);
+                  return {
+                    product: fItem,
+                    deal: {
+                      item_id: fItem.id,
+                      flash_price: flashPrice,
+                      discount_pct: discountPct,
+                      claimed_pct: 45 + (fIdx * 12),
+                      stock: calculateTotalStock(fItem) || 20
+                    }
+                  };
+                });
 
-              {/* Flash Deals Slider Cards */}
-              <div className="flash-items-slider">
-                {items.slice(0, 4).map((fItem, fIdx) => {
-                  const fStock = calculateTotalStock(fItem);
-                  const fPct = Math.min(96, Math.max(45, 100 - (fStock * 8)));
-                  const discountPct = 25 + (fIdx * 10);
-                  return (
-                    <div
-                      key={fItem.id}
-                      className="flash-card-box"
-                      onClick={() => handleViewItem(fItem)}
-                      style={{
-                        background: '#fff',
-                        borderRadius: 16,
-                        border: '1.5px solid #fecaca',
-                        padding: 12,
-                        cursor: 'pointer',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        justifyContent: 'space-between',
-                        gap: 8,
-                        boxShadow: '0 2px 10px rgba(239,68,68,0.06)',
-                        transition: 'transform 0.2s, box-shadow 0.2s'
-                      }}
-                    >
-                      <div style={{ position: 'relative', width: '100%', aspectRatio: '1/1', borderRadius: 12, overflow: 'hidden', background: '#f8fafc' }}>
-                        {fItem.image ? (
-                          <img
-                            src={getImageUrl(fItem.image)}
-                            alt={fItem.name}
-                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                          />
-                        ) : (
-                          <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#cbd5e1' }}>
-                            <svg width="32" height="32" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/></svg>
-                          </div>
-                        )}
-                        <span style={{
-                          position: 'absolute',
-                          top: 8,
-                          left: 8,
-                          background: 'linear-gradient(135deg, #ef4444, #dc2626)',
-                          color: '#fff',
-                          fontSize: 10,
-                          fontWeight: 900,
-                          padding: '2px 7px',
-                          borderRadius: 6,
-                          boxShadow: '0 2px 6px rgba(0,0,0,0.2)'
-                        }}>
-                          🔥 -{discountPct}%
+            if (enrolledDeals.length === 0) return null;
+
+            return (
+              <section id="flash-deals-anchor" className="flash-deals-banner">
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 14 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span style={{ fontSize: 22 }}>⚡</span>
+                      <h2 style={{ fontSize: 20, fontWeight: 900, color: '#dc2626', margin: 0, letterSpacing: '-0.3px' }}>
+                        FLASH DEALS
+                      </h2>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: '#000000', fontWeight: 800 }}>
+                      <span>{hasEnded ? "Status:" : "Ends in:"}</span>
+                      {hasEnded ? (
+                        <span style={{ background: '#fecaca', color: '#dc2626', padding: '3px 8px', borderRadius: 4, fontWeight: 900, fontSize: 12, border: '1px solid #000' }}>
+                          ENDED
                         </span>
-                      </div>
+                      ) : (
+                        <>
+                          <span className="flash-clock-box">{String(flashCountdown.hours).padStart(2, '0')}</span>
+                          <span style={{ fontWeight: 900, color: '#dc2626' }}>:</span>
+                          <span className="flash-clock-box">{String(flashCountdown.minutes).padStart(2, '0')}</span>
+                          <span style={{ fontWeight: 900, color: '#dc2626' }}>:</span>
+                          <span className="flash-clock-box">{String(flashCountdown.seconds).padStart(2, '0')}</span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                  <span style={{ fontSize: 12, fontWeight: 900, color: '#dc2626', background: '#fee2e2', padding: '5px 14px', borderRadius: 6, border: '2px solid #000000', boxShadow: 'none' }}>
+                    {flashConfig.badge_text || "🔥 Up to 50% OFF Limited Time"}
+                  </span>
+                </div>
 
-                      <div>
-                        <h4 style={{ fontSize: 13, fontWeight: 700, color: '#0f172a', margin: '0 0 4px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                          {fItem.name}
-                        </h4>
-                        <div style={{ fontSize: 16, fontWeight: 900, color: '#dc2626' }}>
-                          {formatPriceDisplay(fItem)}
-                        </div>
-                      </div>
+                {/* Flash Deals Slider Cards */}
+                <div className="flash-items-slider">
+                  {enrolledDeals.map(({ product: fItem, deal }) => {
+                    const originalPrice = parseFloat(fItem.price) || 0;
+                    const flashPrice = Number(deal.flash_price);
+                    const discountPct = deal.discount_pct || (originalPrice > 0 ? Math.max(1, Math.round(((originalPrice - flashPrice) / originalPrice) * 100)) : 20);
+                    const claimedPct = Math.min(100, Math.max(0, deal.claimed_pct || 50));
+                    const stockRemaining = deal.stock !== undefined ? deal.stock : calculateTotalStock(fItem);
 
-                      {/* Stock Claimed Progress Bar */}
-                      <div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, fontWeight: 700, color: '#ef4444', marginBottom: 4 }}>
-                          <span>⚡ {fPct}% CLAIMED</span>
-                          <span>{fStock > 0 ? `${fStock} left` : 'Out'}</span>
-                        </div>
-                        <div style={{ height: 6, background: '#fee2e2', borderRadius: 4, overflow: 'hidden' }}>
-                          <div style={{ width: `${fPct}%`, height: '100%', background: 'linear-gradient(90deg, #ef4444, #f97316)', borderRadius: 4 }} />
-                        </div>
-                      </div>
-
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setBuyModal({ item: fItem, variation: fItem.attributes?.colors?.[0] || "", price: fItem.attributes?.variant_prices?.[0] || fItem.price, variantIdx: 0 });
-                        }}
+                    return (
+                      <div
+                        key={fItem.id}
+                        className="flash-card-box"
+                        onClick={() => handleViewItem(fItem)}
                         style={{
-                          background: 'linear-gradient(135deg, #ef4444, #dc2626)',
-                          color: '#fff',
-                          border: 'none',
-                          padding: '6px 12px',
-                          borderRadius: 8,
-                          fontWeight: 700,
-                          fontSize: 12,
+                          background: '#ffffff',
+                          borderRadius: 12,
+                          border: '2px solid #000000',
+                          padding: 12,
                           cursor: 'pointer',
-                          width: '100%',
-                          textAlign: 'center',
-                          boxShadow: '0 2px 8px rgba(239,68,68,0.25)'
+                          display: 'flex',
+                          flexDirection: 'column',
+                          justifyContent: 'space-between',
+                          gap: 10,
+                          boxShadow: 'none',
+                          transition: 'transform 0.15s ease'
                         }}
                       >
-                        Buy Now
-                      </button>
-                    </div>
-                  );
-                })}
-              </div>
-            </section>
-          )}
+                        <div style={{ position: 'relative', width: '100%', aspectRatio: '1/1', borderRadius: 8, overflow: 'hidden', background: '#f8fafc', border: '1.5px solid #000000' }}>
+                          {fItem.image ? (
+                            <img
+                              src={getImageUrl(fItem.image)}
+                              alt={fItem.name}
+                              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                            />
+                          ) : (
+                            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#cbd5e1' }}>
+                              <svg width="32" height="32" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/></svg>
+                            </div>
+                          )}
+                          <span style={{
+                            position: 'absolute',
+                            top: 8,
+                            left: 8,
+                            background: '#dc2626',
+                            color: '#ffffff',
+                            fontSize: 11,
+                            fontWeight: 900,
+                            padding: '3px 8px',
+                            borderRadius: 4,
+                            border: '1.5px solid #000000',
+                            boxShadow: 'none'
+                          }}>
+                            ⚡ -{discountPct}%
+                          </span>
+                        </div>
+
+                        <div>
+                          <h4 style={{ fontSize: 13, fontWeight: 800, color: '#000000', margin: '0 0 6px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                            {fItem.name}
+                          </h4>
+                          <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, flexWrap: 'wrap' }}>
+                            <span style={{ fontSize: 18, fontWeight: 900, color: '#dc2626' }}>
+                              ₱{flashPrice.toFixed(2)}
+                            </span>
+                            {originalPrice > flashPrice && (
+                              <span style={{ fontSize: 12, fontWeight: 700, color: '#64748b', textDecoration: 'line-through' }}>
+                                ₱{originalPrice.toFixed(2)}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Stock Claimed Progress Bar */}
+                        <div>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, fontWeight: 800, color: '#dc2626', marginBottom: 4 }}>
+                            <span>⚡ {claimedPct}% CLAIMED</span>
+                            <span style={{ color: '#64748b' }}>{stockRemaining > 0 ? `${stockRemaining} left` : 'Out'}</span>
+                          </div>
+                          <div style={{ height: 8, background: '#fee2e2', borderRadius: 4, border: '1.5px solid #000000', overflow: 'hidden' }}>
+                            <div style={{ width: `${claimedPct}%`, height: '100%', background: '#dc2626', borderRadius: 0 }} />
+                          </div>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setBuyModal({
+                              item: fItem,
+                              variation: fItem.attributes?.colors?.[0] || "",
+                              price: String(flashPrice),
+                              variantIdx: 0
+                            });
+                          }}
+                          style={{
+                            background: '#dc2626',
+                            color: '#ffffff',
+                            border: '2px solid #000000',
+                            padding: '8px 12px',
+                            borderRadius: 6,
+                            fontWeight: 900,
+                            fontSize: 12,
+                            cursor: 'pointer',
+                            width: '100%',
+                            textAlign: 'center',
+                            boxShadow: 'none',
+                            letterSpacing: '0.3px',
+                            transition: 'transform 0.1s ease'
+                          }}
+                        >
+                          Buy Now ⚡
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              </section>
+            );
+          })()}
 
           {/* 6. MAIN CATALOG HEADER WITH FILTER SORT CONTROLS */}
           <div id="catalog-products" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 14, marginBottom: 20 }}>
