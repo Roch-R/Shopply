@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { getApiCache } from "@/lib/apiCache";
 import { SkeletonCartItem } from "@/components/Skeleton";
 import { db } from "@/lib/firebase";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, getDocs, collection } from "firebase/firestore";
 
 interface CartItem {
   id: number;
@@ -46,6 +46,14 @@ export default function CartPage() {
     minSpend: number;
     discountAmount: number;
   } | null>(null);
+  const [availableCoupons, setAvailableCoupons] = useState<{
+    code: string;
+    badge?: string;
+    discount_type?: string;
+    discount_value?: number;
+    min_spend?: number;
+    title?: string;
+  }[]>([]);
   const [validatingVoucher, setValidatingVoucher] = useState(false);
   const [voucherError, setVoucherError] = useState<string | null>(null);
 
@@ -68,7 +76,10 @@ export default function CartPage() {
       const data: any = await cache.fetch(`${API}/cart`, {
         headers: { Authorization: `Bearer ${token}`, Accept: "application/json" }
       });
-      if (data.cart_items) setCartItems(data.cart_items);
+      if (data.cart_items) {
+        setCartItems(data.cart_items);
+        setSelectedItems(prev => prev.length === 0 ? data.cart_items.map((i: any) => i.id) : prev);
+      }
     } catch (err) {
       console.error(err);
     } finally {
@@ -78,12 +89,38 @@ export default function CartPage() {
 
   useEffect(() => {
     fetchCart();
-    if (typeof window !== 'undefined') {
-      const savedVoucher = localStorage.getItem('claimed_voucher');
-      if (savedVoucher) {
-        setVoucherInput(savedVoucher.toUpperCase());
+
+    // Fetch active coupons from Firestore for quick selection & auto-apply
+    const loadCoupons = async () => {
+      try {
+        const snap = await getDocs(collection(db, "coupons"));
+        const list: any[] = [];
+        snap.forEach(d => {
+          const data = d.data();
+          if (data && data.is_active !== false) {
+            list.push({
+              code: (data.code || d.id).toUpperCase(),
+              badge: data.badge || "PROMO",
+              discount_type: data.discount_type || "fixed",
+              discount_value: Number(data.discount_value ?? data.discount ?? 0),
+              min_spend: Number(data.min_spend || 0),
+              title: data.title || ""
+            });
+          }
+        });
+        setAvailableCoupons(list);
+
+        const savedVoucher = typeof window !== 'undefined' ? localStorage.getItem('claimed_voucher') : null;
+        if (savedVoucher) {
+          const clean = savedVoucher.trim().toUpperCase();
+          setVoucherInput(clean);
+          applyVoucherCode(clean);
+        }
+      } catch (e) {
+        console.error("Error loading coupons in cart:", e);
       }
-    }
+    };
+    loadCoupons();
   }, []);
 
   const showToast = (message: string, type: 'success'|'error' = 'success') => {
@@ -162,7 +199,7 @@ export default function CartPage() {
       const voucherSnap = await getDoc(voucherRef);
 
       if (!voucherSnap.exists()) {
-        setVoucherError("Invalid promo voucher code.");
+        setVoucherError(`Voucher "${code}" not found.`);
         showToast("Voucher not found", "error");
         setValidatingVoucher(false);
         return;
@@ -170,14 +207,14 @@ export default function CartPage() {
 
       const data = voucherSnap.data();
       if (data.is_active === false) {
-        setVoucherError("This voucher has expired or is inactive.");
+        setVoucherError(`Voucher "${code}" is inactive or expired.`);
         showToast("Voucher is inactive", "error");
         setValidatingVoucher(false);
         return;
       }
 
       const minSpend = Number(data.min_spend || 0);
-      if (minSpend > 0 && subtotalPrice < minSpend) {
+      if (minSpend > 0 && subtotalPrice > 0 && subtotalPrice < minSpend) {
         setVoucherError(`Minimum spend of ₱${minSpend.toLocaleString()} required to use this voucher.`);
         showToast(`Minimum spend of ₱${minSpend.toLocaleString()} required`, "error");
         setValidatingVoucher(false);
@@ -189,11 +226,13 @@ export default function CartPage() {
 
       let calcDiscount = 0;
       if (discountType === "percent") {
-        calcDiscount = (subtotalPrice * discountValue) / 100;
+        calcDiscount = subtotalPrice > 0 ? (subtotalPrice * discountValue) / 100 : discountValue;
       } else {
         calcDiscount = discountValue;
       }
-      calcDiscount = Math.min(calcDiscount, subtotalPrice);
+      if (subtotalPrice > 0) {
+        calcDiscount = Math.min(calcDiscount, subtotalPrice);
+      }
 
       setAppliedVoucher({
         code,
@@ -202,8 +241,12 @@ export default function CartPage() {
         minSpend,
         discountAmount: calcDiscount
       });
+      setVoucherInput(code);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('claimed_voucher', code);
+      }
 
-      showToast(`Voucher ${code} applied! -₱${calcDiscount.toFixed(2)}`);
+      showToast(`Voucher ${code} applied!`);
     } catch (err: any) {
       console.error("Voucher validation error:", err);
       setVoucherError("Failed to validate voucher.");
@@ -216,6 +259,9 @@ export default function CartPage() {
   const removeVoucher = () => {
     setAppliedVoucher(null);
     setVoucherError(null);
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('claimed_voucher');
+    }
     showToast("Voucher removed.");
   };
 
@@ -680,53 +726,83 @@ export default function CartPage() {
 
             {/* Promo Voucher Redemption Card */}
             <div style={{
-              background: '#fff',
-              border: '1px solid #e2e8f0',
-              borderRadius: 14,
-              padding: '16px 20px',
-              marginTop: 16,
-              marginBottom: 16,
-              boxShadow: '0 2px 10px rgba(0,0,0,0.02)'
+              background: '#ffffff',
+              border: '1.5px solid #e2e8f0',
+              borderRadius: 16,
+              padding: '18px 22px',
+              marginTop: 18,
+              marginBottom: 18,
+              boxShadow: '0 4px 16px rgba(0,0,0,0.03)'
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <span style={{ fontSize: 20 }}>🎟️</span>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 14 }}>
+                {/* Left side: Header with vibrant purple brand title & badge */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <div style={{
+                    width: 42,
+                    height: 42,
+                    borderRadius: 12,
+                    background: 'linear-gradient(135deg, #7c3aed 0%, #6366f1 100%)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: 22,
+                    color: '#fff',
+                    boxShadow: '0 4px 12px rgba(124,58,237,0.25)',
+                    flexShrink: 0
+                  }}>
+                    🎟️
+                  </div>
                   <div>
-                    <div style={{ fontSize: 14, fontWeight: 700, color: '#0f172a' }}>Shopply Promo Voucher</div>
-                    <div style={{ fontSize: 12, color: '#64748b' }}>Enter your voucher code or claim from the Shop page</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                      <span style={{ fontSize: 16, fontWeight: 900, color: '#7c3aed', letterSpacing: '-0.3px' }}>
+                        Shopply Promo Voucher
+                      </span>
+                      <span style={{ fontSize: 11, fontWeight: 800, color: '#7c3aed', background: '#f3e8ff', border: '1px solid #d8b4fe', padding: '2px 8px', borderRadius: 12 }}>
+                        PLATFORM DISCOUNT
+                      </span>
+                    </div>
+                    <div style={{ fontSize: 12.5, color: '#64748b', marginTop: 2 }}>
+                      Enter promo code or select an active voucher below
+                    </div>
                   </div>
                 </div>
 
+                {/* Right side: Input or Applied Status */}
                 {appliedVoucher ? (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
                     <div style={{
                       display: 'inline-flex',
                       alignItems: 'center',
                       gap: 8,
                       background: '#ecfdf5',
-                      border: '1px solid #a7f3d0',
-                      padding: '6px 14px',
-                      borderRadius: 10,
+                      border: '1.5px solid #10b981',
+                      padding: '8px 16px',
+                      borderRadius: 12,
                       color: '#065f46',
-                      fontWeight: 700,
-                      fontSize: 13
+                      fontWeight: 800,
+                      fontSize: 13,
+                      boxShadow: '0 2px 8px rgba(16,185,129,0.12)'
                     }}>
-                      <span>✓ {appliedVoucher.code}</span>
-                      <span style={{ color: '#059669' }}>
-                        (-₱{currentDiscount.toFixed(2)})
+                      <span>✓ Applied: <strong>{appliedVoucher.code}</strong></span>
+                      <span style={{ color: '#059669', background: '#d1fae5', padding: '2px 8px', borderRadius: 6, fontSize: 12, fontWeight: 800 }}>
+                        {appliedVoucher.discountType === 'percent'
+                          ? `${appliedVoucher.discountValue}% OFF (-₱${currentDiscount.toFixed(2)})`
+                          : `-₱${appliedVoucher.discountValue.toFixed(2)}`}
                       </span>
                     </div>
                     <button
                       type="button"
                       onClick={removeVoucher}
                       style={{
-                        background: 'none',
-                        border: 'none',
-                        color: '#ef4444',
+                        background: '#fee2e2',
+                        border: '1px solid #fca5a5',
+                        color: '#dc2626',
                         cursor: 'pointer',
-                        fontSize: 13,
-                        fontWeight: 600,
-                        textDecoration: 'underline'
+                        fontSize: 12,
+                        fontWeight: 700,
+                        padding: '8px 14px',
+                        borderRadius: 10,
+                        transition: 'all 0.2s'
                       }}
                     >
                       Remove
@@ -736,7 +812,7 @@ export default function CartPage() {
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                     <input
                       type="text"
-                      placeholder="e.g. FLASHDROP49"
+                      placeholder="ENTER PROMO CODE"
                       value={voucherInput}
                       onChange={(e) => {
                         setVoucherInput(e.target.value.toUpperCase());
@@ -749,14 +825,18 @@ export default function CartPage() {
                         }
                       }}
                       style={{
-                        padding: '8px 14px',
-                        border: '1px solid #cbd5e1',
-                        borderRadius: 8,
+                        padding: '10px 16px',
+                        border: '1.5px solid #cbd5e1',
+                        borderRadius: 10,
                         fontSize: 13,
-                        fontWeight: 700,
+                        fontWeight: 800,
                         fontFamily: 'monospace',
                         textTransform: 'uppercase',
-                        minWidth: 160
+                        color: '#0f172a',
+                        backgroundColor: '#ffffff',
+                        minWidth: 190,
+                        outline: 'none',
+                        boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.03)'
                       }}
                     />
                     <button
@@ -764,15 +844,18 @@ export default function CartPage() {
                       onClick={() => applyVoucherCode()}
                       disabled={validatingVoucher || !voucherInput.trim()}
                       style={{
-                        padding: '8px 16px',
-                        background: '#7c3aed',
-                        color: '#fff',
+                        padding: '10px 20px',
+                        background: (!voucherInput.trim() || validatingVoucher)
+                          ? '#cbd5e1'
+                          : 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)',
+                        color: '#ffffff',
                         border: 'none',
-                        borderRadius: 8,
+                        borderRadius: 10,
                         fontSize: 13,
-                        fontWeight: 600,
-                        cursor: validatingVoucher || !voucherInput.trim() ? 'not-allowed' : 'pointer',
-                        opacity: validatingVoucher || !voucherInput.trim() ? 0.6 : 1
+                        fontWeight: 700,
+                        cursor: (!voucherInput.trim() || validatingVoucher) ? 'not-allowed' : 'pointer',
+                        boxShadow: (!voucherInput.trim() || validatingVoucher) ? 'none' : '0 3px 10px rgba(124,58,237,0.3)',
+                        transition: 'all 0.2s'
                       }}
                     >
                       {validatingVoucher ? 'Checking...' : 'Apply Code'}
@@ -780,9 +863,50 @@ export default function CartPage() {
                   </div>
                 )}
               </div>
+
+              {/* Quick Select Voucher Chips */}
+              {availableCoupons.length > 0 && !appliedVoucher && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginTop: 14, paddingTop: 12, borderTop: '1px dashed #e2e8f0' }}>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: '#7c3aed', display: 'flex', alignItems: 'center', gap: 4 }}>
+                    ⚡ Available Vouchers:
+                  </span>
+                  {availableCoupons.map((c) => (
+                    <button
+                      key={c.code}
+                      type="button"
+                      onClick={() => {
+                        setVoucherInput(c.code);
+                        applyVoucherCode(c.code);
+                      }}
+                      style={{
+                        background: voucherInput === c.code ? '#f3e8ff' : '#f8fafc',
+                        border: voucherInput === c.code ? '1.5px solid #7c3aed' : '1px solid #e2e8f0',
+                        color: voucherInput === c.code ? '#7c3aed' : '#334155',
+                        borderRadius: 10,
+                        padding: '5px 12px',
+                        fontSize: 12,
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 6,
+                        transition: 'all 0.2s',
+                        boxShadow: voucherInput === c.code ? '0 2px 8px rgba(124,58,237,0.15)' : 'none'
+                      }}
+                    >
+                      <span>🏷️ {c.code}</span>
+                      <span style={{ fontSize: 11, color: '#059669', background: '#d1fae5', padding: '1px 6px', borderRadius: 6, fontWeight: 800 }}>
+                        {c.discount_type === 'percent' ? `${c.discount_value}% OFF` : `₱${c.discount_value} OFF`}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              )}
+
               {voucherError && (
-                <div style={{ fontSize: 12, color: '#ef4444', marginTop: 8, fontWeight: 600 }}>
-                  ⚠️ {voucherError}
+                <div style={{ fontSize: 12.5, color: '#dc2626', background: '#fee2e2', padding: '6px 12px', borderRadius: 8, marginTop: 10, fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                  <span>⚠️</span>
+                  <span>{voucherError}</span>
                 </div>
               )}
             </div>
