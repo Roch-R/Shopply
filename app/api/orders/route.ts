@@ -221,25 +221,48 @@ export async function POST(req: Request) {
     if (coupon_code && typeof coupon_code === 'string') {
       try {
         const cleanCoupon = coupon_code.trim().toUpperCase();
-        const couponRef = doc(db, "coupons", cleanCoupon);
-        const couponSnap = await getDoc(couponRef);
-        if (couponSnap.exists()) {
-          const couponData = couponSnap.data();
-          if (couponData && couponData.is_active !== false) {
-            const minSpend = Number(couponData.min_spend || 0);
-            if (minSpend <= 0 || totalAmount >= minSpend) {
-              const dType = couponData.discount_type || (couponData.discount_value ? "fixed" : "percent");
-              const dVal = Number(couponData.discount_value ?? couponData.discount ?? 0);
-              if (dType === "percent") {
-                discountApplied = (totalAmount * dVal) / 100;
-              } else {
-                discountApplied = dVal;
-              }
-              discountApplied = Math.min(discountApplied, totalAmount);
-              totalAmount = Math.max(0, totalAmount - discountApplied);
-              validatedCouponCode = cleanCoupon;
+        let couponData: any = null;
+        let couponRef: any = null;
 
-              // Increment usage_count in Firestore
+        const directRef = doc(db, "coupons", cleanCoupon);
+        const couponSnap = await getDoc(directRef);
+        if (couponSnap.exists()) {
+          couponData = couponSnap.data();
+          couponRef = directRef;
+        } else {
+          // Check settings/flash_deals as a fallback
+          const flashRef = doc(db, "settings", "flash_deals");
+          const flashSnap = await getDoc(flashRef);
+          if (flashSnap.exists()) {
+            const fData = flashSnap.data();
+            if (fData.coupon_code && fData.coupon_code.trim().toUpperCase() === cleanCoupon && fData.is_active !== false) {
+              couponData = {
+                code: cleanCoupon,
+                discount_type: fData.discount_type || "percent",
+                discount_value: fData.discount_value !== undefined ? Number(fData.discount_value) : 20,
+                min_spend: 0,
+                is_active: true
+              };
+            }
+          }
+        }
+
+        if (couponData && couponData.is_active !== false) {
+          const minSpend = Number(couponData.min_spend || 0);
+          if (minSpend <= 0 || totalAmount >= minSpend) {
+            const dType = couponData.discount_type || (couponData.discount_value ? "fixed" : "percent");
+            const dVal = Number(couponData.discount_value ?? couponData.discount ?? 0);
+            if (dType === "percent") {
+              discountApplied = (totalAmount * dVal) / 100;
+            } else {
+              discountApplied = dVal;
+            }
+            discountApplied = Math.min(discountApplied, totalAmount);
+            totalAmount = Math.max(0, totalAmount - discountApplied);
+            validatedCouponCode = cleanCoupon;
+
+            // Increment usage_count in Firestore if coupon doc exists
+            if (couponRef) {
               const currentUsage = Number(couponData.usage_count || 0);
               await updateDoc(couponRef, {
                 usage_count: currentUsage + 1

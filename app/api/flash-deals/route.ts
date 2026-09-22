@@ -16,6 +16,9 @@ export interface FlashDealConfig {
   is_active: boolean;
   end_time: string;
   badge_text: string;
+  coupon_code?: string;
+  discount_type?: string;
+  discount_value?: number;
   items: FlashDealItem[];
   updated_at?: string;
 }
@@ -24,6 +27,9 @@ const DEFAULT_CONFIG: FlashDealConfig = {
   is_active: true,
   end_time: new Date(Date.now() + 4 * 3600 * 1000).toISOString(),
   badge_text: "🔥 Up to 50% OFF Limited Time",
+  coupon_code: "FLASHDROP49",
+  discount_type: "fixed",
+  discount_value: 49,
   items: [
     { item_id: 1, flash_price: 89.00, discount_pct: 26, claimed_pct: 45, stock: 34 },
     { item_id: 2, flash_price: 139.00, discount_pct: 30, claimed_pct: 52, stock: 18 }
@@ -57,6 +63,9 @@ export async function POST(req: Request) {
       is_active: body.is_active !== false,
       end_time: body.end_time || new Date(Date.now() + 4 * 3600 * 1000).toISOString(),
       badge_text: body.badge_text || "🔥 Up to 50% OFF Limited Time",
+      coupon_code: body.coupon_code || "FLASHDROP49",
+      discount_type: body.discount_type || "fixed",
+      discount_value: body.discount_value !== undefined ? Number(body.discount_value) : 49,
       items: Array.isArray(body.items) ? body.items : [],
       updated_at: new Date().toISOString()
     };

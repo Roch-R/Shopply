@@ -195,17 +195,36 @@ export default function CartPage() {
     setVoucherError(null);
 
     try {
+      let data: any = null;
       const voucherRef = doc(db, "coupons", code);
       const voucherSnap = await getDoc(voucherRef);
 
-      if (!voucherSnap.exists()) {
+      if (voucherSnap.exists()) {
+        data = voucherSnap.data();
+      } else {
+        const flashRef = doc(db, "settings", "flash_deals");
+        const flashSnap = await getDoc(flashRef);
+        if (flashSnap.exists()) {
+          const fData = flashSnap.data();
+          if (fData.coupon_code && fData.coupon_code.trim().toUpperCase() === code && fData.is_active !== false) {
+            data = {
+              code,
+              discount_type: fData.discount_type || "percent",
+              discount_value: fData.discount_value !== undefined ? Number(fData.discount_value) : 20,
+              min_spend: 0,
+              is_active: true
+            };
+          }
+        }
+      }
+
+      if (!data) {
         setVoucherError(`Voucher "${code}" not found.`);
         showToast("Voucher not found", "error");
         setValidatingVoucher(false);
         return;
       }
 
-      const data = voucherSnap.data();
       if (data.is_active === false) {
         setVoucherError(`Voucher "${code}" is inactive or expired.`);
         showToast("Voucher is inactive", "error");

@@ -201,6 +201,9 @@ export default function ShopPage() {
     is_active: boolean;
     end_time: string;
     badge_text: string;
+    coupon_code?: string;
+    discount_type?: string;
+    discount_value?: number;
     items: Array<{
       item_id: number;
       flash_price: number;
@@ -212,6 +215,9 @@ export default function ShopPage() {
     is_active: true,
     end_time: new Date(Date.now() + 4 * 3600 * 1000).toISOString(),
     badge_text: "🔥 Up to 50% OFF Limited Time",
+    coupon_code: "FLASHDROP49",
+    discount_type: "fixed",
+    discount_value: 49,
     items: []
   });
 
@@ -226,6 +232,9 @@ export default function ShopPage() {
             is_active: data.is_active !== false,
             end_time: data.end_time || new Date(Date.now() + 4 * 3600 * 1000).toISOString(),
             badge_text: data.badge_text || "🔥 Up to 50% OFF Limited Time",
+            coupon_code: data.coupon_code || undefined,
+            discount_type: data.discount_type || undefined,
+            discount_value: data.discount_value !== undefined ? Number(data.discount_value) : undefined,
             items: Array.isArray(data.items) ? data.items : []
           });
         }
@@ -234,7 +243,17 @@ export default function ShopPage() {
         fetch("/api/flash-deals")
           .then(r => r.json())
           .then(d => {
-            if (d.data) setFlashConfig(d.data);
+            if (d.data) {
+              setFlashConfig({
+                is_active: d.data.is_active !== false,
+                end_time: d.data.end_time || new Date(Date.now() + 4 * 3600 * 1000).toISOString(),
+                badge_text: d.data.badge_text || "🔥 Up to 50% OFF Limited Time",
+                coupon_code: d.data.coupon_code || undefined,
+                discount_type: d.data.discount_type || undefined,
+                discount_value: d.data.discount_value !== undefined ? Number(d.data.discount_value) : undefined,
+                items: Array.isArray(d.data.items) ? d.data.items : []
+              });
+            }
           })
           .catch(e => console.warn("Failed to fetch /api/flash-deals fallback:", e));
       });
@@ -245,6 +264,52 @@ export default function ShopPage() {
   }, []);
   const [sortBy, setSortBy] = useState<"featured" | "price-asc" | "price-desc" | "rating" | "popular">("featured");
   const [copiedVoucher, setCopiedVoucher] = useState<string | null>(null);
+  const [claimedVoucher, setClaimedVoucher] = useState<string | null>(null);
+  const [allCoupons, setAllCoupons] = useState<any[]>([]);
+
+  // Load claimed voucher from localStorage on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('claimed_voucher');
+      if (saved) {
+        setClaimedVoucher(saved.trim().toUpperCase());
+      }
+    }
+  }, []);
+
+  // Universal claim voucher function: safe clipboard copy + localStorage + toast
+  const claimVoucher = (code: string, discountDesc?: string) => {
+    if (!code) return;
+    const cleanCode = code.trim().toUpperCase();
+
+    try {
+      if (typeof navigator !== 'undefined' && navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(cleanCode).catch(() => {});
+      } else if (typeof document !== 'undefined') {
+        const ta = document.createElement("textarea");
+        ta.value = cleanCode;
+        ta.style.position = "fixed";
+        ta.style.opacity = "0";
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand("copy"); } catch (e) {}
+        document.body.removeChild(ta);
+      }
+    } catch (e) {
+      console.warn("Clipboard copy fallback error:", e);
+    }
+
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('claimed_voucher', cleanCode);
+    }
+    setClaimedVoucher(cleanCode);
+    setCopiedVoucher(cleanCode);
+    setTimeout(() => setCopiedVoucher(null), 3500);
+
+    const desc = discountDesc ? ` (${discountDesc})` : "";
+    setSuccessMsg(`🎉 Voucher "${cleanCode}" claimed & active!${desc} Will be auto-applied at checkout.`);
+    setTimeout(() => setSuccessMsg(null), 4000);
+  };
 
   // Live Promo Voucher from Firestore
   const [activeVoucher, setActiveVoucher] = useState<{
@@ -276,6 +341,7 @@ export default function ShopPage() {
     expiry_date?: string;
   } | null>(null);
 
+  // Subscribe to all coupons
   useEffect(() => {
     try {
       const couponsRef = collection(db, "coupons");
@@ -299,22 +365,7 @@ export default function ShopPage() {
             });
           }
         });
-
-        // Find coupon specially assigned to Flash Deals (e.g. FLASHDROP49 from C# Admin)
-        const fCoupon = list.find(c =>
-          (c.category && c.category.toLowerCase().includes("flash")) ||
-          (c.badge && c.badge.toLowerCase().includes("flash")) ||
-          (c.code && c.code.toLowerCase().includes("flash"))
-        );
-        setFlashCoupon(fCoupon || null);
-
-        // General voucher for promo banner (prefer non-flash coupon, or first)
-        const genVoucher = list.find(c => c !== fCoupon) || list[0];
-        if (genVoucher) {
-          setActiveVoucher(genVoucher);
-        } else {
-          setActiveVoucher(null);
-        }
+        setAllCoupons(list);
       }, (err) => {
         console.warn("Error fetching coupons from Firestore:", err);
       });
@@ -323,6 +374,50 @@ export default function ShopPage() {
       console.warn("Firestore coupon subscription error:", e);
     }
   }, []);
+
+  // Compute flashCoupon dynamically based on flashConfig & allCoupons
+  useEffect(() => {
+    if (!flashConfig.is_active) {
+      setFlashCoupon(null);
+      return;
+    }
+
+    const linkedCode = flashConfig.coupon_code?.trim().toUpperCase();
+    let match = linkedCode ? allCoupons.find(c => c.code === linkedCode) : null;
+
+    if (!match && linkedCode) {
+      // Synthesize flash coupon from flashConfig settings if not yet loaded in coupons collection
+      const isPercent = flashConfig.discount_type === 'percent';
+      const val = Number(flashConfig.discount_value || 0);
+      match = {
+        code: linkedCode,
+        title: "Flash Deals Linked Voucher",
+        description: `Enjoy ${isPercent ? `${val}% OFF` : `₱${val} OFF`} on your Flash Deals purchase!`,
+        badge: "⚡ FLASH DEALS",
+        discount_type: flashConfig.discount_type || "percent",
+        discount_value: val,
+        discount: val,
+        min_spend: 0,
+        category: "Flash Deals",
+        is_active: true,
+        expiry_date: "Limited Time"
+      };
+    }
+
+    if (!match) {
+      match = allCoupons.find(c =>
+        (c.category && c.category.toLowerCase().includes("flash")) ||
+        (c.badge && c.badge.toLowerCase().includes("flash")) ||
+        (c.code && c.code.toLowerCase().includes("flash"))
+      ) || null;
+    }
+
+    setFlashCoupon(match);
+
+    // General voucher for promo banner (prefer non-flash coupon, or first)
+    const genVoucher = allCoupons.find(c => !match || c.code !== match.code) || allCoupons[0];
+    setActiveVoucher(genVoucher || null);
+  }, [allCoupons, flashConfig.coupon_code, flashConfig.discount_type, flashConfig.discount_value, flashConfig.is_active]);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [activeChatUser, setActiveChatUser] = useState<{ id: number; name: string; avatar?: string | null } | null>(null);
   const [isActiveUserOnline, setIsActiveUserOnline] = useState(false);
@@ -1263,7 +1358,7 @@ export default function ShopPage() {
     setBuying(true);
     try {
       const activeDeal = getActiveFlashDeal(buyModal.item.id);
-      const savedCoupon = !activeDeal && typeof window !== 'undefined' ? localStorage.getItem('claimed_voucher') : null;
+      const savedCoupon = typeof window !== 'undefined' ? localStorage.getItem('claimed_voucher') : null;
       const res = await fetch(`${API}/orders`, {
         method: "POST",
         headers: {
@@ -2316,14 +2411,7 @@ export default function ShopPage() {
                       type="button"
                       onClick={() => {
                         const code = BANNERS[currentBannerIdx].voucherCode;
-                        if (typeof navigator !== 'undefined' && navigator.clipboard) {
-                          navigator.clipboard.writeText(code);
-                        }
-                        if (typeof window !== 'undefined') {
-                          localStorage.setItem('claimed_voucher', code);
-                        }
-                        setCopiedVoucher(code);
-                        setTimeout(() => setCopiedVoucher(null), 3000);
+                        claimVoucher(code, "Banner Special");
                       }}
                       style={{
                         background: 'rgba(255,255,255,0.95)',
@@ -2341,16 +2429,16 @@ export default function ShopPage() {
                         transition: 'all 0.2s'
                       }}
                     >
-                      <span>🎟️ {copiedVoucher === BANNERS[currentBannerIdx].voucherCode ? 'CLAIMED! ✓' : BANNERS[currentBannerIdx].voucher}</span>
+                      <span>🎟️ {(copiedVoucher === BANNERS[currentBannerIdx].voucherCode || claimedVoucher === BANNERS[currentBannerIdx].voucherCode) ? 'CLAIMED! ✓' : BANNERS[currentBannerIdx].voucher}</span>
                       <span style={{
                         fontSize: 10,
-                        color: copiedVoucher === BANNERS[currentBannerIdx].voucherCode ? '#16a34a' : '#7c3aed',
-                        background: copiedVoucher === BANNERS[currentBannerIdx].voucherCode ? '#dcfce7' : '#f3e8ff',
+                        color: (copiedVoucher === BANNERS[currentBannerIdx].voucherCode || claimedVoucher === BANNERS[currentBannerIdx].voucherCode) ? '#16a34a' : '#7c3aed',
+                        background: (copiedVoucher === BANNERS[currentBannerIdx].voucherCode || claimedVoucher === BANNERS[currentBannerIdx].voucherCode) ? '#dcfce7' : '#f3e8ff',
                         padding: '2px 8px',
                         borderRadius: 6,
                         fontWeight: 800
                       }}>
-                        {copiedVoucher === BANNERS[currentBannerIdx].voucherCode ? 'Saved to Cart' : 'Claim Voucher'}
+                        {(copiedVoucher === BANNERS[currentBannerIdx].voucherCode || claimedVoucher === BANNERS[currentBannerIdx].voucherCode) ? 'ACTIVE' : 'CLAIM'}
                       </span>
                     </button>
 
@@ -2468,18 +2556,24 @@ export default function ShopPage() {
                       <button
                         type="button"
                         onClick={() => {
-                          if (typeof navigator !== 'undefined' && navigator.clipboard) {
-                            navigator.clipboard.writeText(activeVoucher.code);
-                          }
-                          if (typeof window !== 'undefined') {
-                            localStorage.setItem('claimed_voucher', activeVoucher.code);
-                          }
-                          setCopiedVoucher(activeVoucher.code);
-                          setTimeout(() => setCopiedVoucher(null), 2500);
+                          const disc = activeVoucher.discount_type === 'percent'
+                            ? `${activeVoucher.discount || activeVoucher.discount_value}% OFF`
+                            : `₱${activeVoucher.discount_value} OFF`;
+                          claimVoucher(activeVoucher.code, disc);
                         }}
-                        style={{ background: '#e11d48', color: '#fff', border: 'none', borderRadius: 8, padding: '5px 12px', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}
+                        style={{
+                          background: (copiedVoucher === activeVoucher.code || claimedVoucher === activeVoucher.code) ? '#16a34a' : '#e11d48',
+                          color: '#fff',
+                          border: 'none',
+                          borderRadius: 8,
+                          padding: '5px 12px',
+                          fontSize: 11,
+                          fontWeight: 700,
+                          cursor: 'pointer',
+                          transition: 'all 0.2s'
+                        }}
                       >
-                        {copiedVoucher === activeVoucher.code ? "Claimed! ✓" : "Claim Code"}
+                        {(copiedVoucher === activeVoucher.code || claimedVoucher === activeVoucher.code) ? "Claimed! ✓" : "Claim Code"}
                       </button>
                     </div>
                   </div>
@@ -2952,39 +3046,42 @@ export default function ShopPage() {
                   </div>
 
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                    {flashCoupon && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          navigator.clipboard.writeText(flashCoupon.code);
-                          localStorage.setItem('claimed_voucher', flashCoupon.code);
-                          setCopiedVoucher(flashCoupon.code);
-                          setTimeout(() => setCopiedVoucher(null), 3000);
-                        }}
-                        style={{
-                          fontSize: 12,
-                          fontWeight: 800,
-                          color: '#dc2626',
-                          background: '#fff',
-                          border: '1.5px solid #fecaca',
-                          padding: '4px 12px',
-                          borderRadius: 20,
-                          cursor: 'pointer',
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: 6,
-                          transition: 'all 0.2s ease'
-                        }}
-                        title="Click to copy voucher code"
-                      >
-                        <span>🏷️ {flashCoupon.code}</span>
-                        <span style={{ fontSize: 11, fontWeight: 700, color: copiedVoucher === flashCoupon.code ? '#16a34a' : '#ef4444' }}>
-                          {copiedVoucher === flashCoupon.code ? 'Copied! ✓' : (flashCoupon.discount_type === 'percent' ? `${flashCoupon.discount}% OFF` : `₱${flashCoupon.discount_value} OFF`)}
-                        </span>
-                      </button>
-                    )}
-                    <span style={{ fontSize: 12, fontWeight: 700, color: '#ef4444', background: '#fee2e2', padding: '4px 14px', borderRadius: 20 }}>
-                      {flashCoupon ? (flashCoupon.badge || `🔥 FLASH SALE ₱${flashCoupon.discount_value} OFF`) : (flashConfig.badge_text || "🔥 Up to 50% OFF Limited Time")}
+                    {flashCoupon && (() => {
+                      const isClaimed = copiedVoucher === flashCoupon.code || claimedVoucher === flashCoupon.code;
+                      const discountText = flashCoupon.discount_type === 'percent' 
+                        ? `${flashCoupon.discount || flashCoupon.discount_value}% OFF` 
+                        : `₱${flashCoupon.discount_value} OFF`;
+
+                      return (
+                        <button
+                          type="button"
+                          onClick={() => claimVoucher(flashCoupon.code, discountText)}
+                          style={{
+                            fontSize: 12,
+                            fontWeight: 800,
+                            color: isClaimed ? '#15803d' : '#dc2626',
+                            background: isClaimed ? '#f0fdf4' : '#fff',
+                            border: isClaimed ? '1.5px solid #86efac' : '1.5px solid #fecaca',
+                            padding: '6px 14px',
+                            borderRadius: 20,
+                            cursor: 'pointer',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: 6,
+                            boxShadow: '0 2px 6px rgba(0,0,0,0.06)',
+                            transition: 'all 0.2s ease'
+                          }}
+                          title="Click to claim voucher and auto-apply at checkout"
+                        >
+                          <span>🏷️ {flashCoupon.code}</span>
+                          <span style={{ fontSize: 11, fontWeight: 700, color: isClaimed ? '#16a34a' : '#ef4444' }}>
+                            {isClaimed ? 'Claimed & Applied! ✓' : discountText}
+                          </span>
+                        </button>
+                      );
+                    })()}
+                    <span style={{ fontSize: 12, fontWeight: 700, color: '#ef4444', background: '#fee2e2', padding: '6px 14px', borderRadius: 20 }}>
+                      {flashCoupon ? (flashCoupon.badge || `🔥 FLASH SALE ${flashCoupon.discount_type === 'percent' ? `${flashCoupon.discount_value}% OFF` : `₱${flashCoupon.discount_value} OFF`}`) : (flashConfig.badge_text || "🔥 Up to 50% OFF Limited Time")}
                     </span>
                   </div>
                 </div>
@@ -4410,56 +4507,108 @@ export default function ShopPage() {
               <h3 style={{fontSize:20,fontWeight:700,color:'#0f172a',marginBottom:6}}>{buyModal.item.name}</h3>
               {(() => {
                 const deal = getActiveFlashDeal(buyModal.item.id);
-                if (deal) {
-                  return (
-                    <div style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: 6,
-                      background: '#fee2e2',
-                      color: '#dc2626',
-                      padding: '4px 10px',
-                      borderRadius: 8,
-                      fontSize: 12,
-                      fontWeight: 800,
-                      marginBottom: 8
-                    }}>
-                      <span>⚡ Flash Deal Applied (-{deal.discount_pct || 40}% OFF)</span>
-                    </div>
-                  );
+                const currentPrice = parseFloat(buyModal.price) || 0;
+                let voucherDiscountEst = 0;
+                let voucherDesc = "";
+
+                if (claimedVoucher) {
+                  const vObj = allCoupons.find(c => c.code === claimedVoucher) || (flashCoupon?.code === claimedVoucher ? flashCoupon : null);
+                  if (vObj) {
+                    const minSpend = Number(vObj.min_spend || 0);
+                    if (minSpend <= 0 || currentPrice >= minSpend) {
+                      if (vObj.discount_type === 'percent') {
+                        voucherDiscountEst = (currentPrice * Number(vObj.discount_value || vObj.discount || 0)) / 100;
+                        voucherDesc = `${vObj.discount_value || vObj.discount}% OFF`;
+                      } else {
+                        voucherDiscountEst = Number(vObj.discount_value || vObj.discount || 0);
+                        voucherDesc = `₱${voucherDiscountEst} OFF`;
+                      }
+                      voucherDiscountEst = Math.min(voucherDiscountEst, currentPrice);
+                    }
+                  }
                 }
-                return null;
+
+                const finalPriceEst = Math.max(0, currentPrice - voucherDiscountEst);
+
+                return (
+                  <>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 10 }}>
+                      {deal && (
+                        <div style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: 6,
+                          background: '#fee2e2',
+                          color: '#dc2626',
+                          padding: '4px 10px',
+                          borderRadius: 8,
+                          fontSize: 12,
+                          fontWeight: 800
+                        }}>
+                          <span>⚡ Flash Deal Applied (-{deal.discount_pct || 40}% OFF)</span>
+                        </div>
+                      )}
+                      {claimedVoucher && (
+                        <div style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          background: '#f0fdf4',
+                          border: '1.5px dashed #86efac',
+                          borderRadius: 8,
+                          padding: '6px 12px'
+                        }}>
+                          <span style={{ fontSize: 12, fontWeight: 700, color: '#15803d' }}>
+                            🎟️ Voucher: <b>{claimedVoucher}</b> {voucherDesc && `(${voucherDesc})`}
+                          </span>
+                          <span style={{ fontSize: 11, fontWeight: 800, color: '#16a34a', background: '#dcfce7', padding: '2px 8px', borderRadius: 12 }}>
+                            {voucherDiscountEst > 0 ? `-₱${voucherDiscountEst.toFixed(2)}` : 'Applied! ✓'}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                    <p style={{fontSize:14,color:'#64748b',marginBottom:8}}>
+                      {buyModal.variation ? `Variation: ${buyModal.variation}` : 'Standard'}
+                    </p>
+                    <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'14px 0',borderTop:'1px solid #f1f5f9',borderBottom:'1px solid #f1f5f9',marginBottom:24}}>
+                      <span style={{fontSize:13,color:'#94a3b8'}}>Total to Pay</span>
+                      <div style={{ textAlign: 'right' }}>
+                        {voucherDiscountEst > 0 && (
+                          <span style={{ fontSize: 13, textDecoration: 'line-through', color: '#94a3b8', marginRight: 8 }}>
+                            ₱{currentPrice.toFixed(2)}
+                          </span>
+                        )}
+                        <span style={{fontSize:24,fontWeight:800,color: voucherDiscountEst > 0 ? '#16a34a' : (deal ? '#dc2626' : '#10b981')}}>
+                          ₱{finalPriceEst.toFixed(2)}
+                        </span>
+                      </div>
+                    </div>
+                    <div style={{display:'flex',gap:12}}>
+                      <button onClick={() => setBuyModal(null)} style={{flex:1,padding:'12px',borderRadius:10,border:'1.5px solid #e2e8f0',background:'#fff',color:'#64748b',fontWeight:600,fontSize:14,cursor:'pointer',fontFamily:'Inter,sans-serif'}}>Cancel</button>
+                      <button onClick={handleBuy} disabled={buying} style={{
+                        flex:2,
+                        padding:'12px',
+                        borderRadius:10,
+                        border:'none',
+                        background: deal ? 'linear-gradient(135deg,#ef4444,#dc2626)' : 'linear-gradient(135deg,#7c3aed,#4f46e5)',
+                        color:'#fff',
+                        fontWeight:700,
+                        fontSize:14,
+                        cursor:'pointer',
+                        fontFamily:'Inter,sans-serif',
+                        boxShadow: deal ? '0 4px 14px rgba(220,38,38,.3)' : '0 4px 14px rgba(124,58,237,.3)',
+                        display:'inline-flex',
+                        alignItems:'center',
+                        justifyContent:'center',
+                        gap:6,
+                        opacity:buying ? 0.7 : 1
+                      }}>
+                        <IconCart /> {buying ? "Processing..." : `Confirm (₱${finalPriceEst.toFixed(2)})`}
+                      </button>
+                    </div>
+                  </>
+                );
               })()}
-              <p style={{fontSize:14,color:'#64748b',marginBottom:8}}>
-                {buyModal.variation ? `Variation: ${buyModal.variation}` : 'Standard'}
-              </p>
-              <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'16px 0',borderTop:'1px solid #f1f5f9',borderBottom:'1px solid #f1f5f9',marginBottom:24}}>
-                <span style={{fontSize:13,color:'#94a3b8'}}>Total</span>
-                <span style={{fontSize:24,fontWeight:800,color: getActiveFlashDeal(buyModal.item.id) ? '#dc2626' : '#10b981'}}>₱{parseFloat(buyModal.price).toFixed(2)}</span>
-              </div>
-              <div style={{display:'flex',gap:12}}>
-                <button onClick={() => setBuyModal(null)} style={{flex:1,padding:'12px',borderRadius:10,border:'1.5px solid #e2e8f0',background:'#fff',color:'#64748b',fontWeight:600,fontSize:14,cursor:'pointer',fontFamily:'Inter,sans-serif'}}>Cancel</button>
-                <button onClick={handleBuy} disabled={buying} style={{
-                  flex:2,
-                  padding:'12px',
-                  borderRadius:10,
-                  border:'none',
-                  background: getActiveFlashDeal(buyModal.item.id) ? 'linear-gradient(135deg,#ef4444,#dc2626)' : 'linear-gradient(135deg,#7c3aed,#4f46e5)',
-                  color:'#fff',
-                  fontWeight:700,
-                  fontSize:14,
-                  cursor:'pointer',
-                  fontFamily:'Inter,sans-serif',
-                  boxShadow: getActiveFlashDeal(buyModal.item.id) ? '0 4px 14px rgba(220,38,38,.3)' : '0 4px 14px rgba(124,58,237,.3)',
-                  display:'inline-flex',
-                  alignItems:'center',
-                  justifyContent:'center',
-                  gap:6,
-                  opacity:buying ? 0.7 : 1
-                }}>
-                  <IconCart /> {buying ? "Processing..." : `Confirm (₱${parseFloat(buyModal.price).toFixed(2)})`}
-                </button>
-              </div>
             </div>
           </div>
         )}
