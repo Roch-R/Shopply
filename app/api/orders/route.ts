@@ -130,8 +130,8 @@ export async function POST(req: Request) {
             const newItems = fData.items.map((it: any) => {
               if (String(it.item_id) === String(item_id)) {
                 updated = true;
-                const curStock = typeof it.stock === 'number' ? it.stock : 20;
-                const curClaimed = typeof it.claimed_pct === 'number' ? it.claimed_pct : 40;
+                const curStock = it.stock !== undefined && it.stock !== null ? Number(it.stock) : 20;
+                const curClaimed = it.claimed_pct !== undefined && it.claimed_pct !== null ? Number(it.claimed_pct) : 40;
                 return {
                   ...it,
                   stock: Math.max(0, curStock - buyQty),

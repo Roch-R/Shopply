@@ -2995,8 +2995,8 @@ export default function ShopPage() {
                     const originalPrice = parseFloat(fItem.price) || 0;
                     const flashPrice = Number(deal.flash_price);
                     const discountPct = deal.discount_pct || (originalPrice > 0 ? Math.max(1, Math.round(((originalPrice - flashPrice) / originalPrice) * 100)) : 20);
-                    const claimedPct = Math.min(100, Math.max(0, deal.claimed_pct || 50));
-                    const stockRemaining = deal.stock !== undefined ? deal.stock : calculateTotalStock(fItem);
+                    const claimedPct = Math.min(100, Math.max(0, Number(deal.claimed_pct !== undefined && deal.claimed_pct !== null ? deal.claimed_pct : 50)));
+                    const stockRemaining = deal.stock !== undefined && deal.stock !== null ? Number(deal.stock) : calculateTotalStock(fItem);
 
                     return (
                       <div
@@ -3798,8 +3798,8 @@ export default function ShopPage() {
                   {(() => {
                     const activeFlashDeal = getActiveFlashDeal(viewItem.id);
                     if (!activeFlashDeal) return null;
-                    const claimedPct = Math.min(100, Math.max(0, activeFlashDeal.claimed_pct || 40));
-                    const remainingStock = activeFlashDeal.stock !== undefined ? activeFlashDeal.stock : calculateTotalStock(viewItem);
+                    const claimedPct = Math.min(100, Math.max(0, Number(activeFlashDeal.claimed_pct !== undefined && activeFlashDeal.claimed_pct !== null ? activeFlashDeal.claimed_pct : 40)));
+                    const remainingStock = activeFlashDeal.stock !== undefined && activeFlashDeal.stock !== null ? Number(activeFlashDeal.stock) : calculateTotalStock(viewItem);
                     return (
                       <div style={{ margin: '8px 0 16px', maxWidth: 360 }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, fontWeight: 800, color: '#dc2626', marginBottom: 5 }}>
