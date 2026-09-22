@@ -119,16 +119,30 @@ export async function POST(req: Request) {
         });
       }
 
-      // Sync flash deals quota in Firestore if product is enrolled
+      // Check flash deals status & quota in Firestore
+      let isFlashDealValid = false;
+      let verifiedFlashPrice = 0;
       try {
         const flashDocRef = doc(db, "settings", "flash_deals");
         const flashSnap = await getDoc(flashDocRef);
         if (flashSnap.exists()) {
           const fData = flashSnap.data();
-          if (Array.isArray(fData.items)) {
+          const hasExpired = new Date(fData.end_time).getTime() <= Date.now() || fData.is_active === false;
+
+          // If flash sale has ended, automatically empty items in Firestore
+          if (hasExpired && Array.isArray(fData.items) && fData.items.length > 0) {
+            await updateDoc(flashDocRef, {
+              items: [],
+              updated_at: new Date().toISOString()
+            });
+          }
+
+          if (!hasExpired && Array.isArray(fData.items)) {
             let updated = false;
             const newItems = fData.items.map((it: any) => {
               if (String(it.item_id) === String(item_id)) {
+                isFlashDealValid = true;
+                verifiedFlashPrice = Number(it.flash_price);
                 updated = true;
                 const curStock = it.stock !== undefined && it.stock !== null ? Number(it.stock) : 20;
                 const curClaimed = it.claimed_pct !== undefined && it.claimed_pct !== null ? Number(it.claimed_pct) : 40;
@@ -149,7 +163,23 @@ export async function POST(req: Request) {
         console.warn("[orders] Could not update flash deal stats:", fErr);
       }
 
-      const unitPrice = price ? Number(price) : Number(itemData.price || 0);
+      const catalogPrice = Number(itemData.price || 0);
+      let unitPrice = catalogPrice;
+
+      if (price) {
+        const submittedPrice = Number(price);
+        if (isFlashDealValid && verifiedFlashPrice > 0) {
+          unitPrice = verifiedFlashPrice;
+        } else if (submittedPrice >= catalogPrice) {
+          unitPrice = submittedPrice;
+        } else {
+          // Attempted to purchase at flash deal discount, but sale has ended!
+          return NextResponse.json({
+            message: "This flash sale has ended! The promotional price is no longer available."
+          }, { status: 422 });
+        }
+      }
+
       totalAmount = unitPrice * buyQty;
 
       sellerId = itemData.user?.id || itemData.user_id || itemData.seller_id || itemData.seller?.id || "1";

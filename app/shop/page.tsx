@@ -228,14 +228,21 @@ export default function ShopPage() {
       const unsub = onSnapshot(flashDocRef, (snap) => {
         if (snap.exists()) {
           const data = snap.data() as any;
+          const isExpired = new Date(data.end_time).getTime() <= Date.now();
+          const items = isExpired ? [] : (Array.isArray(data.items) ? data.items : []);
+
+          if (isExpired && Array.isArray(data.items) && data.items.length > 0) {
+            fetch("/api/flash-deals/clear-expired", { method: "POST" }).catch(() => {});
+          }
+
           setFlashConfig({
-            is_active: data.is_active !== false,
+            is_active: data.is_active !== false && !isExpired,
             end_time: data.end_time || new Date(Date.now() + 4 * 3600 * 1000).toISOString(),
             badge_text: data.badge_text || "🔥 Up to 50% OFF Limited Time",
             coupon_code: data.coupon_code || undefined,
             discount_type: data.discount_type || undefined,
             discount_value: data.discount_value !== undefined ? Number(data.discount_value) : undefined,
-            items: Array.isArray(data.items) ? data.items : []
+            items: items
           });
         }
       }, (err) => {
@@ -244,14 +251,21 @@ export default function ShopPage() {
           .then(r => r.json())
           .then(d => {
             if (d.data) {
+              const isExpired = new Date(d.data.end_time).getTime() <= Date.now();
+              const items = isExpired ? [] : (Array.isArray(d.data.items) ? d.data.items : []);
+
+              if (isExpired && Array.isArray(d.data.items) && d.data.items.length > 0) {
+                fetch("/api/flash-deals/clear-expired", { method: "POST" }).catch(() => {});
+              }
+
               setFlashConfig({
-                is_active: d.data.is_active !== false,
+                is_active: d.data.is_active !== false && !isExpired,
                 end_time: d.data.end_time || new Date(Date.now() + 4 * 3600 * 1000).toISOString(),
                 badge_text: d.data.badge_text || "🔥 Up to 50% OFF Limited Time",
                 coupon_code: d.data.coupon_code || undefined,
                 discount_type: d.data.discount_type || undefined,
                 discount_value: d.data.discount_value !== undefined ? Number(d.data.discount_value) : undefined,
-                items: Array.isArray(d.data.items) ? d.data.items : []
+                items: items
               });
             }
           })
@@ -583,19 +597,25 @@ export default function ShopPage() {
       const seconds = totalSeconds % 60;
 
       setFlashCountdown({ hours, minutes, seconds });
+
+      // If timer hits 0 and items are still in state, auto-empty them immediately
+      if (diff <= 0 && (flashConfig.items || []).length > 0) {
+        setFlashConfig(prev => ({ ...prev, items: [], is_active: false }));
+        fetch("/api/flash-deals/clear-expired", { method: "POST" }).catch(() => {});
+      }
     };
 
     updateCountdown();
     const timer = setInterval(updateCountdown, 1000);
     return () => clearInterval(timer);
-  }, [flashConfig.end_time]);
+  }, [flashConfig.end_time, flashConfig.items]);
 
   // Flash Deals active status & item resolver
-  const hasFlashEnded = flashCountdown.hours === 0 && flashCountdown.minutes === 0 && flashCountdown.seconds === 0;
-  const isFlashSaleActive = Boolean(flashConfig.is_active && !hasFlashEnded);
+  const hasFlashEnded = (flashCountdown.hours === 0 && flashCountdown.minutes === 0 && flashCountdown.seconds === 0) || (new Date(flashConfig.end_time).getTime() <= Date.now());
+  const isFlashSaleActive = Boolean(flashConfig.is_active && !hasFlashEnded && (flashConfig.items || []).length > 0);
 
   const getActiveFlashDeal = (itemId?: string | number | null) => {
-    if (!isFlashSaleActive || !itemId) return null;
+    if (!isFlashSaleActive || !itemId || hasFlashEnded) return null;
     return (flashConfig.items || []).find(d => String(d.item_id) === String(itemId)) || null;
   };
 
@@ -1358,6 +1378,12 @@ export default function ShopPage() {
     setBuying(true);
     try {
       const activeDeal = getActiveFlashDeal(buyModal.item.id);
+      if (activeDeal && (new Date(flashConfig.end_time).getTime() <= Date.now() || hasFlashEnded)) {
+        setErrorMsg("This flash sale has ended. The promotional price is no longer available.");
+        setBuyModal(null);
+        setBuying(false);
+        return;
+      }
       const savedCoupon = typeof window !== 'undefined' ? localStorage.getItem('claimed_voucher') : null;
       const res = await fetch(`${API}/orders`, {
         method: "POST",
@@ -3003,8 +3029,13 @@ export default function ShopPage() {
 
           {/* 5. FLASH DEALS LIVE TICKER & SHOWCASE - 100% REAL & ADMIN CONTROLLED */}
           {flashConfig.is_active && items.length > 0 && (() => {
-            const hasEnded = flashCountdown.hours === 0 && flashCountdown.minutes === 0 && flashCountdown.seconds === 0;
+            const hasEnded = (flashCountdown.hours === 0 && flashCountdown.minutes === 0 && flashCountdown.seconds === 0) || (new Date(flashConfig.end_time).getTime() <= Date.now());
             
+            // If the flash sale has ended or is inactive or has no items, automatically empty/hide section!
+            if (hasEnded || !flashConfig.is_active || (flashConfig.items || []).length === 0) {
+              return null;
+            }
+
             // ONLY display products that the Admin explicitly enrolled in Flash Deals from the Admin Panel
             const enrolledDeals = (flashConfig.items || [])
               .map(deal => {

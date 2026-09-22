@@ -42,7 +42,18 @@ export async function GET() {
     const snapshot = await getDoc(flashDocRef);
 
     if (snapshot.exists()) {
-      return NextResponse.json({ success: true, data: snapshot.data() as FlashDealConfig });
+      const data = snapshot.data() as FlashDealConfig;
+      const isExpired = new Date(data.end_time).getTime() <= Date.now();
+      if (isExpired && Array.isArray(data.items) && data.items.length > 0) {
+        const updatedData: FlashDealConfig = {
+          ...data,
+          items: [],
+          updated_at: new Date().toISOString()
+        };
+        await setDoc(flashDocRef, updatedData, { merge: true });
+        return NextResponse.json({ success: true, data: updatedData, autoEmptied: true });
+      }
+      return NextResponse.json({ success: true, data: data });
     }
 
     // Auto-initialize if not yet created
