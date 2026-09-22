@@ -2862,6 +2862,8 @@ export default function ShopPage() {
                           flexDirection: 'column',
                           justifyContent: 'space-between',
                           gap: 8,
+                          maxWidth: 240,
+                          width: '100%',
                           transition: 'transform 0.2s ease'
                         }}
                       >
