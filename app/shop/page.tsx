@@ -2761,46 +2761,14 @@ export default function ShopPage() {
           {flashConfig.is_active && items.length > 0 && (() => {
             const hasEnded = flashCountdown.hours === 0 && flashCountdown.minutes === 0 && flashCountdown.seconds === 0;
             
-            // Match admin-configured flash deals OR live Flash Deals coupon (e.g. FLASHDROP49 from C# Admin)
-            const enrolledDeals = flashConfig.items.length > 0
-              ? flashConfig.items
-                  .map(deal => {
-                    const product = items.find(p => p.id === deal.item_id);
-                    if (!product) return null;
-                    return { product, deal };
-                  })
-                  .filter(Boolean) as Array<{ product: ShopItem; deal: typeof flashConfig.items[0] }>
-              : items.slice(0, 4).map((fItem, fIdx) => {
-                  const orig = parseFloat(fItem.price) || 100;
-                  let flashPrice: number;
-                  let discountPct: number;
-
-                  if (flashCoupon) {
-                    if (flashCoupon.discount_type === 'percent') {
-                      discountPct = flashCoupon.discount || 20;
-                      flashPrice = Math.max(1, Math.round(orig * (1 - discountPct / 100) * 100) / 100);
-                    } else {
-                      // Fixed amount discount e.g. ₱49 OFF from FLASHDROP49 voucher
-                      const discVal = flashCoupon.discount_value || 49;
-                      flashPrice = Math.max(1, Math.round((orig - discVal) * 100) / 100);
-                      discountPct = Math.max(1, Math.min(99, Math.round((discVal / orig) * 100)));
-                    }
-                  } else {
-                    discountPct = 25 + (fIdx * 5);
-                    flashPrice = Math.max(1, Math.round(orig * (1 - discountPct / 100) * 100) / 100);
-                  }
-
-                  return {
-                    product: fItem,
-                    deal: {
-                      item_id: fItem.id,
-                      flash_price: flashPrice,
-                      discount_pct: discountPct,
-                      claimed_pct: 45 + (fIdx * 12),
-                      stock: calculateTotalStock(fItem) || 20
-                    }
-                  };
-                });
+            // ONLY display products that the Admin explicitly enrolled in Flash Deals from the Admin Panel
+            const enrolledDeals = (flashConfig.items || [])
+              .map(deal => {
+                const product = items.find(p => p.id === deal.item_id);
+                if (!product) return null;
+                return { product, deal };
+              })
+              .filter(Boolean) as Array<{ product: ShopItem; deal: typeof flashConfig.items[0] }>;
 
             if (enrolledDeals.length === 0) return null;
 
