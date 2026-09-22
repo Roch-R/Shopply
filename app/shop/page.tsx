@@ -1372,25 +1372,70 @@ export default function ShopPage() {
     }
   };
 
+  const matchesCategoryItem = (item: ShopItem, catId: string) => {
+    if (catId === "All") return true;
+    if (!item.category) return false;
+    const c = item.category.toLowerCase();
+    const target = catId.toLowerCase();
+    if (catId === "Footwear") return isFootwearCategory(item.category);
+    if (catId === "Fashion") return c.includes("cloth") || c.includes("fashion") || c.includes("shirt") || c.includes("hoodie") || c.includes("apparel") || c.includes("dress") || c.includes("pant");
+    if (catId === "Electronics") return c.includes("electr") || c.includes("tech") || c.includes("gadget") || c.includes("phone") || c.includes("earbud") || c.includes("device") || c.includes("headset");
+    if (catId === "Beauty") return c.includes("beauty") || c.includes("skin") || c.includes("perfume") || c.includes("health") || c.includes("makeup") || c.includes("cosmetic");
+    if (catId === "Home") return c.includes("home") || c.includes("living") || c.includes("kitchen") || c.includes("furniture") || c.includes("decor");
+    if (catId === "Accessories") return c.includes("watch") || c.includes("bag") || c.includes("accessory") || c.includes("jewelry") || c.includes("wallet");
+    if (catId === "Sports") return c.includes("sport") || c.includes("fitness") || c.includes("gym") || c.includes("workout");
+    if (catId === "Groceries") return c.includes("grocer") || c.includes("food") || c.includes("snack") || c.includes("beverage");
+    if (catId === "Gaming") return c.includes("game") || c.includes("gaming") || c.includes("toy") || c.includes("hobby");
+    return c === target;
+  };
+
+  // Drag & Scroll refs for Categories row on PC
+  const categoryScrollRef = useRef<HTMLDivElement>(null);
+  const isCategoryDraggingRef = useRef(false);
+  const categoryStartXRef = useRef(0);
+  const categoryScrollLeftRef = useRef(0);
+  const hasCategoryMovedRef = useRef(false);
+
+  const handleCategoryMouseDown = (e: React.MouseEvent) => {
+    if (!categoryScrollRef.current) return;
+    isCategoryDraggingRef.current = true;
+    categoryStartXRef.current = e.pageX - categoryScrollRef.current.offsetLeft;
+    categoryScrollLeftRef.current = categoryScrollRef.current.scrollLeft;
+    hasCategoryMovedRef.current = false;
+  };
+
+  const handleCategoryMouseMove = (e: React.MouseEvent) => {
+    if (!isCategoryDraggingRef.current || !categoryScrollRef.current) return;
+    e.preventDefault();
+    const x = e.pageX - categoryScrollRef.current.offsetLeft;
+    const walk = (x - categoryStartXRef.current) * 1.5;
+    if (Math.abs(walk) > 4) {
+      hasCategoryMovedRef.current = true;
+    }
+    categoryScrollRef.current.scrollLeft = categoryScrollLeftRef.current - walk;
+  };
+
+  const handleCategoryMouseUp = () => {
+    isCategoryDraggingRef.current = false;
+  };
+
+  const handleSelectCategory = (catId: string) => {
+    setSelectedCategory(catId);
+    const el = document.getElementById("catalog-products");
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
   const filteredItems = items
     .filter(i => {
-      const matchesCategory = selectedCategory === "All" || 
-        (i.category && i.category.toLowerCase() === selectedCategory.toLowerCase()) ||
-        (selectedCategory === "Footwear" && isFootwearCategory(i.category)) ||
-        (selectedCategory === "Fashion" && (i.category?.toLowerCase().includes("cloth") || i.category?.toLowerCase().includes("fashion") || i.category?.toLowerCase().includes("shirt") || i.category?.toLowerCase().includes("hoodie") || i.category?.toLowerCase().includes("apparel"))) ||
-        (selectedCategory === "Electronics" && (i.category?.toLowerCase().includes("electr") || i.category?.toLowerCase().includes("tech") || i.category?.toLowerCase().includes("gadget") || i.category?.toLowerCase().includes("phone") || i.category?.toLowerCase().includes("earbud"))) ||
-        (selectedCategory === "Beauty" && (i.category?.toLowerCase().includes("beauty") || i.category?.toLowerCase().includes("skin") || i.category?.toLowerCase().includes("perfume") || i.category?.toLowerCase().includes("health"))) ||
-        (selectedCategory === "Home" && (i.category?.toLowerCase().includes("home") || i.category?.toLowerCase().includes("living") || i.category?.toLowerCase().includes("kitchen"))) ||
-        (selectedCategory === "Accessories" && (i.category?.toLowerCase().includes("watch") || i.category?.toLowerCase().includes("bag") || i.category?.toLowerCase().includes("accessory") || i.category?.toLowerCase().includes("jewelry"))) ||
-        (selectedCategory === "Sports" && (i.category?.toLowerCase().includes("sport") || i.category?.toLowerCase().includes("fitness") || i.category?.toLowerCase().includes("gym"))) ||
-        (selectedCategory === "Groceries" && (i.category?.toLowerCase().includes("grocer") || i.category?.toLowerCase().includes("food") || i.category?.toLowerCase().includes("snack"))) ||
-        (selectedCategory === "Gaming" && (i.category?.toLowerCase().includes("game") || i.category?.toLowerCase().includes("gaming") || i.category?.toLowerCase().includes("toy")));
+      const matchesCategory = matchesCategoryItem(i, selectedCategory);
       const q = searchQuery.trim().toLowerCase();
       const matchesSearch = !q || 
         i.name.toLowerCase().includes(q) || 
         (i.description || "").toLowerCase().includes(q) || 
-        (i.category || "").toLowerCase().includes(q) ||
-        (i.user?.name || "").toLowerCase().includes(q) ||
+        (i.category || "").toLowerCase().includes(q) || 
+        (i.user?.name || "").toLowerCase().includes(q) || 
         (i.user?.location || "").toLowerCase().includes(q);
       return matchesCategory && matchesSearch;
     })
@@ -2000,11 +2045,62 @@ export default function ShopPage() {
           display: flex;
           gap: 12px;
           overflow-x: auto;
-          padding: 4px 2px 14px;
-          scrollbar-width: none;
+          padding: 6px 4px 14px;
+          scrollbar-width: thin;
+          scrollbar-color: #cbd5e1 transparent;
           -webkit-overflow-scrolling: touch;
+          user-select: none;
+          scroll-behavior: smooth;
         }
-        .category-tiles-container::-webkit-scrollbar { display: none; }
+        .category-tiles-container::-webkit-scrollbar {
+          height: 6px;
+        }
+        .category-tiles-container::-webkit-scrollbar-track {
+          background: #f1f5f9;
+          border-radius: 4px;
+        }
+        .category-tiles-container::-webkit-scrollbar-thumb {
+          background: #cbd5e1;
+          border-radius: 4px;
+        }
+        .category-tiles-container::-webkit-scrollbar-thumb:hover {
+          background: #94a3b8;
+        }
+        .cat-scroll-arrow {
+          position: absolute;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 38px;
+          height: 38px;
+          border-radius: 50%;
+          background: #fff;
+          border: 1.5px solid #e2e8f0;
+          box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 10;
+          color: #0f172a;
+          font-size: 22px;
+          font-weight: 800;
+          transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .cat-scroll-arrow:hover {
+          background: #7c3aed;
+          color: #fff;
+          border-color: #7c3aed;
+          transform: translateY(-50%) scale(1.1);
+          box-shadow: 0 6px 18px rgba(124,58,237,0.3);
+        }
+        @media (max-width: 768px) {
+          .cat-scroll-arrow {
+            display: none !important;
+          }
+          .category-tiles-container::-webkit-scrollbar {
+            display: none;
+          }
+        }
         .category-tile-btn {
           display: flex;
           flex-direction: column;
@@ -2669,106 +2765,145 @@ export default function ShopPage() {
               )}
             </div>
 
-            <div className="category-tiles-container">
-              {CURATED_CATEGORIES.map(cat => {
-                const isActive = selectedCategory === cat.id;
-                const count = cat.id === "All" 
-                  ? items.length 
-                  : items.filter(i => {
-                      if (cat.id === "Footwear") return isFootwearCategory(i.category);
-                      if (cat.id === "Fashion") return i.category?.toLowerCase().includes("cloth") || i.category?.toLowerCase().includes("fashion") || i.category?.toLowerCase().includes("shirt") || i.category?.toLowerCase().includes("hoodie");
-                      if (cat.id === "Electronics") return i.category?.toLowerCase().includes("electr") || i.category?.toLowerCase().includes("tech") || i.category?.toLowerCase().includes("gadget") || i.category?.toLowerCase().includes("phone");
-                      if (cat.id === "Beauty") return i.category?.toLowerCase().includes("beauty") || i.category?.toLowerCase().includes("skin") || i.category?.toLowerCase().includes("perfume");
-                      if (cat.id === "Home") return i.category?.toLowerCase().includes("home") || i.category?.toLowerCase().includes("living") || i.category?.toLowerCase().includes("kitchen");
-                      if (cat.id === "Accessories") return i.category?.toLowerCase().includes("watch") || i.category?.toLowerCase().includes("bag") || i.category?.toLowerCase().includes("accessory");
-                      if (cat.id === "Sports") return i.category?.toLowerCase().includes("sport") || i.category?.toLowerCase().includes("fitness");
-                      if (cat.id === "Groceries") return i.category?.toLowerCase().includes("grocer") || i.category?.toLowerCase().includes("food");
-                      if (cat.id === "Gaming") return i.category?.toLowerCase().includes("game") || i.category?.toLowerCase().includes("toy");
-                      return i.category?.toLowerCase() === cat.id.toLowerCase();
-                    }).length;
+            <div style={{ position: 'relative', width: '100%' }}>
+              {/* PC Navigation Left Scroll Arrow */}
+              <button
+                type="button"
+                aria-label="Scroll Categories Left"
+                className="cat-scroll-arrow"
+                style={{ left: -14 }}
+                onClick={() => {
+                  if (categoryScrollRef.current) {
+                    categoryScrollRef.current.scrollBy({ left: -260, behavior: 'smooth' });
+                  }
+                }}
+              >
+                ‹
+              </button>
 
-                return (
-                  <button
-                    key={cat.id}
-                    type="button"
-                    className={`category-tile-btn ${isActive ? 'active' : ''}`}
-                    onClick={() => setSelectedCategory(cat.id)}
-                  >
-                    <div style={{
-                      width: 44,
-                      height: 44,
-                      borderRadius: 14,
-                      background: isActive ? 'rgba(255,255,255,0.22)' : `${cat.color}15`,
-                      color: isActive ? '#fff' : cat.color,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: 22,
-                      transition: 'all 0.2s'
-                    }}>
-                      {cat.icon}
-                    </div>
-                    <span style={{ fontSize: 12, fontWeight: 700, color: isActive ? '#fff' : '#0f172a', whiteSpace: 'nowrap' }}>
-                      {cat.label}
-                    </span>
-                    <span style={{
-                      fontSize: 10,
-                      fontWeight: 700,
-                      padding: '1px 6px',
-                      borderRadius: 8,
-                      background: isActive ? 'rgba(255,255,255,0.25)' : '#f1f5f9',
-                      color: isActive ? '#fff' : '#64748b'
-                    }}>
-                      {count}
-                    </span>
-                  </button>
-                );
-              })}
+              {/* PC Navigation Right Scroll Arrow */}
+              <button
+                type="button"
+                aria-label="Scroll Categories Right"
+                className="cat-scroll-arrow"
+                style={{ right: -14 }}
+                onClick={() => {
+                  if (categoryScrollRef.current) {
+                    categoryScrollRef.current.scrollBy({ left: 260, behavior: 'smooth' });
+                  }
+                }}
+              >
+                ›
+              </button>
 
-              {/* Dynamic Categories from Sellers that are not in curated list */}
-              {Array.from(new Set(items.map(i => i.category).filter(Boolean))).map(sellerCat => {
-                const sCat = sellerCat as string;
-                if (CURATED_CATEGORIES.some(c => c.id.toLowerCase() === sCat.toLowerCase() || c.label.toLowerCase() === sCat.toLowerCase())) {
-                  return null;
-                }
-                const isActive = selectedCategory.toLowerCase() === sCat.toLowerCase();
-                const count = items.filter(i => i.category?.toLowerCase() === sCat.toLowerCase()).length;
-                return (
-                  <button
-                    key={sCat}
-                    type="button"
-                    className={`category-tile-btn ${isActive ? 'active' : ''}`}
-                    onClick={() => setSelectedCategory(sCat)}
-                  >
-                    <div style={{
-                      width: 44,
-                      height: 44,
-                      borderRadius: 14,
-                      background: isActive ? 'rgba(255,255,255,0.22)' : '#f3e8ff',
-                      color: isActive ? '#fff' : '#7c3aed',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: 22
-                    }}>
-                      🏷️
-                    </div>
-                    <span style={{ fontSize: 12, fontWeight: 700, color: isActive ? '#fff' : '#0f172a', whiteSpace: 'nowrap' }}>
-                      {sCat}
-                    </span>
-                    <span style={{
-                      fontSize: 10,
-                      fontWeight: 700,
-                      padding: '1px 6px',
-                      borderRadius: 8,
-                      background: isActive ? 'rgba(255,255,255,0.25)' : '#f1f5f9',
-                      color: isActive ? '#fff' : '#64748b'
-                    }}>
-                      {count}
-                    </span>
-                  </button>
-                );
-              })}
+              <div
+                ref={categoryScrollRef}
+                className="category-tiles-container"
+                onMouseDown={handleCategoryMouseDown}
+                onMouseMove={handleCategoryMouseMove}
+                onMouseUp={handleCategoryMouseUp}
+                onMouseLeave={handleCategoryMouseUp}
+                onWheel={(e) => {
+                  if (e.deltaY !== 0) {
+                    e.currentTarget.scrollLeft += e.deltaY;
+                  }
+                }}
+              >
+                {CURATED_CATEGORIES.map(cat => {
+                  const isActive = selectedCategory === cat.id;
+                  const count = cat.id === "All" 
+                    ? items.length 
+                    : items.filter(i => matchesCategoryItem(i, cat.id)).length;
+
+                  return (
+                    <button
+                      key={cat.id}
+                      type="button"
+                      className={`category-tile-btn ${isActive ? 'active' : ''}`}
+                      onClick={() => {
+                        if (hasCategoryMovedRef.current) return;
+                        handleSelectCategory(cat.id);
+                      }}
+                    >
+                      <div style={{
+                        width: 44,
+                        height: 44,
+                        borderRadius: 14,
+                        background: isActive ? 'rgba(255,255,255,0.22)' : `${cat.color}15`,
+                        color: isActive ? '#fff' : cat.color,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: 22,
+                        transition: 'all 0.2s'
+                      }}>
+                        {cat.icon}
+                      </div>
+                      <span style={{ fontSize: 12, fontWeight: 700, color: isActive ? '#fff' : '#0f172a', whiteSpace: 'nowrap' }}>
+                        {cat.label}
+                      </span>
+                      <span style={{
+                        fontSize: 10,
+                        fontWeight: 700,
+                        padding: '1px 6px',
+                        borderRadius: 8,
+                        background: isActive ? 'rgba(255,255,255,0.25)' : '#f1f5f9',
+                        color: isActive ? '#fff' : '#64748b'
+                      }}>
+                        {count}
+                      </span>
+                    </button>
+                  );
+                })}
+
+                {/* Dynamic Categories from Sellers that are not in curated list */}
+                {Array.from(new Set(items.map(i => i.category).filter(Boolean))).map(sellerCat => {
+                  const sCat = sellerCat as string;
+                  if (CURATED_CATEGORIES.some(c => c.id.toLowerCase() === sCat.toLowerCase() || c.label.toLowerCase() === sCat.toLowerCase())) {
+                    return null;
+                  }
+                  const isActive = selectedCategory.toLowerCase() === sCat.toLowerCase();
+                  const count = items.filter(i => matchesCategoryItem(i, sCat)).length;
+                  return (
+                    <button
+                      key={sCat}
+                      type="button"
+                      className={`category-tile-btn ${isActive ? 'active' : ''}`}
+                      onClick={() => {
+                        if (hasCategoryMovedRef.current) return;
+                        handleSelectCategory(sCat);
+                      }}
+                    >
+                      <div style={{
+                        width: 44,
+                        height: 44,
+                        borderRadius: 14,
+                        background: isActive ? 'rgba(255,255,255,0.22)' : '#f3e8ff',
+                        color: isActive ? '#fff' : '#7c3aed',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: 22
+                      }}>
+                        🏷️
+                      </div>
+                      <span style={{ fontSize: 12, fontWeight: 700, color: isActive ? '#fff' : '#0f172a', whiteSpace: 'nowrap' }}>
+                        {sCat}
+                      </span>
+                      <span style={{
+                        fontSize: 10,
+                        fontWeight: 700,
+                        padding: '1px 6px',
+                        borderRadius: 8,
+                        background: isActive ? 'rgba(255,255,255,0.25)' : '#f1f5f9',
+                        color: isActive ? '#fff' : '#64748b'
+                      }}>
+                        {count}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </section>
 
@@ -2781,6 +2916,7 @@ export default function ShopPage() {
               .map(deal => {
                 const product = items.find(p => String(p.id) === String(deal.item_id));
                 if (!product) return null;
+                if (selectedCategory !== "All" && !matchesCategoryItem(product, selectedCategory)) return null;
                 return { product, deal };
               })
               .filter(Boolean) as Array<{ product: ShopItem; deal: typeof flashConfig.items[0] }>;
@@ -2986,10 +3122,35 @@ export default function ShopPage() {
           {/* 6. MAIN CATALOG HEADER WITH FILTER SORT CONTROLS */}
           <div id="catalog-products" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 14, marginBottom: 20 }}>
             <div>
-              <h3 style={{ fontSize: 20, fontWeight: 800, color: '#0f172a', margin: 0 }}>
-                {selectedCategory === "All" ? "All Marketplace Products" : `${selectedCategory} Collection`}
-              </h3>
-              <p style={{ fontSize: 13, color: '#64748b', margin: '2px 0 0' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+                <h3 style={{ fontSize: 20, fontWeight: 800, color: '#0f172a', margin: 0 }}>
+                  {selectedCategory === "All" ? "All Marketplace Products" : `${selectedCategory} Collection`}
+                </h3>
+                {selectedCategory !== "All" && (
+                  <span style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    background: '#ede9fe',
+                    color: '#7c3aed',
+                    padding: '3px 10px',
+                    borderRadius: 16,
+                    fontSize: 12,
+                    fontWeight: 700
+                  }}>
+                    Active: {selectedCategory}
+                    <button
+                      type="button"
+                      onClick={() => setSelectedCategory("All")}
+                      style={{ background: 'none', border: 'none', color: '#7c3aed', cursor: 'pointer', padding: 0, fontWeight: 800, fontSize: 13 }}
+                      title="Clear category filter"
+                    >
+                      ✕
+                    </button>
+                  </span>
+                )}
+              </div>
+              <p style={{ fontSize: 13, color: '#64748b', margin: '4px 0 0' }}>
                 Showing <strong>{filteredItems.length}</strong> verified items from local sellers
               </p>
             </div>
