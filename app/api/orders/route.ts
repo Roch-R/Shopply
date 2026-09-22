@@ -119,6 +119,36 @@ export async function POST(req: Request) {
         });
       }
 
+      // Sync flash deals quota in Firestore if product is enrolled
+      try {
+        const flashDocRef = doc(db, "settings", "flash_deals");
+        const flashSnap = await getDoc(flashDocRef);
+        if (flashSnap.exists()) {
+          const fData = flashSnap.data();
+          if (Array.isArray(fData.items)) {
+            let updated = false;
+            const newItems = fData.items.map((it: any) => {
+              if (String(it.item_id) === String(item_id)) {
+                updated = true;
+                const curStock = typeof it.stock === 'number' ? it.stock : 20;
+                const curClaimed = typeof it.claimed_pct === 'number' ? it.claimed_pct : 40;
+                return {
+                  ...it,
+                  stock: Math.max(0, curStock - buyQty),
+                  claimed_pct: Math.min(100, curClaimed + (buyQty * 4))
+                };
+              }
+              return it;
+            });
+            if (updated) {
+              await updateDoc(flashDocRef, { items: newItems });
+            }
+          }
+        }
+      } catch (fErr) {
+        console.warn("[orders] Could not update flash deal stats:", fErr);
+      }
+
       const unitPrice = price ? Number(price) : Number(itemData.price || 0);
       totalAmount = unitPrice * buyQty;
 

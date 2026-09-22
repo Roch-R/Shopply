@@ -495,6 +495,15 @@ export default function ShopPage() {
     return () => clearInterval(timer);
   }, [flashConfig.end_time]);
 
+  // Flash Deals active status & item resolver
+  const hasFlashEnded = flashCountdown.hours === 0 && flashCountdown.minutes === 0 && flashCountdown.seconds === 0;
+  const isFlashSaleActive = Boolean(flashConfig.is_active && !hasFlashEnded);
+
+  const getActiveFlashDeal = (itemId?: string | number | null) => {
+    if (!isFlashSaleActive || !itemId) return null;
+    return (flashConfig.items || []).find(d => String(d.item_id) === String(itemId)) || null;
+  };
+
   const handleToggleFollow = async (userId: number) => {
     const token = localStorage.getItem("token");
     if (!token || !currentUser) {
@@ -678,6 +687,10 @@ export default function ShopPage() {
   const IconShop = () => <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>;
 
   const formatPriceDisplay = (item: ShopItem) => {
+    const activeDeal = getActiveFlashDeal(item.id);
+    if (activeDeal) {
+      return `₱${Number(activeDeal.flash_price).toFixed(2)}`;
+    }
     const basePrice = parseFloat(item.price) || 0;
     let prices: number[] = [basePrice];
     if (item.attributes?.variant_prices && item.attributes.variant_prices.length > 0) {
@@ -1249,7 +1262,8 @@ export default function ShopPage() {
 
     setBuying(true);
     try {
-      const savedCoupon = typeof window !== 'undefined' ? localStorage.getItem('claimed_voucher') : null;
+      const activeDeal = getActiveFlashDeal(buyModal.item.id);
+      const savedCoupon = !activeDeal && typeof window !== 'undefined' ? localStorage.getItem('claimed_voucher') : null;
       const res = await fetch(`${API}/orders`, {
         method: "POST",
         headers: {
@@ -1292,6 +1306,7 @@ export default function ShopPage() {
         }
 
         setBuyModal(null);
+        setViewItem(null);
         localStorage.setItem('last_order_time', Date.now().toString());
         localStorage.setItem('shopply_order_update', Date.now().toString());
         getApiCache().invalidate('/cart');
@@ -2764,7 +2779,7 @@ export default function ShopPage() {
             // ONLY display products that the Admin explicitly enrolled in Flash Deals from the Admin Panel
             const enrolledDeals = (flashConfig.items || [])
               .map(deal => {
-                const product = items.find(p => p.id === deal.item_id);
+                const product = items.find(p => String(p.id) === String(deal.item_id));
                 if (!product) return null;
                 return { product, deal };
               })
@@ -2925,8 +2940,16 @@ export default function ShopPage() {
                           type="button"
                           onClick={(e) => {
                             e.stopPropagation();
-                            if (flashCoupon) {
-                              localStorage.setItem('claimed_voucher', flashCoupon.code);
+                            const token = localStorage.getItem("token");
+                            if (!token) {
+                              setErrorMsg("Please log in to purchase Flash Deals.");
+                              setTimeout(() => setErrorMsg(null), 3500);
+                              return;
+                            }
+                            // If product has variations (multiple colors or footwear sizes), open detail modal so customer can pick
+                            if ((fItem.attributes?.colors && fItem.attributes.colors.length > 1) || (isFootwearCategory(fItem.category) && fItem.attributes?.sizes && fItem.attributes.sizes.length > 0)) {
+                              handleViewItem(fItem);
+                              return;
                             }
                             setBuyModal({
                               item: fItem,
@@ -2939,17 +2962,18 @@ export default function ShopPage() {
                             background: 'linear-gradient(135deg, #ef4444, #dc2626)',
                             color: '#fff',
                             border: 'none',
-                            padding: '8px 12px',
-                            borderRadius: 8,
-                            fontWeight: 700,
+                            padding: '10px 14px',
+                            borderRadius: 10,
+                            fontWeight: 800,
                             fontSize: 12,
                             cursor: 'pointer',
                             width: '100%',
                             textAlign: 'center',
-                            transition: 'opacity 0.2s ease'
+                            boxShadow: '0 4px 12px rgba(220, 38, 38, 0.25)',
+                            transition: 'all 0.2s ease'
                           }}
                         >
-                          Buy Now
+                          ⚡ Buy Now (₱{flashPrice.toFixed(2)})
                         </button>
                       </div>
                     );
@@ -3031,7 +3055,9 @@ export default function ShopPage() {
             </div>
           ) : (
             <div className="grid">
-              {filteredItems.map((item) => (
+              {filteredItems.map((item) => {
+                const activeDeal = getActiveFlashDeal(item.id);
+                return (
                 <div key={item.id} className="item-card" onClick={() => handleViewItem(item)} style={{cursor:'pointer', position: 'relative'}}>
                   <div style={{ position: 'relative', width: '100%', overflow: 'hidden' }}>
                     {item.image ? (
@@ -3074,21 +3100,39 @@ export default function ShopPage() {
                       🚚 FREE SHIP
                     </span>
 
-                    <span style={{
-                      position: 'absolute',
-                      top: 8,
-                      right: 8,
-                      background: 'rgba(239, 68, 68, 0.95)',
-                      color: '#fff',
-                      fontSize: 10,
-                      fontWeight: 800,
-                      padding: '3px 7px',
-                      borderRadius: 6,
-                      zIndex: 2,
-                      boxShadow: '0 2px 6px rgba(0,0,0,0.18)'
-                    }}>
-                      -30%
-                    </span>
+                    {activeDeal ? (
+                      <span style={{
+                        position: 'absolute',
+                        top: 8,
+                        right: 8,
+                        background: 'linear-gradient(135deg, #ef4444, #dc2626)',
+                        color: '#fff',
+                        fontSize: 10,
+                        fontWeight: 900,
+                        padding: '3px 7px',
+                        borderRadius: 6,
+                        zIndex: 2,
+                        boxShadow: '0 2px 6px rgba(220, 38, 38, 0.35)'
+                      }}>
+                        ⚡ -{activeDeal.discount_pct || 40}% OFF
+                      </span>
+                    ) : (
+                      <span style={{
+                        position: 'absolute',
+                        top: 8,
+                        right: 8,
+                        background: 'rgba(239, 68, 68, 0.95)',
+                        color: '#fff',
+                        fontSize: 10,
+                        fontWeight: 800,
+                        padding: '3px 7px',
+                        borderRadius: 6,
+                        zIndex: 2,
+                        boxShadow: '0 2px 6px rgba(0,0,0,0.18)'
+                      }}>
+                        -30%
+                      </span>
+                    )}
                   </div>
 
                   <div className="item-content">
@@ -3126,7 +3170,25 @@ export default function ShopPage() {
                       <span style={{fontSize:11,color:'#94a3b8'}}>{item.reviews_count || 0} Reviews</span>
                     </div>
                     <div className="item-footer" style={{display:'flex', flexDirection:'column', gap: isMobile ? 6 : 10}} onClick={e => e.stopPropagation()}>
-                      <span className="item-price" style={{alignSelf:'flex-start'}}>{formatPriceDisplay(item)}</span>
+                      {(() => {
+                        const origPrice = parseFloat(item.price) || 0;
+                        if (activeDeal) {
+                          const fPrice = Number(activeDeal.flash_price);
+                          return (
+                            <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, alignSelf: 'flex-start' }}>
+                              <span className="item-price" style={{ color: '#dc2626', fontWeight: 900 }}>
+                                ₱{fPrice.toFixed(2)}
+                              </span>
+                              {origPrice > fPrice && (
+                                <span style={{ fontSize: 12, fontWeight: 600, color: '#94a3b8', textDecoration: 'line-through' }}>
+                                  ₱{origPrice.toFixed(2)}
+                                </span>
+                              )}
+                            </div>
+                          );
+                        }
+                        return <span className="item-price" style={{alignSelf:'flex-start'}}>{formatPriceDisplay(item)}</span>;
+                      })()}
                       <div style={{display:'flex', gap:8, width:'100%'}}>
                         {calculateTotalStock(item) > 0 ? (
                           <>
@@ -3134,19 +3196,24 @@ export default function ShopPage() {
                               if (isFootwearCategory(item.category) && item.attributes?.sizes && item.attributes.sizes.length > 0) {
                                 handleViewItem(item);
                               } else {
-                                handleAddToCart(item, item.attributes?.colors?.[0] || "", item.attributes?.variant_prices?.[0] || item.price);
+                                const dealPrice = activeDeal ? String(activeDeal.flash_price) : (item.attributes?.variant_prices?.[0] || item.price);
+                                handleAddToCart(item, item.attributes?.colors?.[0] || "", dealPrice);
                               }
                             }} disabled={addingToCart === item.id}>
                               <IconCart /> {addingToCart === item.id ? '...' : 'Add to Cart'}
                             </button>
-                            <button className="buy-btn" onClick={(e) => {
+                            <button className="buy-btn" style={{
+                              background: activeDeal ? 'linear-gradient(135deg, #ef4444, #dc2626)' : undefined,
+                              boxShadow: activeDeal ? '0 4px 12px rgba(220, 38, 38, 0.25)' : undefined
+                            }} onClick={(e) => {
                               if (isFootwearCategory(item.category) && item.attributes?.sizes && item.attributes.sizes.length > 0) {
                                 handleViewItem(item);
                               } else {
-                                setBuyModal({item, variation: item.attributes?.colors?.[0] || "", price: item.attributes?.variant_prices?.[0] || item.price, variantIdx: 0});
+                                const dealPrice = activeDeal ? String(activeDeal.flash_price) : (item.attributes?.variant_prices?.[0] || item.price);
+                                setBuyModal({item, variation: item.attributes?.colors?.[0] || "", price: dealPrice, variantIdx: 0});
                               }
                             }}>
-                              Buy Now
+                              {activeDeal ? '⚡ Buy Deal' : 'Buy Now'}
                             </button>
                           </>
                         ) : (
@@ -3199,7 +3266,8 @@ export default function ShopPage() {
                     </div>
                   </div>
                 </div>
-              ))}
+              );
+              })}
             </div>
           )}
         </main>
@@ -3480,11 +3548,109 @@ export default function ShopPage() {
                     </div>
                   </div>
 
-                  <div className="detail-price">
-                    {selectedVariant !== null 
-                      ? `₱${parseFloat(viewItem.attributes?.variant_prices?.[selectedVariant] || viewItem.price).toFixed(2)}`
-                      : formatPriceDisplay(viewItem)}
+                  {(() => {
+                    const activeFlashDeal = getActiveFlashDeal(viewItem.id);
+                    const isFlashDealItem = !!activeFlashDeal;
+                    const flashPriceNum = isFlashDealItem ? Number(activeFlashDeal.flash_price) : 0;
+                    const origPriceNum = parseFloat(viewItem.price) || 0;
+                    const flashDiscountPct = isFlashDealItem 
+                      ? (activeFlashDeal.discount_pct || (origPriceNum > 0 ? Math.max(1, Math.round(((origPriceNum - flashPriceNum) / origPriceNum) * 100)) : 20))
+                      : 0;
+
+                    if (!isFlashDealItem) return null;
+
+                    return (
+                      <div style={{
+                        background: 'linear-gradient(135deg, #fff1f2, #ffe4e6)',
+                        border: '1.5px solid #fecdd3',
+                        borderRadius: 14,
+                        padding: '12px 16px',
+                        marginTop: 14,
+                        marginBottom: 4,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        flexWrap: 'wrap',
+                        gap: 10
+                      }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <span style={{ fontSize: 22 }}>⚡</span>
+                          <div>
+                            <div style={{ fontSize: 13, fontWeight: 900, color: '#dc2626', display: 'flex', alignItems: 'center', gap: 6 }}>
+                              <span>FLASH SALE ACTIVE</span>
+                              <span style={{ background: '#dc2626', color: '#fff', fontSize: 10, fontWeight: 900, padding: '2px 6px', borderRadius: 4 }}>
+                                -{flashDiscountPct}% OFF
+                              </span>
+                            </div>
+                            <div style={{ fontSize: 11, fontWeight: 600, color: '#e11d48' }}>
+                              Special promotional price enrolled in Flash Deals
+                            </div>
+                          </div>
+                        </div>
+
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, fontWeight: 800, color: '#991b1b', background: '#fff', padding: '5px 12px', borderRadius: 8, border: '1.5px solid #fecdd3', boxShadow: '0 2px 4px rgba(0,0,0,0.04)' }}>
+                          <span>⏱️ Ends in:</span>
+                          <span style={{ fontFamily: 'monospace', fontWeight: 900, fontSize: 13, color: '#dc2626' }}>
+                            {String(flashCountdown.hours).padStart(2, '0')}:{String(flashCountdown.minutes).padStart(2, '0')}:{String(flashCountdown.seconds).padStart(2, '0')}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })()}
+
+                  <div className="detail-price" style={{ display: 'flex', alignItems: 'baseline', gap: 10, flexWrap: 'wrap' }}>
+                    {(() => {
+                      const activeFlashDeal = getActiveFlashDeal(viewItem.id);
+                      if (activeFlashDeal) {
+                        const flashPriceNum = Number(activeFlashDeal.flash_price);
+                        const origPriceNum = parseFloat(viewItem.price) || 0;
+                        const flashDiscountPct = activeFlashDeal.discount_pct || (origPriceNum > 0 ? Math.max(1, Math.round(((origPriceNum - flashPriceNum) / origPriceNum) * 100)) : 20);
+                        return (
+                          <>
+                            <span style={{ fontSize: 32, fontWeight: 900, color: '#dc2626' }}>
+                              ₱{flashPriceNum.toFixed(2)}
+                            </span>
+                            {origPriceNum > flashPriceNum && (
+                              <span style={{ fontSize: 18, fontWeight: 600, color: '#94a3b8', textDecoration: 'line-through' }}>
+                                ₱{origPriceNum.toFixed(2)}
+                              </span>
+                            )}
+                            <span style={{
+                              background: 'linear-gradient(135deg, #ef4444, #dc2626)',
+                              color: '#fff',
+                              fontSize: 12,
+                              fontWeight: 900,
+                              padding: '3px 8px',
+                              borderRadius: 6
+                            }}>
+                              🔥 -{flashDiscountPct}% OFF
+                            </span>
+                          </>
+                        );
+                      }
+                      return selectedVariant !== null 
+                        ? `₱${parseFloat(viewItem.attributes?.variant_prices?.[selectedVariant] || viewItem.price).toFixed(2)}`
+                        : formatPriceDisplay(viewItem);
+                    })()}
                   </div>
+
+                  {(() => {
+                    const activeFlashDeal = getActiveFlashDeal(viewItem.id);
+                    if (!activeFlashDeal) return null;
+                    const claimedPct = Math.min(100, Math.max(0, activeFlashDeal.claimed_pct || 40));
+                    const remainingStock = activeFlashDeal.stock !== undefined ? activeFlashDeal.stock : calculateTotalStock(viewItem);
+                    return (
+                      <div style={{ margin: '8px 0 16px', maxWidth: 360 }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, fontWeight: 800, color: '#dc2626', marginBottom: 5 }}>
+                          <span>⚡ {claimedPct}% CLAIMED</span>
+                          <span style={{ color: '#64748b', fontWeight: 600 }}>{remainingStock > 0 ? `${remainingStock} left in deal quota` : 'Deal quota reached'}</span>
+                        </div>
+                        <div style={{ height: 7, background: '#fee2e2', borderRadius: 6, overflow: 'hidden' }}>
+                          <div style={{ width: `${claimedPct}%`, height: '100%', background: 'linear-gradient(90deg, #ef4444, #f97316)', borderRadius: 6 }} />
+                        </div>
+                      </div>
+                    );
+                  })()}
 
 
                   {viewItem.attributes?.colors && (
@@ -3541,42 +3707,57 @@ export default function ShopPage() {
                   )}
 
                   <div className="modal-actions-container">
-                    <button className="add-cart-btn" style={{height:52,flex:1}} onClick={() => {
-                      if (viewItem.attributes?.colors && viewItem.attributes.colors.length > 0 && selectedVariant === null) {
-                        setErrorMsg("Please select a color variation first.");
-                        return;
-                      }
-                      if (isFootwearCategory(viewItem.category) && viewItem.attributes?.sizes && viewItem.attributes.sizes.length > 0 && !selectedSize) {
-                        setErrorMsg("Please select a size first.");
-                        return;
-                      }
-                      const varIdx = selectedVariant !== null ? selectedVariant : 0;
-                      let variationStr = "";
-                      if (viewItem.attributes?.colors?.[varIdx]) variationStr += viewItem.attributes.colors[varIdx];
-                      if (isFootwearCategory(viewItem.category) && selectedSize) variationStr += (variationStr ? ", " : "") + selectedSize;
-                      const priceStr = viewItem.attributes?.variant_prices?.[varIdx] || viewItem.price;
-                      handleAddToCart(viewItem, variationStr, priceStr);
-                    }}>
-                      <IconCart /> Add to Cart
-                    </button>
-                    <button className="buy-btn" style={{height:52,flex:1.5}} onClick={() => {
-                      if (viewItem.attributes?.colors && viewItem.attributes.colors.length > 0 && selectedVariant === null) {
-                        setErrorMsg("Please select a color variation first.");
-                        return;
-                      }
-                      if (isFootwearCategory(viewItem.category) && viewItem.attributes?.sizes && viewItem.attributes.sizes.length > 0 && !selectedSize) {
-                        setErrorMsg("Please select a size first.");
-                        return;
-                      }
-                      const varIdx = selectedVariant !== null ? selectedVariant : 0;
-                      let variationStr = "";
-                      if (viewItem.attributes?.colors?.[varIdx]) variationStr += viewItem.attributes.colors[varIdx];
-                      if (isFootwearCategory(viewItem.category) && selectedSize) variationStr += (variationStr ? ", " : "") + selectedSize;
-                      const priceStr = viewItem.attributes?.variant_prices?.[varIdx] || viewItem.price;
-                      setBuyModal({item: viewItem, variation: variationStr, price: priceStr, variantIdx: varIdx});
-                    }}>
-                      Buy Now
-                    </button>
+                    {(() => {
+                      const activeFlashDeal = getActiveFlashDeal(viewItem.id);
+                      const isDeal = !!activeFlashDeal;
+                      const dealPriceNum = isDeal ? Number(activeFlashDeal.flash_price) : null;
+
+                      return (
+                        <>
+                          <button className="add-cart-btn" style={{height:52,flex:1}} onClick={() => {
+                            if (viewItem.attributes?.colors && viewItem.attributes.colors.length > 0 && selectedVariant === null) {
+                              setErrorMsg("Please select a color variation first.");
+                              return;
+                            }
+                            if (isFootwearCategory(viewItem.category) && viewItem.attributes?.sizes && viewItem.attributes.sizes.length > 0 && !selectedSize) {
+                              setErrorMsg("Please select a size first.");
+                              return;
+                            }
+                            const varIdx = selectedVariant !== null ? selectedVariant : 0;
+                            let variationStr = "";
+                            if (viewItem.attributes?.colors?.[varIdx]) variationStr += viewItem.attributes.colors[varIdx];
+                            if (isFootwearCategory(viewItem.category) && selectedSize) variationStr += (variationStr ? ", " : "") + selectedSize;
+                            const priceStr = isDeal ? String(dealPriceNum) : (viewItem.attributes?.variant_prices?.[varIdx] || viewItem.price);
+                            handleAddToCart(viewItem, variationStr, priceStr);
+                          }}>
+                            <IconCart /> {isDeal ? `Add at ₱${dealPriceNum!.toFixed(2)}` : 'Add to Cart'}
+                          </button>
+                          <button className="buy-btn" style={{
+                            height: 52,
+                            flex: 1.5,
+                            background: isDeal ? 'linear-gradient(135deg, #ef4444, #dc2626)' : 'linear-gradient(135deg, #7c3aed, #4f46e5)',
+                            boxShadow: isDeal ? '0 4px 14px rgba(220, 38, 38, 0.35)' : undefined
+                          }} onClick={() => {
+                            if (viewItem.attributes?.colors && viewItem.attributes.colors.length > 0 && selectedVariant === null) {
+                              setErrorMsg("Please select a color variation first.");
+                              return;
+                            }
+                            if (isFootwearCategory(viewItem.category) && viewItem.attributes?.sizes && viewItem.attributes.sizes.length > 0 && !selectedSize) {
+                              setErrorMsg("Please select a size first.");
+                              return;
+                            }
+                            const varIdx = selectedVariant !== null ? selectedVariant : 0;
+                            let variationStr = "";
+                            if (viewItem.attributes?.colors?.[varIdx]) variationStr += viewItem.attributes.colors[varIdx];
+                            if (isFootwearCategory(viewItem.category) && selectedSize) variationStr += (variationStr ? ", " : "") + selectedSize;
+                            const priceStr = isDeal ? String(dealPriceNum) : (viewItem.attributes?.variant_prices?.[varIdx] || viewItem.price);
+                            setBuyModal({item: viewItem, variation: variationStr, price: priceStr, variantIdx: varIdx});
+                          }}>
+                            {isDeal ? `⚡ Buy Now (₱${dealPriceNum!.toFixed(2)})` : 'Buy Now'}
+                          </button>
+                        </>
+                      );
+                    })()}
                   </div>
 
                   {viewItem.attributes?.specs && viewItem.attributes.specs.length > 0 && (
@@ -4066,17 +4247,56 @@ export default function ShopPage() {
                 <img src={getImageUrl(buyModal.item.image)} alt={buyModal.item.name} style={{width:'100%',height:180,objectFit:'cover',borderRadius:12,marginBottom:20}} />
               )}
               <h3 style={{fontSize:20,fontWeight:700,color:'#0f172a',marginBottom:6}}>{buyModal.item.name}</h3>
+              {(() => {
+                const deal = getActiveFlashDeal(buyModal.item.id);
+                if (deal) {
+                  return (
+                    <div style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 6,
+                      background: '#fee2e2',
+                      color: '#dc2626',
+                      padding: '4px 10px',
+                      borderRadius: 8,
+                      fontSize: 12,
+                      fontWeight: 800,
+                      marginBottom: 8
+                    }}>
+                      <span>⚡ Flash Deal Applied (-{deal.discount_pct || 40}% OFF)</span>
+                    </div>
+                  );
+                }
+                return null;
+              })()}
               <p style={{fontSize:14,color:'#64748b',marginBottom:8}}>
                 {buyModal.variation ? `Variation: ${buyModal.variation}` : 'Standard'}
               </p>
               <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'16px 0',borderTop:'1px solid #f1f5f9',borderBottom:'1px solid #f1f5f9',marginBottom:24}}>
                 <span style={{fontSize:13,color:'#94a3b8'}}>Total</span>
-                <span style={{fontSize:24,fontWeight:800,color:'#10b981'}}>₱{parseFloat(buyModal.price).toFixed(2)}</span>
+                <span style={{fontSize:24,fontWeight:800,color: getActiveFlashDeal(buyModal.item.id) ? '#dc2626' : '#10b981'}}>₱{parseFloat(buyModal.price).toFixed(2)}</span>
               </div>
               <div style={{display:'flex',gap:12}}>
                 <button onClick={() => setBuyModal(null)} style={{flex:1,padding:'12px',borderRadius:10,border:'1.5px solid #e2e8f0',background:'#fff',color:'#64748b',fontWeight:600,fontSize:14,cursor:'pointer',fontFamily:'Inter,sans-serif'}}>Cancel</button>
-                <button onClick={handleBuy} disabled={buying} style={{flex:2,padding:'12px',borderRadius:10,border:'none',background:'linear-gradient(135deg,#7c3aed,#4f46e5)',color:'#fff',fontWeight:600,fontSize:14,cursor:'pointer',fontFamily:'Inter,sans-serif',boxShadow:'0 4px 14px rgba(124,58,237,.3)',display:'inline-flex',alignItems:'center',justifyContent:'center',gap:6,opacity:buying ? 0.7 : 1}}>
-                  <IconCart /> {buying ? "Processing..." : "Confirm Purchase"}
+                <button onClick={handleBuy} disabled={buying} style={{
+                  flex:2,
+                  padding:'12px',
+                  borderRadius:10,
+                  border:'none',
+                  background: getActiveFlashDeal(buyModal.item.id) ? 'linear-gradient(135deg,#ef4444,#dc2626)' : 'linear-gradient(135deg,#7c3aed,#4f46e5)',
+                  color:'#fff',
+                  fontWeight:700,
+                  fontSize:14,
+                  cursor:'pointer',
+                  fontFamily:'Inter,sans-serif',
+                  boxShadow: getActiveFlashDeal(buyModal.item.id) ? '0 4px 14px rgba(220,38,38,.3)' : '0 4px 14px rgba(124,58,237,.3)',
+                  display:'inline-flex',
+                  alignItems:'center',
+                  justifyContent:'center',
+                  gap:6,
+                  opacity:buying ? 0.7 : 1
+                }}>
+                  <IconCart /> {buying ? "Processing..." : `Confirm (₱${parseFloat(buyModal.price).toFixed(2)})`}
                 </button>
               </div>
             </div>
