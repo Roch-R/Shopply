@@ -1,6 +1,7 @@
 "use client";
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import type { CSSProperties } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Skeleton } from "@/components/Skeleton";
@@ -31,6 +32,96 @@ export default function AboutPage() {
       setReady(true);
     }
   }, []); // intentional empty deps — runs once on mount
+
+  /* ——— 3D SCROLL ENGINE ———
+     Drives all scroll animations through CSS custom properties so the
+     browser can composite transforms on the GPU (no per-frame React renders). */
+  const pageRef = useRef<HTMLDivElement>(null);
+
+  useLayoutEffect(() => {
+    if (!ready) return;
+    const root = pageRef.current;
+    if (!root) return;
+
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    root.classList.add("js-3d");
+    const reveals = Array.from(root.querySelectorAll<HTMLElement>(".reveal"));
+    if (reduceMotion) {
+      reveals.forEach(el => el.classList.add("in"));
+      return;
+    }
+
+    // 1) Reveal elements as they enter the viewport
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("in");
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15, rootMargin: "0px 0px -8% 0px" });
+    reveals.forEach(el => io.observe(el));
+
+    // 2) Scroll-linked variables
+    const scrollEls = Array.from(root.querySelectorAll<HTMLElement>("[data-scroll3d]"));
+    const hero = root.querySelector<HTMLElement>(".hero");
+    let raf = 0;
+    const update = () => {
+      raf = 0;
+      const vh = window.innerHeight;
+      const sy = window.scrollY;
+      const max = document.documentElement.scrollHeight - vh;
+      root.style.setProperty("--sy", String(sy));
+      root.style.setProperty("--sp", (max > 0 ? Math.min(sy / max, 1) : 0).toFixed(4));
+      const hh = hero?.offsetHeight || vh;
+      root.style.setProperty("--hs", Math.min(Math.max(sy / (hh * 0.6), 0), 1).toFixed(4));
+      for (const el of scrollEls) {
+        const r = el.getBoundingClientRect();
+        // -1 = scrolled above, 0 = centred in viewport, 1 = just below viewport
+        const p = (r.top + r.height / 2 - vh / 2) / (vh / 2 + r.height / 2);
+        el.style.setProperty("--p", Math.max(-1, Math.min(1, p)).toFixed(4));
+      }
+    };
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+
+    // 3) Pointer tilt on cards (desktop only)
+    const cleanups: Array<() => void> = [];
+    if (window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
+      root.querySelectorAll<HTMLElement>(".tilt").forEach(el => {
+        const move = (ev: MouseEvent) => {
+          const r = el.getBoundingClientRect();
+          const x = (ev.clientX - r.left) / r.width - 0.5;
+          const y = (ev.clientY - r.top) / r.height - 0.5;
+          el.style.setProperty("--ry", `${(x * 16).toFixed(2)}deg`);
+          el.style.setProperty("--rx", `${(-y * 16).toFixed(2)}deg`);
+        };
+        const leave = () => {
+          el.style.setProperty("--rx", "0deg");
+          el.style.setProperty("--ry", "0deg");
+        };
+        el.addEventListener("mousemove", move);
+        el.addEventListener("mouseleave", leave);
+        cleanups.push(() => {
+          el.removeEventListener("mousemove", move);
+          el.removeEventListener("mouseleave", leave);
+        });
+      });
+    }
+
+    return () => {
+      io.disconnect();
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      if (raf) cancelAnimationFrame(raf);
+      cleanups.forEach(fn => fn());
+    };
+  }, [ready]);
+
+  /** Stagger delay helper for reveal animations */
+  const delay = (ms: number) => ({ "--d": `${ms}ms` } as CSSProperties);
 
   function handleLogout() {
     const token = localStorage.getItem("token");
@@ -137,13 +228,17 @@ export default function AboutPage() {
           font-weight:800;color:#0f172a;letter-spacing:-1px;line-height:1.2}
 
         .features{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
-        .feat{background:#ffffff;border:1px solid #e2e8f0;border-radius:20px;padding:32px 28px;
-          transition:all .3s cubic-bezier(0.2, 0.8, 0.2, 1);box-shadow:0 4px 20px rgba(0,0,0,.04)}
-        .feat:hover{transform:translateY(-6px);box-shadow:0 20px 40px rgba(124,58,237,.12);border-color:#c4b5fd}
+        .feat{background:#ffffff;border:1px solid #e2e8f0;border-radius:20px;padding:32px 28px;height:100%;
+          transform-style:preserve-3d;
+          transform:perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));
+          transition:transform .18s ease-out, box-shadow .3s ease, border-color .3s ease;box-shadow:0 4px 20px rgba(0,0,0,.04)}
+        .feat:hover{transform:perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) translateY(-6px);
+          box-shadow:0 24px 48px rgba(124,58,237,.16);border-color:#c4b5fd}
         .feat-icon{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;
           justify-content:center;margin-bottom:20px;font-size:22px;transition:transform 0.3s ease}
-        .feat:hover .feat-icon{transform:scale(1.1)}
-        .feat h3{font-size:16px;font-weight:700;color:#0f172a;margin-bottom:8px;letter-spacing:-.2px}
+        .feat:hover .feat-icon{transform:translateZ(40px) scale(1.12)}
+        .feat h3{font-size:16px;font-weight:700;color:#0f172a;margin-bottom:8px;letter-spacing:-.2px;transition:transform .3s ease}
+        .feat:hover h3{transform:translateZ(24px)}
         .feat p{font-size:14px;color:#475569;line-height:1.65}
 
         /* STEPS */
@@ -158,9 +253,15 @@ export default function AboutPage() {
 
         /* TEAM GRID */
         .team-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
-        .team-card{background:#ffffff;border:1px solid #e2e8f0;border-radius:20px;
-          padding:32px 24px;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,.04);transition:all .3s ease}
-        .team-card:hover{transform:translateY(-6px);box-shadow:0 20px 40px rgba(124,58,237,.12);border-color:#c4b5fd}
+        .team-card{background:#ffffff;border:1px solid #e2e8f0;border-radius:20px;height:100%;
+          padding:32px 24px;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,.04);
+          transform-style:preserve-3d;
+          transform:perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));
+          transition:transform .18s ease-out, box-shadow .3s ease, border-color .3s ease}
+        .team-card:hover{transform:perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) translateY(-6px);
+          box-shadow:0 24px 48px rgba(124,58,237,.16);border-color:#c4b5fd}
+        .team-card .avatar{transition:transform .3s ease}
+        .team-card:hover .avatar{transform:translateZ(50px) scale(1.08)}
         .avatar{width:68px;height:68px;border-radius:50%;margin:0 auto 16px;
           display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;color:#fff;box-shadow:0 8px 20px rgba(0,0,0,0.15)}
         .team-card h4{font-size:16px;font-weight:700;color:#0f172a;margin-bottom:4px}
@@ -204,6 +305,95 @@ export default function AboutPage() {
         .footer-bottom-links a {font-size:13px;color:#64748b;text-decoration:none;transition:color .2s;}
         .footer-bottom-links a:hover {color:#7c3aed;}
 
+        /* ═══════════ 3D SCROLL ANIMATIONS ═══════════ */
+        /* Scroll progress bar */
+        .scroll-progress{position:fixed;top:0;left:0;right:0;height:3px;z-index:200;pointer-events:none;
+          background:linear-gradient(90deg,#7c3aed,#4f46e5,#2563eb,#06b6d4);
+          transform-origin:0 50%;transform:scaleX(var(--sp,0));box-shadow:0 0 12px rgba(124,58,237,.5)}
+
+        /* Parallax background blobs */
+        .b1{transform:translate3d(0,calc(var(--sy,0) * -0.18px),0)}
+        .b2{transform:translate3d(0,calc(var(--sy,0) * 0.12px),0)}
+        .b3{transform:translate3d(calc(var(--sy,0) * 0.05px),calc(var(--sy,0) * -0.08px),0)}
+
+        /* Hero text tilts back into the screen while scrolling away */
+        .hero-text{display:flex;flex-direction:column;align-items:center;will-change:transform,opacity;
+          transform-origin:50% 100%;
+          transform:perspective(1100px) rotateX(calc(var(--hs,0) * 32deg)) translate3d(0,calc(var(--hs,0) * -40px),calc(var(--hs,0) * -160px));
+          opacity:calc(1 - var(--hs,0) * 1.1)}
+
+        /* 3D Shopply cube scene */
+        .scene3d{position:relative;width:100%;max-width:820px;height:380px;margin:8px auto 0;
+          perspective:1100px;perspective-origin:50% 40%;animation:fadeUp .8s .4s ease both}
+        .cube-tilt{position:absolute;left:50%;top:50%;width:170px;height:170px;margin:-85px 0 0 -85px;
+          transform-style:preserve-3d;will-change:transform;
+          transform:rotateX(calc(-18deg + var(--p,0) * 36deg)) rotateY(calc(var(--p,0) * -160deg)) translateY(calc(var(--p,0) * 30px))}
+        .cube{position:relative;width:100%;height:100%;transform-style:preserve-3d;animation:cubeSpin 22s linear infinite}
+        .face{position:absolute;inset:0;border-radius:22px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
+          color:#fff;font-weight:800;font-size:14px;letter-spacing:.2px;text-align:center;
+          border:1.5px solid rgba(255,255,255,.45);backface-visibility:visible;
+          box-shadow:inset 0 0 40px rgba(255,255,255,.18), 0 0 30px rgba(124,58,237,.25)}
+        .face .fi{font-size:42px;line-height:1;filter:drop-shadow(0 6px 10px rgba(0,0,0,.2))}
+        .face small{font-size:11px;font-weight:600;opacity:.85}
+        .f-front{background:linear-gradient(135deg,rgba(124,58,237,.95),rgba(79,70,229,.92));transform:translateZ(85px)}
+        .f-back{background:linear-gradient(135deg,rgba(37,99,235,.95),rgba(6,182,212,.9));transform:rotateY(180deg) translateZ(85px)}
+        .f-right{background:linear-gradient(135deg,rgba(16,185,129,.95),rgba(5,150,105,.92));transform:rotateY(90deg) translateZ(85px)}
+        .f-left{background:linear-gradient(135deg,rgba(238,77,45,.95),rgba(249,115,22,.92));transform:rotateY(-90deg) translateZ(85px)}
+        .f-top{background:linear-gradient(135deg,rgba(245,158,11,.95),rgba(234,179,8,.9));transform:rotateX(90deg) translateZ(85px)}
+        .f-bottom{background:linear-gradient(135deg,rgba(219,39,119,.95),rgba(124,58,237,.9));transform:rotateX(-90deg) translateZ(85px)}
+        .cube-shadow{position:absolute;left:50%;bottom:22px;width:220px;height:34px;margin-left:-110px;border-radius:50%;
+          background:radial-gradient(ellipse,rgba(79,70,229,.32) 0%,transparent 70%);filter:blur(4px);
+          transform:scale(calc(1 - var(--p,0) * .25));animation:shadowPulse 4s ease-in-out infinite}
+
+        /* Orbiting depth chips (parallax at different speeds) */
+        .chip3d{position:absolute;z-index:2;will-change:transform;
+          transform:translate3d(0,calc(var(--p,0) * var(--k,60) * 1px),0)}
+        .chip3d > span{display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border-radius:14px;
+          background:rgba(255,255,255,.9);backdrop-filter:blur(10px);border:1px solid rgba(124,58,237,.15);
+          box-shadow:0 14px 34px rgba(79,70,229,.18);font-size:13px;font-weight:700;color:#0f172a;white-space:nowrap;
+          animation:chipFloat 5s ease-in-out infinite;animation-delay:var(--fd,0s)}
+        .c1{left:4%;top:16%;--k:-90}
+        .c2{right:3%;top:10%;--k:70;--fd:-1.2s}
+        .c3{left:9%;bottom:14%;--k:110;--fd:-2.4s}
+        .c4{right:7%;bottom:18%;--k:-70;--fd:-3.6s}
+
+        /* Reveal-on-scroll (only hidden once JS is confirmed running) */
+        .reveal{transition:opacity .9s ease, transform 1.1s cubic-bezier(.16,1,.3,1);transition-delay:var(--d,0ms);will-change:transform,opacity}
+        .js-3d .reveal{opacity:0;transform:perspective(1200px) rotateX(32deg) translate3d(0,80px,-120px)}
+        .js-3d .reveal.flip{transform:perspective(1200px) rotateY(-75deg) translate3d(-40px,30px,-80px);transform-origin:0 50%}
+        .js-3d .reveal.zoom{transform:perspective(1200px) translate3d(0,40px,-260px) scale(.85)}
+        .js-3d .reveal.in{opacity:1;transform:none}
+        .feat-wrap,.team-wrap,.step-wrap{display:flex}
+        .feat-wrap > *, .team-wrap > *, .step-wrap > *{flex:1}
+
+        /* Whole sections bend subtly with scroll position */
+        .bend{will-change:transform;transform:perspective(1400px) rotateX(calc(var(--p,0) * 10deg))}
+
+        /* CTA banner swings flat as it reaches centre */
+        .cta-3d{will-change:transform;transform-origin:50% 100%;
+          transform:perspective(1200px) rotateX(calc(var(--p,0) * 38deg)) translate3d(0,calc(var(--p,0) * 50px),0) scale(calc(1 - var(--p,0) * .06))}
+
+        @keyframes cubeSpin{from{transform:rotateY(0deg) rotateX(0deg)}to{transform:rotateY(360deg) rotateX(360deg)}}
+        @keyframes chipFloat{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-12px) rotate(1deg)}}
+        @keyframes shadowPulse{0%,100%{opacity:.9}50%{opacity:.55}}
+
+        @media(max-width:768px){
+          .scene3d{height:300px}
+          .cube-tilt{width:120px;height:120px;margin:-60px 0 0 -60px}
+          .f-front{transform:translateZ(60px)} .f-back{transform:rotateY(180deg) translateZ(60px)}
+          .f-right{transform:rotateY(90deg) translateZ(60px)} .f-left{transform:rotateY(-90deg) translateZ(60px)}
+          .f-top{transform:rotateX(90deg) translateZ(60px)} .f-bottom{transform:rotateX(-90deg) translateZ(60px)}
+          .face .fi{font-size:30px} .face{font-size:11px;border-radius:16px} .face small{display:none}
+          .chip3d > span{font-size:11px;padding:7px 10px}
+          .c1{left:0;top:6%} .c2{right:0;top:2%} .c3{left:0;bottom:6%} .c4{right:0;bottom:10%}
+        }
+        @media (prefers-reduced-motion: reduce){
+          .reveal,.js-3d .reveal{opacity:1 !important;transform:none !important;transition:none !important}
+          .hero-text,.cube-tilt,.chip3d,.bend,.cta-3d,.b1,.b2,.b3{transform:none !important;opacity:1 !important}
+          .cube,.chip3d > span,.cube-shadow{animation:none !important}
+          .scroll-progress{display:none}
+        }
+
         @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
         @media(max-width:768px){
           .nav{padding:0 12px; gap:8px}
@@ -220,7 +410,8 @@ export default function AboutPage() {
         }
       `}</style>
 
-      <div className="page">
+      <div className="page" ref={pageRef}>
+        <div className="scroll-progress" aria-hidden="true" />
         <div className="blob b1" /><div className="blob b2" /><div className="blob b3" />
 
         {/* NAV */}
@@ -250,15 +441,36 @@ export default function AboutPage() {
 
         {/* HERO */}
         <div className="hero">
-          <div className="hero-badge">
-            <div className="hero-badge-dot" />
-            <span>About Shopply</span>
+          <div className="hero-text">
+            <div className="hero-badge">
+              <div className="hero-badge-dot" />
+              <span>About Shopply</span>
+            </div>
+            <h1>The smarter way to<br /><em>run your shop.</em></h1>
+            <p>Shopply is your all-in-one commerce workspace — built for modern merchants who want to move fast, sell smart, and grow without the complexity.</p>
+            <div className="hero-cta">
+              <Link href="/dashboard" className="cta-primary">Go to Dashboard →</Link>
+              <a href="#features" className="cta-secondary">Explore Features</a>
+            </div>
           </div>
-          <h1>The smarter way to<br /><em>run your shop.</em></h1>
-          <p>Shopply is your all-in-one commerce workspace — built for modern merchants who want to move fast, sell smart, and grow without the complexity.</p>
-          <div className="hero-cta">
-            <Link href="/dashboard" className="cta-primary">Go to Dashboard →</Link>
-            <a href="#features" className="cta-secondary">Explore Features</a>
+
+          {/* 3D SHOPPLY CUBE — rotates with scroll */}
+          <div className="scene3d" data-scroll3d aria-hidden="true">
+            <div className="chip3d c1"><span>🔒 SiteLock Secured</span></div>
+            <div className="chip3d c2"><span>⚡ 24h Dispatch</span></div>
+            <div className="chip3d c3"><span>🎁 Free Shipping</span></div>
+            <div className="chip3d c4"><span>✅ Verified Sellers</span></div>
+            <div className="cube-tilt">
+              <div className="cube">
+                <div className="face f-front"><span className="fi">🛍️</span>Shopply<small>Shop smarter</small></div>
+                <div className="face f-back"><span className="fi">🚚</span>SPX Express<small>Nationwide delivery</small></div>
+                <div className="face f-right"><span className="fi">💳</span>GCash · Maya<small>Secure checkout</small></div>
+                <div className="face f-left"><span className="fi">💵</span>Cash on Delivery<small>Pay on arrival</small></div>
+                <div className="face f-top"><span className="fi">⭐</span>Top Rated<small>Trusted reviews</small></div>
+                <div className="face f-bottom"><span className="fi">₱</span>Best Prices<small>Peso-first deals</small></div>
+              </div>
+            </div>
+            <div className="cube-shadow" />
           </div>
         </div>
 
@@ -266,11 +478,11 @@ export default function AboutPage() {
 
         {/* FEATURES */}
         <div className="section" id="features">
-          <div className="section-head">
+          <div className="section-head reveal zoom">
             <p className="section-tag">What We Offer</p>
             <h2 className="section-title">Everything you need,<br />nothing you don&apos;t.</h2>
           </div>
-          <div className="features">
+          <div className="features bend" data-scroll3d>
             {[
               { 
                 icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>, 
@@ -308,11 +520,13 @@ export default function AboutPage() {
                 title: "Team Collaboration", 
                 text: "Invite your team, assign roles, and work together without stepping on each other." 
               },
-            ].map(f => (
-              <div className="feat" key={f.title}>
-                <div className="feat-icon" style={{ background: f.bg }}>{f.icon}</div>
-                <h3>{f.title}</h3>
-                <p>{f.text}</p>
+            ].map((f, i) => (
+              <div className="feat-wrap reveal" key={f.title} style={delay(i * 110)}>
+                <div className="feat tilt">
+                  <div className="feat-icon" style={{ background: f.bg }}>{f.icon}</div>
+                  <h3>{f.title}</h3>
+                  <p>{f.text}</p>
+                </div>
               </div>
             ))}
           </div>
@@ -320,7 +534,7 @@ export default function AboutPage() {
 
         {/* HOW IT WORKS */}
         <div className="section">
-          <div className="section-head">
+          <div className="section-head reveal zoom">
             <p className="section-tag">How It Works</p>
             <h2 className="section-title">Up and running in minutes.</h2>
           </div>
@@ -329,11 +543,13 @@ export default function AboutPage() {
               { n: "1", title: "Create Your Account", text: "Sign up for free in under 60 seconds. No credit card required." },
               { n: "2", title: "Set Up Your Shop", text: "Add your products, configure pricing, and customize your storefront." },
               { n: "3", title: "Start Selling", text: "Go live and start receiving orders. Track everything from your dashboard." },
-            ].map(s => (
-              <div className="step" key={s.n}>
-                <div className="step-num">{s.n}</div>
-                <h3>{s.title}</h3>
-                <p>{s.text}</p>
+            ].map((s, i) => (
+              <div className="step-wrap reveal flip" key={s.n} style={delay(i * 180)}>
+                <div className="step">
+                  <div className="step-num">{s.n}</div>
+                  <h3>{s.title}</h3>
+                  <p>{s.text}</p>
+                </div>
               </div>
             ))}
           </div>
@@ -341,21 +557,23 @@ export default function AboutPage() {
 
         {/* TEAM */}
         <div className="section">
-          <div className="section-head">
+          <div className="section-head reveal zoom">
             <p className="section-tag">Meet The Team</p>
             <h2 className="section-title">Built by people who<br />love great products.</h2>
           </div>
-          <div className="team-grid">
+          <div className="team-grid bend" data-scroll3d>
             {[
               { initials: "RR", bg: "linear-gradient(135deg,#7c3aed,#4f46e5)", name: "Rochell Reponte", role: "Founder & CEO", bio: "10 years in e-commerce. Passionate about making commerce accessible for every merchant." },
               { initials: "DA", bg: "linear-gradient(135deg,#2563eb,#0ea5e9)", name: "Denmar Aces", role: "Head of Product", bio: "Former Shopify engineer. Obsessed with removing friction from everyday workflows." },
               { initials: "DJ", bg: "linear-gradient(135deg,#059669,#10b981)", name: "Dayoja Joemil", role: "Lead Engineer", bio: "Full-stack wizard. Built Shopply's infrastructure to scale — Laravel, Next.js, and beyond." },
-            ].map(t => (
-              <div className="team-card" key={t.name}>
-                <div className="avatar" style={{ background: t.bg }}>{t.initials}</div>
-                <h4>{t.name}</h4>
-                <p className="role">{t.role}</p>
-                <p>{t.bio}</p>
+            ].map((t, i) => (
+              <div className="team-wrap reveal" key={t.name} style={delay(i * 140)}>
+                <div className="team-card tilt">
+                  <div className="avatar" style={{ background: t.bg }}>{t.initials}</div>
+                  <h4>{t.name}</h4>
+                  <p className="role">{t.role}</p>
+                  <p>{t.bio}</p>
+                </div>
               </div>
             ))}
           </div>
@@ -363,7 +581,7 @@ export default function AboutPage() {
 
         {/* CTA BANNER */}
         <div className="cta-banner">
-          <div className="cta-inner">
+          <div className="cta-inner cta-3d" data-scroll3d>
             <h2>Ready to grow your shop?</h2>
             <p>Everything you need to run a successful online store is waiting for you.</p>
             <Link href="/dashboard" className="cta-white">Open Dashboard →</Link>
