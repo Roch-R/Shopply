@@ -3129,21 +3129,21 @@ export default function DashboardPage() {
   const renderStatusBadge = (status: string) => {
     const s = (status || "").toLowerCase();
     if (s === 'pending') {
-      return <span style={{ background: '#fffbeb', color: '#b45309', border: '1.5px solid #000000', padding: '3px 10px', borderRadius: 6, fontSize: 11, fontWeight: 900, letterSpacing: '0.5px', textTransform: 'uppercase', display: 'inline-flex', alignItems: 'center', boxShadow: 'none' }}>● Pending</span>;
+      return <span style={{ background: '#fffbeb', color: '#b45309', border: '1px solid #fde68a', padding: '3px 10px', borderRadius: 6, fontSize: 11, fontWeight: 900, letterSpacing: '0.5px', textTransform: 'uppercase', display: 'inline-flex', alignItems: 'center', boxShadow: 'none' }}>● Pending</span>;
     }
     if (s === 'processing') {
-      return <span style={{ background: '#dcfce7', color: '#15803d', border: '1.5px solid #000000', padding: '3px 10px', borderRadius: 6, fontSize: 11, fontWeight: 900, letterSpacing: '0.5px', textTransform: 'uppercase', display: 'inline-flex', alignItems: 'center', boxShadow: 'none' }}>● Processing</span>;
+      return <span style={{ background: '#dcfce7', color: '#15803d', border: '1px solid #bbf7d0', padding: '3px 10px', borderRadius: 6, fontSize: 11, fontWeight: 900, letterSpacing: '0.5px', textTransform: 'uppercase', display: 'inline-flex', alignItems: 'center', boxShadow: 'none' }}>● Processing</span>;
     }
     if (s === 'shipped') {
-      return <span style={{ background: '#dbeafe', color: '#1d4ed8', border: '1.5px solid #000000', padding: '3px 10px', borderRadius: 6, fontSize: 11, fontWeight: 900, letterSpacing: '0.5px', textTransform: 'uppercase', display: 'inline-flex', alignItems: 'center', boxShadow: 'none' }}>● Shipped</span>;
+      return <span style={{ background: '#dbeafe', color: '#1d4ed8', border: '1px solid #bfdbfe', padding: '3px 10px', borderRadius: 6, fontSize: 11, fontWeight: 900, letterSpacing: '0.5px', textTransform: 'uppercase', display: 'inline-flex', alignItems: 'center', boxShadow: 'none' }}>● Shipped</span>;
     }
     if (s === 'delivered' || s === 'completed') {
-      return <span style={{ background: '#f5f3ff', color: '#7c3aed', border: '1.5px solid #000000', padding: '3px 10px', borderRadius: 6, fontSize: 11, fontWeight: 900, letterSpacing: '0.5px', textTransform: 'uppercase', display: 'inline-flex', alignItems: 'center', boxShadow: 'none' }}>● Delivered</span>;
+      return <span style={{ background: '#f5f3ff', color: '#7c3aed', border: '1px solid #ddd6fe', padding: '3px 10px', borderRadius: 6, fontSize: 11, fontWeight: 900, letterSpacing: '0.5px', textTransform: 'uppercase', display: 'inline-flex', alignItems: 'center', boxShadow: 'none' }}>● Delivered</span>;
     }
     if (s === 'cancelled' || s === 'rejected') {
-      return <span style={{ background: '#fee2e2', color: '#b91c1c', border: '1.5px solid #000000', padding: '3px 10px', borderRadius: 6, fontSize: 11, fontWeight: 900, letterSpacing: '0.5px', textTransform: 'uppercase', display: 'inline-flex', alignItems: 'center', boxShadow: 'none' }}>● Cancelled</span>;
+      return <span style={{ background: '#fee2e2', color: '#b91c1c', border: '1px solid #fecaca', padding: '3px 10px', borderRadius: 6, fontSize: 11, fontWeight: 900, letterSpacing: '0.5px', textTransform: 'uppercase', display: 'inline-flex', alignItems: 'center', boxShadow: 'none' }}>● Cancelled</span>;
     }
-    return <span style={{ background: '#f8fafc', color: '#000000', border: '1.5px solid #000000', padding: '3px 10px', borderRadius: 6, fontSize: 11, fontWeight: 900, letterSpacing: '0.5px', textTransform: 'uppercase', display: 'inline-flex', alignItems: 'center', boxShadow: 'none' }}>● {status}</span>;
+    return <span style={{ background: '#f8fafc', color: '#000000', border: '1px solid #e2e8f0', padding: '3px 10px', borderRadius: 6, fontSize: 11, fontWeight: 900, letterSpacing: '0.5px', textTransform: 'uppercase', display: 'inline-flex', alignItems: 'center', boxShadow: 'none' }}>● {status}</span>;
   };
 
   const formatPriceDisplay = (item: ShopItem) => {
@@ -3197,7 +3197,7 @@ export default function DashboardPage() {
         /* --- FLAT NEO-BRUTALIST NAVIGATION (NO SHADOW, BOLD OUTLINE) --- */
         .nav {
           background: #ffffff;
-          border-bottom: 3px solid #000000;
+          border-bottom: 1px solid #e2e8f0;
           padding: 0 32px;
           height: 70px;
           display: flex;
@@ -3217,7 +3217,7 @@ export default function DashboardPage() {
           color: #7c3aed;
           font-weight: 800;
           background: #f5f3ff;
-          border: 2px solid #000000;
+          border: 1px solid #ddd6fe;
           border-radius: 8px;
           padding: 6px 14px;
           box-shadow: none;
@@ -3231,13 +3231,13 @@ export default function DashboardPage() {
           text-decoration: none;
           padding: 7px 14px;
           border-radius: 8px;
-          border: 2px solid transparent;
+          border: 1px solid transparent;
           transition: all 0.15s;
         }
         .nav-link:hover {
           color: #7c3aed;
           background: #f5f3ff;
-          border-color: #000000;
+          border-color: #ede9fe;
           box-shadow: none;
         }
         .shop-link {
@@ -3248,7 +3248,7 @@ export default function DashboardPage() {
           padding: 8px 18px;
           border-radius: 8px;
           background: #7c3aed;
-          border: 2px solid #000000;
+          border: 1px solid #6d28d9;
           box-shadow: none;
           transition: background 0.15s ease;
         }
@@ -3259,7 +3259,7 @@ export default function DashboardPage() {
         .logout-btn {
           padding: 8px 16px;
           background: #fee2e2;
-          border: 2px solid #000000;
+          border: 1px solid #fecaca;
           border-radius: 8px;
           color: #ef4444;
           font-size: 13px;
@@ -3282,7 +3282,7 @@ export default function DashboardPage() {
           border-radius: 8px;
           color: #000000;
           background: #ffffff;
-          border: 2px solid #000000;
+          border: 1px solid #e2e8f0;
           box-shadow: none;
           transition: all 0.15s;
           text-decoration: none;
@@ -3305,7 +3305,7 @@ export default function DashboardPage() {
           display: flex;
           align-items: center;
           justify-content: center;
-          border: 2px solid #000000;
+          border: 1.5px solid #ffffff;
           box-shadow: none;
         }
 
@@ -3323,7 +3323,7 @@ export default function DashboardPage() {
           padding: 20px 14px 24px 14px;
           box-shadow: none !important;
           border: none !important;
-          border-right: 3px solid #000000 !important;
+          border-right: 1px solid #e2e8f0 !important;
           display: flex;
           flex-direction: column;
           gap: 4px;
@@ -3355,7 +3355,7 @@ export default function DashboardPage() {
         }
         .sidebar-menu-scrollable::-webkit-scrollbar { width: 5px; }
         .sidebar-menu-scrollable::-webkit-scrollbar-thumb {
-          background: #000000;
+          background: #cbd5e1;
           border-radius: 0px;
         }
         .sidebar-menu-scrollable::-webkit-scrollbar-track { background: transparent; }
@@ -3366,7 +3366,7 @@ export default function DashboardPage() {
           gap: 12px;
           padding: 10px 10px 14px;
           margin-bottom: 12px;
-          border-bottom: 2.5px solid #000000;
+          border-bottom: 1px solid #f1f5f9;
           position: relative;
         }
         .sidebar-item {
@@ -3374,13 +3374,13 @@ export default function DashboardPage() {
           align-items: center;
           gap: 12px;
           padding: 10px 14px;
-          border-radius: 0px !important;
+          border-radius: 8px !important;
           font-size: 13.5px;
           font-weight: 800;
           color: #000000;
           cursor: pointer;
           background: #ffffff;
-          border: 2px solid transparent;
+          border: 1px solid transparent;
           transition: all 0.15s ease;
           text-align: left;
           width: 100%;
@@ -3389,8 +3389,8 @@ export default function DashboardPage() {
         .sidebar-item:hover {
           background: #f5f3ff;
           color: #7c3aed;
-          border-color: #000000;
-          border-radius: 0px !important;
+          border-color: #ede9fe;
+          border-radius: 8px !important;
           box-shadow: none !important;
         }
         .sidebar-item:active {
@@ -3399,8 +3399,8 @@ export default function DashboardPage() {
         .sidebar-item.active {
           background: #7c3aed !important;
           color: #ffffff !important;
-          border: 2.5px solid #000000 !important;
-          border-radius: 0px !important;
+          border: 1px solid #7c3aed !important;
+          border-radius: 8px !important;
           box-shadow: none !important;
           font-weight: 900;
         }
@@ -3418,13 +3418,13 @@ export default function DashboardPage() {
           font-weight: 900;
           padding: 2px 7px;
           border-radius: 6px;
-          border: 1.5px solid #000000;
+          border: 1px solid #fecaca;
           box-shadow: none;
         }
         .sidebar-item.active .sidebar-badge {
           background: #ffffff;
           color: #7c3aed;
-          border-color: #000000;
+          border-color: #ddd6fe;
         }
 
         .sidebar-sub-menu {
@@ -3443,8 +3443,8 @@ export default function DashboardPage() {
           content: '';
           position: absolute;
           left: 18px; top: 0; bottom: 8px;
-          width: 2.5px;
-          background: #000000;
+          width: 1.5px;
+          background: #e2e8f0;
         }
         .sidebar-sub-item {
           position: relative;
@@ -3454,8 +3454,8 @@ export default function DashboardPage() {
           font-size: 12.5px;
           font-weight: 700;
           color: #000000;
-          border-radius: 0px !important;
-          border: 1.5px solid transparent;
+          border-radius: 8px !important;
+          border: 1px solid transparent;
           background: none;
           cursor: pointer;
           transition: all 0.15s;
@@ -3466,19 +3466,19 @@ export default function DashboardPage() {
           content: '';
           position: absolute;
           left: 18px; top: 50%;
-          width: 8px; height: 2px;
-          background: #000000;
+          width: 8px; height: 1.5px;
+          background: #cbd5e1;
         }
         .sidebar-sub-item:hover {
           color: #7c3aed;
           background: #f5f3ff;
-          border-color: #000000;
+          border-color: #ede9fe;
           box-shadow: none;
         }
         .sidebar-sub-item.active {
           color: #ffffff;
           background: #7c3aed;
-          border: 2px solid #000000;
+          border: 1px solid #7c3aed;
           box-shadow: none;
           font-weight: 900;
         }
@@ -3513,7 +3513,7 @@ export default function DashboardPage() {
           background: #ffffff;
           border-radius: 16px;
           padding: 28px 32px;
-          border: 3px solid #000000;
+          border: 1px solid #e2e8f0;
           box-shadow: none;
           margin-bottom: 24px;
           display: flex;
@@ -3534,7 +3534,7 @@ export default function DashboardPage() {
           font-weight: 900;
           color: #7c3aed;
           flex-shrink: 0;
-          border: 3px solid #000000;
+          border: 1px solid #ddd6fe;
           box-shadow: none;
         }
         .profile-info h2 {
@@ -3557,7 +3557,7 @@ export default function DashboardPage() {
           background: #f5f3ff;
           padding: 20px 32px;
           border-radius: 14px;
-          border: 2.5px solid #000000;
+          border: 1px solid #ede9fe;
           box-shadow: none;
         }
         @media (max-width: 650px) { .profile-stats { grid-template-columns: 1fr; gap: 14px; } }
@@ -3577,13 +3577,13 @@ export default function DashboardPage() {
           background: #ffffff;
           width: 32px; height: 32px;
           border-radius: 8px;
-          border: 2px solid #000000;
+          border: 1px solid #ddd6fe;
           box-shadow: none;
           flex-shrink: 0;
         }
         .profile-stat-val {
           background: #ffffff;
-          border: 2px solid #000000;
+          border: 1px solid #e2e8f0;
           padding: 2px 8px;
           border-radius: 6px;
           box-shadow: none;
@@ -3609,7 +3609,7 @@ export default function DashboardPage() {
           width: max-content;
           line-height: 1.4;
           font-size: 14px;
-          border: 2.5px solid #000000;
+          border: 1px solid #e2e8f0;
           box-shadow: none;
           animation: slideUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
           pointer-events: auto;
@@ -3621,7 +3621,7 @@ export default function DashboardPage() {
 
         .spinner {
           width: 40px; height: 40px; border-radius: 50%;
-          border: 3.5px solid #000000; border-top-color: #7c3aed;
+          border: 2.5px solid #e2e8f0; border-top-color: #7c3aed;
           animation: spin .7s linear infinite;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
@@ -3633,7 +3633,7 @@ export default function DashboardPage() {
           background: #ffffff;
           border-radius: 14px;
           padding: 26px;
-          border: 2.5px solid #000000;
+          border: 1px solid #e2e8f0;
           box-shadow: none;
         }
         .info-card-label {
@@ -3642,7 +3642,7 @@ export default function DashboardPage() {
           text-transform: uppercase;
           color: #7c3aed;
           background: #f5f3ff;
-          border: 2px solid #000000;
+          border: 1px solid #ddd6fe;
           border-radius: 6px;
           padding: 3px 10px;
           display: inline-block;
@@ -3664,18 +3664,18 @@ export default function DashboardPage() {
           border-radius: 8px;
           font-size: 12px;
           font-weight: 900;
-          border: 2px solid #000000;
+          border: 1px solid #bbf7d0;
           box-shadow: none;
           text-transform: uppercase;
         }
         .badge-green { background: #dcfce7; color: #16a34a; }
-        .dot-live { width: 8px; height: 8px; border-radius: 50%; background: #16a34a; display: inline-block; border: 1.5px solid #000000; }
+        .dot-live { width: 8px; height: 8px; border-radius: 50%; background: #16a34a; display: inline-block; border: 1px solid #16a34a; }
 
         .add-form {
           background: #ffffff;
           border-radius: 16px;
           padding: 32px;
-          border: 3px solid #000000;
+          border: 1px solid #e2e8f0;
           box-shadow: none;
         }
         .add-form h3 { font-size: 20px; font-weight: 900; color: #000000; margin-bottom: 24px; text-transform: uppercase; }
@@ -3693,7 +3693,7 @@ export default function DashboardPage() {
         .form-input, .form-textarea {
           width: 100%;
           padding: 12px 14px;
-          border: 2.5px solid #000000 !important;
+          border: 1px solid #cbd5e1 !important;
           border-radius: 8px;
           font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
           font-size: 14px;
@@ -3712,7 +3712,7 @@ export default function DashboardPage() {
         .form-textarea { resize: vertical; min-height: 100px; }
 
         .image-upload {
-          border: 2.5px dashed #000000;
+          border: 1.5px dashed #cbd5e1;
           border-radius: 12px;
           padding: 32px;
           text-align: center;
@@ -3722,12 +3722,12 @@ export default function DashboardPage() {
           box-shadow: none;
         }
         .image-upload:hover {
-          border-color: #000000;
+          border-color: #7c3aed;
           background: #f5f3ff;
           box-shadow: none;
         }
-        .image-upload.has-image { padding: 12px; border-style: solid; border-color: #000000; }
-        .image-preview { width: 100%; max-height: 200px; object-fit: cover; border-radius: 8px; border: 2px solid #000000; }
+        .image-upload.has-image { padding: 12px; border-style: solid; border-color: #e2e8f0; }
+        .image-preview { width: 100%; max-height: 200px; object-fit: cover; border-radius: 8px; border: 1px solid #e2e8f0; }
         .upload-icon { font-size: 32px; margin-bottom: 8px; display: block; color: #7c3aed; }
         .upload-text { font-size: 14px; color: #000000; font-weight: 800; margin-bottom: 4px; }
         .upload-hint { font-size: 12px; color: #64748b; font-weight: 600; }
@@ -3737,7 +3737,7 @@ export default function DashboardPage() {
           padding: 14px;
           background: #7c3aed;
           color: #ffffff;
-          border: 2.5px solid #000000;
+          border: 1px solid #6d28d9;
           border-radius: 10px;
           font-size: 15px;
           font-weight: 900;
@@ -3765,7 +3765,7 @@ export default function DashboardPage() {
           background: #ffffff;
           border-radius: 14px;
           overflow: hidden;
-          border: 2.5px solid #000000;
+          border: 1px solid #e2e8f0;
           box-shadow: none;
           transition: border-color 0.15s;
         }
@@ -3773,13 +3773,13 @@ export default function DashboardPage() {
           border-color: #7c3aed;
           box-shadow: none;
         }
-        .item-card-img { width: 100%; height: 200px; object-fit: cover; display: block; border-bottom: 2.5px solid #000000; }
+        .item-card-img { width: 100%; height: 200px; object-fit: cover; display: block; border-bottom: 1px solid #f1f5f9; }
         .item-card-placeholder {
           width: 100%; height: 200px;
           background: #f5f3ff;
           display: flex; align-items: center; justify-content: center;
           font-size: 40px; color: #7c3aed;
-          border-bottom: 2.5px solid #000000;
+          border-bottom: 1px solid #f1f5f9;
         }
         .item-card-body { padding: 20px; }
         .item-card-name { font-size: 18px; font-weight: 900; color: #000000; margin-bottom: 8px; }
@@ -3789,11 +3789,11 @@ export default function DashboardPage() {
         }
         .item-card-footer {
           display: flex; align-items: center; justify-content: space-between;
-          padding-top: 14px; border-top: 2px solid #000000; margin-top: auto;
+          padding-top: 14px; border-top: 1px solid #f1f5f9; margin-top: auto;
         }
         .item-card-price {
           font-size: 18px; font-weight: 900; color: #16a34a;
-          background: #dcfce7; border: 2px solid #000000; padding: 2px 10px; border-radius: 6px;
+          background: #dcfce7; border: 1px solid #bbf7d0; padding: 2px 10px; border-radius: 6px;
           box-shadow: none; display: inline-block;
         }
         .toggle-btn {
@@ -3802,7 +3802,7 @@ export default function DashboardPage() {
           border-radius: 8px;
           font-size: 13px;
           font-weight: 800;
-          border: 2px solid #000000;
+          border: 1px solid #e2e8f0;
           box-shadow: none;
           cursor: pointer;
           transition: all 0.15s;
@@ -3823,7 +3823,7 @@ export default function DashboardPage() {
           border-radius: 6px;
           font-size: 11px;
           font-weight: 900;
-          border: 2px solid #000000;
+          border: 1px solid #bbf7d0;
           box-shadow: none;
           text-transform: uppercase;
         }
@@ -3835,7 +3835,7 @@ export default function DashboardPage() {
           padding: 80px 20px;
           background: #ffffff;
           border-radius: 14px;
-          border: 2.5px dashed #000000;
+          border: 1.5px dashed #cbd5e1;
           box-shadow: none;
         }
         .empty-icon { font-size: 48px; margin-bottom: 16px; color: #000000; }
@@ -3850,14 +3850,14 @@ export default function DashboardPage() {
           border-radius: 16px !important;
           padding: 24px 28px !important;
           color: #ffffff !important;
-          border: 3px solid #000000 !important;
+          border: 1px solid rgba(255,255,255,0.2) !important;
           box-shadow: none !important;
         }
         .order-control-bar {
           background: #ffffff !important;
           border-radius: 14px !important;
           padding: 16px 20px !important;
-          border: 2.5px solid #000000 !important;
+          border: 1px solid #e2e8f0 !important;
           box-shadow: none !important;
         }
         .orders-list { display: flex; flex-direction: column; gap: 16px; width: 100%; }
@@ -3874,7 +3874,7 @@ export default function DashboardPage() {
         }
         .store-orders-table-wrapper {
           background: #ffffff;
-          border: 2.5px solid #000000;
+          border: 1px solid #e2e8f0;
           border-radius: 12px;
           overflow-x: auto;
           box-shadow: none;
@@ -3889,7 +3889,7 @@ export default function DashboardPage() {
         }
         .store-orders-table th {
           background: #f5f3ff;
-          border-bottom: 2px solid #000000;
+          border-bottom: 1px solid #e2e8f0;
           padding: 12px 16px;
           font-weight: 900;
           color: #000000;
@@ -3915,7 +3915,7 @@ export default function DashboardPage() {
           background: #ffffff;
           border-radius: 14px;
           box-shadow: none;
-          border: 2.5px solid #000000;
+          border: 1px solid #e2e8f0;
           overflow: hidden;
           display: flex;
           flex-direction: column;
@@ -3925,7 +3925,7 @@ export default function DashboardPage() {
           background: #ffffff;
           padding: 16px 24px;
           border-radius: 14px;
-          border: 2.5px solid #000000;
+          border: 1px solid #e2e8f0;
           box-shadow: none;
           display: flex;
           align-items: center;
@@ -3934,7 +3934,7 @@ export default function DashboardPage() {
         .order-search { position: relative; display: flex; align-items: center; }
         .order-search input {
           padding: 10px 36px 10px 18px;
-          border: 2px solid #000000;
+          border: 1px solid #cbd5e1;
           border-radius: 8px;
           font-size: 14px;
           font-weight: 700;
@@ -3953,7 +3953,7 @@ export default function DashboardPage() {
           align-items: center;
           gap: 12px;
           background: #dcfce7;
-          border: 2px solid #000000;
+          border: 1px solid #bbf7d0;
           box-shadow: none;
           color: #16a34a;
           padding: 14px 18px;
@@ -3966,7 +3966,7 @@ export default function DashboardPage() {
         .btn-accept {
           background: #10b981;
           color: #ffffff;
-          border: 2px solid #000000;
+          border: 1px solid #10b981;
           box-shadow: none;
           padding: 8px 18px;
           border-radius: 8px;
@@ -3982,7 +3982,7 @@ export default function DashboardPage() {
         .btn-reject {
           background: #fee2e2;
           color: #ef4444;
-          border: 2px solid #000000;
+          border: 1px solid #fecaca;
           box-shadow: none;
           padding: 8px 18px;
           border-radius: 8px;
@@ -3998,7 +3998,7 @@ export default function DashboardPage() {
         .btn-print {
           background: #ffffff;
           color: #000000;
-          border: 2px solid #000000;
+          border: 1px solid #e2e8f0;
           box-shadow: none;
           padding: 8px 14px;
           border-radius: 8px;
@@ -4028,7 +4028,7 @@ export default function DashboardPage() {
           width: 420px;
           border-radius: 16px;
           padding: 30px;
-          border: 3.5px solid #000000;
+          border: 1px solid #e2e8f0;
           box-shadow: none;
           position: relative;
           max-height: 90vh;
@@ -4038,7 +4038,7 @@ export default function DashboardPage() {
           text-align: center;
           margin-bottom: 24px;
           padding-bottom: 16px;
-          border-bottom: 2px dashed #000000;
+          border-bottom: 1px dashed #cbd5e1;
         }
         .receipt-logo { font-size: 24px; font-weight: 900; color: #000000; margin-bottom: 8px; text-transform: uppercase; }
         .receipt-title { font-size: 18px; font-weight: 800; color: #000000; }
@@ -4048,7 +4048,7 @@ export default function DashboardPage() {
         .receipt-value { font-weight: 800; color: #000000; text-align: right; }
         .receipt-total {
           display: flex; justify-content: space-between; margin-top: 20px; padding-top: 16px;
-          border-top: 2px dashed #000000; font-size: 18px; font-weight: 900; color: #000000;
+          border-top: 1px dashed #cbd5e1; font-size: 18px; font-weight: 900; color: #000000;
         }
         .receipt-actions { display: flex; gap: 12px; margin-top: 30px; }
 
@@ -4078,14 +4078,14 @@ export default function DashboardPage() {
           background: #ffffff;
           border-radius: 16px;
           box-shadow: none;
-          border: 3px solid #000000;
+          border: 1px solid #e2e8f0;
           display: flex;
           overflow: hidden;
           font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
         }
         .chat-left-pane {
           width: 280px;
-          border-right: 2.5px solid #000000;
+          border-right: 1px solid #e2e8f0;
           background: #f8fafc;
           display: flex;
           flex-direction: column;
@@ -4123,14 +4123,14 @@ export default function DashboardPage() {
         .chat-message-bubble.me {
           background: #7c3aed;
           color: #ffffff;
-          border: 2px solid #000000;
+          border: 1px solid #7c3aed;
           box-shadow: none;
           border-radius: 12px 12px 2px 12px;
         }
         .chat-message-bubble.them {
           background: #ffffff;
           color: #000000;
-          border: 2px solid #000000;
+          border: 1px solid #e2e8f0;
           box-shadow: none;
           border-radius: 12px 12px 12px 2px;
         }
@@ -4139,14 +4139,14 @@ export default function DashboardPage() {
           display: flex;
           gap: 12px;
           align-items: center;
-          border-top: 2.5px solid #000000;
+          border-top: 1px solid #e2e8f0;
           background: #ffffff;
         }
         .chat-input-textarea {
           flex: 1;
           padding: 12px 18px;
           border-radius: 8px;
-          border: 2px solid #000000;
+          border: 1px solid #cbd5e1;
           background: #ffffff;
           font-size: 14px;
           font-weight: 700;
@@ -4170,7 +4170,7 @@ export default function DashboardPage() {
         }
         .settings-stat-box {
           background: #ffffff;
-          border: 2.5px solid #000000;
+          border: 1px solid #e2e8f0;
           border-radius: 12px;
           box-shadow: none;
           padding: 18px 22px;
@@ -4186,7 +4186,7 @@ export default function DashboardPage() {
           width: 48px;
           height: 48px;
           border-radius: 10px;
-          border: 2px solid #000000;
+          border: 1px solid #e2e8f0;
           box-shadow: none;
           display: flex;
           align-items: center;
@@ -4213,7 +4213,7 @@ export default function DashboardPage() {
         }
         .settings-section-card {
           background: #ffffff;
-          border: 3px solid #000000;
+          border: 1px solid #e2e8f0;
           border-radius: 16px;
           box-shadow: none;
           padding: 30px;
@@ -4231,7 +4231,7 @@ export default function DashboardPage() {
           justify-content: center;
           padding: 22px 16px;
           border-radius: 12px;
-          border: 2.5px solid #000000;
+          border: 1px solid #e2e8f0;
           cursor: pointer;
           transition: all 0.15s ease;
         }
@@ -4242,7 +4242,7 @@ export default function DashboardPage() {
           width: 48px;
           height: 48px;
           border-radius: 10px;
-          border: 2px solid #000000;
+          border: 1px solid #e2e8f0;
           box-shadow: none;
           display: flex;
           align-items: center;
@@ -4280,7 +4280,7 @@ export default function DashboardPage() {
           justify-content: space-between;
           padding: 14px 18px;
           border-radius: 10px;
-          border: 2px solid #000000;
+          border: 1px solid #e2e8f0;
           box-shadow: none;
           transition: all 0.15s ease;
         }
@@ -4301,7 +4301,7 @@ export default function DashboardPage() {
         }
         .perf-action-card {
           background: #ffffff;
-          border: 2.5px solid #000000;
+          border: 1px solid #e2e8f0;
           border-radius: 14px;
           box-shadow: none;
           padding: 24px;
@@ -4313,7 +4313,7 @@ export default function DashboardPage() {
           background: #f5f3ff;
           border-radius: 16px;
           padding: 28px;
-          border: 3px solid #000000;
+          border: 1px solid #ddd6fe;
           box-shadow: none;
           color: #000000;
         }
@@ -4324,7 +4324,7 @@ export default function DashboardPage() {
         }
         .perf-tip-card {
           background: #ffffff;
-          border: 2px solid #000000;
+          border: 1px solid #e2e8f0;
           border-radius: 10px;
           box-shadow: none;
           padding: 16px;
@@ -4340,7 +4340,7 @@ export default function DashboardPage() {
         }
         .store-metric-card {
           background: #ffffff;
-          border: 2px solid #000000;
+          border: 1px solid #e2e8f0;
           border-radius: 10px;
           padding: 12px 16px;
           box-shadow: none;
@@ -4418,13 +4418,13 @@ export default function DashboardPage() {
             padding-top: max(16px, env(safe-area-inset-top, 16px)) !important;
             border-radius: 0px !important;
             border: none !important;
-            border-right: 3px solid #000000 !important;
+            border-right: 1px solid #e2e8f0 !important;
           }
           .sidebar-close-btn { display: flex !important; }
           .sidebar-profile-header {
             padding: 8px 10px !important;
             margin-bottom: 8px !important;
-            border-bottom: 2.5px solid #000000 !important;
+            border-bottom: 1px solid #f1f5f9 !important;
           }
           .sidebar-backdrop {
             position: fixed; inset: 0;
@@ -4448,7 +4448,7 @@ export default function DashboardPage() {
             gap: 6px !important;
             min-width: 0 !important;
             border-radius: 10px !important;
-            border-width: 2px !important;
+            border-width: 1px !important;
           }
           .settings-stat-icon-box {
             width: 36px !important;
@@ -4490,7 +4490,7 @@ export default function DashboardPage() {
             padding: 16px 12px !important;
             margin-bottom: 16px !important;
             border-radius: 12px !important;
-            border-width: 2.5px !important;
+            border-width: 1px !important;
           }
           .my-stats-grid {
             grid-template-columns: repeat(2, 1fr) !important;
@@ -4499,7 +4499,7 @@ export default function DashboardPage() {
           .my-stat-card {
             padding: 12px 8px !important;
             border-radius: 10px !important;
-            border-width: 2px !important;
+            border-width: 1px !important;
           }
           .my-stat-card-icon {
             width: 36px !important;
@@ -4680,7 +4680,7 @@ export default function DashboardPage() {
           .order-search input { width: 100% !important; }
           .order-card {
             border-radius: 10px !important;
-            border-width: 2px !important;
+            border-width: 1px !important;
           }
 
           /* My Items Grid on Mobile */
@@ -4690,7 +4690,7 @@ export default function DashboardPage() {
           }
           .item-card {
             border-radius: 10px !important;
-            border-width: 2px !important;
+            border-width: 1px !important;
           }
           .item-card-img, .item-card-placeholder {
             height: 160px !important;
@@ -4706,7 +4706,7 @@ export default function DashboardPage() {
           .add-form {
             padding: 16px 12px !important;
             border-radius: 12px !important;
-            border-width: 2.5px !important;
+            border-width: 1px !important;
           }
           .form-row { grid-template-columns: 1fr !important; gap: 14px !important; }
           .form-group { margin-bottom: 14px !important; }
@@ -4723,7 +4723,7 @@ export default function DashboardPage() {
           .chat-card-container {
             height: calc(100vh - 110px) !important;
             border-radius: 12px !important;
-            border-width: 2.5px !important;
+            border-width: 1px !important;
           }
           .chat-left-pane { width: 100% !important; border-right: none !important; }
           .chat-left-pane.mobile-hidden { display: none !important; }
@@ -4805,7 +4805,7 @@ export default function DashboardPage() {
             onClick={toggleMobileMenu}
             style={{
               background: '#f5f3ff',
-              border: '2px solid #000000',
+              border: '1px solid #e2e8f0',
               boxShadow: 'none',
               borderRadius: 8,
               color: '#7c3aed',
@@ -4858,7 +4858,7 @@ export default function DashboardPage() {
 
             {/* PROFILE HEADER IN SIDEBAR */}
             <div className="sidebar-profile-header">
-              <div style={{ width: 40, height: 40, borderRadius: 10, border: '2px solid #000000', boxShadow: 'none', background: '#f5f3ff', color: '#7c3aed', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: 16, flexShrink: 0, overflow: 'hidden' }}>
+              <div style={{ width: 40, height: 40, borderRadius: 10, border: '1px solid #ddd6fe', boxShadow: 'none', background: '#f5f3ff', color: '#7c3aed', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: 16, flexShrink: 0, overflow: 'hidden' }}>
                 {user?.avatar ? (
                   <img src={getAvatarUrl(user.avatar)} alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 8 }} />
                 ) : (
@@ -4877,7 +4877,7 @@ export default function DashboardPage() {
                 style={{
                   display: 'none',
                   background: '#f5f3ff',
-                  border: '2px solid #000000',
+                  border: '1px solid #e2e8f0',
                   borderRadius: 6,
                   width: 30,
                   height: 30,
@@ -5001,7 +5001,7 @@ export default function DashboardPage() {
                   </div>
                   <div className="profile-info">
                     <div style={{ marginBottom: 6 }}>
-                      <span style={{ display: 'inline-block', background: '#f5f3ff', color: '#7c3aed', fontSize: 11, fontWeight: 900, textTransform: 'uppercase', letterSpacing: 1, padding: '4px 12px', borderRadius: 6, border: '2px solid #000000', boxShadow: 'none' }}>
+                      <span style={{ display: 'inline-block', background: '#f5f3ff', color: '#7c3aed', fontSize: 11, fontWeight: 900, textTransform: 'uppercase', letterSpacing: 1, padding: '4px 12px', borderRadius: 6, border: '1px solid #ddd6fe', boxShadow: 'none' }}>
                         WELCOME BACK
                       </span>
                     </div>
@@ -5040,7 +5040,7 @@ export default function DashboardPage() {
                               <img src={getAvatarUrl(user.avatar)} alt={user.name} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
                             ) : initials}
                           </div>
-                          <label htmlFor="avatar-upload" style={{ position: 'absolute', bottom: 0, right: 0, background: '#7c3aed', padding: 7, borderRadius: '50%', boxShadow: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid #000000', color: '#ffffff' }}>
+                          <label htmlFor="avatar-upload" style={{ position: 'absolute', bottom: 0, right: 0, background: '#7c3aed', padding: 7, borderRadius: '50%', boxShadow: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid #ffffff', color: '#ffffff' }}>
                             <IconPlus />
                           </label>
                           <input
@@ -5138,7 +5138,7 @@ export default function DashboardPage() {
                             style={{
                               padding: '8px 16px',
                               borderRadius: 8,
-                              border: '2px solid #000000',
+                              border: '1px solid #e2e8f0',
                               background: '#f5f3ff',
                               color: '#7c3aed',
                               boxShadow: 'none',
@@ -5193,7 +5193,7 @@ export default function DashboardPage() {
                       </div>
                       <div className="info-row">
                         <span className="info-card-label">Account Status</span>
-                        <div className="info-card-value"><span style={{ background: '#dcfce7', color: '#16a34a', border: '2px solid #000000', borderRadius: 6, padding: '3px 12px', fontSize: 11, fontWeight: 900, textTransform: 'uppercase', display: 'inline-block' }}>Active</span></div>
+                        <div className="info-card-value"><span style={{ background: '#dcfce7', color: '#16a34a', border: '1px solid #bbf7d0', borderRadius: 6, padding: '3px 12px', fontSize: 11, fontWeight: 900, textTransform: 'uppercase', display: 'inline-block' }}>Active</span></div>
                       </div>
                     </div>
                   </div>
@@ -5206,7 +5206,7 @@ export default function DashboardPage() {
               <div className="orders-container">
                 <div className="orders-main">
                   {/* TRUST & GUARANTEE BANNER */}
-                  <div className="order-trust-hero" style={{ background: '#7c3aed', borderRadius: 12, border: '3px solid #000000', padding: '24px 28px', color: '#fff', boxShadow: 'none', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
+                  <div className="order-trust-hero" style={{ background: '#7c3aed', borderRadius: 12, border: '1px solid #6d28d9', padding: '24px 28px', color: '#fff', boxShadow: 'none', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
                       <div style={{ width: 52, height: 52, borderRadius: 16, background: 'rgba(255,255,255,0.18)', display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(8px)', flexShrink: 0 }}>
                         <svg width="28" height="28" fill="none" stroke="#fff" strokeWidth="2.2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /><polyline points="9 12 11 14 15 10" /></svg>
@@ -5263,7 +5263,7 @@ export default function DashboardPage() {
                                 background: isActive ? '#7c3aed' : '#f1f5f9',
                                 color: isActive ? '#fff' : '#475569',
                                 boxShadow: 'none',
-                                border: isActive ? '2px solid #000000' : '2px solid transparent',
+                                border: isActive ? '1px solid #7c3aed' : '1px solid transparent',
                                 display: 'inline-flex',
                                 alignItems: 'center',
                                 gap: 6
@@ -5518,40 +5518,40 @@ export default function DashboardPage() {
                                       </div>
                                       <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                                         {/* Track */}
-                                        <button type="button" onClick={e => { e.stopPropagation(); setTrackingOrder(order); }} style={{ background: '#7c3aed', color: '#fff', border: '2px solid #000000', padding: '7px 14px', borderRadius: 8, fontWeight: 800, fontSize: 12, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 5, boxShadow: 'none' }}>
+                                        <button type="button" onClick={e => { e.stopPropagation(); setTrackingOrder(order); }} style={{ background: '#7c3aed', color: '#fff', border: '1px solid #6d28d9', padding: '7px 14px', borderRadius: 8, fontWeight: 800, fontSize: 12, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 5, boxShadow: 'none' }}>
                                           <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M1 3h15v13H1z"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
                                           Track
                                         </button>
                                         {/* Invoice */}
-                                        <button type="button" onClick={e => { e.stopPropagation(); setReceiptOrder(order); }} style={{ background: '#ffffff', color: '#000000', border: '2px solid #000000', padding: '6px 12px', borderRadius: 8, fontWeight: 800, fontSize: 12, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 5, boxShadow: 'none' }}>
+                                        <button type="button" onClick={e => { e.stopPropagation(); setReceiptOrder(order); }} style={{ background: '#ffffff', color: '#000000', border: '1px solid #e2e8f0', padding: '6px 12px', borderRadius: 8, fontWeight: 800, fontSize: 12, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 5, boxShadow: 'none' }}>
                                           <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
                                           Invoice
                                         </button>
                                         {/* Buy Again */}
-                                        <button type="button" onClick={e => { e.stopPropagation(); handleBuyAgain(order); }} style={{ background: '#f5f3ff', color: '#7c3aed', border: '2px solid #000000', padding: '6px 12px', borderRadius: 8, fontWeight: 800, fontSize: 12, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 5, boxShadow: 'none' }}>
+                                        <button type="button" onClick={e => { e.stopPropagation(); handleBuyAgain(order); }} style={{ background: '#f5f3ff', color: '#7c3aed', border: '1px solid #ddd6fe', padding: '6px 12px', borderRadius: 8, fontWeight: 800, fontSize: 12, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 5, boxShadow: 'none' }}>
                                           <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
                                           Buy Again
                                         </button>
                                         {/* Chat Seller */}
-                                        <button type="button" onClick={e => { e.stopPropagation(); handleContactSeller(order.seller); }} style={{ background: '#ffffff', color: '#7c3aed', border: '2px solid #000000', padding: '6px 12px', borderRadius: 8, fontWeight: 800, fontSize: 12, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 5, boxShadow: 'none' }}>
+                                        <button type="button" onClick={e => { e.stopPropagation(); handleContactSeller(order.seller); }} style={{ background: '#ffffff', color: '#7c3aed', border: '1px solid #e2e8f0', padding: '6px 12px', borderRadius: 8, fontWeight: 800, fontSize: 12, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 5, boxShadow: 'none' }}>
                                           <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
                                           Chat
                                         </button>
                                         {/* Cancel (Pending only) */}
                                         {order.status === 'pending' && (
-                                          <button type="button" onClick={e => { e.stopPropagation(); setCancelModalOrder(order); setCancelReason("Changed mind / Found cheaper alternative"); }} style={{ background: '#fee2e2', color: '#ef4444', border: '2px solid #000000', padding: '6px 12px', borderRadius: 8, fontWeight: 800, fontSize: 12, cursor: 'pointer', boxShadow: 'none' }}>
+                                          <button type="button" onClick={e => { e.stopPropagation(); setCancelModalOrder(order); setCancelReason("Changed mind / Found cheaper alternative"); }} style={{ background: '#fee2e2', color: '#ef4444', border: '1px solid #fecaca', padding: '6px 12px', borderRadius: 8, fontWeight: 800, fontSize: 12, cursor: 'pointer', boxShadow: 'none' }}>
                                             Cancel
                                           </button>
                                         )}
                                         {/* Confirm Received (Shipped) */}
                                         {order.status === 'shipped' && (
-                                          <button type="button" onClick={e => { e.stopPropagation(); handleReceiveOrder(order.id); }} style={{ background: '#dcfce7', color: '#16a34a', border: '2px solid #000000', padding: '7px 14px', borderRadius: 8, cursor: 'pointer', fontSize: 12, fontWeight: 800, boxShadow: 'none' }}>
+                                          <button type="button" onClick={e => { e.stopPropagation(); handleReceiveOrder(order.id); }} style={{ background: '#dcfce7', color: '#16a34a', border: '1px solid #bbf7d0', padding: '7px 14px', borderRadius: 8, cursor: 'pointer', fontSize: 12, fontWeight: 800, boxShadow: 'none' }}>
                                             ✓ Confirm Received
                                           </button>
                                         )}
                                         {/* Rate (Delivered) */}
                                         {['delivered', 'completed'].includes(order.status) && (
-                                          <button type="button" onClick={e => { e.stopPropagation(); setReviewModalOrder(order); setReviewRating(5); setReviewComment(""); }} style={{ background: '#fef3c7', color: '#d97706', border: '2px solid #000000', padding: '7px 12px', borderRadius: 8, cursor: 'pointer', fontSize: 12, fontWeight: 800, boxShadow: 'none', display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+                                          <button type="button" onClick={e => { e.stopPropagation(); setReviewModalOrder(order); setReviewRating(5); setReviewComment(""); }} style={{ background: '#fef3c7', color: '#d97706', border: '1px solid #fde68a', padding: '7px 12px', borderRadius: 8, cursor: 'pointer', fontSize: 12, fontWeight: 800, boxShadow: 'none', display: 'inline-flex', alignItems: 'center', gap: 5 }}>
                                             ★ Rate
                                           </button>
                                         )}
@@ -5616,9 +5616,9 @@ export default function DashboardPage() {
                   ) : (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                       {pendingSellerOrdersCount > 0 && (
-                        <div className="order-card" style={{ border: '2.5px solid #000000', boxShadow: 'none', borderRadius: 14, padding: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 20 }}>
+                        <div className="order-card" style={{ border: '1px solid #e2e8f0', boxShadow: 'none', borderRadius: 14, padding: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 20 }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
-                            <div style={{ width: 56, height: 56, borderRadius: 12, border: '2px solid #000000', boxShadow: 'none', background: '#ede9fe', color: '#7c3aed', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                            <div style={{ width: 56, height: 56, borderRadius: 12, border: '1px solid #ddd6fe', boxShadow: 'none', background: '#ede9fe', color: '#7c3aed', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                               <IconStore />
                             </div>
                             <div>
@@ -5630,7 +5630,7 @@ export default function DashboardPage() {
                           </div>
                           <button
                             onClick={() => setActiveTab('store-orders')}
-                            style={{ background: '#7c3aed', color: '#ffffff', border: '2px solid #000000', padding: '10px 20px', borderRadius: 8, fontWeight: 800, cursor: 'pointer', boxShadow: 'none', transition: 'all .15s', whiteSpace: 'nowrap' }}
+                            style={{ background: '#7c3aed', color: '#ffffff', border: '1px solid #6d28d9', padding: '10px 20px', borderRadius: 8, fontWeight: 800, cursor: 'pointer', boxShadow: 'none', transition: 'all .15s', whiteSpace: 'nowrap' }}
                           >
                             Review Orders
                           </button>
@@ -5638,9 +5638,9 @@ export default function DashboardPage() {
                       )}
 
                       {orders.filter(o => o.status === 'shipped').map(order => (
-                        <div key={order.id} className="order-card" style={{ border: '2.5px solid #000000', boxShadow: 'none', borderRadius: 14, padding: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 20 }}>
+                        <div key={order.id} className="order-card" style={{ border: '1px solid #e2e8f0', boxShadow: 'none', borderRadius: 14, padding: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 20 }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
-                            <div style={{ width: 56, height: 56, borderRadius: 12, border: '2px solid #000000', boxShadow: 'none', background: '#dbeafe', color: '#2563eb', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                            <div style={{ width: 56, height: 56, borderRadius: 12, border: '1px solid #bfdbfe', boxShadow: 'none', background: '#dbeafe', color: '#2563eb', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                               <IconBox />
                             </div>
                             <div>
@@ -5654,7 +5654,7 @@ export default function DashboardPage() {
                             onClick={() => {
                               setActiveTab('orders');
                             }}
-                            style={{ background: '#7c3aed', color: '#ffffff', border: '2px solid #000000', padding: '10px 20px', borderRadius: 8, fontWeight: 800, cursor: 'pointer', boxShadow: 'none', transition: 'all .15s', whiteSpace: 'nowrap' }}
+                            style={{ background: '#7c3aed', color: '#ffffff', border: '1px solid #6d28d9', padding: '10px 20px', borderRadius: 8, fontWeight: 800, cursor: 'pointer', boxShadow: 'none', transition: 'all .15s', whiteSpace: 'nowrap' }}
                           >
                             View Order
                           </button>
@@ -5738,7 +5738,7 @@ export default function DashboardPage() {
                                 height: 10,
                                 borderRadius: '50%',
                                 background: conv.user.is_online ? '#10b981' : '#cbd5e1',
-                                border: '2px solid #000000',
+                                border: '1px solid #e2e8f0',
                                 boxShadow: 'none'
                               }} />
                             </div>
@@ -5927,7 +5927,7 @@ export default function DashboardPage() {
                                     }}>
                                       <span style={{
                                         background: '#f8fafc',
-                                        border: '2px solid #000000',
+                                        border: '1px solid #e2e8f0',
                                         color: '#000000',
                                         fontSize: '11px',
                                         fontWeight: 800,
@@ -6051,7 +6051,7 @@ export default function DashboardPage() {
                                   {activeChatUser.name.charAt(0).toUpperCase()}
                                 </div>
                               )}
-                              <div className="chat-message-bubble them" style={{ background: '#d8b4fe', display: 'flex', alignItems: 'center', gap: 6, border: '2px solid #000000', boxShadow: 'none' }}>
+                              <div className="chat-message-bubble them" style={{ background: '#d8b4fe', display: 'flex', alignItems: 'center', gap: 6, border: '1px solid #ddd6fe', boxShadow: 'none' }}>
                                 <span style={{ width: 8, height: 8, background: '#475569', borderRadius: '50%', animation: 'typingBounce 1.4s infinite ease-in-out both', animationDelay: '-0.32s' }}></span>
                                 <span style={{ width: 8, height: 8, background: '#475569', borderRadius: '50%', animation: 'typingBounce 1.4s infinite ease-in-out both', animationDelay: '-0.16s' }}></span>
                                 <span style={{ width: 8, height: 8, background: '#475569', borderRadius: '50%', animation: 'typingBounce 1.4s infinite ease-in-out both' }}></span>
@@ -6074,7 +6074,7 @@ export default function DashboardPage() {
                                       setChatImageFiles(prev => prev.filter((_, i) => i !== idx));
                                       setChatImagePreviews(prev => prev.filter((_, i) => i !== idx));
                                     }}
-                                    style={{ position: 'absolute', top: -6, right: -6, background: '#ef4444', color: '#fff', border: '1.5px solid #000000', borderRadius: '50%', width: 20, height: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, cursor: 'pointer', boxShadow: 'none' }}
+                                    style={{ position: 'absolute', top: -6, right: -6, background: '#ef4444', color: '#fff', border: '1px solid #dc2626', borderRadius: '50%', width: 20, height: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, cursor: 'pointer', boxShadow: 'none' }}
                                   >✕</button>
                                 </div>
                               ))}
@@ -6114,7 +6114,7 @@ export default function DashboardPage() {
                                   bottom: 'calc(100% + 12px)',
                                   left: 12,
                                   background: '#fff',
-                                  border: '2px solid #000000',
+                                  border: '1px solid #e2e8f0',
                                   borderRadius: 10,
                                   boxShadow: 'none',
                                   padding: 12,
@@ -6314,7 +6314,7 @@ export default function DashboardPage() {
                               style={{
                                 background: '#7c3aed',
                                 color: '#fff',
-                                border: '2px solid #000000',
+                                border: '1px solid #e2e8f0',
                                 width: 46,
                                 height: 46,
                                 borderRadius: 10,
@@ -6387,7 +6387,7 @@ export default function DashboardPage() {
                     </div>
                     <button
                       onClick={() => setShowScanner(true)}
-                      style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#7c3aed', color: '#fff', border: '2px solid #000000', padding: '10px 18px', borderRadius: 8, fontWeight: 800, fontSize: 13, cursor: 'pointer', boxShadow: 'none' }}
+                      style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#7c3aed', color: '#fff', border: '1px solid #6d28d9', padding: '10px 18px', borderRadius: 8, fontWeight: 800, fontSize: 13, cursor: 'pointer', boxShadow: 'none' }}
                     >
                       <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4z" /><path d="M14 14h6v6h-6z" /><path d="M1 1h22v22H1z" /></svg>
                       Scan Receipt to Ship
@@ -6396,23 +6396,23 @@ export default function DashboardPage() {
 
                   {/* QUICK STATS METRICS */}
                   <div className="store-metrics-strip">
-                    <div className="store-metric-card" style={{ background: '#ffffff', border: '2px solid #000000', borderRadius: 10, padding: '12px 16px', boxShadow: 'none' }}>
+                    <div className="store-metric-card" style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 10, padding: '12px 16px', boxShadow: 'none' }}>
                       <div className="store-metric-label" style={{ fontSize: 11, fontWeight: 800, color: '#7c3aed', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total Orders</div>
                       <div className="store-metric-val" style={{ fontSize: 22, fontWeight: 900, color: '#000000', marginTop: 2 }}>{sellerOrders.length}</div>
                     </div>
-                    <div className="store-metric-card" style={{ background: '#ffffff', border: '2px solid #000000', borderRadius: 10, padding: '12px 16px', boxShadow: 'none' }}>
+                    <div className="store-metric-card" style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 10, padding: '12px 16px', boxShadow: 'none' }}>
                       <div className="store-metric-label" style={{ fontSize: 11, fontWeight: 800, color: '#b45309', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Pending</div>
                       <div className="store-metric-val" style={{ fontSize: 22, fontWeight: 900, color: '#000000', marginTop: 2 }}>{sellerOrders.filter(o => o.status === 'pending').length}</div>
                     </div>
-                    <div className="store-metric-card" style={{ background: '#ffffff', border: '2px solid #000000', borderRadius: 10, padding: '12px 16px', boxShadow: 'none' }}>
+                    <div className="store-metric-card" style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 10, padding: '12px 16px', boxShadow: 'none' }}>
                       <div className="store-metric-label" style={{ fontSize: 11, fontWeight: 800, color: '#1d4ed8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>To Ship</div>
                       <div className="store-metric-val" style={{ fontSize: 22, fontWeight: 900, color: '#000000', marginTop: 2 }}>{sellerOrders.filter(o => ['processing', 'shipped'].includes(o.status)).length}</div>
                     </div>
-                    <div className="store-metric-card" style={{ background: '#ffffff', border: '2px solid #000000', borderRadius: 10, padding: '12px 16px', boxShadow: 'none' }}>
+                    <div className="store-metric-card" style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 10, padding: '12px 16px', boxShadow: 'none' }}>
                       <div className="store-metric-label" style={{ fontSize: 11, fontWeight: 800, color: '#15803d', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Delivered</div>
                       <div className="store-metric-val" style={{ fontSize: 22, fontWeight: 900, color: '#000000', marginTop: 2 }}>{sellerOrders.filter(o => ['delivered', 'completed'].includes(o.status)).length}</div>
                     </div>
-                    <div className="store-metric-card" style={{ background: '#ffffff', border: '2px solid #000000', borderRadius: 10, padding: '12px 16px', boxShadow: 'none' }}>
+                    <div className="store-metric-card" style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 10, padding: '12px 16px', boxShadow: 'none' }}>
                       <div className="store-metric-label" style={{ fontSize: 11, fontWeight: 800, color: '#b91c1c', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Cancelled</div>
                       <div className="store-metric-val" style={{ fontSize: 22, fontWeight: 900, color: '#000000', marginTop: 2 }}>{sellerOrders.filter(o => ['cancelled', 'rejected'].includes(o.status)).length}</div>
                     </div>
@@ -6421,7 +6421,7 @@ export default function DashboardPage() {
                   {/* CONTROLS CARD: TABS + SEARCH + VIEW SWITCHER */}
                   <div style={{
                     background: '#ffffff',
-                    border: '2.5px solid #000000',
+                    border: '1px solid #e2e8f0',
                     borderRadius: 12,
                     padding: '16px',
                     boxShadow: 'none',
@@ -6449,7 +6449,7 @@ export default function DashboardPage() {
                             borderRadius: 8,
                             fontSize: 13,
                             fontWeight: 800,
-                            border: '2px solid #000000',
+                            border: '1px solid #e2e8f0',
                             cursor: 'pointer',
                             whiteSpace: 'nowrap',
                             transition: 'all 0.15s ease',
@@ -6474,7 +6474,7 @@ export default function DashboardPage() {
                           style={{
                             width: '100%',
                             padding: '9px 36px 9px 14px',
-                            border: '2px solid #000000',
+                            border: '1px solid #e2e8f0',
                             borderRadius: 8,
                             fontSize: 13,
                             fontWeight: 700,
@@ -6505,7 +6505,7 @@ export default function DashboardPage() {
                           style={{
                             padding: '7px 14px',
                             borderRadius: 8,
-                            border: '2px solid #000000',
+                            border: '1px solid #e2e8f0',
                             background: storeOrderViewMode === 'grid' ? '#7c3aed' : '#ffffff',
                             color: storeOrderViewMode === 'grid' ? '#ffffff' : '#000000',
                             fontWeight: 800,
@@ -6527,7 +6527,7 @@ export default function DashboardPage() {
                           style={{
                             padding: '7px 14px',
                             borderRadius: 8,
-                            border: '2px solid #000000',
+                            border: '1px solid #e2e8f0',
                             background: storeOrderViewMode === 'table' ? '#7c3aed' : '#ffffff',
                             color: storeOrderViewMode === 'table' ? '#ffffff' : '#000000',
                             fontWeight: 800,
@@ -6548,8 +6548,8 @@ export default function DashboardPage() {
 
                   {/* ORDERS DISPLAY */}
                   {filteredSellerOrders.length === 0 ? (
-                    <div className="empty-state" style={{ padding: '60px 20px', textAlign: 'center', background: '#ffffff', borderRadius: 12, border: '2.5px solid #000000', boxShadow: 'none' }}>
-                      <div style={{ width: 60, height: 60, borderRadius: 12, border: '2px solid #000000', background: '#f5f3ff', color: '#7c3aed', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+                    <div className="empty-state" style={{ padding: '60px 20px', textAlign: 'center', background: '#ffffff', borderRadius: 12, border: '1px solid #e2e8f0', boxShadow: 'none' }}>
+                      <div style={{ width: 60, height: 60, borderRadius: 12, border: '1px solid #ddd6fe', background: '#f5f3ff', color: '#7c3aed', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
                         <IconBox />
                       </div>
                       <div className="empty-title" style={{ fontSize: 18, fontWeight: 900, color: '#000000', marginBottom: 6 }}>No orders found</div>
@@ -6570,7 +6570,7 @@ export default function DashboardPage() {
                               style={{
                                 background: '#ffffff',
                                 borderRadius: 10,
-                                border: '2px solid #000000',
+                                border: '1px solid #e2e8f0',
                                 boxShadow: 'none',
                                 padding: '12px 14px',
                                 display: 'flex',
@@ -6602,10 +6602,10 @@ export default function DashboardPage() {
                                     alt={order.item.name}
                                     loading="lazy"
                                     decoding="async"
-                                    style={{ width: 48, height: 48, borderRadius: 8, border: '1.5px solid #000000', objectFit: 'cover', flexShrink: 0 }}
+                                    style={{ width: 48, height: 48, borderRadius: 8, border: '1px solid #e2e8f0', objectFit: 'cover', flexShrink: 0 }}
                                   />
                                 ) : (
-                                  <div style={{ width: 48, height: 48, borderRadius: 8, border: '1.5px solid #000000', background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b', flexShrink: 0 }}>
+                                  <div style={{ width: 48, height: 48, borderRadius: 8, border: '1px solid #e2e8f0', background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b', flexShrink: 0 }}>
                                     <IconBox />
                                   </div>
                                 )}
@@ -6617,7 +6617,7 @@ export default function DashboardPage() {
                                   <div style={{ fontSize: 11, color: '#64748b', fontWeight: 600, marginTop: 2, display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
                                     <span>Qty: <strong style={{ color: '#000000' }}>x{order.quantity}</strong></span>
                                     {order.variation && (
-                                      <span style={{ fontSize: 10, color: '#7c3aed', fontWeight: 800, background: '#f5f3ff', border: '1px solid #000000', padding: '0 4px', borderRadius: 4 }}>
+                                      <span style={{ fontSize: 10, color: '#7c3aed', fontWeight: 800, background: '#f5f3ff', border: '1px solid #ddd6fe', padding: '0 4px', borderRadius: 4 }}>
                                         {order.variation}
                                       </span>
                                     )}
@@ -6635,19 +6635,19 @@ export default function DashboardPage() {
                                     <button
                                       className="btn-print"
                                       onClick={() => setReceiptOrder(order)}
-                                      style={{ background: '#ffffff', color: '#000000', border: '1.5px solid #000000', padding: '4px 8px', borderRadius: 6, fontWeight: 800, fontSize: 11, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 3, boxShadow: 'none' }}
+                                      style={{ background: '#ffffff', color: '#000000', border: '1px solid #e2e8f0', padding: '4px 8px', borderRadius: 6, fontWeight: 800, fontSize: 11, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 3, boxShadow: 'none' }}
                                     >
                                       Receipt
                                     </button>
 
                                     {order.status === 'pending' && (
                                       <>
-                                        <button onClick={() => handleAcceptOrder(order.id)} style={{ background: '#10b981', color: '#ffffff', border: '1.5px solid #000000', padding: '4px 8px', borderRadius: 6, fontWeight: 800, fontSize: 11, cursor: 'pointer', boxShadow: 'none' }}>Accept</button>
-                                        <button onClick={() => handleRejectOrder(order.id)} style={{ background: '#fee2e2', color: '#ef4444', border: '1.5px solid #000000', padding: '4px 8px', borderRadius: 6, fontWeight: 800, fontSize: 11, cursor: 'pointer', boxShadow: 'none' }}>Reject</button>
+                                        <button onClick={() => handleAcceptOrder(order.id)} style={{ background: '#10b981', color: '#ffffff', border: '1px solid #10b981', padding: '4px 8px', borderRadius: 6, fontWeight: 800, fontSize: 11, cursor: 'pointer', boxShadow: 'none' }}>Accept</button>
+                                        <button onClick={() => handleRejectOrder(order.id)} style={{ background: '#fee2e2', color: '#ef4444', border: '1px solid #fecaca', padding: '4px 8px', borderRadius: 6, fontWeight: 800, fontSize: 11, cursor: 'pointer', boxShadow: 'none' }}>Reject</button>
                                       </>
                                     )}
                                     {order.status === 'processing' && (
-                                      <button onClick={() => handleShipOrder(order.id)} style={{ background: '#7c3aed', color: '#ffffff', border: '1.5px solid #000000', padding: '4px 10px', borderRadius: 6, fontWeight: 800, fontSize: 11, cursor: 'pointer', boxShadow: 'none' }}>Ship</button>
+                                      <button onClick={() => handleShipOrder(order.id)} style={{ background: '#7c3aed', color: '#ffffff', border: '1px solid #6d28d9', padding: '4px 10px', borderRadius: 6, fontWeight: 800, fontSize: 11, cursor: 'pointer', boxShadow: 'none' }}>Ship</button>
                                     )}
                                   </div>
                                 </div>
@@ -6683,7 +6683,7 @@ export default function DashboardPage() {
                                     </td>
                                     <td>
                                       <div style={{ display: 'flex', alignItems: 'center', gap: 8, whiteSpace: 'nowrap' }}>
-                                        <div style={{ width: 28, height: 28, borderRadius: 6, border: '1.5px solid #000000', background: '#f5f3ff', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#7c3aed', fontWeight: 800, fontSize: 11 }}>
+                                        <div style={{ width: 28, height: 28, borderRadius: 6, border: '1px solid #ddd6fe', background: '#f5f3ff', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#7c3aed', fontWeight: 800, fontSize: 11 }}>
                                           {order.buyer?.name ? order.buyer.name.charAt(0).toUpperCase() : 'U'}
                                         </div>
                                         <span style={{ fontWeight: 800, color: '#000000' }}>{order.buyer?.name || 'Shopply Customer'}</span>
@@ -6692,9 +6692,9 @@ export default function DashboardPage() {
                                     <td>
                                       <div style={{ display: 'flex', alignItems: 'center', gap: 10, whiteSpace: 'nowrap' }}>
                                         {order.item.image ? (
-                                          <img src={getImageUrl(order.item.image)} alt={order.item.name} style={{ width: 42, height: 42, borderRadius: 6, border: '1.5px solid #000000', objectFit: 'cover' }} />
+                                          <img src={getImageUrl(order.item.image)} alt={order.item.name} style={{ width: 42, height: 42, borderRadius: 6, border: '1px solid #e2e8f0', objectFit: 'cover' }} />
                                         ) : (
-                                          <div style={{ width: 42, height: 42, borderRadius: 6, border: '1.5px solid #000000', background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b' }}><IconBox /></div>
+                                          <div style={{ width: 42, height: 42, borderRadius: 6, border: '1px solid #e2e8f0', background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b' }}><IconBox /></div>
                                         )}
                                         <div>
                                           <div style={{ fontWeight: 800, color: '#000000', maxWidth: 220, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{order.item.name}</div>
@@ -6715,18 +6715,18 @@ export default function DashboardPage() {
                                         <button
                                           className="btn-print"
                                           onClick={() => setReceiptOrder(order)}
-                                          style={{ background: '#ffffff', color: '#000000', border: '1.5px solid #000000', padding: '5px 10px', borderRadius: 6, fontWeight: 800, fontSize: 11, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4, boxShadow: 'none' }}
+                                          style={{ background: '#ffffff', color: '#000000', border: '1px solid #e2e8f0', padding: '5px 10px', borderRadius: 6, fontWeight: 800, fontSize: 11, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4, boxShadow: 'none' }}
                                         >
                                           Receipt
                                         </button>
                                         {order.status === 'pending' && (
                                           <>
-                                            <button onClick={() => handleAcceptOrder(order.id)} style={{ background: '#10b981', color: '#ffffff', border: '1.5px solid #000000', padding: '5px 10px', borderRadius: 6, fontWeight: 800, fontSize: 11, cursor: 'pointer', boxShadow: 'none' }}>Accept</button>
-                                            <button onClick={() => handleRejectOrder(order.id)} style={{ background: '#fee2e2', color: '#ef4444', border: '1.5px solid #000000', padding: '5px 10px', borderRadius: 6, fontWeight: 800, fontSize: 11, cursor: 'pointer', boxShadow: 'none' }}>Reject</button>
+                                            <button onClick={() => handleAcceptOrder(order.id)} style={{ background: '#10b981', color: '#ffffff', border: '1px solid #10b981', padding: '5px 10px', borderRadius: 6, fontWeight: 800, fontSize: 11, cursor: 'pointer', boxShadow: 'none' }}>Accept</button>
+                                            <button onClick={() => handleRejectOrder(order.id)} style={{ background: '#fee2e2', color: '#ef4444', border: '1px solid #fecaca', padding: '5px 10px', borderRadius: 6, fontWeight: 800, fontSize: 11, cursor: 'pointer', boxShadow: 'none' }}>Reject</button>
                                           </>
                                         )}
                                         {order.status === 'processing' && (
-                                          <button onClick={() => handleShipOrder(order.id)} style={{ background: '#7c3aed', color: '#ffffff', border: '1.5px solid #000000', padding: '5px 12px', borderRadius: 6, fontWeight: 800, fontSize: 11, cursor: 'pointer', boxShadow: 'none' }}>Ship</button>
+                                          <button onClick={() => handleShipOrder(order.id)} style={{ background: '#7c3aed', color: '#ffffff', border: '1px solid #6d28d9', padding: '5px 12px', borderRadius: 6, fontWeight: 800, fontSize: 11, cursor: 'pointer', boxShadow: 'none' }}>Ship</button>
                                         )}
                                       </div>
                                     </td>
@@ -6749,7 +6749,7 @@ export default function DashboardPage() {
                       padding: '14px 18px',
                       background: '#ffffff',
                       borderRadius: 12,
-                      border: '2.5px solid #000000',
+                      border: '1px solid #e2e8f0',
                       boxShadow: 'none',
                       marginTop: 20,
                       flexWrap: 'wrap',
@@ -6765,7 +6765,7 @@ export default function DashboardPage() {
                           style={{
                             padding: '6px 14px',
                             borderRadius: 8,
-                            border: '2px solid #000000',
+                            border: '1px solid #e2e8f0',
                             background: currentStorePage === 1 ? '#f1f5f9' : '#ffffff',
                             color: currentStorePage === 1 ? '#94a3b8' : '#000000',
                             fontWeight: 800,
@@ -6784,7 +6784,7 @@ export default function DashboardPage() {
                               width: 34,
                               height: 34,
                               borderRadius: 8,
-                              border: '2px solid #000000',
+                              border: '1px solid #e2e8f0',
                               background: currentStorePage === p ? '#7c3aed' : '#ffffff',
                               color: currentStorePage === p ? '#ffffff' : '#000000',
                               fontWeight: 900,
@@ -6802,7 +6802,7 @@ export default function DashboardPage() {
                           style={{
                             padding: '6px 14px',
                             borderRadius: 8,
-                            border: '2px solid #000000',
+                            border: '1px solid #e2e8f0',
                             background: currentStorePage === totalStorePages ? '#f1f5f9' : '#ffffff',
                             color: currentStorePage === totalStorePages ? '#94a3b8' : '#000000',
                             fontWeight: 800,
@@ -7018,7 +7018,7 @@ export default function DashboardPage() {
                         style={{
                           padding: '6px 14px',
                           borderRadius: 8,
-                          border: '2px solid #000000',
+                          border: '1px solid #e2e8f0',
                           background: '#faf5ff',
                           color: '#7c3aed',
                           fontSize: 12,
@@ -7116,7 +7116,7 @@ export default function DashboardPage() {
                             padding: '9px 14px',
                             background: '#f5f3ff',
                             borderRadius: 10,
-                            border: '2px solid #000000',
+                            border: '1px solid #e2e8f0',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'space-between',
@@ -7145,7 +7145,7 @@ export default function DashboardPage() {
                               style={{
                                 background: '#7c3aed',
                                 color: '#ffffff',
-                                border: '2px solid #000000',
+                                border: '1px solid #e2e8f0',
                                 borderRadius: 8,
                                 padding: '6px 14px',
                                 fontSize: 12,
@@ -7328,7 +7328,7 @@ export default function DashboardPage() {
                         style={{
                           padding: '8px 16px',
                           borderRadius: 8,
-                          border: '2px solid #000000',
+                          border: '1px solid #e2e8f0',
                           background: '#f5f3ff',
                           color: '#7c3aed',
                           boxShadow: 'none',
@@ -7615,7 +7615,7 @@ export default function DashboardPage() {
                               style={{
                                 padding: '8px 16px',
                                 borderRadius: 8,
-                                border: '2px solid #000000',
+                                border: '1px solid #e2e8f0',
                                 background: '#f5f3ff',
                                 color: '#7c3aed',
                                 fontSize: 12,
@@ -7747,7 +7747,7 @@ export default function DashboardPage() {
                                   padding: '0 24px',
                                   height: 46,
                                   borderRadius: 8,
-                                  border: '2px solid #000000',
+                                  border: '1px solid #e2e8f0',
                                   background: '#7c3aed',
                                   color: '#fff',
                                   fontWeight: 800,
@@ -7816,7 +7816,7 @@ export default function DashboardPage() {
                               <div style={{
                                 background: '#fff',
                                 borderRadius: 10,
-                                border: '2px solid #000000',
+                                border: '1px solid #e2e8f0',
                                 overflow: 'hidden',
                                 boxShadow: 'none'
                               }}>
@@ -7971,7 +7971,7 @@ export default function DashboardPage() {
                           justifyContent: 'space-between',
                           flexWrap: 'wrap',
                           gap: 12,
-                          border: '2px solid #000000',
+                          border: '1px solid #e2e8f0',
                           borderRadius: 10,
                           boxShadow: 'none'
                         }}>
@@ -8024,7 +8024,7 @@ export default function DashboardPage() {
                                 width: 48,
                                 height: 48,
                                 borderRadius: 8,
-                                border: '2px solid #000000',
+                                border: '1px solid #e2e8f0',
                                 background: getColorPreviewHex(newColorName),
                                 display: 'flex',
                                 alignItems: 'center',
@@ -8086,7 +8086,7 @@ export default function DashboardPage() {
                             <div
                               style={{
                                 minHeight: 48,
-                                border: '2px solid #000000',
+                                border: '1px solid #e2e8f0',
                                 borderRadius: 8,
                                 display: 'flex',
                                 alignItems: 'center',
@@ -8108,7 +8108,7 @@ export default function DashboardPage() {
                                     overflow: 'hidden',
                                     flexShrink: 0,
                                     cursor: 'zoom-in',
-                                    border: '1.5px solid #000000',
+                                    border: '1px solid #e2e8f0',
                                     boxShadow: 'none'
                                   }}
                                   title="Click to view full photo"
@@ -8261,7 +8261,7 @@ export default function DashboardPage() {
                           background: '#fff',
                           borderRadius: 12,
                           padding: 24,
-                          border: '3px solid #000000',
+                          border: '1px solid #e2e8f0',
                           boxShadow: 'none',
                           display: 'flex',
                           flexDirection: 'column',
@@ -8316,7 +8316,7 @@ export default function DashboardPage() {
                                 }}
                                 style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', opacity: 0, cursor: 'pointer', zIndex: 10 }}
                               />
-                              <div style={{ width: '100%', height: '100%', borderRadius: 10, background: 'linear-gradient(135deg, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 800, fontSize: 11, textShadow: 'none', border: '2px solid #000000', boxShadow: 'none' }}>
+                              <div style={{ width: '100%', height: '100%', borderRadius: 10, background: 'linear-gradient(135deg, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 800, fontSize: 11, textShadow: 'none', border: '1px solid #e2e8f0', boxShadow: 'none' }}>
                                 Spectrum
                               </div>
                             </div>
@@ -8359,7 +8359,7 @@ export default function DashboardPage() {
                               height: 46,
                               flex: 1,
                               borderRadius: 8,
-                              border: '2px solid #000000',
+                              border: '1px solid #e2e8f0',
                               background: '#10b981',
                               color: '#fff',
                               fontWeight: 800,
@@ -8449,7 +8449,7 @@ export default function DashboardPage() {
                             height: 46,
                             width: '100%',
                             borderRadius: 8,
-                            border: '2px solid #000000',
+                            border: '1px solid #e2e8f0',
                             background: '#7c3aed',
                             color: '#fff',
                             fontWeight: 800,
@@ -8485,7 +8485,7 @@ export default function DashboardPage() {
                                 style={{
                                   background: '#fff',
                                   borderRadius: 10,
-                                  border: '2px solid #000000',
+                                  border: '1px solid #e2e8f0',
                                   overflow: 'hidden',
                                   position: 'relative',
                                   boxShadow: 'none',
@@ -8569,7 +8569,7 @@ export default function DashboardPage() {
                                     borderRadius: '50%',
                                     background: isBeingEdited ? '#7c3aed' : 'rgba(255,255,255,0.95)',
                                     color: isBeingEdited ? '#fff' : '#475569',
-                                    border: '1.5px solid #000000',
+                                    border: '1px solid #e2e8f0',
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'center',
@@ -8597,7 +8597,7 @@ export default function DashboardPage() {
                                     }
                                     setColorVariants(prev => prev.filter((_, i) => i !== idx));
                                   }}
-                                  style={{ position: 'absolute', top: 6, right: 6, width: 26, height: 26, borderRadius: '50%', background: '#ef4444', color: '#fff', border: '1.5px solid #000000', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: 'none', transition: 'all .2s' }}
+                                  style={{ position: 'absolute', top: 6, right: 6, width: 26, height: 26, borderRadius: '50%', background: '#ef4444', color: '#fff', border: '1px solid #dc2626', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: 'none', transition: 'all .2s' }}
                                   onMouseOver={e => { e.currentTarget.style.transform = 'scale(1.1)'; e.currentTarget.style.background = '#dc2626'; }}
                                   onMouseOut={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.background = 'rgba(239,68,68,0.92)'; }}
                                   title="Delete this variant"
@@ -8789,7 +8789,7 @@ export default function DashboardPage() {
                             alignItems: 'center',
                             gap: 5,
                             transition: 'all .2s',
-                            border: '2px solid #000000',
+                            border: '1px solid #e2e8f0',
                             boxShadow: 'none'
                           }}
                           onMouseOver={e => { e.currentTarget.style.background = '#7c3aed'; e.currentTarget.style.color = '#fff'; }}
@@ -8827,7 +8827,7 @@ export default function DashboardPage() {
                             alignItems: 'center',
                             gap: 5,
                             transition: 'all .2s',
-                            border: '2px solid #000000',
+                            border: '1px solid #e2e8f0',
                             boxShadow: 'none'
                           }}
                           onMouseOver={e => { e.currentTarget.style.background = '#0284c7'; e.currentTarget.style.color = '#fff'; }}
@@ -8990,12 +8990,12 @@ export default function DashboardPage() {
             {/* Header */}
             <div style={{ marginBottom: 32 }}>
               <div style={{ marginBottom: 8 }}>
-                <span style={{ display: 'inline-block', background: '#f5f3ff', color: '#7c3aed', fontSize: 11, fontWeight: 900, textTransform: 'uppercase', letterSpacing: 1, padding: '4px 12px', borderRadius: 6, border: '2px solid #000000', boxShadow: 'none' }}>
+                <span style={{ display: 'inline-block', background: '#f5f3ff', color: '#7c3aed', fontSize: 11, fontWeight: 900, textTransform: 'uppercase', letterSpacing: 1, padding: '4px 12px', borderRadius: 6, border: '1px solid #ddd6fe', boxShadow: 'none' }}>
                   SYSTEM CONTROL & PERFORMANCE
                 </span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-                <div style={{ width: 48, height: 48, borderRadius: 12, background: '#ede9fe', border: '2.5px solid #000000', boxShadow: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, color: '#7c3aed' }}>
+                <div style={{ width: 48, height: 48, borderRadius: 12, background: '#ede9fe', border: '1px solid #ddd6fe', boxShadow: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, color: '#7c3aed' }}>
                   <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
                 </div>
                 <div>
@@ -9013,7 +9013,7 @@ export default function DashboardPage() {
                 { label: 'Cache Status', value: lsKeys.length > 0 ? 'Active' : 'Empty', icon: <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M3 12a9 9 0 109-9 9.75 9.75 0 00-6.74 2.74L3 8" /><polyline points="3 3 3 8 8 8" /></svg>, color: '#0f172a', bg: lsKeys.length > 0 ? '#dcfce7' : '#f1f5f9' },
               ].map((stat, i) => (
                 <div key={i} className="settings-stat-box">
-                  <div className="settings-stat-icon-box" style={{ width: 48, height: 48, borderRadius: 10, border: '2px solid #000000', boxShadow: 'none', background: stat.bg, color: stat.color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22 }}>{stat.icon}</div>
+                  <div className="settings-stat-icon-box" style={{ width: 48, height: 48, borderRadius: 10, border: '1px solid #e2e8f0', boxShadow: 'none', background: stat.bg, color: stat.color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22 }}>{stat.icon}</div>
                   <div className="settings-stat-info">
                     <div className="settings-stat-val" style={{ fontSize: 24, fontWeight: 900, color: '#000000' }}>{stat.value}</div>
                     <div className="settings-stat-lbl" style={{ fontSize: 12, color: '#475569', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{stat.label}</div>
@@ -9026,7 +9026,7 @@ export default function DashboardPage() {
             <div className="settings-section-card">
               <div style={{ marginBottom: 24 }}>
                 <h3 style={{ fontSize: 18, fontWeight: 900, color: '#000000', margin: 0, display: 'flex', alignItems: 'center' }}>
-                  <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 34, height: 34, borderRadius: 8, background: '#ede9fe', color: '#7c3aed', border: '2px solid #000000', boxShadow: 'none', marginRight: 12 }}>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 34, height: 34, borderRadius: 8, background: '#ede9fe', color: '#7c3aed', border: '1px solid #ddd6fe', boxShadow: 'none', marginRight: 12 }}>
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                       <line x1="18" y1="20" x2="18" y2="10" />
                       <line x1="12" y1="20" x2="12" y2="4" />
@@ -9049,11 +9049,11 @@ export default function DashboardPage() {
                     onClick={() => setActiveStatChart(stat.label)}
                     style={{ 
                       background: activeStatChart === stat.label ? '#f5f3ff' : '#ffffff', 
-                      border: activeStatChart === stat.label ? '3px solid #7c3aed' : '2.5px solid #000000',
+                      border: activeStatChart === stat.label ? '1.5px solid #7c3aed' : '1px solid #e2e8f0',
                       boxShadow: 'none',
                       transform: 'none',
                     }}>
-                    <div className="my-stat-card-icon" style={{ width: 48, height: 48, borderRadius: 10, border: '2px solid #000000', boxShadow: 'none', background: stat.bg, color: stat.color, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12 }}>
+                    <div className="my-stat-card-icon" style={{ width: 48, height: 48, borderRadius: 10, border: '1px solid #e2e8f0', boxShadow: 'none', background: stat.bg, color: stat.color, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12 }}>
                       {stat.icon}
                     </div>
                     <div className="my-stat-card-val" style={{ fontSize: 26, fontWeight: 900, color: '#000000', marginBottom: 4 }}>{stat.value}</div>
@@ -9162,7 +9162,7 @@ export default function DashboardPage() {
               <div className="flex-responsive-row" style={{ marginBottom: 24, alignItems: 'center', justifyContent: 'space-between' }}>
                 <div>
                   <h3 style={{ fontSize: 18, fontWeight: 900, color: '#000000', margin: 0, display: 'flex', alignItems: 'center' }}>
-                    <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 34, height: 34, borderRadius: 8, background: '#dbeafe', color: '#2563eb', border: '2px solid #000000', boxShadow: 'none', marginRight: 12 }}>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 34, height: 34, borderRadius: 8, background: '#dbeafe', color: '#2563eb', border: '1px solid #bfdbfe', boxShadow: 'none', marginRight: 12 }}>
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                         <ellipse cx="12" cy="5" rx="9" ry="3" />
                         <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
@@ -9179,7 +9179,7 @@ export default function DashboardPage() {
                     showToast('✅ All cache cleared! Refreshing data...', 'success');
                     setTimeout(() => window.location.reload(), 1200);
                   }}
-                  style={{ padding: '12px 22px', borderRadius: 8, border: '2px solid #000000', background: '#ef4444', color: '#ffffff', fontWeight: 800, fontSize: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, boxShadow: 'none', transition: 'all .15s', whiteSpace: 'nowrap' }}
+                  style={{ padding: '12px 22px', borderRadius: 8, border: '1px solid #dc2626', background: '#ef4444', color: '#ffffff', fontWeight: 800, fontSize: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, boxShadow: 'none', transition: 'all .15s', whiteSpace: 'nowrap' }}
                 >
                   <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
                   Clear ALL & Refresh
@@ -9218,7 +9218,7 @@ export default function DashboardPage() {
               <div className="flex-responsive-row" style={{ alignItems: 'center', justifyContent: 'space-between' }}>
                 <div>
                   <h3 style={{ fontSize: 18, fontWeight: 900, color: '#000000', margin: 0, display: 'flex', alignItems: 'center' }}>
-                    <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 34, height: 34, borderRadius: 8, background: '#fef3c7', color: '#d97706', border: '2px solid #000000', boxShadow: 'none', marginRight: 12 }}>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 34, height: 34, borderRadius: 8, background: '#fef3c7', color: '#d97706', border: '1px solid #fde68a', boxShadow: 'none', marginRight: 12 }}>
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                       </svg>
@@ -9233,7 +9233,7 @@ export default function DashboardPage() {
                     showToast('✅ Cookie consent reset! Refreshing...', 'success');
                     setTimeout(() => window.location.reload(), 1200);
                   }}
-                  style={{ padding: '10px 20px', borderRadius: 8, border: '2px solid #000000', background: '#f5f3ff', color: '#7c3aed', fontWeight: 800, fontSize: 13, cursor: 'pointer', transition: 'all .15s', display: 'flex', alignItems: 'center', gap: 6, boxShadow: 'none' }}
+                  style={{ padding: '10px 20px', borderRadius: 8, border: '1px solid #ddd6fe', background: '#f5f3ff', color: '#7c3aed', fontWeight: 800, fontSize: 13, cursor: 'pointer', transition: 'all .15s', display: 'flex', alignItems: 'center', gap: 6, boxShadow: 'none' }}
                 >
                   <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
                   Reset Cookie Consent
@@ -9247,7 +9247,7 @@ export default function DashboardPage() {
                 <div style={{ flex: 1 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 8 }}>
                     <h3 style={{ fontSize: 18, fontWeight: 900, color: '#000000', margin: 0, display: 'flex', alignItems: 'center' }}>
-                      <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 34, height: 34, borderRadius: 8, background: '#dcfce7', color: '#16a34a', border: '2px solid #000000', boxShadow: 'none', marginRight: 12 }}>
+                      <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 34, height: 34, borderRadius: 8, background: '#dcfce7', color: '#16a34a', border: '1px solid #bbf7d0', boxShadow: 'none', marginRight: 12 }}>
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                           <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
                         </svg>
@@ -9259,7 +9259,7 @@ export default function DashboardPage() {
                       borderRadius: 6,
                       fontSize: 12,
                       fontWeight: 800,
-                      border: '1.5px solid #000000',
+                      border: '1px solid #e2e8f0',
                       boxShadow: 'none',
                       background: smoothMode ? '#dcfce7' : '#f1f5f9',
                       color: smoothMode ? '#16a34a' : '#000000',
@@ -9278,7 +9278,7 @@ export default function DashboardPage() {
                     style={{
                       padding: '10px 20px',
                       borderRadius: 8,
-                      border: '2px solid #000000',
+                      border: '1px solid #e2e8f0',
                       background: smoothMode ? '#10b981' : '#7c3aed',
                       color: '#ffffff',
                       fontWeight: 800,
@@ -9305,7 +9305,7 @@ export default function DashboardPage() {
                     style={{
                       padding: '10px 20px',
                       borderRadius: 8,
-                      border: '2px solid #000000',
+                      border: '1px solid #e2e8f0',
                       background: '#f5f3ff',
                       color: '#7c3aed',
                       fontWeight: 800,
@@ -9332,7 +9332,7 @@ export default function DashboardPage() {
               {/* Hard Reload */}
               <div className="perf-action-card">
                 <div>
-                  <div style={{ fontSize: 24, marginBottom: 12, display: 'inline-flex', padding: 12, borderRadius: 10, border: '2px solid #000000', boxShadow: 'none', background: '#ede9fe', color: '#7c3aed' }}>
+                  <div style={{ fontSize: 24, marginBottom: 12, display: 'inline-flex', padding: 12, borderRadius: 10, border: '1px solid #ddd6fe', boxShadow: 'none', background: '#ede9fe', color: '#7c3aed' }}>
                     <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" /></svg>
                   </div>
                   <h4 style={{ fontSize: 16, fontWeight: 900, color: '#000000', marginBottom: 8 }}>Force Hard Reload</h4>
@@ -9340,7 +9340,7 @@ export default function DashboardPage() {
                 </div>
                 <button
                   onClick={() => window.location.reload()}
-                  style={{ width: '100%', padding: '12px', borderRadius: 8, border: '2px solid #000000', background: '#f5f3ff', color: '#7c3aed', fontWeight: 800, fontSize: 14, cursor: 'pointer', boxShadow: 'none', transition: 'all .15s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
+                  style={{ width: '100%', padding: '12px', borderRadius: 8, border: '1px solid #ddd6fe', background: '#f5f3ff', color: '#7c3aed', fontWeight: 800, fontSize: 14, cursor: 'pointer', boxShadow: 'none', transition: 'all .15s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
                 >
                   <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M3 12a9 9 0 109-9 9.75 9.75 0 00-6.74 2.74L3 8" /><polyline points="3 3 3 8 8 8" /></svg>
                   Reload Page
@@ -9350,7 +9350,7 @@ export default function DashboardPage() {
               {/* Clear localStorage */}
               <div className="perf-action-card">
                 <div>
-                  <div style={{ fontSize: 24, marginBottom: 12, display: 'inline-flex', padding: 12, borderRadius: 10, border: '2px solid #000000', boxShadow: 'none', background: '#fee2e2', color: '#ef4444' }}>
+                  <div style={{ fontSize: 24, marginBottom: 12, display: 'inline-flex', padding: 12, borderRadius: 10, border: '1px solid #fecaca', boxShadow: 'none', background: '#fee2e2', color: '#ef4444' }}>
                     <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M3 3l18 18M15 9l-6 6M10 14L4 20a2.82 2.82 0 01-4 0v0a2.82 2.82 0 010-4l6-6" /></svg>
                   </div>
                   <h4 style={{ fontSize: 16, fontWeight: 900, color: '#000000', marginBottom: 8 }}>Clear All Saved Data</h4>
@@ -9363,7 +9363,7 @@ export default function DashboardPage() {
                     showToast('🧹 All app data cleared! Refreshing...', 'success');
                     setTimeout(() => window.location.reload(), 1200);
                   }}
-                  style={{ width: '100%', padding: '12px', borderRadius: 8, border: '2px solid #000000', background: '#7c3aed', color: '#ffffff', fontWeight: 800, fontSize: 14, cursor: 'pointer', boxShadow: 'none', transition: 'all .15s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
+                  style={{ width: '100%', padding: '12px', borderRadius: 8, border: '1px solid #6d28d9', background: '#7c3aed', color: '#ffffff', fontWeight: 800, fontSize: 14, cursor: 'pointer', boxShadow: 'none', transition: 'all .15s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
                 >
                   <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M3 3l18 18M15 9l-6 6M10 14L4 20a2.82 2.82 0 01-4 0v0a2.82 2.82 0 010-4l6-6" /></svg>
                   Deep Clean & Refresh
@@ -9372,7 +9372,7 @@ export default function DashboardPage() {
             </div>
 
             {/* Performance Tips */}
-            <div className="perf-tips-box" style={{ background: '#f5f3ff', borderRadius: 16, padding: 28, border: '3px solid #000000', boxShadow: 'none', color: '#000000' }}>
+            <div className="perf-tips-box" style={{ background: '#f5f3ff', borderRadius: 16, padding: 28, border: '1px solid #ddd6fe', boxShadow: 'none', color: '#000000' }}>
               <h4 style={{ fontSize: 17, fontWeight: 900, marginBottom: 18, display: 'flex', alignItems: 'center', gap: 8, color: '#7c3aed' }}>
                 <span><svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M9 18h6M10 22h4M12 2v2m5.657-1.343l-1.414 1.414M22 12h-2m-1.343 5.657l-1.414-1.414M12 22v-2M6.343 20.657l1.414-1.414M2 12h2m1.343-5.657l1.414 1.414"/></svg></span> Performance Tips & Hacks
               </h4>
@@ -9406,7 +9406,7 @@ export default function DashboardPage() {
             onClick={() => setVariantZoomPhoto(null)}
           >
             <div
-              style={{ position: 'relative', maxWidth: 640, width: '100%', background: '#fff', borderRadius: 16, overflow: 'hidden', border: '3.5px solid #000000', boxShadow: 'none' }}
+              style={{ position: 'relative', maxWidth: 640, width: '100%', background: '#fff', borderRadius: 16, overflow: 'hidden', border: '1px solid #e2e8f0', boxShadow: 'none' }}
               onClick={e => e.stopPropagation()}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 20px', borderBottom: '1px solid #f1f5f9', background: '#fff' }}>
@@ -9429,7 +9429,7 @@ export default function DashboardPage() {
               </div>
               <div style={{ padding: '12px 20px', background: '#f8fafc', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span style={{ fontSize: 12, color: '#64748b' }}>Click anywhere outside or press Close to dismiss</span>
-                <button type="button" onClick={() => setVariantZoomPhoto(null)} style={{ padding: '8px 20px', background: '#7c3aed', color: '#ffffff', border: '2px solid #000000', borderRadius: 8, fontSize: 13, fontWeight: 800, cursor: 'pointer', boxShadow: 'none' }}>Close</button>
+                <button type="button" onClick={() => setVariantZoomPhoto(null)} style={{ padding: '8px 20px', background: '#7c3aed', color: '#ffffff', border: '1px solid #6d28d9', borderRadius: 8, fontSize: 13, fontWeight: 800, cursor: 'pointer', boxShadow: 'none' }}>Close</button>
               </div>
             </div>
           </div>
@@ -9438,13 +9438,13 @@ export default function DashboardPage() {
         {/* DELETE CONFIRMATION MODAL */}
         {deleteModal !== null && (
           <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.45)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200 }} onClick={() => setDeleteModal(null)}>
-            <div style={{ background: '#ffffff', borderRadius: 16, padding: '36px 32px', maxWidth: 400, width: '90%', textAlign: 'center', border: '3.5px solid #000000', boxShadow: 'none' }} onClick={e => e.stopPropagation()}>
+            <div style={{ background: '#ffffff', borderRadius: 16, padding: '36px 32px', maxWidth: 400, width: '90%', textAlign: 'center', border: '1px solid #e2e8f0', boxShadow: 'none' }} onClick={e => e.stopPropagation()}>
               <div style={{ marginBottom: 16 }}><IconWarning /></div>
               <h3 style={{ fontSize: 18, fontWeight: 900, color: '#000000', marginBottom: 8 }}>Delete this item?</h3>
               <p style={{ fontSize: 14, color: '#475569', marginBottom: 28, lineHeight: 1.5, fontWeight: 600 }}>This action cannot be undone. The item and its image will be permanently removed.</p>
               <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
-                <button onClick={() => setDeleteModal(null)} style={{ padding: '10px 24px', borderRadius: 8, border: '2px solid #000000', background: '#ffffff', color: '#000000', fontWeight: 800, fontSize: 14, cursor: 'pointer', boxShadow: 'none' }}>Cancel</button>
-                <button onClick={() => handleDeleteItem(deleteModal)} style={{ padding: '10px 24px', borderRadius: 8, border: '2px solid #000000', background: '#ef4444', color: '#ffffff', fontWeight: 800, fontSize: 14, cursor: 'pointer', boxShadow: 'none', display: 'inline-flex', alignItems: 'center', gap: 6 }}><IconTrash /> Delete</button>
+                <button onClick={() => setDeleteModal(null)} style={{ padding: '10px 24px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#ffffff', color: '#000000', fontWeight: 800, fontSize: 14, cursor: 'pointer', boxShadow: 'none' }}>Cancel</button>
+                <button onClick={() => handleDeleteItem(deleteModal)} style={{ padding: '10px 24px', borderRadius: 8, border: '1px solid #dc2626', background: '#ef4444', color: '#ffffff', fontWeight: 800, fontSize: 14, cursor: 'pointer', boxShadow: 'none', display: 'inline-flex', alignItems: 'center', gap: 6 }}><IconTrash /> Delete</button>
               </div>
             </div>
           </div>
@@ -9453,13 +9453,13 @@ export default function DashboardPage() {
         {/* REJECT ORDER CONFIRMATION MODAL */}
         {rejectOrderModal !== null && (
           <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.45)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200 }} onClick={() => setRejectOrderModal(null)}>
-            <div style={{ background: '#ffffff', borderRadius: 16, padding: '36px 32px', maxWidth: 400, width: '90%', textAlign: 'center', border: '3.5px solid #000000', boxShadow: 'none' }} onClick={e => e.stopPropagation()}>
+            <div style={{ background: '#ffffff', borderRadius: 16, padding: '36px 32px', maxWidth: 400, width: '90%', textAlign: 'center', border: '1px solid #e2e8f0', boxShadow: 'none' }} onClick={e => e.stopPropagation()}>
               <div style={{ marginBottom: 16 }}><IconWarning /></div>
               <h3 style={{ fontSize: 18, fontWeight: 900, color: '#000000', marginBottom: 8 }}>Reject this order?</h3>
               <p style={{ fontSize: 14, color: '#475569', marginBottom: 28, lineHeight: 1.5, fontWeight: 600 }}>Are you sure you want to reject this order? The buyer will be notified and this action cannot be undone.</p>
               <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
-                <button onClick={() => setRejectOrderModal(null)} style={{ padding: '10px 24px', borderRadius: 8, border: '2px solid #000000', background: '#ffffff', color: '#000000', fontWeight: 800, fontSize: 14, cursor: 'pointer', boxShadow: 'none' }}>Cancel</button>
-                <button onClick={confirmRejectOrder} style={{ padding: '10px 24px', borderRadius: 8, border: '2px solid #000000', background: '#ef4444', color: '#ffffff', fontWeight: 800, fontSize: 14, cursor: 'pointer', boxShadow: 'none', display: 'inline-flex', alignItems: 'center', gap: 6 }}>Reject Order</button>
+                <button onClick={() => setRejectOrderModal(null)} style={{ padding: '10px 24px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#ffffff', color: '#000000', fontWeight: 800, fontSize: 14, cursor: 'pointer', boxShadow: 'none' }}>Cancel</button>
+                <button onClick={confirmRejectOrder} style={{ padding: '10px 24px', borderRadius: 8, border: '1px solid #dc2626', background: '#ef4444', color: '#ffffff', fontWeight: 800, fontSize: 14, cursor: 'pointer', boxShadow: 'none', display: 'inline-flex', alignItems: 'center', gap: 6 }}>Reject Order</button>
               </div>
             </div>
           </div>
@@ -9497,7 +9497,7 @@ export default function DashboardPage() {
                     borderRadius: 12,
                     padding: 0,
                     boxShadow: 'none',
-                    border: '3px solid #000000',
+                    border: '1px solid #e2e8f0',
                     maxHeight: '94vh',
                     overflowY: 'auto',
                     display: 'flex',
@@ -9641,7 +9641,7 @@ export default function DashboardPage() {
                     <div className="receipt-actions no-print" style={{ display: 'flex', gap: 10 }}>
                       <button
                         type="button"
-                        style={{ flex: 1, padding: '12px', background: '#7c3aed', color: '#fff', border: '2px solid #000000', borderRadius: 8, cursor: 'pointer', fontWeight: 800, fontSize: 13, boxShadow: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
+                        style={{ flex: 1, padding: '12px', background: '#7c3aed', color: '#fff', border: '1px solid #6d28d9', borderRadius: 8, cursor: 'pointer', fontWeight: 800, fontSize: 13, boxShadow: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
                         onClick={() => window.print()}
                       >
                         <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
@@ -9649,7 +9649,7 @@ export default function DashboardPage() {
                       </button>
                       <button
                         type="button"
-                        style={{ padding: '12px 22px', background: '#f1f5f9', color: '#000000', border: '2px solid #000000', borderRadius: 8, cursor: 'pointer', fontWeight: 800, fontSize: 13, boxShadow: 'none' }}
+                        style={{ padding: '12px 22px', background: '#f1f5f9', color: '#000000', border: '1px solid #e2e8f0', borderRadius: 8, cursor: 'pointer', fontWeight: 800, fontSize: 13, boxShadow: 'none' }}
                         onClick={() => setReceiptOrder(null)}
                       >
                         Close
@@ -9696,7 +9696,7 @@ export default function DashboardPage() {
                     borderRadius: 12,
                     padding: '28px 30px',
                     boxShadow: 'none',
-                    border: '3px solid #000000',
+                    border: '1px solid #e2e8f0',
                     maxHeight: '92vh',
                     overflowY: 'auto'
                   }}
@@ -9835,7 +9835,7 @@ export default function DashboardPage() {
                           fontSize: 10,
                           fontWeight: 800,
                           boxShadow: 'none',
-                          border: '2px solid #000000'
+                          border: '1px solid #e2e8f0'
                         }}>
                           {cp.active ? '✓' : ''}
                         </div>
@@ -9873,14 +9873,14 @@ export default function DashboardPage() {
                         setTrackingOrder(null);
                         handleContactSeller(trackingOrder.seller);
                       }}
-                      style={{ flex: 1, padding: '11px', background: '#fff', color: '#000000', border: '2px solid #000000', borderRadius: 8, cursor: 'pointer', fontWeight: 800, fontSize: 13 }}
+                      style={{ flex: 1, padding: '11px', background: '#fff', color: '#000000', border: '1px solid #e2e8f0', borderRadius: 8, cursor: 'pointer', fontWeight: 800, fontSize: 13 }}
                     >
                       💬 Contact Seller
                     </button>
                     <button
                       type="button"
                       onClick={() => setTrackingOrder(null)}
-                      style={{ flex: 1, padding: '11px', background: '#7c3aed', color: '#fff', border: '2px solid #000000', borderRadius: 8, cursor: 'pointer', fontWeight: 800, fontSize: 13, boxShadow: 'none' }}
+                      style={{ flex: 1, padding: '11px', background: '#7c3aed', color: '#fff', border: '1px solid #6d28d9', borderRadius: 8, cursor: 'pointer', fontWeight: 800, fontSize: 13, boxShadow: 'none' }}
                     >
                       Done
                     </button>
@@ -9905,7 +9905,7 @@ export default function DashboardPage() {
                 padding: '28px 26px',
                 textAlign: 'center',
                 boxShadow: 'none',
-                border: '3px solid #000000'
+                border: '1px solid #e2e8f0'
               }}
             >
               <div style={{ width: 56, height: 56, borderRadius: '50%', background: '#fee2e2', color: '#ef4444', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
@@ -9942,7 +9942,7 @@ export default function DashboardPage() {
                   type="button"
                   onClick={() => setCancelModalOrder(null)}
                   disabled={cancellingOrder}
-                  style={{ flex: 1, padding: '11px', background: '#fff', color: '#000000', border: '2px solid #000000', borderRadius: 8, cursor: 'pointer', fontWeight: 800, fontSize: 13 }}
+                  style={{ flex: 1, padding: '11px', background: '#fff', color: '#000000', border: '1px solid #e2e8f0', borderRadius: 8, cursor: 'pointer', fontWeight: 800, fontSize: 13 }}
                 >
                   Keep Order
                 </button>
@@ -9950,7 +9950,7 @@ export default function DashboardPage() {
                   type="button"
                   onClick={handleCancelOrder}
                   disabled={cancellingOrder}
-                  style={{ flex: 1, padding: '11px', background: '#ef4444', color: '#fff', border: '2px solid #000000', borderRadius: 8, cursor: cancellingOrder ? 'wait' : 'pointer', fontWeight: 800, fontSize: 13, boxShadow: 'none' }}
+                  style={{ flex: 1, padding: '11px', background: '#ef4444', color: '#fff', border: '1px solid #dc2626', borderRadius: 8, cursor: cancellingOrder ? 'wait' : 'pointer', fontWeight: 800, fontSize: 13, boxShadow: 'none' }}
                 >
                   {cancellingOrder ? 'Cancelling...' : 'Confirm Cancel'}
                 </button>
@@ -9972,7 +9972,7 @@ export default function DashboardPage() {
                 borderRadius: 12,
                 padding: '28px 28px',
                 boxShadow: 'none',
-                border: '3px solid #000000'
+                border: '1px solid #e2e8f0'
               }}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #f1f5f9', paddingBottom: 14, marginBottom: 20 }}>
@@ -10053,7 +10053,7 @@ export default function DashboardPage() {
                   type="button"
                   onClick={() => setReviewModalOrder(null)}
                   disabled={submittingReview}
-                  style={{ flex: 1, padding: '11px', background: '#fff', color: '#000000', border: '2px solid #000000', borderRadius: 8, cursor: 'pointer', fontWeight: 800, fontSize: 13 }}
+                  style={{ flex: 1, padding: '11px', background: '#fff', color: '#000000', border: '1px solid #e2e8f0', borderRadius: 8, cursor: 'pointer', fontWeight: 800, fontSize: 13 }}
                 >
                   Cancel
                 </button>
@@ -10061,7 +10061,7 @@ export default function DashboardPage() {
                   type="button"
                   onClick={handleSubmitReview}
                   disabled={submittingReview}
-                  style={{ flex: 1, padding: '11px', background: '#f59e0b', color: '#000000', border: '2px solid #000000', borderRadius: 8, cursor: submittingReview ? 'wait' : 'pointer', fontWeight: 800, fontSize: 13, boxShadow: 'none' }}
+                  style={{ flex: 1, padding: '11px', background: '#f59e0b', color: '#000000', border: '1px solid #d97706', borderRadius: 8, cursor: submittingReview ? 'wait' : 'pointer', fontWeight: 800, fontSize: 13, boxShadow: 'none' }}
                 >
                   {submittingReview ? 'Submitting...' : 'Post Review'}
                 </button>
@@ -10143,7 +10143,7 @@ export default function DashboardPage() {
                     justifyContent: 'center',
                     cursor: 'pointer',
                     boxShadow: 'none',
-                    border: '2px solid #000000',
+                    border: '1px solid #e2e8f0',
                     transition: 'all 0.2s'
                   }}
                   onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.1)'}
@@ -10168,7 +10168,7 @@ export default function DashboardPage() {
                     justifyContent: 'center',
                     cursor: 'pointer',
                     boxShadow: 'none',
-                    border: '2px solid #000000',
+                    border: '1px solid #e2e8f0',
                     transition: 'all 0.2s'
                   }}
                   onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.1)'}
@@ -10250,7 +10250,7 @@ export default function DashboardPage() {
                     justifyContent: 'center',
                     cursor: 'pointer',
                     boxShadow: 'none',
-                    border: '2px solid #000000',
+                    border: '1px solid #e2e8f0',
                     transition: 'all 0.2s'
                   }}
                   onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.1)'}
@@ -10412,7 +10412,7 @@ export default function DashboardPage() {
                       cursor: 'pointer',
                       transition: 'all 0.2s',
                       boxShadow: 'none',
-                      border: '2px solid #000000'
+                      border: '1px solid #e2e8f0'
                     }}
                     onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.08)'}
                     onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
@@ -10492,7 +10492,7 @@ export default function DashboardPage() {
               alignItems: 'center',
               gap: '10px',
               zIndex: 999999,
-              border: '2px solid #000000',
+              border: '1px solid #e2e8f0',
               boxShadow: 'none',
               pointerEvents: 'auto',
               boxSizing: 'border-box',
