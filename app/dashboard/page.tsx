@@ -2622,6 +2622,20 @@ export default function DashboardPage() {
         setAvatarFile(null);
         setAvatarPreview(null);
         setAvatarLoadFailed(false);
+        // Invalidate cached endpoints across app so shop cards immediately display updated avatar
+        getApiCache().invalidate('/shop/items');
+        getApiCache().invalidate('/items');
+        getApiCache().invalidate('/me');
+        // Instantly refresh local items state with new profile avatar and location
+        setItems(prev => prev.map(item => ({
+          ...item,
+          user: item.user ? {
+            ...item.user,
+            avatar: data.user.avatar || item.user.avatar,
+            name: data.user.name || item.user.name,
+            location: data.user.location || item.user.location
+          } : undefined
+        })));
         showToast("Profile updated successfully!", 'success');
       } else {
         showToast(data.message || "Failed to update profile", 'error');

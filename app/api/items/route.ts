@@ -39,10 +39,32 @@ export async function GET(req: Request) {
     }
 
     const itemsRef = collection(db, "items");
-    const q = query(itemsRef, where("user.id", "==", Number(user.id)));
-    const snap = await getDocs(q);
+    const snap = await getDocs(itemsRef);
+    const userIdStr = String(user.id);
+    const userNameLower = String(user.name || user.username || "").toLowerCase();
 
-    const items = snap.docs.map(doc => doc.data());
+    const items = snap.docs
+      .map((docSnap) => {
+        const item = docSnap.data();
+        const itemUserId = String(item.user?.id || item.user_id || "");
+        const itemUserName = String(item.user?.name || item.user?.username || "").toLowerCase();
+
+        if (itemUserId === userIdStr || (userNameLower && itemUserName === userNameLower)) {
+          return {
+            ...item,
+            user: {
+              ...(item.user || {}),
+              id: user.id,
+              name: user.name || item.user?.name,
+              avatar: user.avatar || item.user?.avatar || "",
+              location: user.location || item.user?.location || null,
+            }
+          };
+        }
+        return null;
+      })
+      .filter(Boolean);
+
     return NextResponse.json({ items }, { status: 200 });
 
   } catch (err: any) {

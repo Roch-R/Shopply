@@ -104,19 +104,63 @@ export async function GET() {
       return NextResponse.json({ items: publishedSeeded }, { status: 200 });
     }
 
+    // Pre-fetch all registered users to ensure seller avatars, names, and locations are always 100% current
+    let usersMap = new Map<string, any>();
+    try {
+      const usersSnap = await getDocs(collection(db, "users"));
+      usersSnap.docs.forEach((uDoc) => {
+        const uData = uDoc.data();
+        const uId = String(uData.id ?? uDoc.id);
+        usersMap.set(uId, uData);
+        if (uDoc.id) usersMap.set(String(uDoc.id), uData);
+        if (uData.username) usersMap.set(String(uData.username).toLowerCase(), uData);
+        if (uData.name) usersMap.set(String(uData.name).toLowerCase(), uData);
+        if (uData.email) usersMap.set(String(uData.email).toLowerCase(), uData);
+      });
+    } catch (uErr) {
+      console.warn("[shop/items] Could not pre-fetch users map:", uErr);
+    }
+
     const items = snap.docs
       .map((docSnap) => {
         const item = docSnap.data();
         if (item.is_published !== true) return null;
 
-        const user = item.user || {};
-        const location = item.location || user.location || null;
+        const itemUser = item.user || {};
+        const sellerId = String(itemUser.id || item.user_id || "");
+        const sellerUsername = String(itemUser.username || "").toLowerCase();
+        const sellerName = String(itemUser.name || "").toLowerCase();
+
+        const liveUser = 
+          (sellerId ? usersMap.get(sellerId) : null) || 
+          (sellerUsername ? usersMap.get(sellerUsername) : null) || 
+          (sellerName ? usersMap.get(sellerName) : null);
+
+        const resolvedAvatar = liveUser?.avatar || itemUser.avatar || "";
+        const resolvedName = liveUser?.name || itemUser.name || "Seller";
+        const resolvedLocation = liveUser?.location || item.location || itemUser.location || null;
+
+        // If the item in Firestore has a missing or outdated avatar, sync it in the background
+        if (resolvedAvatar && itemUser.avatar !== resolvedAvatar) {
+          setDoc(doc(db, "items", docSnap.id), {
+            user: {
+              ...itemUser,
+              name: resolvedName,
+              avatar: resolvedAvatar,
+              location: resolvedLocation
+            }
+          }, { merge: true }).catch((e) => console.warn("Background item sync error:", e));
+        }
 
         return {
           ...item,
+          location: resolvedLocation,
           user: {
-            ...user,
-            location
+            ...itemUser,
+            id: liveUser?.id || itemUser.id,
+            name: resolvedName,
+            avatar: resolvedAvatar,
+            location: resolvedLocation
           }
         };
       })

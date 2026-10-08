@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/firebase";
-import { doc, setDoc, getDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc, collection, getDocs } from "firebase/firestore";
 import { getAuthUser, formatUser } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
@@ -53,6 +53,37 @@ export async function POST(req: Request) {
     }
 
     await setDoc(userDocRef, updateData, { merge: true });
+
+    // Sync updated avatar, name, and location across all products created by this user in Firestore
+    try {
+      const itemsSnap = await getDocs(collection(db, "items"));
+      const userStrId = String(user.id);
+      const userNameLower = String(user.name || user.username || "").toLowerCase();
+
+      for (const itemDoc of itemsSnap.docs) {
+        const itemData = itemDoc.data();
+        const itemUserId = String(itemData.user?.id || itemData.user_id || "");
+        const itemUserName = String(itemData.user?.name || itemData.user?.username || "").toLowerCase();
+
+        if (itemUserId === userStrId || (userNameLower && itemUserName === userNameLower)) {
+          const updatedUserObj = {
+            ...(itemData.user || {}),
+            id: user.id,
+            name: name || itemData.user?.name,
+            location: location || itemData.user?.location,
+          };
+          if (avatarBase64) {
+            updatedUserObj.avatar = avatarBase64;
+          }
+          await setDoc(doc(db, "items", itemDoc.id), {
+            user: updatedUserObj,
+            location: location || itemData.location || null,
+          }, { merge: true });
+        }
+      }
+    } catch (syncErr) {
+      console.warn("[profile] Failed to sync updated profile to items:", syncErr);
+    }
 
     // Re-fetch updated user
     const updatedDoc = await getDoc(userDocRef);

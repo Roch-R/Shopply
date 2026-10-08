@@ -924,9 +924,17 @@ export default function ShopPage() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Load current user for chat & followed sellers
+  // Load current user for chat, seller card avatars & followed sellers
   useEffect(() => {
     const token = localStorage.getItem("token");
+    const storedUserStr = localStorage.getItem("user");
+    if (storedUserStr) {
+      try {
+        const u = JSON.parse(storedUserStr);
+        if (u) setCurrentUser(u);
+      } catch (e) {}
+    }
+
     if (token) {
       const cache = getApiCache();
       cache.fetch(`${API}/me`, { headers: { Authorization: `Bearer ${token}`, Accept: "application/json" } })
@@ -945,6 +953,24 @@ export default function ShopPage() {
         })
         .catch(() => {});
     }
+
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === "shopply_profile_update" || e.key === "user") {
+        const updated = localStorage.getItem("user");
+        if (updated) {
+          try {
+            setCurrentUser(JSON.parse(updated));
+          } catch (e) {}
+        }
+        const cache = getApiCache();
+        cache.invalidate('/shop/items');
+        cache.fetch(`${API}/shop/items`, {})
+          .then((d: any) => { if (d.items) setItems(d.items); })
+          .catch(() => {});
+      }
+    };
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
 
   // Close emoji picker when clicking outside
@@ -3545,20 +3571,32 @@ export default function ShopPage() {
                       </div>
                     </div>
                     <div className="item-seller" style={{marginTop:12, padding: '8px 12px', background: '#f8fafc', borderRadius: '10px', border: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', gap: '8px'}}>
-                      {item.user?.avatar ? (
-                        <img 
-                          src={getAvatarUrl(item.user.avatar)} 
-                          alt={item.user?.name || "Seller"} 
-                          className="seller-avatar" 
-                          style={{objectFit: 'cover', width: '28px', height: '28px', flexShrink: 0, borderRadius: '50%'}} 
-                          onError={(e) => {
-                            e.currentTarget.onerror = null;
-                            e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(item.user?.name || "User")}&background=e2e8f0&color=64748b&bold=true`;
-                          }}
-                        />
-                      ) : (
-                        <div className="seller-avatar" style={{width: '28px', height: '28px', flexShrink: 0, borderRadius: '50%'}}>{(item.user?.name || "U").charAt(0).toUpperCase()}</div>
-                      )}
+                      {(() => {
+                        const isCurrentSeller = currentUser && (
+                          String(item.user?.id) === String(currentUser.id) ||
+                          (item.user?.name && currentUser.name && item.user.name.toLowerCase() === currentUser.name.toLowerCase()) ||
+                          (item.user?.name && (currentUser as any).username && item.user.name.toLowerCase() === (currentUser as any).username.toLowerCase())
+                        );
+                        const sellerAvatar = item.user?.avatar || (isCurrentSeller ? currentUser.avatar : null);
+                        const sellerName = item.user?.name || (isCurrentSeller ? currentUser.name : "Seller");
+
+                        return sellerAvatar ? (
+                          <img 
+                            src={getAvatarUrl(sellerAvatar)} 
+                            alt="" 
+                            className="seller-avatar" 
+                            style={{objectFit: 'cover', width: '28px', height: '28px', flexShrink: 0, borderRadius: '50%', border: '1px solid #e2e8f0'}} 
+                            onError={(e) => {
+                              e.currentTarget.onerror = null;
+                              e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(sellerName)}&background=ede9fe&color=7c3aed&bold=true`;
+                            }}
+                          />
+                        ) : (
+                          <div className="seller-avatar" style={{width: '28px', height: '28px', flexShrink: 0, borderRadius: '50%', background: '#ede9fe', color: '#7c3aed', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 13}}>
+                            {sellerName.charAt(0).toUpperCase()}
+                          </div>
+                        );
+                      })()}
                       <div style={{display: 'flex', flexDirection: 'column', gap: 1, minWidth: 0, flex: 1}}>
                         <span style={{color: '#0f172a', fontSize: '13px', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'}}>
                           {item.user?.name || "Seller"}
@@ -4147,19 +4185,31 @@ export default function ShopPage() {
               <div className="seller-header-bar">
                 <div className="seller-left-side">
                   <div className="seller-avatar-wrapper">
-                    {viewItem.user.avatar ? (
-                      <img 
-                        src={getAvatarUrl(viewItem.user.avatar)} 
-                        className="seller-main-avatar" 
-                        alt="" 
-                        onError={(e) => {
-                          e.currentTarget.onerror = null;
-                          e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(viewItem.user?.name || "User")}&background=ede9fe&color=7c3aed&bold=true`;
-                        }} 
-                      />
-                    ) : (
-                      <div className="seller-main-avatar">{viewItem.user.name.charAt(0).toUpperCase()}</div>
-                    )}
+                    {(() => {
+                      const isCurrentSeller = currentUser && (
+                        String(viewItem.user?.id) === String(currentUser.id) ||
+                        (viewItem.user?.name && currentUser.name && viewItem.user.name.toLowerCase() === currentUser.name.toLowerCase()) ||
+                        (viewItem.user?.name && (currentUser as any).username && viewItem.user.name.toLowerCase() === (currentUser as any).username.toLowerCase())
+                      );
+                      const sellerAvatar = viewItem.user?.avatar || (isCurrentSeller ? currentUser.avatar : null);
+                      const sellerName = viewItem.user?.name || (isCurrentSeller ? currentUser.name : "Seller");
+
+                      return sellerAvatar ? (
+                        <img 
+                          src={getAvatarUrl(sellerAvatar)} 
+                          className="seller-main-avatar" 
+                          alt="" 
+                          onError={(e) => {
+                            e.currentTarget.onerror = null;
+                            e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(sellerName)}&background=ede9fe&color=7c3aed&bold=true`;
+                          }} 
+                        />
+                      ) : (
+                        <div className="seller-main-avatar" style={{background: '#ede9fe', color: '#7c3aed', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 18}}>
+                          {sellerName.charAt(0).toUpperCase()}
+                        </div>
+                      );
+                    })()}
                     <span className="seller-mall-badge">Verified Seller</span>
                   </div>
                   <div className="seller-info-col">

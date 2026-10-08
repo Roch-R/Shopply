@@ -131,7 +131,10 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       location,
       user: {
         ...(itemData.user || {}),
-        location
+        id: user.id,
+        name: user.name || itemData.user?.name,
+        avatar: user.avatar || itemData.user?.avatar || "",
+        location: location || user.location || itemData.user?.location || null
       }
     };
 
