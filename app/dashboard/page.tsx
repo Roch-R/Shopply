@@ -3560,10 +3560,10 @@ export default function DashboardPage() {
         @media (max-width: 900px) { .variant-form-grid { grid-template-columns: 1fr 1fr; gap: 16px; } }
         @media (max-width: 560px) { .variant-form-grid { grid-template-columns: 1fr; gap: 14px; } }
 
-        /* --- PROFILE HEADER BANNER (FLAT BRUTALISM, PURPLE ACCENT, NO SHADOW) --- */
+        /* --- PROFILE HEADER BANNER (FLAT BRUTALISM, PURPLE ACCENT, STRAIGHT BORDER) --- */
         .profile-header {
           background: #ffffff;
-          border-radius: 16px;
+          border-radius: 0px !important;
           padding: 28px 32px;
           border: 1px solid #e2e8f0;
           box-shadow: none;
@@ -3577,7 +3577,7 @@ export default function DashboardPage() {
         .profile-avatar {
           width: 96px;
           height: 96px;
-          border-radius: 14px;
+          border-radius: 0px !important;
           background: #ede9fe;
           display: flex;
           align-items: center;
@@ -3608,7 +3608,7 @@ export default function DashboardPage() {
           margin-left: auto;
           background: #f5f3ff;
           padding: 20px 32px;
-          border-radius: 14px;
+          border-radius: 0px !important;
           border: 1px solid #ede9fe;
           box-shadow: none;
         }
@@ -3628,7 +3628,7 @@ export default function DashboardPage() {
           color: #7c3aed;
           background: #ffffff;
           width: 32px; height: 32px;
-          border-radius: 8px;
+          border-radius: 0px !important;
           border: 1px solid #ddd6fe;
           box-shadow: none;
           flex-shrink: 0;
@@ -3637,7 +3637,7 @@ export default function DashboardPage() {
           background: #ffffff;
           border: 1px solid #e2e8f0;
           padding: 2px 8px;
-          border-radius: 6px;
+          border-radius: 0px !important;
           box-shadow: none;
           font-weight: 900;
           color: #000000;
@@ -3683,7 +3683,7 @@ export default function DashboardPage() {
         .info-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
         .info-card {
           background: #ffffff;
-          border-radius: 14px;
+          border-radius: 0px !important;
           padding: 26px;
           border: 1px solid #e2e8f0;
           box-shadow: none;
@@ -3695,7 +3695,7 @@ export default function DashboardPage() {
           color: #7c3aed;
           background: #f5f3ff;
           border: 1px solid #ddd6fe;
-          border-radius: 6px;
+          border-radius: 0px !important;
           padding: 3px 10px;
           display: inline-block;
           letter-spacing: 0.5px;
@@ -3746,7 +3746,7 @@ export default function DashboardPage() {
           width: 100%;
           padding: 12px 14px;
           border: 1px solid #cbd5e1 !important;
-          border-radius: 8px;
+          border-radius: 0px !important;
           font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
           font-size: 14px;
           font-weight: 700;
@@ -3765,7 +3765,7 @@ export default function DashboardPage() {
 
         .image-upload {
           border: 1.5px dashed #cbd5e1;
-          border-radius: 12px;
+          border-radius: 0px !important;
           padding: 32px;
           text-align: center;
           cursor: pointer;
@@ -3779,7 +3779,7 @@ export default function DashboardPage() {
           box-shadow: none;
         }
         .image-upload.has-image { padding: 12px; border-style: solid; border-color: #e2e8f0; }
-        .image-preview { width: 100%; max-height: 200px; object-fit: cover; border-radius: 8px; border: 1px solid #e2e8f0; }
+        .image-preview { width: 100%; max-height: 200px; object-fit: cover; border-radius: 0px !important; border: 1px solid #e2e8f0; }
         .upload-icon { font-size: 32px; margin-bottom: 8px; display: block; color: #7c3aed; }
         .upload-text { font-size: 14px; color: #000000; font-weight: 800; margin-bottom: 4px; }
         .upload-hint { font-size: 12px; color: #64748b; font-weight: 600; }
@@ -3790,7 +3790,7 @@ export default function DashboardPage() {
           background: #7c3aed;
           color: #ffffff;
           border: 1px solid #6d28d9;
-          border-radius: 10px;
+          border-radius: 0px !important;
           font-size: 15px;
           font-weight: 900;
           text-transform: uppercase;
@@ -3815,7 +3815,7 @@ export default function DashboardPage() {
         .items-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
         .item-card {
           background: #ffffff;
-          border-radius: 14px;
+          border-radius: 0px !important;
           overflow: hidden;
           border: 1px solid #e2e8f0;
           box-shadow: none;
@@ -3886,7 +3886,7 @@ export default function DashboardPage() {
           text-align: center;
           padding: 80px 20px;
           background: #ffffff;
-          border-radius: 14px;
+          border-radius: 0px !important;
           border: 1.5px dashed #cbd5e1;
           box-shadow: none;
         }
@@ -3899,7 +3899,7 @@ export default function DashboardPage() {
         .orders-main { flex: 1; display: flex; flex-direction: column; gap: 24px; }
         .order-trust-hero {
           background: #7c3aed !important;
-          border-radius: 16px !important;
+          border-radius: 0px !important;
           padding: 24px 28px !important;
           color: #ffffff !important;
           border: 1px solid rgba(255,255,255,0.2) !important;
@@ -3907,7 +3907,7 @@ export default function DashboardPage() {
         }
         .order-control-bar {
           background: #ffffff !important;
-          border-radius: 14px !important;
+          border-radius: 0px !important;
           padding: 16px 20px !important;
           border: 1px solid #e2e8f0 !important;
           box-shadow: none !important;
@@ -3927,7 +3927,7 @@ export default function DashboardPage() {
         .store-orders-table-wrapper {
           background: #ffffff;
           border: 1px solid #e2e8f0;
-          border-radius: 12px;
+          border-radius: 0px !important;
           overflow-x: auto;
           box-shadow: none;
           width: 100%;
@@ -3965,7 +3965,7 @@ export default function DashboardPage() {
         }
         .order-card {
           background: #ffffff;
-          border-radius: 14px;
+          border-radius: 0px !important;
           box-shadow: none;
           border: 1px solid #e2e8f0;
           overflow: hidden;
@@ -3976,7 +3976,7 @@ export default function DashboardPage() {
         .order-search-container {
           background: #ffffff;
           padding: 16px 24px;
-          border-radius: 14px;
+          border-radius: 0px !important;
           border: 1px solid #e2e8f0;
           box-shadow: none;
           display: flex;
@@ -4282,7 +4282,7 @@ export default function DashboardPage() {
           align-items: center;
           justify-content: center;
           padding: 22px 16px;
-          border-radius: 12px;
+          border-radius: 0px !important;
           border: 1px solid #e2e8f0;
           cursor: pointer;
           transition: all 0.15s ease;
@@ -4293,7 +4293,7 @@ export default function DashboardPage() {
         .my-stat-card-icon {
           width: 48px;
           height: 48px;
-          border-radius: 10px;
+          border-radius: 0px !important;
           border: 1px solid #e2e8f0;
           box-shadow: none;
           display: flex;
@@ -4666,14 +4666,14 @@ export default function DashboardPage() {
             text-align: center !important;
             padding: 18px 14px !important;
             gap: 14px !important;
-            border-radius: 12px !important;
+            border-radius: 0px !important;
           }
           .profile-avatar {
             width: 72px !important;
             height: 72px !important;
             font-size: 26px !important;
             margin: 0 auto !important;
-            border-radius: 10px !important;
+            border-radius: 0px !important;
           }
           .profile-info { width: 100% !important; }
           .profile-info h2 { font-size: 20px !important; }
@@ -4683,7 +4683,7 @@ export default function DashboardPage() {
             grid-template-columns: repeat(2, 1fr) !important;
             gap: 8px 10px !important;
             padding: 10px 12px !important;
-            border-radius: 10px !important;
+            border-radius: 0px !important;
           }
           .profile-stat {
             font-size: 12px !important;
@@ -4693,7 +4693,7 @@ export default function DashboardPage() {
           .profile-stat-icon {
             width: 28px !important;
             height: 28px !important;
-            border-radius: 6px !important;
+            border-radius: 0px !important;
           }
           .profile-stat-val {
             padding: 2px 6px !important;
@@ -4706,32 +4706,32 @@ export default function DashboardPage() {
           }
           .info-card {
             padding: 16px 14px !important;
-            border-radius: 10px !important;
+            border-radius: 0px !important;
           }
 
           /* Buyer Orders Mobile Layout */
           .order-trust-hero {
             padding: 16px 12px !important;
-            border-radius: 12px !important;
+            border-radius: 0px !important;
             flex-direction: column !important;
             align-items: stretch !important;
             gap: 12px !important;
           }
           .order-control-bar {
             padding: 12px !important;
-            border-radius: 10px !important;
+            border-radius: 0px !important;
           }
           .order-search-container {
             flex-direction: column !important;
             align-items: stretch !important;
             gap: 10px !important;
             padding: 12px !important;
-            border-radius: 10px !important;
+            border-radius: 0px !important;
           }
           .order-search { width: 100% !important; max-width: 100% !important; }
           .order-search input { width: 100% !important; }
           .order-card {
-            border-radius: 10px !important;
+            border-radius: 0px !important;
             border-width: 1px !important;
           }
 
@@ -4741,7 +4741,7 @@ export default function DashboardPage() {
             gap: 12px !important;
           }
           .item-card {
-            border-radius: 10px !important;
+            border-radius: 0px !important;
             border-width: 1px !important;
           }
           .item-card-img, .item-card-placeholder {
@@ -4757,14 +4757,14 @@ export default function DashboardPage() {
           /* Add Item Form on Mobile */
           .add-form {
             padding: 16px 12px !important;
-            border-radius: 12px !important;
+            border-radius: 0px !important;
             border-width: 1px !important;
           }
           .form-row { grid-template-columns: 1fr !important; gap: 14px !important; }
           .form-group { margin-bottom: 14px !important; }
           .image-upload {
             padding: 20px 12px !important;
-            border-radius: 10px !important;
+            border-radius: 0px !important;
           }
           .submit-btn {
             padding: 12px !important;
@@ -4774,7 +4774,7 @@ export default function DashboardPage() {
           /* Chat on Mobile */
           .chat-card-container {
             height: calc(100vh - 110px) !important;
-            border-radius: 12px !important;
+            border-radius: 0px !important;
             border-width: 1px !important;
           }
           .chat-left-pane { width: 100% !important; border-right: none !important; }
@@ -4910,13 +4910,13 @@ export default function DashboardPage() {
 
             {/* PROFILE HEADER IN SIDEBAR */}
             <div className="sidebar-profile-header">
-              <div style={{ width: 40, height: 40, borderRadius: 10, border: '1px solid #ddd6fe', boxShadow: 'none', background: '#f5f3ff', color: '#7c3aed', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: 16, flexShrink: 0, overflow: 'hidden' }}>
+              <div style={{ width: 40, height: 40, borderRadius: 0, border: '1px solid #ddd6fe', boxShadow: 'none', background: '#f5f3ff', color: '#7c3aed', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: 16, flexShrink: 0, overflow: 'hidden' }}>
                 {user?.avatar && !avatarLoadFailed ? (
                   <img
                     src={getAvatarUrl(user.avatar)}
                     alt=""
                     onError={() => setAvatarLoadFailed(true)}
-                    style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 8 }}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 0 }}
                   />
                 ) : (
                   user?.name ? user.name.charAt(0).toUpperCase() : 'U'
@@ -5059,13 +5059,13 @@ export default function DashboardPage() {
                         onError={() => setAvatarLoadFailed(true)}
                         fetchPriority="high"
                         decoding="async"
-                        style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 10, position: 'absolute', top: 0, left: 0 }}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 0, position: 'absolute', top: 0, left: 0 }}
                       />
                     ) : initials}
                   </div>
                   <div className="profile-info">
                     <div style={{ marginBottom: 6 }}>
-                      <span style={{ display: 'inline-block', background: '#f5f3ff', color: '#7c3aed', fontSize: 11, fontWeight: 900, textTransform: 'uppercase', letterSpacing: 1, padding: '4px 12px', borderRadius: 6, border: '1px solid #ddd6fe', boxShadow: 'none' }}>
+                      <span style={{ display: 'inline-block', background: '#f5f3ff', color: '#7c3aed', fontSize: 11, fontWeight: 900, textTransform: 'uppercase', letterSpacing: 1, padding: '4px 12px', borderRadius: 0, border: '1px solid #ddd6fe', boxShadow: 'none' }}>
                         WELCOME BACK
                       </span>
                     </div>
@@ -5097,19 +5097,19 @@ export default function DashboardPage() {
                     <form onSubmit={handleUpdateProfile} style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 20 }}>
                       <div style={{ textAlign: 'center' }}>
                         <div style={{ position: 'relative', width: 100, height: 100, margin: '0 auto 16px' }}>
-                          <div className="profile-avatar" style={{ width: 100, height: 100, fontSize: 32, overflow: 'hidden' }}>
+                          <div className="profile-avatar" style={{ width: 100, height: 100, fontSize: 32, overflow: 'hidden', borderRadius: 0 }}>
                             {avatarPreview ? (
-                              <img src={avatarPreview} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 12 }} />
+                              <img src={avatarPreview} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 0 }} />
                             ) : user.avatar && !avatarLoadFailed ? (
                               <img
                                 src={getAvatarUrl(user.avatar)}
                                 alt=""
                                 onError={() => setAvatarLoadFailed(true)}
-                                style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 12 }}
+                                style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 0 }}
                               />
                             ) : initials}
                           </div>
-                          <label htmlFor="avatar-upload" style={{ position: 'absolute', bottom: 0, right: 0, background: '#7c3aed', padding: 7, borderRadius: '50%', boxShadow: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid #ffffff', color: '#ffffff' }}>
+                          <label htmlFor="avatar-upload" style={{ position: 'absolute', bottom: 0, right: 0, background: '#7c3aed', padding: 7, borderRadius: 0, boxShadow: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid #ffffff', color: '#ffffff' }}>
                             <IconPlus />
                           </label>
                           <input
@@ -5206,7 +5206,7 @@ export default function DashboardPage() {
                             }}
                             style={{
                               padding: '8px 16px',
-                              borderRadius: 8,
+                              borderRadius: 0,
                               border: '1px solid #e2e8f0',
                               background: '#f5f3ff',
                               color: '#7c3aed',
@@ -5262,7 +5262,7 @@ export default function DashboardPage() {
                       </div>
                       <div className="info-row">
                         <span className="info-card-label">Account Status</span>
-                        <div className="info-card-value"><span style={{ background: '#dcfce7', color: '#16a34a', border: '1px solid #bbf7d0', borderRadius: 6, padding: '3px 12px', fontSize: 11, fontWeight: 900, textTransform: 'uppercase', display: 'inline-block' }}>Active</span></div>
+                        <div className="info-card-value"><span style={{ background: '#dcfce7', color: '#16a34a', border: '1px solid #bbf7d0', borderRadius: 0, padding: '3px 12px', fontSize: 11, fontWeight: 900, textTransform: 'uppercase', display: 'inline-block' }}>Active</span></div>
                       </div>
                     </div>
                   </div>
