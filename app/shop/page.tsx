@@ -785,12 +785,44 @@ export default function ShopPage() {
 
   const getAvatarUrl = (path?: string | null) => {
     if (!path) return "";
-    return path.startsWith('http://') || path.startsWith('https://') ? path : `${STORAGE_URL}/${path}`;
+    const clean = path.trim();
+    if (clean.includes('data:image/')) {
+      const idx = clean.indexOf('data:image/');
+      return clean.slice(idx);
+    }
+    if (
+      clean.startsWith('data:') ||
+      clean.startsWith('blob:') ||
+      clean.startsWith('http://') ||
+      clean.startsWith('https://')
+    ) {
+      return clean;
+    }
+    if (clean.startsWith('/')) {
+      return clean;
+    }
+    return `${STORAGE_URL}/${clean}`;
   };
 
   const getImageUrl = (path?: string | null) => {
     if (!path) return "";
-    return path.startsWith('http://') || path.startsWith('https://') ? path : `${STORAGE_URL}/${path}`;
+    const clean = path.trim();
+    if (clean.includes('data:image/')) {
+      const idx = clean.indexOf('data:image/');
+      return clean.slice(idx);
+    }
+    if (
+      clean.startsWith('data:') ||
+      clean.startsWith('blob:') ||
+      clean.startsWith('http://') ||
+      clean.startsWith('https://')
+    ) {
+      return clean;
+    }
+    if (clean.startsWith('/')) {
+      return clean;
+    }
+    return `${STORAGE_URL}/${clean}`;
   };
 
   const IconCart = () => <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>;
@@ -4116,7 +4148,15 @@ export default function ShopPage() {
                 <div className="seller-left-side">
                   <div className="seller-avatar-wrapper">
                     {viewItem.user.avatar ? (
-                      <img src={getAvatarUrl(viewItem.user.avatar)} className="seller-main-avatar" alt={viewItem.user.name} />
+                      <img 
+                        src={getAvatarUrl(viewItem.user.avatar)} 
+                        className="seller-main-avatar" 
+                        alt="" 
+                        onError={(e) => {
+                          e.currentTarget.onerror = null;
+                          e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(viewItem.user?.name || "User")}&background=ede9fe&color=7c3aed&bold=true`;
+                        }} 
+                      />
                     ) : (
                       <div className="seller-main-avatar">{viewItem.user.name.charAt(0).toUpperCase()}</div>
                     )}
@@ -4750,7 +4790,15 @@ export default function ShopPage() {
                     >
                       <div style={{ position: 'relative', flexShrink: 0 }}>
                         {conv.user.avatar ? (
-                          <img src={getAvatarUrl(conv.user.avatar)} alt={conv.user.name} style={{width: 44, height: 44, borderRadius: '50%', objectFit: 'cover'}} />
+                          <img 
+                            src={getAvatarUrl(conv.user.avatar)} 
+                            alt="" 
+                            onError={(e) => {
+                              e.currentTarget.onerror = null;
+                              e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(conv.user?.name || "User")}&background=ede9fe&color=7c3aed&bold=true`;
+                            }}
+                            style={{width: 44, height: 44, borderRadius: '50%', objectFit: 'cover'}} 
+                          />
                         ) : (
                           <div style={{width: 44, height: 44, borderRadius: '50%', background: '#e2e8f0', color: '#64748b', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 16}}>
                             {conv.user.name.charAt(0).toUpperCase()}
@@ -4852,7 +4900,15 @@ export default function ShopPage() {
                         </button>
                       )}
                       {activeChatUser.avatar ? (
-                        <img src={getAvatarUrl(activeChatUser.avatar)} alt={activeChatUser.name} style={{width: isMobile ? 32 : 40, height: isMobile ? 32 : 40, borderRadius: '50%', objectFit: 'cover'}} />
+                        <img 
+                          src={getAvatarUrl(activeChatUser.avatar)} 
+                          alt="" 
+                          onError={(e) => {
+                            e.currentTarget.onerror = null;
+                            e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(activeChatUser?.name || "User")}&background=ede9fe&color=7c3aed&bold=true`;
+                          }}
+                          style={{width: isMobile ? 32 : 40, height: isMobile ? 32 : 40, borderRadius: '50%', objectFit: 'cover'}} 
+                        />
                       ) : (
                         <div style={{width: isMobile ? 32 : 40, height: isMobile ? 32 : 40, borderRadius: '50%', background: '#e2e8f0', color: '#64748b', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: isMobile ? 14 : 16}}>
                           {activeChatUser.name.charAt(0).toUpperCase()}
@@ -4937,7 +4993,15 @@ export default function ShopPage() {
                             >
                               {!isMe && (
                                 activeChatUser.avatar ? (
-                                  <img src={getAvatarUrl(activeChatUser.avatar)} alt={activeChatUser.name} style={{width: 28, height: 28, borderRadius: '50%', objectFit: 'cover', marginBottom: 4}} />
+                                  <img 
+                                    src={getAvatarUrl(activeChatUser.avatar)} 
+                                    alt="" 
+                                    onError={(e) => {
+                                      e.currentTarget.onerror = null;
+                                      e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(activeChatUser?.name || "User")}&background=ede9fe&color=7c3aed&bold=true`;
+                                    }}
+                                    style={{width: 28, height: 28, borderRadius: '50%', objectFit: 'cover', marginBottom: 4}} 
+                                  />
                                 ) : (
                                   <div style={{width: 28, height: 28, borderRadius: '50%', background: '#e2e8f0', color: '#64748b', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 12, marginBottom: 4}}>
                                     {activeChatUser.name.charAt(0).toUpperCase()}
@@ -5054,7 +5118,15 @@ export default function ShopPage() {
                     {isOtherUserTyping && activeChatUser && (
                       <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, alignSelf: 'flex-start', maxWidth: isMobile ? '85%' : '75%', animation: 'slideIn 0.2s ease' }}>
                         {activeChatUser.avatar ? (
-                          <img src={getAvatarUrl(activeChatUser.avatar)} alt={activeChatUser.name} style={{ width: 28, height: 28, borderRadius: '50%', objectFit: 'cover', marginBottom: 4 }} />
+                          <img 
+                            src={getAvatarUrl(activeChatUser.avatar)} 
+                            alt="" 
+                            onError={(e) => {
+                              e.currentTarget.onerror = null;
+                              e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(activeChatUser?.name || "User")}&background=ede9fe&color=7c3aed&bold=true`;
+                            }}
+                            style={{ width: 28, height: 28, borderRadius: '50%', objectFit: 'cover', marginBottom: 4 }} 
+                          />
                         ) : (
                           <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#e2e8f0', color: '#64748b', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 12, marginBottom: 4 }}>
                             {activeChatUser.name.charAt(0).toUpperCase()}

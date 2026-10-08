@@ -983,6 +983,11 @@ export default function DashboardPage() {
     return false;
   });
   const [isUserBlockedModalOpen, setIsUserBlockedModalOpen] = useState(false);
+  const [avatarLoadFailed, setAvatarLoadFailed] = useState(false);
+
+  useEffect(() => {
+    setAvatarLoadFailed(false);
+  }, [user?.avatar]);
 
   // Pre-warm AI Vision Neural Model in background for instant image recognition
   useEffect(() => {
@@ -1905,12 +1910,44 @@ export default function DashboardPage() {
 
   const getAvatarUrl = (path?: string | null) => {
     if (!path) return "";
-    return path.startsWith('http://') || path.startsWith('https://') ? path : `${STORAGE_URL}/${path}`;
+    const clean = path.trim();
+    if (clean.includes('data:image/')) {
+      const idx = clean.indexOf('data:image/');
+      return clean.slice(idx);
+    }
+    if (
+      clean.startsWith('data:') ||
+      clean.startsWith('blob:') ||
+      clean.startsWith('http://') ||
+      clean.startsWith('https://')
+    ) {
+      return clean;
+    }
+    if (clean.startsWith('/')) {
+      return clean;
+    }
+    return `${STORAGE_URL}/${clean}`;
   };
 
   const getImageUrl = (path?: string | null) => {
     if (!path) return "";
-    return path.startsWith('http://') || path.startsWith('https://') ? path : `${STORAGE_URL}/${path}`;
+    const clean = path.trim();
+    if (clean.includes('data:image/')) {
+      const idx = clean.indexOf('data:image/');
+      return clean.slice(idx);
+    }
+    if (
+      clean.startsWith('data:') ||
+      clean.startsWith('blob:') ||
+      clean.startsWith('http://') ||
+      clean.startsWith('https://')
+    ) {
+      return clean;
+    }
+    if (clean.startsWith('/')) {
+      return clean;
+    }
+    return `${STORAGE_URL}/${clean}`;
   };
 
 
@@ -2584,6 +2621,7 @@ export default function DashboardPage() {
         setUser(data.user);
         setAvatarFile(null);
         setAvatarPreview(null);
+        setAvatarLoadFailed(false);
         showToast("Profile updated successfully!", 'success');
       } else {
         showToast(data.message || "Failed to update profile", 'error');
@@ -4859,8 +4897,13 @@ export default function DashboardPage() {
             {/* PROFILE HEADER IN SIDEBAR */}
             <div className="sidebar-profile-header">
               <div style={{ width: 40, height: 40, borderRadius: 10, border: '1px solid #ddd6fe', boxShadow: 'none', background: '#f5f3ff', color: '#7c3aed', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: 16, flexShrink: 0, overflow: 'hidden' }}>
-                {user?.avatar ? (
-                  <img src={getAvatarUrl(user.avatar)} alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 8 }} />
+                {user?.avatar && !avatarLoadFailed ? (
+                  <img
+                    src={getAvatarUrl(user.avatar)}
+                    alt=""
+                    onError={() => setAvatarLoadFailed(true)}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 8 }}
+                  />
                 ) : (
                   user?.name ? user.name.charAt(0).toUpperCase() : 'U'
                 )}
@@ -4995,8 +5038,15 @@ export default function DashboardPage() {
                 {/* Profile Welcome Header */}
                 <div className="profile-header">
                   <div className="profile-avatar" style={{ position: 'relative', overflow: 'hidden' }}>
-                    {user.avatar ? (
-                      <img src={getAvatarUrl(user.avatar)} alt={user.name} fetchPriority="high" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 10, position: 'absolute', top: 0, left: 0 }} />
+                    {user.avatar && !avatarLoadFailed ? (
+                      <img
+                        src={getAvatarUrl(user.avatar)}
+                        alt=""
+                        onError={() => setAvatarLoadFailed(true)}
+                        fetchPriority="high"
+                        decoding="async"
+                        style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 10, position: 'absolute', top: 0, left: 0 }}
+                      />
                     ) : initials}
                   </div>
                   <div className="profile-info">
@@ -5033,11 +5083,16 @@ export default function DashboardPage() {
                     <form onSubmit={handleUpdateProfile} style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 20 }}>
                       <div style={{ textAlign: 'center' }}>
                         <div style={{ position: 'relative', width: 100, height: 100, margin: '0 auto 16px' }}>
-                          <div className="profile-avatar" style={{ width: 100, height: 100, fontSize: 32 }}>
+                          <div className="profile-avatar" style={{ width: 100, height: 100, fontSize: 32, overflow: 'hidden' }}>
                             {avatarPreview ? (
-                              <img src={avatarPreview} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
-                            ) : user.avatar ? (
-                              <img src={getAvatarUrl(user.avatar)} alt={user.name} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
+                              <img src={avatarPreview} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 12 }} />
+                            ) : user.avatar && !avatarLoadFailed ? (
+                              <img
+                                src={getAvatarUrl(user.avatar)}
+                                alt=""
+                                onError={() => setAvatarLoadFailed(true)}
+                                style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 12 }}
+                              />
                             ) : initials}
                           </div>
                           <label htmlFor="avatar-upload" style={{ position: 'absolute', bottom: 0, right: 0, background: '#7c3aed', padding: 7, borderRadius: '50%', boxShadow: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid #ffffff', color: '#ffffff' }}>
@@ -5724,7 +5779,15 @@ export default function DashboardPage() {
                           >
                             <div style={{ position: 'relative', flexShrink: 0 }}>
                               {conv.user.avatar ? (
-                                <img src={getAvatarUrl(conv.user.avatar)} alt={conv.user.name} style={{width: 44, height: 44, borderRadius: '50%', objectFit: 'cover'}} />
+                                <img 
+                                  src={getAvatarUrl(conv.user.avatar)} 
+                                  alt="" 
+                                  onError={(e) => {
+                                    e.currentTarget.onerror = null;
+                                    e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(conv.user?.name || "User")}&background=ede9fe&color=7c3aed&bold=true`;
+                                  }}
+                                  style={{width: 44, height: 44, borderRadius: '50%', objectFit: 'cover'}} 
+                                />
                               ) : (
                                 <div style={{width: 44, height: 44, borderRadius: '50%', background: '#e2e8f0', color: '#64748b', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 16}}>
                                   {conv.user.name.charAt(0).toUpperCase()}
@@ -5817,7 +5880,15 @@ export default function DashboardPage() {
                               </svg>
                             </button>
                             {activeChatUser.avatar ? (
-                              <img src={getAvatarUrl(activeChatUser.avatar)} alt={activeChatUser.name} style={{width: 40, height: 40, borderRadius: '50%', objectFit: 'cover'}} />
+                              <img 
+                                src={getAvatarUrl(activeChatUser.avatar)} 
+                                alt="" 
+                                onError={(e) => {
+                                  e.currentTarget.onerror = null;
+                                  e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(activeChatUser?.name || "User")}&background=ede9fe&color=7c3aed&bold=true`;
+                                }}
+                                style={{width: 40, height: 40, borderRadius: '50%', objectFit: 'cover'}} 
+                              />
                             ) : (
                               <div style={{width: 40, height: 40, borderRadius: '50%', background: '#e2e8f0', color: '#64748b', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 16}}>
                                 {activeChatUser.name.charAt(0).toUpperCase()}
@@ -5949,7 +6020,15 @@ export default function DashboardPage() {
                                   >
                                     {!isMe && (
                                       activeChatUser.avatar ? (
-                                        <img src={getAvatarUrl(activeChatUser.avatar)} alt={activeChatUser.name} style={{width: 28, height: 28, borderRadius: '50%', objectFit: 'cover', marginBottom: 4}} />
+                                        <img 
+                                          src={getAvatarUrl(activeChatUser.avatar)} 
+                                          alt="" 
+                                          onError={(e) => {
+                                            e.currentTarget.onerror = null;
+                                            e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(activeChatUser?.name || "User")}&background=ede9fe&color=7c3aed&bold=true`;
+                                          }}
+                                          style={{width: 28, height: 28, borderRadius: '50%', objectFit: 'cover', marginBottom: 4}} 
+                                        />
                                       ) : (
                                         <div style={{width: 28, height: 28, borderRadius: '50%', background: '#e2e8f0', color: '#64748b', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 12, marginBottom: 4}}>
                                           {activeChatUser.name.charAt(0).toUpperCase()}
@@ -6045,7 +6124,15 @@ export default function DashboardPage() {
                           {isOtherUserTyping && activeChatUser && (
                             <div className="chat-message-row them" style={{ animation: 'slideIn 0.2s ease' }}>
                               {activeChatUser.avatar ? (
-                                <img src={getAvatarUrl(activeChatUser.avatar)} alt={activeChatUser.name} style={{ width: 28, height: 28, borderRadius: '50%', objectFit: 'cover', marginBottom: 4 }} />
+                                <img 
+                                  src={getAvatarUrl(activeChatUser.avatar)} 
+                                  alt="" 
+                                  onError={(e) => {
+                                    e.currentTarget.onerror = null;
+                                    e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(activeChatUser?.name || "User")}&background=ede9fe&color=7c3aed&bold=true`;
+                                  }}
+                                  style={{ width: 28, height: 28, borderRadius: '50%', objectFit: 'cover', marginBottom: 4 }} 
+                                />
                               ) : (
                                 <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#e2e8f0', color: '#64748b', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 12, marginBottom: 4 }}>
                                   {activeChatUser.name.charAt(0).toUpperCase()}
@@ -10115,7 +10202,11 @@ export default function DashboardPage() {
                 {incomingCall.user.avatar ? (
                   <img 
                     src={getAvatarUrl(incomingCall.user.avatar)} 
-                    alt={incomingCall.user.name} 
+                    alt="" 
+                    onError={(e) => {
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(incomingCall.user?.name || "User")}&background=10b981&color=ffffff&bold=true`;
+                    }}
                     style={{ width: 120, height: 120, borderRadius: '50%', objectFit: 'cover', border: '4px solid #fff', position: 'relative', zIndex: 10 }}
                   />
                 ) : (
@@ -10220,7 +10311,11 @@ export default function DashboardPage() {
                   {activeCall.user.avatar ? (
                     <img 
                       src={getAvatarUrl(activeCall.user.avatar)} 
-                      alt={activeCall.user.name} 
+                      alt="" 
+                      onError={(e) => {
+                        e.currentTarget.onerror = null;
+                        e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(activeCall.user?.name || "User")}&background=7c3aed&color=ffffff&bold=true`;
+                      }}
                       style={{ width: 120, height: 120, borderRadius: '50%', objectFit: 'cover', border: '4px solid #fff', position: 'relative', zIndex: 10 }}
                     />
                   ) : (
@@ -10282,7 +10377,11 @@ export default function DashboardPage() {
                       {activeCall.user.avatar ? (
                         <img 
                           src={getAvatarUrl(activeCall.user.avatar)} 
-                          alt={activeCall.user.name} 
+                          alt="" 
+                          onError={(e) => {
+                            e.currentTarget.onerror = null;
+                            e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(activeCall.user?.name || "User")}&background=7c3aed&color=ffffff&bold=true`;
+                          }}
                           style={{ width: 120, height: 120, borderRadius: '50%', objectFit: 'cover', border: '4px solid rgba(255,255,255,0.1)', position: 'relative', zIndex: 10 }}
                         />
                       ) : (

@@ -62,7 +62,23 @@ export default function CartPage() {
 
   const getImageUrl = (path?: string | null) => {
     if (!path) return "";
-    return path.startsWith('http://') || path.startsWith('https://') ? path : `${STORAGE_URL}/${path}`;
+    const clean = path.trim();
+    if (clean.includes('data:image/')) {
+      const idx = clean.indexOf('data:image/');
+      return clean.slice(idx);
+    }
+    if (
+      clean.startsWith('data:') ||
+      clean.startsWith('blob:') ||
+      clean.startsWith('http://') ||
+      clean.startsWith('https://')
+    ) {
+      return clean;
+    }
+    if (clean.startsWith('/')) {
+      return clean;
+    }
+    return `${STORAGE_URL}/${clean}`;
   };
 
   const fetchCart = async () => {

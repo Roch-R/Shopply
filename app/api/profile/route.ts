@@ -31,12 +31,9 @@ export async function POST(req: Request) {
       const avatarField = formData.get("avatar");
       if (avatarField && typeof avatarField === "object" && "size" in avatarField && (avatarField as any).size > 0) {
         const fileObj = avatarField as any;
-        const bytes = new Uint8Array(await fileObj.arrayBuffer());
-        let binary = "";
-        for (let i = 0; i < bytes.byteLength; i++) {
-          binary += String.fromCharCode(bytes[i]);
-        }
-        avatarBase64 = `data:${fileObj.type || "image/png"};base64,${btoa(binary)}`;
+        const buffer = Buffer.from(await fileObj.arrayBuffer());
+        const mimeType = fileObj.type || "image/jpeg";
+        avatarBase64 = `data:${mimeType};base64,${buffer.toString("base64")}`;
       }
     } else {
       const body = await req.json();
