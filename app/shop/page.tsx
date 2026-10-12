@@ -445,6 +445,8 @@ export default function ShopPage() {
   const [chatImageFiles, setChatImageFiles] = useState<File[]>([]);
   const [chatImagePreviews, setChatImagePreviews] = useState<string[]>([]);
   const [viewingImageModal, setViewingImageModal] = useState<{ images: string[]; index: number } | null>(null);
+  const imageViewerRef = useRef<HTMLDivElement>(null);
+  const isImageViewerOpen = viewingImageModal !== null;
   const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false);
   const [sharingLocation, setSharingLocation] = useState(false);
   const [isMeetupMapOpen, setIsMeetupMapOpen] = useState(false);
@@ -1335,18 +1337,49 @@ export default function ShopPage() {
     }
   }, [viewItem, API]);
 
-  // Lock body scrolling when detail modal is open
+  // Keep the page still behind either product details or the full-size gallery.
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-    if (viewItem) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    return () => {
-      document.body.style.overflow = '';
+    if (!viewItem && !isImageViewerOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = previousOverflow; };
+  }, [viewItem, isImageViewerOpen]);
+
+  useEffect(() => {
+    if (!isImageViewerOpen) return;
+    const viewer = imageViewerRef.current;
+    const previousFocus = document.activeElement as HTMLElement | null;
+    viewer?.querySelector<HTMLButtonElement>('button')?.focus({ preventScroll: true });
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        setViewingImageModal(null);
+      } else if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+        event.preventDefault();
+        const direction = event.key === 'ArrowLeft' ? -1 : 1;
+        setViewingImageModal(previous => previous ? {
+          ...previous,
+          index: (previous.index + direction + previous.images.length) % previous.images.length,
+        } : null);
+      } else if (event.key === 'Tab' && viewer) {
+        const controls = Array.from(viewer.querySelectorAll<HTMLElement>('button, a[href]'));
+        const first = controls[0];
+        const last = controls[controls.length - 1];
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last?.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first?.focus();
+        }
+      }
     };
-  }, [viewItem]);
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('keydown', onKeyDown);
+      if (previousFocus?.isConnected) previousFocus.focus({ preventScroll: true });
+    };
+  }, [isImageViewerOpen]);
 
   const handleViewItem = (item: ShopItem) => {
     setViewItem(item);
@@ -1716,6 +1749,11 @@ export default function ShopPage() {
         .detail-content{display:grid;grid-template-columns:minmax(0,1fr);gap:20px;padding:12px}
         
         .detail-img-side{display:flex;flex-direction:column;gap:16px;min-width:0}
+        .detail-image-expand{display:block;width:100%;height:100%;padding:0;border:0;background:transparent;cursor:zoom-in}
+        .detail-image-expand:focus-visible{outline:3px solid #7c3aed;outline-offset:-4px}
+        .detail-image-hint{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);padding:8px 12px;
+          border-radius:24px;background:rgba(255,255,255,.94);color:#475569;font-size:12px;font-weight:600;white-space:nowrap;
+          box-shadow:0 2px 10px #0f172a15;pointer-events:none}
         .main-detail-img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:20px;background:#f8fafc;border:1px solid #f1f5f9}
         .variant-thumbs{display:flex;gap:12px;overflow-x:auto;padding:4px;scrollbar-width:none;-ms-overflow-style:none}
         .variant-thumbs::-webkit-scrollbar{display:none}
@@ -3708,7 +3746,7 @@ export default function ShopPage() {
         {/* PRODUCT DETAIL MODAL */}
         {viewItem && (
           (() => {
-            const mediaItems = [];
+            const mediaItems: Array<{ type: 'image' | 'video'; url: string }> = [];
             const filteredReviews = reviews.filter(rev => {
               if (reviewFilter === 'comment') return !!rev.comment;
               if (reviewFilter === 'media') return rev.images && rev.images.length > 0;
@@ -3771,14 +3809,28 @@ export default function ShopPage() {
                             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                           />
                         ) : (
-                          <img 
-                            src={mediaItems[activeImageIdx]?.url || "https://placehold.co/600x600/f8fafc/cbd5e1?text=No+Image"} 
-                            style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-                            onError={(e) => {
-                              e.currentTarget.onerror = null;
-                              e.currentTarget.src = "https://placehold.co/600x600/f8fafc/cbd5e1?text=No+Image";
+                          <button
+                            type="button"
+                            className="detail-image-expand"
+                            aria-label={`View full-size image of ${viewItem.name}`}
+                            disabled={!mediaItems[activeImageIdx]?.url}
+                            onClick={() => {
+                              const images = mediaItems.filter(media => media.type === 'image').map(media => media.url);
+                              const index = mediaItems.slice(0, activeImageIdx).filter(media => media.type === 'image').length;
+                              if (images.length) setViewingImageModal({ images, index });
                             }}
-                          />
+                          >
+                            <img
+                              src={mediaItems[activeImageIdx]?.url || "https://placehold.co/600x600/f8fafc/cbd5e1?text=No+Image"}
+                              alt={viewItem.name}
+                              style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }}
+                              onError={(e) => {
+                                e.currentTarget.onerror = null;
+                                e.currentTarget.src = "https://placehold.co/600x600/f8fafc/cbd5e1?text=No+Image";
+                              }}
+                            />
+                            {mediaItems[activeImageIdx]?.url && <span className="detail-image-hint" aria-hidden="true">⤢ View full image</span>}
+                          </button>
                         )}
                         {mediaItems.length > 1 && (
                           <>
@@ -5504,6 +5556,10 @@ export default function ShopPage() {
         {/* FULLSCREEN LIGHTBOX IMAGE VIEWER MODAL */}
         {viewingImageModal && (
           <div
+            ref={imageViewerRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Full-size image gallery"
             style={{
               position: 'fixed',
               top: 0,
@@ -5535,6 +5591,7 @@ export default function ShopPage() {
               {/* Close Button */}
               <button
                 type="button"
+                aria-label="Close full-size image gallery"
                 onClick={() => setViewingImageModal(null)}
                 style={{
                   position: 'absolute',
@@ -5569,6 +5626,8 @@ export default function ShopPage() {
                 }
                 alt="Enlarged view"
                 style={{
+                  width: '85vw',
+                  height: '78dvh',
                   maxWidth: '85vw',
                   maxHeight: '78vh',
                   objectFit: 'contain',
@@ -5579,7 +5638,7 @@ export default function ShopPage() {
               />
 
               {/* Navigation Bar */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginTop: 16 }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: 16, marginTop: 16 }}>
                 {viewingImageModal.images.length > 1 && (
                   <button
                     type="button"
