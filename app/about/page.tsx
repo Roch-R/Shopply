@@ -64,7 +64,6 @@ export default function AboutPage() {
         <a href="#story" aria-current="page">About</a>
         <a href="#journey">Experience</a>
         <a href="#features">Features</a>
-        {user && <Link href="/dashboard">Dashboard</Link>}
       </div>
       <div className={styles.account}>
         {user?.name ? (
