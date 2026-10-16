@@ -2412,7 +2412,6 @@ export default function ShopPage() {
             <span className="logo-text">Shopply</span>
           </Link>
           <div className="nav-right">
-            <Link href="/about" className="nav-link"><span className="about-text">About</span></Link>
             <Link href="/cart" className="cart-nav-icon">
               <IconCart />
               {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}

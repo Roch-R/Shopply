@@ -1,0 +1,157 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: grid;
+  place-items: center;
+  background: #F4F7FC;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.d {
+  --ml-bg: #FFFFFF;
+  --ml-surface: #F4F7FC;
+  --ml-line: #E3E9F2;
+  --ml-bar: #DCE4F0;
+  --ml-bar-2: #EBF0F7;
+  --ml-ink: #1D1D1F;
+  --ml-ink-2: #424245;
+  --ml-muted: #86868B;
+  --ml-accent: #0A6CFF;
+  --ml-accent-2: #4FA3FF;
+  --ml-accent-ink: #0050C8;
+  --ml-accent-soft: #E7F0FF;
+  --ml-accent-line: #B9D4FF;
+  --ml-grad: linear-gradient(135deg, #0A6CFF 0%, #4FA3FF 100%);
+  --ml-shadow: 0 1px 2px rgba(16, 24, 40, 0.06), 0 8px 24px rgba(16, 24, 40, 0.08);
+  --ml-shadow-lg: 0 2px 4px rgba(16, 24, 40, 0.06), 0 18px 40px rgba(16, 24, 40, 0.14);
+  --ml-font: "Geist", -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui, sans-serif;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--ml-surface);
+  color: var(--ml-ink);
+  font: 500 12px/1.35 var(--ml-font);
+  -webkit-font-smoothing: antialiased;
+  display: grid;
+  place-items: center;
+}
+
+.lg {
+  display: grid;
+  gap: 14px;
+  justify-items: center;
+  animation: lgo 2.8s ease-in-out forwards;
+}
+
+.svg {
+  overflow: visible;
+}
+
+.st,
+.ch {
+  fill: none;
+  stroke: var(--ml-accent);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+}
+
+.st {
+  animation: lgs 2.8s ease-in-out forwards;
+}
+
+.ch {
+  animation: lgc 2.8s ease-in-out forwards;
+}
+
+.fl {
+  fill: url(#mllg);
+  opacity: 0;
+  animation: lgf 2.8s ease-in-out forwards;
+}
+
+.wm {
+  font-family: var(--ml-font);
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  color: var(--ml-ink);
+  opacity: 0;
+  animation: lgw 2.8s ease-in-out forwards;
+}
+
+@keyframes lgs {
+  0% {
+    stroke-dashoffset: 1;
+  }
+  38%,
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes lgc {
+  0%,
+  22% {
+    stroke-dashoffset: 1;
+    stroke: var(--ml-accent);
+  }
+  50% {
+    stroke-dashoffset: 0;
+    stroke: var(--ml-accent);
+  }
+  62%,
+  100% {
+    stroke-dashoffset: 0;
+    stroke: #ffffff;
+  }
+}
+
+@keyframes lgf {
+  0%,
+  48% {
+    opacity: 0;
+  }
+  64%,
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes lgw {
+  0%,
+  60% {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  74%,
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes lgo {
+  0%,
+  90% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}

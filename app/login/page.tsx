@@ -1,9 +1,9 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { apiLogin } from "@/lib/api";
 import { getApiCache } from "@/lib/apiCache";
+import LogoDrawPreloader from "@/components/LogoDrawPreloader";
 
 const EyeOpen = () => (
   <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -30,7 +30,6 @@ const GoogleIcon = () => (
 );
 
 export default function LoginPage() {
-  const router = useRouter();
   const [form, setForm] = useState({ username: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -40,6 +39,7 @@ export default function LoginPage() {
   const [origin, setOrigin] = useState("");
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setOrigin(window.location.origin);
   }, []);
 
@@ -88,6 +88,7 @@ export default function LoginPage() {
 
   return (
     <>
+      <LogoDrawPreloader />
       <style suppressHydrationWarning>{`
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         *{box-sizing:border-box;margin:0;padding:0}
