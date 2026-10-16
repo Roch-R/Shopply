@@ -27,7 +27,7 @@ export default function HeroZoomOut() {
     const ctx = gsap.context(() => {
       gsap.set([hd, meta], { opacity: 0, y: 14 });
       gsap.set(media, { scale: 1, borderRadius: 0 });
-      if (img) gsap.set(img, { scale: 1 });
+      if (img) gsap.set(img, { scale: 1.05 });
 
       const tl = gsap.timeline({
         defaults: { ease: "power2.inOut" },
@@ -48,7 +48,7 @@ export default function HeroZoomOut() {
         .to({}, { duration: 0.35 });
 
       if (img) {
-        tl.to(img, { scale: 0.98, duration: 1, ease: "power1.out" }, 0);
+        tl.to(img, { scale: 1, duration: 1, ease: "power1.out" }, 0);
       }
     }, root);
 
@@ -73,14 +73,6 @@ export default function HeroZoomOut() {
           </h3>
         </header>
         <div ref={mediaRef} className={styles.media}>
-          <div className={styles.mediaBackdrop} aria-hidden="true">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/shopply-hero-anime.jpg"
-              alt=""
-              className={styles.backdropImage}
-            />
-          </div>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             ref={imgRef}
