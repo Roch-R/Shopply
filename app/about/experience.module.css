@@ -1,13 +1,13 @@
 .journey {
   position: relative;
-  height: 1300svh;
+  height: 960svh;
   color: #1d1d1f;
   background: #f4f7fc;
   scroll-margin-top: 68px;
 }
 
 .railJourney {
-  height: 1300svh;
+  height: 960svh;
   background: #edf4ff;
 }
 
@@ -542,10 +542,10 @@
     min-height: 520px;
   }
   .journey {
-    height: 950svh;
+    height: 720svh;
   }
   .railJourney {
-    height: 950svh;
+    height: 720svh;
   }
   .topline {
     top: 16px;

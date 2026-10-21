@@ -1035,140 +1035,105 @@ function shadowTexture(resources: Resources) {
   return resources.texture(c);
 }
 
-function glowOrbTexture(resources: Resources, colorHex = "10,108,255") {
-  const c = resources.canvas(64, 64),
-    g = c.getContext("2d")!;
-  const gr = g.createRadialGradient(32, 32, 2, 32, 32, 30);
-  gr.addColorStop(0, `rgba(255,255,255,1)`);
-  gr.addColorStop(0.35, `rgba(${colorHex},0.85)`);
-  gr.addColorStop(1, `rgba(${colorHex},0)`);
-  g.fillStyle = gr;
-  g.fillRect(0, 0, 64, 64);
-  return resources.texture(c);
-}
-
 function createFramedCard(
   resources: Resources,
   kind: number,
-  width = 1.7,
-  height = 1.19,
+  width = 1.62,
+  height = 1.13,
   shadowTex?: THREE.Texture
 ) {
   const group = new THREE.Group();
 
-  const slabGeo = new RoundedBoxGeometry(width + 0.05, height + 0.05, 0.045, 2, 0.02);
+  const slabGeo = new RoundedBoxGeometry(width + 0.04, height + 0.04, 0.036, 2, 0.018);
   const slabMat = new THREE.MeshStandardMaterial({
-    color: 0xf8fbff,
-    roughness: 0.25,
-    metalness: 0.15,
+    color: 0xffffff,
+    roughness: 0.28,
+    metalness: 0.08,
+    transparent: true,
+    opacity: 1,
   });
   const slab = new THREE.Mesh(slabGeo, slabMat);
-  slab.position.z = -0.024;
+  slab.position.z = -0.02;
   group.add(slab);
 
   const faceGeo = new THREE.PlaneGeometry(width, height);
   const faceMat = new THREE.MeshBasicMaterial({
     map: cardTexture(resources, kind),
     transparent: true,
+    opacity: 1,
     toneMapped: false,
   });
   const face = new THREE.Mesh(faceGeo, faceMat);
   face.position.z = 0.002;
   group.add(face);
 
-  const backFace = new THREE.Mesh(faceGeo, faceMat);
-  backFace.position.z = -0.049;
-  backFace.rotation.y = Math.PI;
-  group.add(backFace);
-
+  let shadeMat: THREE.MeshBasicMaterial | undefined;
   if (shadowTex) {
-    const shade = new THREE.Mesh(
-      new THREE.PlaneGeometry(width * 1.38, height * 1.38),
-      new THREE.MeshBasicMaterial({
-        map: shadowTex,
-        transparent: true,
-        depthWrite: false,
-        opacity: 0.65,
-      })
-    );
-    shade.position.set(0.05, -0.09, -0.06);
+    shadeMat = new THREE.MeshBasicMaterial({
+      map: shadowTex,
+      transparent: true,
+      depthWrite: false,
+      opacity: 0.55,
+    });
+    const shade = new THREE.Mesh(new THREE.PlaneGeometry(width * 1.34, height * 1.34), shadeMat);
+    shade.position.set(0.04, -0.08, -0.05);
     group.add(shade);
   }
 
-  return { group, faceMat };
+  function setOpacity(alpha: number) {
+    const a = clamp01(alpha);
+    group.visible = a > 0.01;
+    faceMat.opacity = a;
+    slabMat.opacity = a;
+    if (shadeMat) shadeMat.opacity = a * 0.55;
+  }
+
+  return { group, faceMat, setOpacity };
 }
 
 type Pointer = { x: number; y: number };
 type SceneUpdate = (p: number, time: number, reduced: boolean, pointer: Pointer) => void;
 
-// --- SCENE 01: 3D STUDIO PRO LAPTOP & DEEP 10-CHAPTER SPATIAL PORTAL VORTEX ---
+// --- SCENE 01: CLEAN 3D LAPTOP & LAYERED CARD TUNNEL (8 CHAPTERS, ZERO PARTICLES) ---
 function laptopScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resources: Resources): SceneUpdate {
-  camera.fov = 34;
-  scene.fog = new THREE.FogExp2(0xf4f8ff, 0.021);
+  camera.fov = 32;
+  scene.fog = new THREE.Fog(0xf4f7fc, 4.2, 13.8);
 
   const SW = 2.95,
     SH = 1.84,
-    TH0 = 0.2;
+    TH0 = 0.17;
   const rig = new THREE.Group();
   rig.rotation.x = -TH0;
   scene.add(rig);
 
-  const stageFloor = new THREE.Group();
-  stageFloor.position.set(0, -1.06, 0.65);
-  stageFloor.rotation.x = -Math.PI / 2;
-  rig.add(stageFloor);
-
   const shadowTex = shadowTexture(resources);
+
+  // Soft studio floor shadow beneath the laptop
   const floorShadow = new THREE.Mesh(
-    new THREE.PlaneGeometry(5.6, 3.8),
+    new THREE.PlaneGeometry(5.2, 3.4),
     new THREE.MeshBasicMaterial({
       map: shadowTex,
       transparent: true,
       depthWrite: false,
-      opacity: 0.85,
+      opacity: 0.75,
     })
   );
-  stageFloor.add(floorShadow);
-
-  const ringMat1 = new THREE.MeshBasicMaterial({
-    color: 0x0a6cff,
-    transparent: true,
-    opacity: 0.24,
-    side: THREE.DoubleSide,
-  });
-  const floorRing1 = new THREE.Mesh(new THREE.RingGeometry(1.9, 1.95, 64), ringMat1);
-  stageFloor.add(floorRing1);
-
-  const ringMat2 = new THREE.MeshBasicMaterial({
-    color: 0x0284c7,
-    transparent: true,
-    opacity: 0.18,
-    side: THREE.DoubleSide,
-  });
-  const floorRing2 = new THREE.Mesh(new THREE.RingGeometry(2.55, 2.6, 64), ringMat2);
-  stageFloor.add(floorRing2);
-
-  const ringMat3 = new THREE.MeshBasicMaterial({
-    color: 0x6366f1,
-    transparent: true,
-    opacity: 0.13,
-    side: THREE.DoubleSide,
-  });
-  const floorRing3 = new THREE.Mesh(new THREE.RingGeometry(3.2, 3.24, 64), ringMat3);
-  stageFloor.add(floorRing3);
+  floorShadow.position.set(0, -1.05, 0.65);
+  floorShadow.rotation.x = -Math.PI / 2;
+  rig.add(floorShadow);
 
   const lap = new THREE.Group();
   rig.add(lap);
 
   const silver = new THREE.MeshStandardMaterial({
     color: 0xe2e8f3,
-    roughness: 0.18,
-    metalness: 0.92,
+    roughness: 0.22,
+    metalness: 0.78,
   });
   const darkMetal = new THREE.MeshStandardMaterial({
     color: 0x1e293b,
-    roughness: 0.3,
-    metalness: 0.78,
+    roughness: 0.32,
+    metalness: 0.7,
   });
 
   const hingeY = -(SH + 0.1) / 2;
@@ -1185,32 +1150,24 @@ function laptopScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resour
   lid.position.z = -0.036;
   lidGroup.add(lid);
 
-  const backBadge = new THREE.Mesh(
-    new THREE.PlaneGeometry(0.32, 0.32),
-    new THREE.MeshBasicMaterial({ color: 0x38bdf8 })
-  );
-  backBadge.rotation.y = Math.PI;
-  backBadge.position.set(0, 0, -0.07);
-  lidGroup.add(backBadge);
-
   const bezel = new THREE.Mesh(
     new THREE.PlaneGeometry(SW + 0.08, SH + 0.08),
-    new THREE.MeshBasicMaterial({ color: 0x090d16 })
+    new THREE.MeshBasicMaterial({ color: 0x0f172a })
   );
   lidGroup.add(bezel);
 
   const notch = new THREE.Mesh(
-    new THREE.PlaneGeometry(0.36, 0.055),
-    new THREE.MeshBasicMaterial({ color: 0x090d16 })
+    new THREE.PlaneGeometry(0.34, 0.05),
+    new THREE.MeshBasicMaterial({ color: 0x0f172a })
   );
   notch.position.set(0, SH / 2 - 0.02, 0.006);
   lidGroup.add(notch);
 
   const camDot = new THREE.Mesh(
-    new THREE.CircleGeometry(0.011, 16),
+    new THREE.CircleGeometry(0.01, 16),
     new THREE.MeshBasicMaterial({ color: 0x22c55e })
   );
-  camDot.position.set(0.11, SH / 2 - 0.02, 0.008);
+  camDot.position.set(0.1, SH / 2 - 0.02, 0.008);
   lidGroup.add(camDot);
 
   const screenMat = new THREE.MeshBasicMaterial({
@@ -1222,18 +1179,6 @@ function laptopScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resour
   screen.position.z = 0.004;
   lidGroup.add(screen);
 
-  const portalMat = new THREE.MeshBasicMaterial({
-    color: 0x38bdf8,
-    transparent: true,
-    opacity: 0,
-    side: THREE.DoubleSide,
-    blending: THREE.AdditiveBlending,
-  });
-  const portalFrame = new THREE.Mesh(new THREE.RingGeometry(1.55, 1.98, 64), portalMat);
-  portalFrame.scale.set(1.25, 0.82, 1);
-  portalFrame.position.z = 0.01;
-  lidGroup.add(portalFrame);
-
   const baseG = new THREE.Group();
   baseG.position.set(0, -(SH + 0.1) / 2, -0.04);
   baseG.rotation.x = TH0;
@@ -1243,7 +1188,7 @@ function laptopScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resour
   slab.position.set(0, -0.042, 1.0);
   baseG.add(slab);
 
-  const hinge = new THREE.Mesh(new THREE.CylinderGeometry(0.042, 0.042, SW * 0.72, 20), darkMetal);
+  const hinge = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, SW * 0.72, 20), darkMetal);
   hinge.rotation.z = Math.PI / 2;
   hinge.position.set(0, 0.0, 0.02);
   baseG.add(hinge);
@@ -1251,589 +1196,233 @@ function laptopScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resour
   const kC = resources.canvas(640, 256),
     kg = kC.getContext("2d")!;
   rr(kg, 0, 0, 640, 256, 18);
-  kg.fillStyle = "#0F172A";
+  kg.fillStyle = "#CBD5E1";
   kg.fill();
   for (let r = 0; r < 5; r++) {
     for (let c = 0; c < 14; c++) {
       const kx = 12 + c * 44.2;
       const ky = 12 + r * 47;
-      rr(kg, kx - 1.5, ky - 1.5, 40, 41, 7);
-      kg.fillStyle = "rgba(56, 189, 248, 0.55)";
-      kg.fill();
-      rr(kg, kx, ky, 37, 38, 6);
+      rr(kg, kx, ky, 38, 39, 6);
       kg.fillStyle = "#1E293B";
       kg.fill();
     }
   }
   const kb = new THREE.Mesh(
     new THREE.PlaneGeometry(SW - 0.26, 1.04),
-    new THREE.MeshStandardMaterial({ map: resources.texture(kC), roughness: 0.4, metalness: 0.25 })
+    new THREE.MeshStandardMaterial({ map: resources.texture(kC), roughness: 0.45, metalness: 0.2 })
   );
   kb.rotation.x = -Math.PI / 2;
   kb.position.set(0, 0.002, 0.62);
   baseG.add(kb);
 
   const tp = new THREE.Mesh(
-    new THREE.PlaneGeometry(1.02, 0.62),
-    new THREE.MeshStandardMaterial({ color: 0xd8e2f0, roughness: 0.25, metalness: 0.65 })
+    new THREE.PlaneGeometry(1.02, 0.6),
+    new THREE.MeshStandardMaterial({ color: 0xd8e2f0, roughness: 0.3, metalness: 0.45 })
   );
   tp.rotation.x = -Math.PI / 2;
   tp.position.set(0, 0.002, 1.52);
   baseG.add(tp);
 
-  // Volumetric Hologram Light Cone rising from the laptop keyboard
-  const holoBeamMat = new THREE.MeshBasicMaterial({
-    color: 0x38bdf8,
-    transparent: true,
-    opacity: 0.14,
-    side: THREE.DoubleSide,
-    depthWrite: false,
-    blending: THREE.AdditiveBlending,
-  });
-  const holoBeam = new THREE.Mesh(new THREE.CylinderGeometry(2.1, 0.95, 1.75, 36, 1, true), holoBeamMat);
-  holoBeam.position.set(0, 0.85, 0.65);
-  baseG.add(holoBeam);
-
+  // 4 clean floating UI cards flanking the laptop in Chapters 01 & 02
   const holoGroup = new THREE.Group();
   rig.add(holoGroup);
 
-  // 6 Orbiting 3D Holographic Cards forming a majestic crown around the laptop
   const holoDefs = [
-    { x: -2.28, y: 0.72, z: 0.55, rotY: 0.34, kind: 0, scale: 0.68 },
-    { x: 2.32, y: 0.62, z: 0.42, rotY: -0.34, kind: 3, scale: 0.68 },
-    { x: 2.18, y: -0.56, z: 0.85, rotY: -0.26, kind: 7, scale: 0.72 },
-    { x: -2.12, y: -0.54, z: 0.75, rotY: 0.28, kind: 8, scale: 0.66 },
-    { x: -1.45, y: 1.48, z: -0.15, rotY: 0.18, kind: 9, scale: 0.58 },
-    { x: 1.48, y: 1.45, z: -0.18, rotY: -0.18, kind: 5, scale: 0.58 },
+    { x: -2.2, y: 0.62, z: 0.45, rotY: 0.26, kind: 0, scale: 0.64 },
+    { x: 2.24, y: 0.54, z: 0.35, rotY: -0.26, kind: 3, scale: 0.64 },
+    { x: 2.1, y: -0.54, z: 0.78, rotY: -0.2, kind: 7, scale: 0.68 },
+    { x: -2.05, y: -0.5, z: 0.68, rotY: 0.22, kind: 8, scale: 0.62 },
   ];
 
   const holoCards = holoDefs.map(d => {
-    const { group } = createFramedCard(resources, d.kind, 1.65, 1.15, shadowTex);
-    group.position.set(d.x, d.y, d.z);
-    group.rotation.y = d.rotY;
-    group.scale.setScalar(d.scale);
-    holoGroup.add(group);
-    return { group, base: new THREE.Vector3(d.x, d.y, d.z), rotY: d.rotY, scale: d.scale };
+    const cardObj = createFramedCard(resources, d.kind, 1.62, 1.13, shadowTex);
+    cardObj.group.position.set(d.x, d.y, d.z);
+    cardObj.group.rotation.y = d.rotY;
+    cardObj.group.scale.setScalar(d.scale);
+    holoGroup.add(cardObj.group);
+    return { ...cardObj, base: new THREE.Vector3(d.x, d.y, d.z), rotY: d.rotY, scale: d.scale };
   });
 
-  const glassBlueMat = new THREE.MeshStandardMaterial({
-    color: 0x0a6cff,
-    roughness: 0.12,
-    metalness: 0.82,
-    emissive: 0x0a6cff,
-    emissiveIntensity: 0.45,
-  });
-  const cyanMetalMat = new THREE.MeshStandardMaterial({
-    color: 0x38bdf8,
-    roughness: 0.15,
-    metalness: 0.88,
-    emissive: 0x0284c7,
-    emissiveIntensity: 0.35,
-  });
-  const goldAccentMat = new THREE.MeshStandardMaterial({
-    color: 0xffb800,
-    roughness: 0.18,
-    metalness: 0.85,
-    emissive: 0xd97706,
-    emissiveIntensity: 0.28,
-  });
-  const indigoGlassMat = new THREE.MeshStandardMaterial({
-    color: 0x6366f1,
-    roughness: 0.14,
-    metalness: 0.84,
-    emissive: 0x4f46e5,
-    emissiveIntensity: 0.38,
-  });
-
-  const sharedTorusGeo = new THREE.TorusGeometry(0.25, 0.068, 20, 48);
-  const sharedOctaGeo = new THREE.OctahedronGeometry(0.24, 0);
-  const sharedIcosaGeo = new THREE.IcosahedronGeometry(0.21, 0);
-  const sharedKnotGeo = new THREE.TorusKnotGeometry(0.19, 0.052, 64, 12);
-
-  const shapeSpecs: { geo: THREE.BufferGeometry; mat: THREE.Material; pos: [number, number, number]; speed: number }[] = [
-    { geo: sharedTorusGeo, mat: glassBlueMat, pos: [-2.6, 1.25, 0.2], speed: 1.2 },
-    { geo: sharedOctaGeo, mat: cyanMetalMat, pos: [2.65, 1.18, -0.3], speed: 1.5 },
-    { geo: sharedIcosaGeo, mat: goldAccentMat, pos: [2.5, -1.05, 0.5], speed: 1.1 },
-    { geo: sharedTorusGeo, mat: cyanMetalMat, pos: [-1.7, 1.15, -3.2], speed: 1.4 },
-    { geo: sharedOctaGeo, mat: glassBlueMat, pos: [1.85, -1.05, -6.2], speed: 1.3 },
-    { geo: sharedIcosaGeo, mat: goldAccentMat, pos: [-1.65, -0.95, -9.4], speed: 1.6 },
-    { geo: sharedKnotGeo, mat: indigoGlassMat, pos: [1.9, 1.1, -12.8], speed: 1.35 },
-    { geo: sharedTorusGeo, mat: goldAccentMat, pos: [-1.85, 1.05, -16.2], speed: 1.25 },
-    { geo: sharedOctaGeo, mat: cyanMetalMat, pos: [1.8, -1.0, -19.6], speed: 1.5 },
-    { geo: sharedKnotGeo, mat: glassBlueMat, pos: [-1.75, -0.95, -23.0], speed: 1.4 },
-    { geo: sharedIcosaGeo, mat: indigoGlassMat, pos: [1.85, 1.08, -26.4], speed: 1.3 },
-    { geo: sharedTorusGeo, mat: cyanMetalMat, pos: [-1.7, 1.02, -29.8], speed: 1.45 },
-    { geo: sharedOctaGeo, mat: goldAccentMat, pos: [1.65, -0.92, -32.4], speed: 1.55 },
-  ];
-
-  const floatingShapes = shapeSpecs.map(s => {
-    const mesh = new THREE.Mesh(s.geo, s.mat);
-    mesh.position.set(...s.pos);
-    rig.add(mesh);
-    return { mesh, base: new THREE.Vector3(...s.pos), speed: s.speed };
-  });
-
+  // Clean layered card tunnel behind the screen (12 cards spaced cleanly in Z so they never pile up or clip)
   const inner = new THREE.Group();
   rig.add(inner);
 
-  // 34 Spinning Stargate Portal Vortex Rings spanning the deep 35-unit tunnel
-  const vortexRingGeo = new THREE.TorusGeometry(2.38, 0.022, 14, 72);
-  const ringPalette = [0x0284c7, 0x0a6cff, 0x6366f1, 0x0ea5e9];
-  const vortexRings = Array.from({ length: 34 }, (_, i) => {
-    const mat = new THREE.MeshBasicMaterial({
-      color: ringPalette[i % ringPalette.length],
-      transparent: true,
-      opacity: 0.36,
-    });
-    const ring = new THREE.Mesh(vortexRingGeo, mat);
-    ring.position.z = -0.5 - i * 1.03;
-    ring.scale.set(1.22, 0.85, 1);
-    inner.add(ring);
-    return { ring, z: ring.position.z, dir: i % 2 === 0 ? 1 : -1 };
-  });
-
-  // Landmark 1 (z = -12.6, Chapter 06): 3D Gyroscopic Commerce Gate
-  const gyroGate = new THREE.Group();
-  gyroGate.position.set(0, 0.08, -12.6);
-  inner.add(gyroGate);
-
-  const gyroRings = [
-    { r: 2.25, tube: 0.032, mat: glassBlueMat, speedX: 0.7, speedY: 0.5, speedZ: 0.9 },
-    { r: 1.88, tube: 0.026, mat: cyanMetalMat, speedX: -0.6, speedY: 0.85, speedZ: -0.7 },
-    { r: 1.52, tube: 0.022, mat: goldAccentMat, speedX: 0.9, speedY: -0.65, speedZ: 0.5 },
-  ].map(spec => {
-    const m = new THREE.Mesh(new THREE.TorusGeometry(spec.r, spec.tube, 18, 72), spec.mat);
-    gyroGate.add(m);
-    return { mesh: m, ...spec };
-  });
-
-  // Landmark 2 (z = -35.2, Chapter 10 Climax): Grand Shopply Flagship Geodesic Sanctuary Core
-  const sanctuaryCore = new THREE.Group();
-  sanctuaryCore.position.set(0, 0.12, -35.4);
-  inner.add(sanctuaryCore);
-
-  const coreSphere = new THREE.Mesh(
-    new THREE.IcosahedronGeometry(0.92, 2),
-    new THREE.MeshBasicMaterial({
-      color: 0x0a6cff,
-      wireframe: true,
-      transparent: true,
-      opacity: 0.42,
-    })
-  );
-  sanctuaryCore.add(coreSphere);
-
-  const coreInnerOrb = new THREE.Mesh(
-    new THREE.SphereGeometry(0.54, 32, 32),
-    new THREE.MeshBasicMaterial({
-      color: 0x38bdf8,
-      transparent: true,
-      opacity: 0.25,
-    })
-  );
-  sanctuaryCore.add(coreInnerOrb);
-
-  const sanctuaryOrbits = [
-    { r: 1.65, rot: [0.5, 0.2, 0], col: 0x0a6cff, speed: 0.8 },
-    { r: 2.05, rot: [-0.5, 0.6, 0.3], col: 0xffb800, speed: -0.65 },
-    { r: 2.45, rot: [0.9, -0.4, -0.2], col: 0x38bdf8, speed: 0.5 },
-  ].map(o => {
-    const m = new THREE.Mesh(
-      new THREE.TorusGeometry(o.r, 0.022, 16, 72),
-      new THREE.MeshBasicMaterial({ color: o.col, transparent: true, opacity: 0.52 })
-    );
-    m.rotation.set(o.rot[0], o.rot[1], o.rot[2]);
-    sanctuaryCore.add(m);
-    return { mesh: m, speed: o.speed };
-  });
-
-  // 18 Unique Framed 3D Showcase & Telemetry Cards spanning the entire 34-unit Portal Vortex
+  // Each card is positioned well inside the camera frustum:
+  // Right cards at x = +0.92..1.08, Left/Upper cards at x = -0.28..0.82 (above bottom-left copy), final card centered
   const spots: [number, number, number, number, number][] = [
-    [-1.85, 0.52, -1.6, 1, 0.22],
-    [1.92, -0.38, -3.3, 2, -0.22],
-    [-1.82, -0.54, -5.1, 4, 0.2],
-    [1.86, 0.56, -6.9, 5, -0.2],
-    [-1.92, 0.38, -8.7, 6, 0.24],
-    [1.84, -0.44, -10.6, 9, -0.2],
-    [-1.78, 0.48, -12.5, 8, 0.2],
-    [1.86, -0.46, -14.4, 30, -0.22],
-    [-1.84, 0.44, -16.3, 31, 0.22],
-    [1.82, 0.52, -18.2, 32, -0.2],
-    [-1.86, -0.46, -20.1, 24, 0.22],
-    [1.84, 0.42, -22.0, 25, -0.22],
-    [-1.8, 0.5, -23.9, 26, 0.2],
-    [1.85, -0.45, -25.8, 27, -0.2],
-    [-1.82, -0.42, -27.7, 28, 0.22],
-    [1.78, 0.46, -29.6, 29, -0.2],
-    [-1.68, 0.38, -31.4, 33, 0.18],
-    [0, 0.12, -33.2, 7, 0],
+    [-0.25, 0.26, -2.4, 0, 0.04],    // Layer 1A: Payment Received
+    [0.98, -0.06, -4.8, 1, -0.1],    // Layer 1B: Dispatch Schedule
+    [-0.28, 0.24, -7.2, 2, 0.04],    // Layer 2A: Live Buyer Chat
+    [1.02, -0.04, -9.6, 3, -0.1],    // Layer 2B: Live Store Traffic
+    [-0.24, 0.26, -12.0, 4, 0.04],   // Layer 3A: Smart Fraud & Sync Toggles
+    [0.96, -0.05, -14.4, 5, -0.1],   // Layer 3B: Maya Reyes Verified Flagship
+    [-0.26, 0.25, -16.8, 6, 0.04],   // Layer 4A: Fulfillment Checklist
+    [1.0, -0.04, -19.2, 9, -0.1],    // Layer 4B: Real-Time Commerce Pulse
+    [-0.25, 0.24, -21.6, 30, 0.04],  // Layer 5A: Neural AI Studio Engine
+    [0.95, -0.06, -24.0, 8, -0.08],  // Layer 5B: Studio Flagship Edition
+    [0.18, 0.14, -26.4, 7, 0],       // Final Hero Card: Golden Hour Collection
   ];
 
   const cardMeshes = spots.map(q => {
-    const { group } = createFramedCard(resources, q[3], 1.72, 1.2, shadowTex);
-    group.position.set(q[0], q[1], q[2]);
-    group.rotation.y = q[4];
-    inner.add(group);
-    return { mesh: group, basePos: new THREE.Vector3(q[0], q[1], q[2]), baseRotY: q[4] };
+    const cardObj = createFramedCard(resources, q[3], 1.62, 1.13, shadowTex);
+    cardObj.group.position.set(q[0], q[1], q[2]);
+    cardObj.group.rotation.y = q[4];
+    inner.add(cardObj.group);
+    return { ...cardObj, basePos: new THREE.Vector3(q[0], q[1], q[2]), baseRotY: q[4] };
   });
-
-  // Triple Helical Plasma Energy Streams spanning z = -0.4 to z = -35.5
-  const streamCurve1 = new THREE.CatmullRomCurve3([
-    new THREE.Vector3(-1.4, 0.6, -0.4),
-    new THREE.Vector3(1.5, -0.3, -4.5),
-    new THREE.Vector3(-1.5, 0.4, -9.2),
-    new THREE.Vector3(1.4, -0.35, -14.0),
-    new THREE.Vector3(-1.45, 0.45, -19.0),
-    new THREE.Vector3(1.35, -0.3, -24.0),
-    new THREE.Vector3(-1.25, 0.35, -29.0),
-    new THREE.Vector3(0, 0.12, -35.2),
-  ]);
-  inner.add(
-    new THREE.Mesh(
-      new THREE.TubeGeometry(streamCurve1, 140, 0.02, 8, false),
-      new THREE.MeshBasicMaterial({
-        color: 0x38bdf8,
-        transparent: true,
-        opacity: 0.55,
-        blending: THREE.AdditiveBlending,
-      })
-    )
-  );
-
-  const streamCurve2 = new THREE.CatmullRomCurve3([
-    new THREE.Vector3(1.4, -0.5, -0.6),
-    new THREE.Vector3(-1.5, 0.3, -5.0),
-    new THREE.Vector3(1.5, -0.4, -9.8),
-    new THREE.Vector3(-1.4, 0.35, -14.6),
-    new THREE.Vector3(1.45, -0.4, -19.6),
-    new THREE.Vector3(-1.35, 0.3, -24.6),
-    new THREE.Vector3(1.2, -0.25, -29.5),
-    new THREE.Vector3(0, 0.12, -35.2),
-  ]);
-  inner.add(
-    new THREE.Mesh(
-      new THREE.TubeGeometry(streamCurve2, 140, 0.018, 8, false),
-      new THREE.MeshBasicMaterial({
-        color: 0x0a6cff,
-        transparent: true,
-        opacity: 0.5,
-        blending: THREE.AdditiveBlending,
-      })
-    )
-  );
-
-  const streamCurve3 = new THREE.CatmullRomCurve3([
-    new THREE.Vector3(0, 1.35, -1.0),
-    new THREE.Vector3(-1.3, -1.1, -6.5),
-    new THREE.Vector3(1.3, 1.15, -12.5),
-    new THREE.Vector3(-1.3, -1.05, -18.5),
-    new THREE.Vector3(1.25, 1.1, -24.5),
-    new THREE.Vector3(-1.1, -0.9, -30.0),
-    new THREE.Vector3(0, 0.12, -35.2),
-  ]);
-  inner.add(
-    new THREE.Mesh(
-      new THREE.TubeGeometry(streamCurve3, 140, 0.015, 8, false),
-      new THREE.MeshBasicMaterial({
-        color: 0x6366f1,
-        transparent: true,
-        opacity: 0.42,
-        blending: THREE.AdditiveBlending,
-      })
-    )
-  );
-
-  // 24 Glowing Photon Pulses racing down the 3 plasma energy streams
-  const streamPulseGeo = new THREE.SphereGeometry(0.065, 12, 12);
-  const streamPulseMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
-  const streamCurves = [streamCurve1, streamCurve2, streamCurve3];
-  const streamPulses = Array.from({ length: 24 }, (_, i) => {
-    const m = new THREE.Mesh(streamPulseGeo, streamPulseMat);
-    inner.add(m);
-    return { mesh: m, curve: streamCurves[i % 3], offset: i / 24, speed: 0.055 + (i % 3) * 0.015 };
-  });
-
-  const particleCount = 460;
-  const pPositions = new Float32Array(particleCount * 3);
-  for (let i = 0; i < particleCount; i++) {
-    pPositions[i * 3] = (Math.random() - 0.5) * 10.5;
-    pPositions[i * 3 + 1] = (Math.random() - 0.5) * 6.0;
-    pPositions[i * 3 + 2] = 4.0 - Math.random() * 41.0;
-  }
-  const pGeo = new THREE.BufferGeometry();
-  pGeo.setAttribute("position", new THREE.BufferAttribute(pPositions, 3));
-  const particles = new THREE.Points(
-    pGeo,
-    new THREE.PointsMaterial({
-      size: 0.14,
-      map: glowOrbTexture(resources, "56,189,248"),
-      transparent: true,
-      opacity: 0.85,
-      depthWrite: false,
-      blending: THREE.AdditiveBlending,
-    })
-  );
-  rig.add(particles);
 
   const vA = new THREE.Vector3();
   const vB = new THREE.Vector3();
-  let prevP = 0;
   let introStart = 0;
 
   return (p: number, time: number, reduced: boolean, pointer: Pointer) => {
     if (!introStart && time > 0) introStart = time;
     const introElapsed = introStart ? Math.max(0, time - introStart) : 0;
-    const introOpen = reduced ? 1 : sm(0, 1.65, introElapsed);
+    const introOpen = reduced ? 1 : sm(0, 1.5, introElapsed);
 
     const mobile = camera.aspect < 0.8;
     const fovHalfRad = (camera.fov * Math.PI) / 360;
-    const fillZ = Math.min(2.85, (SW * 0.94) / (2 * Math.tan(fovHalfRad) * camera.aspect));
-    const z0 = mobile ? 9.4 : Math.max(6.8, 7.9 / Math.min(1.35, camera.aspect));
+    const fillZ = Math.min(2.75, (SW * 0.94) / (2 * Math.tan(fovHalfRad) * camera.aspect));
+    const z0 = mobile ? 9.4 : Math.max(6.8, 7.8 / Math.min(1.35, camera.aspect));
 
-    // 10-Chapter Cinema Crane & Deep Portal Vortex Path (z0 -> -30.5)
-    const z = kf(p, [z0, 4.85, fillZ, -1.6, -5.8, -10.2, -15.2, -20.4, -25.6, -30.5]);
-    const cx = kf(p, [mobile ? 0 : 2.55, mobile ? 0 : -1.15, 0, -0.26, 0.26, -0.22, 0.24, -0.24, 0.2, 0]);
-    const cy = kf(p, [1.18, 0.52, 0.06, -0.12, 0.14, 0.06, -0.1, 0.12, -0.08, 0.08]);
-    const rotY = kf(p, [mobile ? -0.45 : -0.78, mobile ? 0.15 : 0.32, 0, 0.08, -0.08, 0.06, -0.07, 0.07, -0.05, 0]);
-    const lookX = kf(p, [mobile ? 0 : -0.58, mobile ? 0 : 0.25, 0, 0.12, -0.12, 0.08, -0.1, 0.1, -0.08, 0]);
-    const lookY = kf(p, [mobile ? 0 : -0.38, -0.12, 0, 0, 0, 0.04, -0.04, 0.04, 0, 0.08]);
+    // 8-Chapter held smootherstep camera keyframes:
+    // Ch 0: Three-quarter laptop view (z0)
+    // Ch 1: Closer front laptop view (4.5)
+    // Ch 2: Screen fills frame (fillZ)
+    // Ch 3..7: Smooth linear glide through the 11 layered cards inside the screen (-1.0 -> -22.8)
+    const z = kf(p, [z0, 4.5, fillZ, -1.0, -6.2, -11.6, -17.2, -22.8]);
+    const cx = kf(p, [mobile ? 0 : 2.35, 0, 0, 0, 0, 0, 0, 0]);
+    const cy = kf(p, [1.05, 0.12, 0.02, 0, 0, 0, 0, 0]);
+    const rotX = kf(p, [-TH0, -0.05, 0, 0, 0, 0, 0, 0]);
+    const rotY = kf(p, [mobile ? -0.4 : -0.68, 0, 0, 0, 0, 0, 0, 0]);
+    const lookX = kf(p, [mobile ? 0 : -0.55, 0, 0, 0, 0, 0, 0, 0]);
+    const lookY = kf(p, [mobile ? 0 : -0.32, -0.04, 0, 0, 0, 0, 0, 0]);
     const sway = reduced ? 0 : 1;
 
-    const velocity = clamp01(Math.abs(p - prevP) * 24);
-    prevP = p;
-
-    const scrollOpen = sm(0, 0.14, p);
+    const scrollOpen = sm(0, 0.16, p);
     const openProgress = Math.max(introOpen, scrollOpen);
-    const closedAngle = 1.58 * (1 - openProgress);
-    const poisedTilt = (1 - scrollOpen) * 0.08;
-    lidPivot.rotation.x = closedAngle + poisedTilt;
+    const closedAngle = 1.55 * (1 - openProgress);
+    lidPivot.rotation.x = closedAngle;
 
-    holoBeam.scale.y = openProgress;
-    holoBeamMat.opacity = openProgress * 0.16 * sm(1.4, 3.2, z);
-
-    rig.rotation.x = -TH0 + pointer.y * 0.055 * sway;
-    rig.rotation.y = rotY + pointer.x * 0.08 * sway;
+    rig.rotation.x = rotX + pointer.y * 0.035 * sway;
+    rig.rotation.y = rotY + pointer.x * 0.045 * sway;
     rig.updateMatrixWorld(true);
 
-    const tz = z > 3 ? 0 : z - 3.2;
+    const tz = z > 3 ? 0 : z - 3.6;
     camera.position.copy(rig.localToWorld(vA.set(cx, cy, z)));
     camera.lookAt(rig.localToWorld(vB.set(lookX, lookY, tz)));
 
-    if (!reduced) {
-      // Smooth barrel-roll banking as camera flies through the 10-chapter portal vortex
-      const tunnelFactor = 1 - sm(0.5, 3.0, z);
-      const bankAngle =
-        Math.sin(p * Math.PI * 7.0) * (0.04 + tunnelFactor * 0.11) * (1 + velocity * 0.8) + pointer.x * 0.025;
-      camera.rotation.z += bankAngle;
-    }
+    // Fade the laptop screen glass as the camera crosses through it, then hide the laptop body
+    screenMat.opacity = sm(0.15, 1.65, z);
+    lap.visible = z > 1.2;
+    floorShadow.visible = z > 1.6;
 
-    screenMat.opacity = sm(0.18, 1.65, z);
-    portalMat.opacity = sm(0.1, 1.4, z) * (1 - sm(1.4, 3.2, z)) * 0.85;
-    portalFrame.rotation.z = time * 0.85;
-
-    lap.visible = z > 1.15;
-    stageFloor.visible = z > 1.5;
-    floorRing1.rotation.z = time * 0.25 + p * 5.5;
-    floorRing2.rotation.z = -time * 0.18 - p * 4.2;
-    floorRing3.rotation.z = time * 0.12 + p * 3.0;
-
-    // 6 Holographic cards erupt out of the laptop screen and orbit in a 3D crown
+    // Flanking laptop cards fade out cleanly before the camera enters the screen
     const erupt = sm(0.15, 0.95, openProgress);
-    const holoSpread = (0.35 + 0.65 * erupt) * (1 + sm(0.06, 0.24, p) * 1.42);
-    const holoFade = sm(1.5, 3.0, z) * erupt;
-    holoGroup.visible = holoFade > 0.02;
-    holoCards.forEach((h, i) => {
-      h.group.position.x = h.base.x * holoSpread * (mobile ? 0.68 : 1);
-      h.group.position.y =
-        h.base.y * erupt * (1 + (holoSpread - 1) * 0.42) + (reduced ? 0 : Math.sin(time * 1.6 + i * 1.5) * 0.065);
-      h.group.position.z = h.base.z * erupt + Math.sin(p * Math.PI * 3 + i) * 0.25;
-      h.group.rotation.y = h.rotY + p * (i % 2 === 0 ? 0.45 : -0.45) + (reduced ? 0 : Math.cos(time * 1.2 + i) * 0.05);
-      h.group.scale.setScalar(h.scale * (mobile ? 0.75 : 1) * (0.4 + 0.6 * holoFade));
-    });
-
-    floatingShapes.forEach((s, i) => {
-      s.mesh.rotation.x = time * 0.65 * s.speed + i + p * 6.5;
-      s.mesh.rotation.y = time * 0.85 * s.speed + i * 0.5;
-      s.mesh.position.y = s.base.y + (reduced ? 0 : Math.sin(time * s.speed + i * 2) * 0.09);
-    });
-
-    inner.visible = z < 3.6;
-    if (inner.visible) {
-      const tunnelEnter = 1 - sm(1.2, 3.4, z);
-      vortexRings.forEach((vr, i) => {
-        vr.ring.rotation.z = time * 0.45 * vr.dir + p * 7.5 * vr.dir + i * 0.3;
-        const nearCam = 1 - sm(0, 3.5, Math.abs(z - 1.5 - vr.z));
-        const ringPulse = 1 + Math.sin(time * 2.2 - i * 0.45) * 0.06 + nearCam * 0.14;
-        vr.ring.scale.set(1.22 * ringPulse, 0.85 * ringPulse, 1);
-      });
-
-      // Animate 3D Gyroscopic Commerce Gate
-      gyroRings.forEach((gr, i) => {
-        gr.mesh.rotation.x = time * gr.speedX + p * 4.0 * (i % 2 === 0 ? 1 : -1);
-        gr.mesh.rotation.y = time * gr.speedY + i;
-        gr.mesh.rotation.z = time * gr.speedZ + p * 5.0;
-      });
-
-      // Animate Grand Flagship Geodesic Sanctuary Core
-      coreSphere.rotation.y = time * 0.45 + p * 4.5;
-      coreSphere.rotation.x = time * 0.3;
-      const coreBeat = 1 + Math.sin(time * 2.8) * 0.08;
-      coreInnerOrb.scale.setScalar(coreBeat);
-      sanctuaryOrbits.forEach((so, i) => {
-        so.mesh.rotation.z = time * so.speed + p * 5.0 * (i % 2 === 0 ? 1 : -1);
-        so.mesh.rotation.x += Math.sin(time * 0.8 + i) * 0.002;
-      });
-
-      // Animate 24 Photon Pulses racing down the 3 plasma streams
-      streamPulses.forEach(sp => {
-        const u = (sp.offset + time * sp.speed + p * 0.4) % 1;
-        sp.curve.getPointAt(u, sp.mesh.position);
-      });
-
-      cardMeshes.forEach(({ mesh, basePos, baseRotY }, i) => {
-        const cardDist = Math.abs(z - 2.2 - basePos.z);
-        const focusBoost = 1 - sm(0, 2.5, cardDist);
-        const bob = reduced ? 0 : Math.sin(time * 1.4 + i * 1.3) * 0.055;
-        // Cards spiral inward and swing toward the camera when focused
-        const pullCenter = 1 - focusBoost * 0.4;
-        mesh.position.x = basePos.x * (0.65 + 0.35 * tunnelEnter) * pullCenter * (mobile ? 0.65 : 1);
-        mesh.position.y = basePos.y * pullCenter + bob;
-        mesh.position.z = basePos.z + focusBoost * 0.38;
-        mesh.rotation.y =
-          baseRotY * (1 - focusBoost * 0.58) +
-          (reduced ? 0 : Math.sin(time * 0.9 + i) * 0.04) -
-          pointer.x * 0.08 * sway;
-        mesh.rotation.x = pointer.y * 0.05 * sway;
-        mesh.scale.setScalar((mobile ? 0.78 : 1) * (0.82 + 0.18 * tunnelEnter + focusBoost * 0.28));
+    const holoFade = sm(1.8, 3.4, z) * erupt;
+    holoGroup.visible = holoFade > 0.01;
+    if (holoGroup.visible) {
+      holoCards.forEach((h, i) => {
+        h.group.position.x = h.base.x * (mobile ? 0.68 : 1);
+        h.group.position.y = h.base.y + (reduced ? 0 : Math.sin(time * 1.3 + i * 1.6) * 0.045);
+        h.group.position.z = h.base.z;
+        h.group.rotation.y = h.rotY + (reduced ? 0 : Math.cos(time * 1.0 + i) * 0.03);
+        h.group.scale.setScalar(h.scale * (mobile ? 0.75 : 1));
+        h.setOpacity(holoFade);
       });
     }
 
-    if (!reduced) {
-      particles.rotation.z = time * 0.035 + p * 1.1;
+    // Layered cards inside the tunnel: fade in from distance, fade out before passing camera
+    inner.visible = z < 3.4;
+    if (inner.visible) {
+      const tunnelAlpha = 1 - sm(1.5, 3.2, z);
+      cardMeshes.forEach((c, i) => {
+        // Distance ahead of the camera along -z
+        const distAhead = z - c.basePos.z;
+        // Fade out smoothly when closer than 2.0 units so cards never clip on the screen edge
+        const nearFade = i === cardMeshes.length - 1 ? 1 : sm(0.85, 2.1, distAhead);
+        // Fade in smoothly from the distant fog (between 13.5 and 9.5 units ahead)
+        const farFade = 1 - sm(9.5, 13.5, distAhead);
+        const alpha = tunnelAlpha * nearFade * farFade;
+
+        c.setOpacity(alpha);
+        if (alpha > 0.01) {
+          const bob = reduced ? 0 : Math.sin(time * 1.2 + i * 1.4) * 0.035;
+          c.group.position.x = c.basePos.x * (mobile ? 0.65 : 1);
+          c.group.position.y = c.basePos.y + bob;
+          c.group.position.z = c.basePos.z;
+          c.group.rotation.y = c.baseRotY - pointer.x * 0.04 * sway;
+          c.group.rotation.x = pointer.y * 0.03 * sway;
+          c.group.scale.setScalar(mobile ? 0.8 : 1);
+        }
+      });
     }
   };
 }
 
-// --- SCENE 02: 10-CHAPTER 3D HYPERLOOP COASTER MEGA-RUN ---
+// --- SCENE 02: CLEAN CAMERA-ON-A-RAIL SCROLL SCENE (8 CHAPTERS, ZERO PARTICLES) ---
 function railScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resources: Resources): SceneUpdate {
-  camera.fov = 46;
-  scene.fog = new THREE.FogExp2(0xedf4ff, 0.024);
+  camera.fov = 44;
+  scene.fog = new THREE.Fog(0xedf4ff, 5.0, 20.0);
 
-  // Extended 20-Control-Point High-Banked 3D Coaster Spline (z = +6 down to z = -68)
+  // Smooth 16-point Catmull-Rom spline snaking 54 units along -z with gentle x and y changes
   const curve = new THREE.CatmullRomCurve3(
     [
-      [-2.8, 0.2, 6],
-      [-1.35, 0.82, 2],
-      [1.15, 0.22, -2],
-      [2.65, -0.62, -6],
-      [1.1, -0.08, -10],
-      [-1.75, 0.72, -14],
-      [-2.6, -0.18, -18],
-      [0.2, -0.55, -22],
-      [2.7, 0.48, -26],
-      [1.8, 0.92, -30],
-      [-0.95, 0.25, -34],
-      [-2.75, -0.58, -38],
-      [-1.2, -0.15, -42],
-      [1.65, 0.78, -46],
-      [2.65, -0.12, -50],
-      [-0.25, -0.62, -54],
-      [-2.6, 0.42, -58],
-      [-0.85, 0.85, -62],
-      [1.95, 0.15, -65],
-      [1.75, 0, -68],
+      [-2.6, 0.1, 6],
+      [-1.2, 0.48, 2],
+      [0.85, 0.12, -2],
+      [2.2, -0.38, -6],
+      [0.95, -0.08, -10],
+      [-1.45, 0.42, -14],
+      [-2.2, -0.05, -18],
+      [0.05, -0.32, -22],
+      [2.35, 0.25, -26],
+      [1.2, 0.45, -30],
+      [-1.1, 0.1, -34],
+      [-2.25, -0.35, -38],
+      [-0.4, -0.1, -42],
+      [1.85, 0.35, -46],
+      [2.1, 0.05, -50],
+      [1.6, 0, -54],
     ].map(p => new THREE.Vector3(...p)),
     false,
     "centripetal"
   );
 
+  // Clean accent-blue dotted route line below the camera path (faithful to the BrewedOps specification)
+  const routePoints = curve.getSpacedPoints(260).map(p => p.setY(p.y - 0.28));
+  const routeGeo = new THREE.BufferGeometry().setFromPoints(routePoints);
+  const dotCanvas = resources.canvas(32, 32),
+    dg = dotCanvas.getContext("2d")!;
+  dg.fillStyle = "#ffffff";
+  dg.beginPath();
+  dg.arc(16, 16, 13, 0, Math.PI * 2);
+  dg.fill();
+  scene.add(
+    new THREE.Points(
+      routeGeo,
+      new THREE.PointsMaterial({
+        color: 0x0a6cff,
+        size: 0.065,
+        map: resources.texture(dotCanvas),
+        alphaTest: 0.4,
+      })
+    )
+  );
+
   const up = new THREE.Vector3(0, 1, 0);
   const sideways = new THREE.Vector3();
-
-  // Triple Glowing Cyber Coaster Rails (Left, Right, and Center Maglev Core)
-  const leftPts: THREE.Vector3[] = [];
-  const rightPts: THREE.Vector3[] = [];
-  const centerPts: THREE.Vector3[] = [];
-  for (let i = 0; i <= 240; i++) {
-    const u = i / 240;
-    const pt = curve.getPointAt(u);
-    const tan = curve.getTangentAt(u);
-    sideways.crossVectors(tangentOrDefault(tan), up).normalize();
-    leftPts.push(pt.clone().addScaledVector(sideways, -0.38).setY(pt.y - 0.34));
-    rightPts.push(pt.clone().addScaledVector(sideways, 0.38).setY(pt.y - 0.34));
-    centerPts.push(pt.clone().setY(pt.y - 0.38));
-  }
-
-  function tangentOrDefault(t: THREE.Vector3) {
-    return t.lengthSq() > 0.0001 ? t : new THREE.Vector3(0, 0, -1);
-  }
-
-  const railCurve = new THREE.CatmullRomCurve3(leftPts);
-  const railCurve2 = new THREE.CatmullRomCurve3(rightPts);
-  const centerRailCurve = new THREE.CatmullRomCurve3(centerPts);
-
-  const mainRailMat = new THREE.MeshStandardMaterial({
-    color: 0x0a6cff,
-    emissive: 0x0a6cff,
-    emissiveIntensity: 0.48,
-    roughness: 0.18,
-    metalness: 0.82,
-  });
-  const coreRailMat = new THREE.MeshBasicMaterial({
-    color: 0x38bdf8,
-    transparent: true,
-    opacity: 0.55,
-  });
-  scene.add(new THREE.Mesh(new THREE.TubeGeometry(railCurve, 320, 0.026, 12, false), mainRailMat));
-  scene.add(new THREE.Mesh(new THREE.TubeGeometry(railCurve2, 320, 0.026, 12, false), mainRailMat));
-  scene.add(new THREE.Mesh(new THREE.TubeGeometry(centerRailCurve, 320, 0.014, 8, false), coreRailMat));
-
-  // 100 Glowing Cross-Tie Sleepers along the Twin Coaster Track
-  const tieMat = new THREE.MeshBasicMaterial({
-    color: 0x0284c7,
-    transparent: true,
-    opacity: 0.38,
-  });
-  for (let i = 0; i < 100; i++) {
-    const u = i / 100;
-    const pL = railCurve.getPointAt(u);
-    const pR = railCurve2.getPointAt(u);
-    const tieCurve = new THREE.LineCurve3(pL, pR);
-    scene.add(new THREE.Mesh(new THREE.TubeGeometry(tieCurve, 4, 0.012, 6, false), tieMat));
-  }
-
-  // 28 Racing Maglev Light Pulses along the rails
-  const pulseGeo = new THREE.SphereGeometry(0.082, 16, 16);
-  const pulseMat = new THREE.MeshBasicMaterial({ color: 0x0a6cff });
-  const pulses = Array.from({ length: 28 }, (_, i) => {
-    const m = new THREE.Mesh(pulseGeo, pulseMat);
-    scene.add(m);
-    return { mesh: m, offset: i / 28, right: i % 2 === 1 };
-  });
-
-  const portalGeo = new THREE.TorusGeometry(2.08, 0.03, 16, 72);
-  const outerHaloGeo = new THREE.TorusGeometry(2.42, 0.016, 12, 8);
-  const portalRings: { mesh: THREE.Mesh; outer: THREE.Mesh; u: number; stopIndex: number }[] = [];
-
   const shadow = shadowTexture(resources);
-  const beaconGeo = new THREE.OctahedronGeometry(0.16, 0);
-  const beaconMat = new THREE.MeshStandardMaterial({
-    color: 0x38bdf8,
-    emissive: 0x0a6cff,
-    emissiveIntensity: 0.45,
-    roughness: 0.15,
-    metalness: 0.85,
-  });
 
-  // 10 Chapter Focus Stops (focus: 0..9) + 6 Scenic Intermediate Cards (focus: -1)
-  const focusKinds = [10, 11, 12, 13, 14, 15, 16, 17, 18, 32];
-  const scenicKinds = [19, 20, 21, 22, 23, 33];
+  // 8 primary chapter stops (focus: 0..7) + 4 intermediate cards (focus: -1)
+  const focusKinds = [10, 11, 12, 13, 14, 15, 16, 17];
+  const extraKinds = [18, 24, 25, 32];
   const stops: { u: number; kind: number; focus: number }[] = [];
-  for (let i = 0; i < 10; i++) {
-    stops.push({ u: 0.08 + (i / 9) * 0.85, kind: focusKinds[i], focus: i });
+  for (let i = 0; i < 8; i++) {
+    stops.push({ u: 0.1 + (i / 7) * 0.82, kind: focusKinds[i], focus: i });
   }
-  for (let i = 0; i < 6; i++) {
-    stops.push({ u: 0.125 + (i / 6) * 0.78, kind: scenicKinds[i], focus: -1 });
+  for (let i = 0; i < 4; i++) {
+    stops.push({ u: 0.16 + (i / 4) * 0.72, kind: extraKinds[i], focus: -1 });
   }
 
   const cards = stops.map((stop, i) => {
@@ -1841,126 +1430,58 @@ function railScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resource
     const tangent = curve.getTangentAt(stop.u);
     sideways.crossVectors(tangent, up).normalize();
 
-    if (stop.focus >= 0) {
-      const pRingMat = new THREE.MeshBasicMaterial({
-        color: stop.focus % 2 === 0 ? 0x0a6cff : 0x0284c7,
-        transparent: true,
-        opacity: 0.36,
-      });
-      const pRing = new THREE.Mesh(portalGeo, pRingMat);
-      pRing.position.copy(point);
-      pRing.lookAt(point.clone().add(tangent));
-      scene.add(pRing);
-
-      const outerMat = new THREE.MeshBasicMaterial({
-        color: 0x38bdf8,
-        transparent: true,
-        opacity: 0.22,
-      });
-      const outerRing = new THREE.Mesh(outerHaloGeo, outerMat);
-      outerRing.position.copy(point);
-      outerRing.lookAt(point.clone().add(tangent));
-      scene.add(outerRing);
-
-      portalRings.push({ mesh: pRing, outer: outerRing, u: stop.u, stopIndex: stop.focus });
-    }
-
-    const { group: card } = createFramedCard(resources, stop.kind, 1.58, 1.1, shadow);
-    const sideDir = (i % 2 ? 1 : -1) * 1.4;
-    card.position.copy(point).addScaledVector(sideways, sideDir);
-    card.position.y += 0.32;
-    const baseTarget = point.clone().addScaledVector(tangent, -2.4);
-    card.lookAt(baseTarget);
-    scene.add(card);
-
-    // Floating 3D spinning crystal beacon beneath each card
-    const beacon = new THREE.Mesh(beaconGeo, beaconMat);
-    beacon.position.set(0, -0.78, 0);
-    card.add(beacon);
+    const cardObj = createFramedCard(resources, stop.kind, 1.54, 1.08, shadow);
+    const sideDir = (i % 2 ? 1 : -1) * 1.35;
+    cardObj.group.position.copy(point).addScaledVector(sideways, sideDir);
+    cardObj.group.position.y += 0.3;
+    cardObj.group.lookAt(point.clone().addScaledVector(tangent, -2.4));
+    scene.add(cardObj.group);
 
     return {
-      card,
-      beacon,
+      ...cardObj,
+      u: stop.u,
       point: point.clone(),
       offset: sideways.clone().multiplyScalar(sideDir),
-      y: card.position.y,
+      y: cardObj.group.position.y,
       focus: stop.focus,
-      baseRotY: card.rotation.y,
     };
-  });
-
-  // 160 Hyperspace Warp Speed Streaks flying past the rollercoaster
-  const streakGeo = new THREE.CylinderGeometry(0.008, 0.008, 1.9, 6);
-  streakGeo.rotateX(Math.PI / 2);
-  const streakMat = new THREE.MeshBasicMaterial({
-    color: 0x0a6cff,
-    transparent: true,
-    opacity: 0.28,
-  });
-  const warpStreaks = Array.from({ length: 160 }, (_, i) => {
-    const m = new THREE.Mesh(streakGeo, streakMat);
-    const uRand = (i / 160) % 1;
-    const pt = curve.getPointAt(uRand);
-    const angle = i * 2.4;
-    const rad = 1.65 + (i % 5) * 0.65;
-    m.position.set(pt.x + Math.cos(angle) * rad, pt.y + Math.sin(angle) * rad, pt.z);
-    scene.add(m);
-    return { mesh: m, baseZ: m.position.z };
   });
 
   const point = new THREE.Vector3();
   const look = new THREE.Vector3();
-  const lookAhead = new THREE.Vector3();
 
   return (p: number, time: number, reduced: boolean, pointer: Pointer) => {
     const mobile = camera.aspect < 0.8;
-    const u = 0.015 + p * 0.915;
-    curve.getPointAt(u, point);
-    curve.getPointAt(Math.min(1, u + 0.032), look);
-    curve.getPointAt(Math.min(1, u + 0.068), lookAhead);
-
-    const sway = reduced ? 0 : 1;
-    camera.position.set(point.x + pointer.x * 0.18 * sway, point.y + 0.19 - pointer.y * 0.11 * sway, point.z);
-    camera.lookAt(look.x + pointer.x * 0.42 * sway, look.y + 0.05 - pointer.y * 0.22 * sway, look.z);
-
-    if (!reduced) {
-      // Dramatic high-speed coaster banking into every turn
-      const curveTurn = lookAhead.x - look.x - (look.x - point.x);
-      camera.rotation.z += clamp01(Math.abs(curveTurn) * 1.5) * Math.sign(curveTurn) * -0.34 + pointer.x * -0.03;
+    const fov = mobile ? 56 : 44;
+    if (camera.fov !== fov) {
+      camera.fov = fov;
+      camera.updateProjectionMatrix();
     }
 
-    pulses.forEach(pl => {
-      const pu = (pl.offset + time * 0.065 + p * 0.25) % 1;
-      (pl.right ? railCurve2 : railCurve).getPointAt(pu, pl.mesh.position);
-    });
+    const u = 0.02 + p * 0.86;
+    curve.getPointAt(u, point);
+    curve.getPointAt(Math.min(1, u + 0.045), look);
 
-    warpStreaks.forEach((ws, i) => {
-      ws.mesh.scale.z = 0.85 + Math.sin(time * 3.2 + i) * 0.42;
-    });
+    const sway = reduced ? 0 : 1;
+    camera.position.set(point.x + pointer.x * 0.12 * sway, point.y + 0.16 - pointer.y * 0.08 * sway, point.z);
+    camera.lookAt(look.x + pointer.x * 0.25 * sway, look.y + 0.05 - pointer.y * 0.14 * sway, look.z);
 
-    const current = p * 9;
+    const current = p * 7;
 
-    portalRings.forEach(pr => {
-      const active = 1 - sm(0, 0.72, Math.abs(current - pr.stopIndex));
-      pr.mesh.scale.setScalar(0.9 + active * 0.3);
-      pr.mesh.rotation.z = time * 0.55 + pr.stopIndex + p * 5.0;
-      (pr.mesh.material as THREE.MeshBasicMaterial).opacity = 0.2 + active * 0.48;
+    cards.forEach(c => {
+      // Fade out smoothly right as the camera passes the card so it never clips on the screen edge
+      const du = c.u - u;
+      const nearFade = sm(-0.005, 0.028, du);
+      const farFade = 1 - sm(0.28, 0.38, du);
+      const alpha = nearFade * farFade;
+      c.setOpacity(alpha);
 
-      pr.outer.scale.setScalar(0.92 + active * 0.36);
-      pr.outer.rotation.z = -time * 0.42 - pr.stopIndex - p * 4.0;
-      (pr.outer.material as THREE.MeshBasicMaterial).opacity = 0.14 + active * 0.35;
-    });
-
-    cards.forEach(({ card, beacon, point: cardPt, offset, y, focus, baseRotY }, i) => {
-      const lift = focus < 0 ? 0 : 1 - sm(0, 0.6, Math.abs(current - focus));
-      // Active product card swoops inward toward the track center and scales up heroically
-      const pullIn = (mobile ? 0.62 : 1) * (1 - lift * 0.34);
-      card.position.copy(cardPt).addScaledVector(offset, pullIn);
-      card.scale.setScalar((mobile ? 0.8 : 1) * (1 + lift * 0.36));
-      card.position.y = y + (reduced ? 0 : Math.sin(time * 1.5 + i) * 0.06) + lift * 0.15;
-      card.rotation.y = baseRotY + (reduced ? 0 : Math.cos(time * 1.1 + i) * 0.04) + lift * (i % 2 ? -0.22 : 0.22);
-      beacon.rotation.y = time * 1.8 + i;
-      beacon.rotation.x = time * 1.1 + i * 0.5;
+      if (alpha > 0.01) {
+        const lift = c.focus < 0 ? 0 : 1 - sm(0, 0.55, Math.abs(current - c.focus));
+        c.group.position.copy(c.point).addScaledVector(c.offset, mobile ? 0.58 : 1);
+        c.group.scale.setScalar((mobile ? 0.8 : 1) * (1 + lift * 0.2));
+        c.group.position.y = c.y + (reduced ? 0 : Math.sin(time * 1.2 + c.u * 12) * 0.045);
+      }
     });
   };
 }
@@ -1975,59 +1496,12 @@ export function mountScrollScene(root: HTMLElement, kind: SceneKind, chapterCoun
   const resources = new Resources(),
     scene = new THREE.Scene();
 
-  const hemisphere = new THREE.HemisphereLight(0xffffff, 0x7b96c5, 2.5);
-  const light = new THREE.DirectionalLight(0xffffff, 3.5);
+  const hemisphere = new THREE.HemisphereLight(0xffffff, 0x7b96c5, 2.6);
+  const light = new THREE.DirectionalLight(0xffffff, 3.4);
   light.position.set(3, 6, 5);
-  const rimLight = new THREE.DirectionalLight(0x38bdf8, 2.1);
-  rimLight.position.set(-4, 3, -3);
-  const cinemaSpot = new THREE.PointLight(0x38bdf8, 3.8, 22);
-  cinemaSpot.position.set(2.5, 2.2, 4.0);
-  scene.add(hemisphere, light, rimLight, cinemaSpot);
-
-  // Volumetric 3D Bokeh Dust Mote Field across all worlds
-  const dustCount = 110;
-  const dustGeo = new THREE.BufferGeometry();
-  const dustPos = new Float32Array(dustCount * 3);
-  const dustCol = new Float32Array(dustCount * 3);
-  for (let i = 0; i < dustCount; i++) {
-    const r = 2.8 + ((i * 73) % 100) * 0.085;
-    const theta = i * 2.39996;
-    const y = (((i * 31) % 100) / 100 - 0.5) * 11;
-    dustPos[i * 3] = Math.cos(theta) * r;
-    dustPos[i * 3 + 1] = y;
-    dustPos[i * 3 + 2] = Math.sin(theta) * r - 1.5;
-    // Alternate between electric cyan, cobalt blue, and crisp white bokeh
-    if (i % 3 === 0) {
-      dustCol[i * 3] = 0.22;
-      dustCol[i * 3 + 1] = 0.74;
-      dustCol[i * 3 + 2] = 0.98;
-    } else if (i % 3 === 1) {
-      dustCol[i * 3] = 0.04;
-      dustCol[i * 3 + 1] = 0.42;
-      dustCol[i * 3 + 2] = 1.0;
-    } else {
-      dustCol[i * 3] = 0.92;
-      dustCol[i * 3 + 1] = 0.96;
-      dustCol[i * 3 + 2] = 1.0;
-    }
-  }
-  dustGeo.setAttribute("position", new THREE.BufferAttribute(dustPos, 3));
-  dustGeo.setAttribute("color", new THREE.BufferAttribute(dustCol, 3));
-  const cinemaDust = new THREE.Points(
-    dustGeo,
-    new THREE.PointsMaterial({
-      size: 0.22,
-      map: glowOrbTexture(resources, "56,189,248"),
-      vertexColors: true,
-      transparent: true,
-      opacity: 0.65,
-      depthWrite: false,
-    })
-  );
-  scene.add(cinemaDust);
+  scene.add(hemisphere, light);
 
   const camera = new THREE.PerspectiveCamera(40, 1, 0.025, 100);
-  let baseFov = 40;
   let renderer: THREE.WebGLRenderer | undefined;
   let environment: THREE.WebGLRenderTarget | undefined;
   let updateScene: SceneUpdate | undefined;
@@ -2037,7 +1511,6 @@ export function mountScrollScene(root: HTMLElement, kind: SceneKind, chapterCoun
     warmup = 0,
     target = 0,
     progress = 0,
-    warp = 0,
     visible = false,
     disposed = false;
   let initialized = false,
@@ -2068,22 +1541,21 @@ export function mountScrollScene(root: HTMLElement, kind: SceneKind, chapterCoun
       renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: "high-performance" });
       renderer.outputColorSpace = THREE.SRGBColorSpace;
       renderer.toneMapping = THREE.ACESFilmicToneMapping;
-      renderer.toneMappingExposure = 1.06;
+      renderer.toneMappingExposure = 1.04;
       const pmrem = new THREE.PMREMGenerator(renderer),
         room = new RoomEnvironment();
       environment = pmrem.fromScene(room, 0.04);
       room.dispose();
       pmrem.dispose();
       scene.environment = environment.texture;
-      scene.environmentIntensity = kind === "laptop" ? 1.2 : 0.95;
+      scene.environmentIntensity = kind === "laptop" ? 1.1 : 0.9;
       if (kind === "laptop") {
-        hemisphere.intensity = 0.65;
+        hemisphere.intensity = 0.75;
         light.intensity = 1.45;
         updateScene = laptopScene(scene, camera, resources);
       } else {
         updateScene = railScene(scene, camera, resources);
       }
-      baseFov = camera.fov;
       camera.updateProjectionMatrix();
       setResolution();
       resources.textures.forEach(t => renderer!.initTexture(t));
@@ -2117,11 +1589,8 @@ export function mountScrollScene(root: HTMLElement, kind: SceneKind, chapterCoun
     last = time;
 
     const rawVel = target - progress;
-    progress += rawVel * (1 - Math.exp(-dt * 6.5));
+    progress += rawVel * (1 - Math.exp(-dt * 6.0));
     if (Math.abs(progress - target) < 0.00005) progress = target;
-
-    const targetWarp = Math.min(1, Math.abs(rawVel) * 7.5);
-    warp += (targetWarp - warp) * (1 - Math.exp(-dt * 8));
 
     const ease = 1 - Math.exp(-dt * 4.5);
     pointer.x += (pointerTarget.x - pointer.x) * ease;
@@ -2141,8 +1610,8 @@ export function mountScrollScene(root: HTMLElement, kind: SceneKind, chapterCoun
     copies.forEach((copy, i) => {
       const o = 1 - sm(0.12, 0.48, Math.abs(idx - i));
       const direction = idx < i ? 1 : -1;
-      const yOffset = (direction * 28 * (1 - o)).toFixed(1);
-      const scaleVal = (0.94 + o * 0.06).toFixed(3);
+      const yOffset = (direction * 24 * (1 - o)).toFixed(1);
+      const scaleVal = (0.96 + o * 0.04).toFixed(3);
       copy.style.setProperty("--o", o.toFixed(3));
       copy.style.setProperty("--y", `${yOffset}px`);
       copy.style.setProperty("--scale", scaleVal);
@@ -2163,23 +1632,6 @@ export function mountScrollScene(root: HTMLElement, kind: SceneKind, chapterCoun
     root.style.setProperty("--hint-opacity", hintOpacity.toFixed(2));
 
     updateScene?.(progress, time / 1000, false, pointer);
-
-    // Cinematic Steadicam banking & Dolly-Zoom FOV warp on scroll velocity
-    camera.rotation.z += rawVel * 0.075;
-    const nextFov = baseFov + warp * 5.2;
-    if (Math.abs(camera.fov - nextFov) > 0.02) {
-      camera.fov = nextFov;
-      camera.updateProjectionMatrix();
-    }
-
-    // Animate 3D volumetric bokeh dust & orbiting cinema key light
-    cinemaDust.rotation.y = time * 0.000045 + progress * 0.85;
-    cinemaDust.position.y = ((progress * 3.2) % 2) - 1;
-    cinemaSpot.position.set(
-      Math.sin(progress * Math.PI * 2 + time * 0.0004) * 3.6 + pointer.x * 2.2,
-      2.2 - pointer.y * 1.4,
-      3.8 + Math.cos(progress * Math.PI * 2) * 1.4
-    );
 
     renderer?.render(scene, camera);
 
