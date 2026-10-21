@@ -8,7 +8,7 @@
  * - API calls: Network-only (handled by client-side apiCache)
  */
 
-const CACHE_VERSION = 'shopply-v48';
+const CACHE_VERSION = 'shopply-v49';
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const IMAGE_CACHE = `${CACHE_VERSION}-images`;
 const PAGE_CACHE = `${CACHE_VERSION}-pages`;
@@ -16,7 +16,6 @@ const PAGE_CACHE = `${CACHE_VERSION}-pages`;
 // Static assets to precache on install
 const PRECACHE_URLS = [
   '/login',
-  '/shop',
 ];
 
 // --- Install: precache critical pages ---

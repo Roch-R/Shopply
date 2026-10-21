@@ -72,6 +72,8 @@ export default function LoginPage() {
       getApiCache().invalidateAll();
       localStorage.setItem("token", data.token!);
       localStorage.setItem("user", JSON.stringify(data.user));
+      localStorage.removeItem("shopply_landing_lock");
+      sessionStorage.setItem("shopply_shop_unlocked", "true");
       // Hard navigate so dashboard loads with fresh localStorage state
       window.location.href = "/dashboard";
     } catch (err: unknown) {

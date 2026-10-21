@@ -154,6 +154,8 @@ export default function VerifyPage() {
       if (data.user) localStorage.setItem("user", JSON.stringify(data.user));
       localStorage.removeItem("pending_email");
       localStorage.removeItem("otp_expires_at");
+      localStorage.removeItem("shopply_landing_lock");
+      sessionStorage.setItem("shopply_shop_unlocked", "true");
 
       setSuccess("✓ Email verified successfully! Redirecting...");
       setRedirecting(true);

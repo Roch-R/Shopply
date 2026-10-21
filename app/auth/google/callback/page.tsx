@@ -47,6 +47,8 @@ function GoogleCallbackContent() {
         
         localStorage.setItem("token", data.token!);
         localStorage.setItem("user", JSON.stringify(data.user));
+        localStorage.removeItem("shopply_landing_lock");
+        sessionStorage.setItem("shopply_shop_unlocked", "true");
         router.replace("/dashboard");
       } catch (err: unknown) {
         setError(err instanceof Error ? err.message : "Authentication failed.");

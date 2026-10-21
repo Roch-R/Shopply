@@ -178,8 +178,22 @@ const CURATED_CATEGORIES = [
 ];
 
 export default function ShopPage() {
+  const [shopAuthorized, setShopAuthorized] = useState(false);
   const [items, setItems] = useState<ShopItem[]>([]);
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const storedUser = localStorage.getItem("user");
+    const landingLock = localStorage.getItem("shopply_landing_lock") === "true";
+    const shopUnlocked = sessionStorage.getItem("shopply_shop_unlocked") === "true";
+
+    if (!token || !storedUser || landingLock || !shopUnlocked) {
+      window.location.replace("/");
+      return;
+    }
+    setShopAuthorized(true);
+  }, []);
   const [viewItem, setViewItem] = useState<ShopItem | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [selectedVariant, setSelectedVariant] = useState<number | null>(null);
@@ -1659,6 +1673,77 @@ export default function ShopPage() {
       return 0; // featured default
     });
 
+  if (!shopAuthorized) {
+    return (
+      <div
+        style={{
+          minHeight: "100vh",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          background: "linear-gradient(180deg, #dff0ff 0%, #f4faff 100%)",
+          fontFamily: "Inter, -apple-system, sans-serif",
+          color: "#06152d",
+          padding: 24,
+          textAlign: "center",
+        }}
+      >
+        <div
+          style={{
+            padding: "32px 36px",
+            borderRadius: 28,
+            background: "rgba(255, 255, 255, 0.92)",
+            border: "1.5px solid rgba(10, 108, 255, 0.22)",
+            boxShadow: "0 24px 60px rgba(7, 25, 58, 0.12)",
+            maxWidth: 420,
+          }}
+        >
+          <div
+            style={{
+              width: 48,
+              height: 48,
+              borderRadius: 999,
+              background: "linear-gradient(135deg, #0a6cff, #00c2ff)",
+              color: "#fff",
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontWeight: 800,
+              fontSize: 20,
+              marginBottom: 14,
+            }}
+          >
+            🔒
+          </div>
+          <h1 style={{ fontSize: 20, fontWeight: 800, margin: "0 0 8px" }}>
+            Marketplace Access Blocked
+          </h1>
+          <p style={{ fontSize: 14, color: "#3d5678", lineHeight: 1.55, margin: "0 0 18px" }}>
+            Direct access to <strong>/shop</strong> from the landing page is blocked. Redirecting you back to the 3D landing page...
+          </p>
+          <a
+            href="/"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: "11px 24px",
+              borderRadius: 999,
+              background: "linear-gradient(135deg, #0a6cff, #0051d5)",
+              color: "#fff",
+              fontWeight: 700,
+              fontSize: 14,
+              textDecoration: "none",
+            }}
+          >
+            ← Back to 3D Landing Page
+          </a>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
       <style>{`
@@ -2490,7 +2575,7 @@ export default function ShopPage() {
                 </button>
 
                 {/* Slide Content */}
-                <div style={{ position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', gap: 12 }}>
+                <div style={{ position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', gap: 12, padding: isMobile ? '0 24px' : '0 36px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
                     <span style={{
                       display: 'inline-flex',
