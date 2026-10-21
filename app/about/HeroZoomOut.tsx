@@ -6,7 +6,7 @@ const VIDEO_URL =
   "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260328_083109_283f3553-e28f-428b-a723-d639c617eb2b.mp4";
 
 const NAV_ITEMS = [
-  { label: "Home", active: true, href: "/" },
+  { label: "Home", active: true, href: "#" },
   { label: "Studio", active: false, href: "#story" },
   { label: "About", active: false, href: "#journey" },
   { label: "Journal", active: false, href: "#network" },
@@ -89,7 +89,7 @@ export default function HeroZoomOut() {
       <header className="relative z-10">
         <nav className="mx-auto flex max-w-7xl items-center justify-between px-8 py-6">
           <a
-            href="/"
+            href="#"
             className="font-instrument text-3xl tracking-tight text-[#000000]"
           >
             Aethera<sup className="text-[0.55em] align-super">®</sup>
