@@ -2,6 +2,10 @@
 
 import { useEffect, useRef } from "react";
 import Link from "next/link";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+gsap.registerPlugin(ScrollTrigger);
 
 const VIDEO_URL =
   "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260328_083109_283f3553-e28f-428b-a723-d639c617eb2b.mp4";
@@ -23,6 +27,10 @@ export default function HeroZoomOut({
   user?: { name: string; email: string } | null;
   onLogout?: () => void;
 } = {}) {
+  const rootRef = useRef<HTMLDivElement>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
+  const badgeRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -73,140 +81,224 @@ export default function HeroZoomOut({
     };
   }, []);
 
+  useEffect(() => {
+    const root = rootRef.current;
+    const stage = stageRef.current;
+    const card = cardRef.current;
+    const badge = badgeRef.current;
+    if (!root || !stage || !card) return;
+
+    const ctx = gsap.context(() => {
+      if (badge) {
+        gsap.set(badge, { opacity: 0, y: 24 });
+      }
+
+      const tl = gsap.timeline({
+        defaults: { ease: "power2.inOut" },
+        scrollTrigger: {
+          trigger: stage,
+          start: "top top",
+          end: () => "+=" + Math.round(window.innerHeight * 0.85),
+          pin: true,
+          scrub: 0.45,
+          invalidateOnRefresh: true,
+        },
+      });
+
+      tl.to(
+        card,
+        {
+          scale: 0.78,
+          rotateX: 13,
+          y: -28,
+          borderRadius: 44,
+          boxShadow:
+            "0 45px 120px rgba(10, 108, 255, 0.38), 0 0 0 2px rgba(56, 189, 248, 0.55)",
+          duration: 1,
+        },
+        0
+      );
+
+      if (badge) {
+        tl.to(
+          badge,
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.45,
+            ease: "power2.out",
+          },
+          0.45
+        );
+      }
+    }, root);
+
+    return () => {
+      ctx.revert();
+    };
+  }, []);
+
   return (
-    <div className="relative min-h-screen h-screen min-h-[860px] w-full overflow-hidden bg-[#FFFFFF] font-inter text-[#000000]">
-      {/* Background video layer (z-0) */}
+    <div
+      ref={rootRef}
+      className="relative w-full bg-[#050a18]"
+    >
       <div
-        className="absolute z-0"
-        style={{ inset: "auto 0 0 0", top: "300px" }}
+        ref={stageRef}
+        className="relative flex h-screen min-h-[820px] w-full items-center justify-center overflow-hidden"
+        style={{
+          perspective: "1800px",
+          background:
+            "radial-gradient(65% 55% at 50% 60%, rgba(10, 108, 255, 0.28) 0%, rgba(5, 10, 24, 0.98) 75%), #050a18",
+        }}
       >
-        <video
-          ref={videoRef}
-          src={VIDEO_URL}
-          autoPlay
-          muted
-          playsInline
-          preload="auto"
-          className="h-full w-full object-cover object-center"
-        />
-        {/* Gradient overlay on video */}
         <div
-          className="pointer-events-none absolute inset-0 bg-gradient-to-b from-background via-transparent to-background"
-          style={{
-            background:
-              "linear-gradient(to bottom, #FFFFFF 0%, rgba(255, 255, 255, 0.35) 14%, rgba(255, 255, 255, 0) 30%, rgba(255, 255, 255, 0) 88%, rgba(255, 255, 255, 0.75) 100%)",
-          }}
-        />
-      </div>
-
-      {/* Navigation bar (z-10) */}
-      <header className="relative z-10">
-        <nav className="mx-auto flex max-w-7xl items-center justify-between px-8 py-6">
-          <Link
-            href="/"
-            className="font-instrument text-3xl tracking-tight text-[#000000]"
-          >
-            Shopply<sup className="text-[0.55em] align-super">®</sup>
-          </Link>
-
-          <div className="hidden items-center gap-8 md:flex">
-            {NAV_ITEMS.map((item) => (
-              <a
-                key={item.label}
-                href={item.href}
-                className={`text-sm transition-colors hover:text-[#000000] ${
-                  item.active ? "text-[#000000]" : "text-[#6F6F6F]"
-                }`}
-              >
-                {item.label}
-              </a>
-            ))}
-          </div>
-
-          <div className="flex items-center gap-3">
-            {user?.name ? (
-              <>
-                <Link
-                  href="/shop"
-                  className="text-sm font-medium text-[#000000] transition-opacity hover:opacity-70"
-                >
-                  Hi, {user.name.split(" ")[0]}
-                </Link>
-                <button
-                  type="button"
-                  onClick={onLogout}
-                  className="rounded-full bg-[#000000] px-6 py-2.5 text-sm text-[#FFFFFF] transition-transform duration-200 hover:scale-[1.03]"
-                >
-                  Log Out
-                </button>
-              </>
-            ) : (
-              <>
-                <Link
-                  href="/login"
-                  onClick={(e) => {
-                    if (onLoginClick) {
-                      e.preventDefault();
-                      onLoginClick();
-                    }
-                  }}
-                  className="px-4 py-2 text-sm font-medium text-[#000000] transition-opacity hover:opacity-70"
-                >
-                  Log In
-                </Link>
-                <Link
-                  href="/register"
-                  className="rounded-full bg-[#000000] px-6 py-2.5 text-sm text-[#FFFFFF] transition-transform duration-200 hover:scale-[1.03]"
-                >
-                  Sign Up
-                </Link>
-              </>
-            )}
-          </div>
-        </nav>
-      </header>
-
-      {/* Hero section (z-10) */}
-      <section
-        className="relative z-10 flex flex-col items-center justify-center px-6 pb-40 text-center"
-        style={{ paddingTop: "calc(8rem - 75px)" }}
-        aria-label="Shopply flagship hero"
-      >
-        <h1
-          className="animate-fade-rise font-instrument max-w-7xl text-5xl font-normal text-[#000000] sm:text-7xl md:text-8xl"
-          style={{ lineHeight: 0.95, letterSpacing: "-2.46px" }}
+          ref={cardRef}
+          className="relative h-full w-full overflow-hidden bg-[#FFFFFF] font-inter text-[#000000] will-change-transform"
+          style={{ transformStyle: "preserve-3d" }}
         >
-          Beyond <em className="italic text-[#6F6F6F]">silence,</em> we build{" "}
-          <em className="italic text-[#6F6F6F]">Shopply.</em>
-        </h1>
-
-        <p className="animate-fade-rise-delay mt-8 max-w-2xl text-base leading-relaxed text-[#6F6F6F] sm:text-lg">
-          Building platforms for brilliant minds, fearless makers, and
-          thoughtful souls. Through the noise, we craft digital havens for deep
-          work and pure flows.
-        </p>
-
-        <div className="animate-fade-rise-delay-2 mt-12 flex flex-wrap items-center justify-center gap-4">
-          <Link
-            href="/login"
-            onClick={(e) => {
-              if (onLoginClick) {
-                e.preventDefault();
-                onLoginClick();
-              }
-            }}
-            className="rounded-full bg-[#000000] px-12 py-5 text-base text-[#FFFFFF] transition-transform duration-200 hover:scale-[1.03]"
+          {/* Background video layer (z-0) */}
+          <div
+            className="absolute z-0"
+            style={{ inset: "auto 0 0 0", top: "300px" }}
           >
-            Log In
-          </Link>
-          <Link
-            href="/register"
-            className="rounded-full border border-[#000000]/20 bg-[#FFFFFF]/85 px-12 py-5 text-base text-[#000000] backdrop-blur-sm transition-transform duration-200 hover:bg-[#FFFFFF] hover:scale-[1.03]"
+            <video
+              ref={videoRef}
+              src={VIDEO_URL}
+              autoPlay
+              muted
+              playsInline
+              preload="auto"
+              className="h-full w-full object-cover object-center"
+            />
+            {/* Gradient overlay on video */}
+            <div
+              className="pointer-events-none absolute inset-0 bg-gradient-to-b from-background via-transparent to-background"
+              style={{
+                background:
+                  "linear-gradient(to bottom, #FFFFFF 0%, rgba(255, 255, 255, 0.35) 14%, rgba(255, 255, 255, 0) 30%, rgba(255, 255, 255, 0) 88%, rgba(255, 255, 255, 0.75) 100%)",
+              }}
+            />
+          </div>
+
+          {/* Navigation bar (z-10) */}
+          <header className="relative z-10">
+            <nav className="mx-auto flex max-w-7xl items-center justify-between px-8 py-6">
+              <Link
+                href="/"
+                className="font-instrument text-3xl tracking-tight text-[#000000]"
+              >
+                Shopply<sup className="text-[0.55em] align-super">®</sup>
+              </Link>
+
+              <div className="hidden items-center gap-8 md:flex">
+                {NAV_ITEMS.map((item) => (
+                  <a
+                    key={item.label}
+                    href={item.href}
+                    className={`text-sm transition-colors hover:text-[#000000] ${
+                      item.active ? "text-[#000000]" : "text-[#6F6F6F]"
+                    }`}
+                  >
+                    {item.label}
+                  </a>
+                ))}
+              </div>
+
+              <div className="flex items-center gap-3">
+                {user?.name ? (
+                  <>
+                    <Link
+                      href="/shop"
+                      className="text-sm font-medium text-[#000000] transition-opacity hover:opacity-70"
+                    >
+                      Hi, {user.name.split(" ")[0]}
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={onLogout}
+                      className="rounded-full bg-[#000000] px-6 py-2.5 text-sm text-[#FFFFFF] transition-transform duration-200 hover:scale-[1.03]"
+                    >
+                      Log Out
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <Link
+                      href="/login"
+                      onClick={(e) => {
+                        if (onLoginClick) {
+                          e.preventDefault();
+                          onLoginClick();
+                        }
+                      }}
+                      className="px-4 py-2 text-sm font-medium text-[#000000] transition-opacity hover:opacity-70"
+                    >
+                      Log In
+                    </Link>
+                    <Link
+                      href="/register"
+                      className="rounded-full bg-[#000000] px-6 py-2.5 text-sm text-[#FFFFFF] transition-transform duration-200 hover:scale-[1.03]"
+                    >
+                      Sign Up
+                    </Link>
+                  </>
+                )}
+              </div>
+            </nav>
+          </header>
+
+          {/* Hero section (z-10) */}
+          <section
+            className="relative z-10 flex flex-col items-center justify-center px-6 pb-40 text-center"
+            style={{ paddingTop: "calc(8rem - 75px)" }}
+            aria-label="Shopply flagship hero"
           >
-            Sign Up Now
-          </Link>
+            <h1
+              className="animate-fade-rise font-instrument max-w-7xl text-5xl font-normal text-[#000000] sm:text-7xl md:text-8xl"
+              style={{ lineHeight: 0.95, letterSpacing: "-2.46px" }}
+            >
+              Beyond <em className="italic text-[#6F6F6F]">silence,</em> we build{" "}
+              <em className="italic text-[#6F6F6F]">Shopply.</em>
+            </h1>
+
+            <p className="animate-fade-rise-delay mt-8 max-w-2xl text-base leading-relaxed text-[#6F6F6F] sm:text-lg">
+              Building platforms for brilliant minds, fearless makers, and
+              thoughtful souls. Through the noise, we craft digital havens for
+              deep work and pure flows.
+            </p>
+
+            <div className="animate-fade-rise-delay-2 mt-12 flex flex-wrap items-center justify-center gap-4">
+              <Link
+                href="/login"
+                onClick={(e) => {
+                  if (onLoginClick) {
+                    e.preventDefault();
+                    onLoginClick();
+                  }
+                }}
+                className="rounded-full bg-[#000000] px-12 py-5 text-base text-[#FFFFFF] transition-transform duration-200 hover:scale-[1.03]"
+              >
+                Log In
+              </Link>
+              <Link
+                href="/register"
+                className="rounded-full border border-[#000000]/20 bg-[#FFFFFF]/85 px-12 py-5 text-base text-[#000000] backdrop-blur-sm transition-transform duration-200 hover:bg-[#FFFFFF] hover:scale-[1.03]"
+              >
+                Sign Up Now
+              </Link>
+            </div>
+          </section>
         </div>
-      </section>
+
+        {/* 3D Portal Transition Indicator revealed as Hero tilts in 3D */}
+        <div
+          ref={badgeRef}
+          className="pointer-events-none absolute bottom-6 left-1/2 z-20 -translate-x-1/2 rounded-full border border-sky-400/40 bg-slate-950/80 px-6 py-2.5 font-mono text-xs font-bold tracking-[0.2em] text-sky-300 uppercase shadow-[0_0_30px_rgba(14,165,233,0.45)] backdrop-blur-xl"
+        >
+          ENTERING 3D HYPERSPACE STUDIO ↓
+        </div>
+      </div>
     </div>
   );
 }

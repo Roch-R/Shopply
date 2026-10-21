@@ -1163,33 +1163,33 @@ function runwayFloorTexture(resources: Resources) {
     g = c.getContext("2d")!;
   g.clearRect(0, 0, 512, 1024);
 
-  // Soft studio runway base with feathered edges
+  // Deep sapphire-neon studio runway base with feathered edges
   const sideFade = g.createLinearGradient(0, 0, 512, 0);
-  sideFade.addColorStop(0, "rgba(244,247,252,0)");
-  sideFade.addColorStop(0.18, "rgba(226,236,252,0.55)");
-  sideFade.addColorStop(0.5, "rgba(238,244,255,0.85)");
-  sideFade.addColorStop(0.82, "rgba(226,236,252,0.55)");
-  sideFade.addColorStop(1, "rgba(244,247,252,0)");
+  sideFade.addColorStop(0, "rgba(6,16,38,0)");
+  sideFade.addColorStop(0.18, "rgba(10,37,88,0.55)");
+  sideFade.addColorStop(0.5, "rgba(14,165,233,0.28)");
+  sideFade.addColorStop(0.82, "rgba(10,37,88,0.55)");
+  sideFade.addColorStop(1, "rgba(6,16,38,0)");
   g.fillStyle = sideFade;
   g.fillRect(0, 0, 512, 1024);
 
-  // Longitudinal perspective guide lines
-  [96, 176, 256, 336, 416].forEach((x, idx) => {
-    g.strokeStyle = idx === 2 ? "rgba(10,108,255,0.32)" : "rgba(100,116,139,0.16)";
-    g.lineWidth = idx === 2 ? 2.5 : 1.5;
+  // Longitudinal perspective laser guide lines
+  [88, 172, 256, 340, 424].forEach((x, idx) => {
+    g.strokeStyle = idx === 2 ? "rgba(56,189,248,0.85)" : "rgba(56,189,248,0.35)";
+    g.lineWidth = idx === 2 ? 3 : 1.5;
     g.beginPath();
     g.moveTo(x, 0);
     g.lineTo(x, 1024);
     g.stroke();
   });
 
-  // Cross-ties along the runway
+  // Cross-ties along the 3D runway
   for (let y = 32; y < 1024; y += 64) {
-    g.strokeStyle = y % 128 === 32 ? "rgba(10,108,255,0.22)" : "rgba(100,116,139,0.12)";
+    g.strokeStyle = y % 128 === 32 ? "rgba(56,189,248,0.5)" : "rgba(14,165,233,0.22)";
     g.lineWidth = y % 128 === 32 ? 2 : 1;
     g.beginPath();
-    g.moveTo(72, y);
-    g.lineTo(440, y);
+    g.moveTo(64, y);
+    g.lineTo(448, y);
     g.stroke();
   }
 
@@ -1240,10 +1240,10 @@ type SceneUpdate = (
   lens: LensMode
 ) => { depthMeters: number };
 
-// --- SCENE 01: 3D STUDIO LAPTOP, ARCHITECTURAL RUNWAY & 5 SCULPTURAL 3D STAGES (ZERO PARTICLES) ---
+// --- SCENE 01: 3D MECHANICAL IRIS VAULT, EXPLODING HOLO-LAPTOP & 5 GIANT KINETIC 3D STAGES ---
 function laptopScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resources: Resources): SceneUpdate {
-  camera.fov = 32;
-  scene.fog = new THREE.Fog(0xf4f7fc, 5.2, 15.8);
+  camera.fov = 34;
+  scene.fog = new THREE.Fog(0x061026, 6.2, 17.5);
 
   const SW = 2.95,
     SH = 1.84,
@@ -1254,53 +1254,84 @@ function laptopScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resour
 
   const shadowTex = shadowTexture(resources);
 
-  // Soft studio floor shadow beneath the laptop
-  const floorShadow = new THREE.Mesh(
-    new THREE.PlaneGeometry(5.2, 3.4),
-    new THREE.MeshBasicMaterial({
-      map: shadowTex,
-      transparent: true,
-      depthWrite: false,
-      opacity: 0.75,
-    })
-  );
-  floorShadow.position.set(0, -1.05, 0.65);
-  floorShadow.rotation.x = -Math.PI / 2;
-  rig.add(floorShadow);
-
-  const lap = new THREE.Group();
-  rig.add(lap);
-
   const silver = new THREE.MeshStandardMaterial({
     color: 0xe2e8f3,
-    roughness: 0.22,
-    metalness: 0.78,
+    roughness: 0.18,
+    metalness: 0.82,
   });
   const darkMetal = new THREE.MeshStandardMaterial({
-    color: 0x1e293b,
-    roughness: 0.32,
-    metalness: 0.7,
+    color: 0x0f172a,
+    roughness: 0.26,
+    metalness: 0.78,
   });
   const cobaltMetal = new THREE.MeshStandardMaterial({
     color: 0x0a6cff,
-    roughness: 0.24,
-    metalness: 0.52,
+    roughness: 0.18,
+    metalness: 0.58,
+    emissive: 0x042f80,
+    emissiveIntensity: 0.45,
   });
   const skyMetal = new THREE.MeshStandardMaterial({
     color: 0x38bdf8,
-    roughness: 0.22,
-    metalness: 0.45,
+    roughness: 0.16,
+    metalness: 0.48,
+    emissive: 0x0284c7,
+    emissiveIntensity: 0.55,
   });
   const goldMetal = new THREE.MeshStandardMaterial({
-    color: 0xf59e0b,
-    roughness: 0.22,
-    metalness: 0.75,
+    color: 0xfbbf24,
+    roughness: 0.18,
+    metalness: 0.82,
+    emissive: 0x78350f,
+    emissiveIntensity: 0.35,
   });
   const ceramicWhite = new THREE.MeshStandardMaterial({
     color: 0xffffff,
-    roughness: 0.25,
-    metalness: 0.1,
+    roughness: 0.2,
+    metalness: 0.15,
   });
+
+  // --- 3D MAGNETIC LEVITATION GYRO-PEDESTAL UNDER THE LAPTOP ---
+  const magPedestal = new THREE.Group();
+  magPedestal.position.set(0, -1.06, 0.55);
+  rig.add(magPedestal);
+
+  const pedRing1 = new THREE.Mesh(new THREE.TorusGeometry(2.35, 0.032, 16, 64), cobaltMetal);
+  pedRing1.rotation.x = Math.PI / 2;
+  const pedRing2 = new THREE.Mesh(new THREE.TorusGeometry(1.88, 0.024, 16, 64), skyMetal);
+  pedRing2.rotation.x = Math.PI / 2;
+  pedRing2.position.y = 0.06;
+  const pedRing3 = new THREE.Mesh(new THREE.TorusGeometry(1.42, 0.02, 14, 48), goldMetal);
+  pedRing3.rotation.x = Math.PI / 2;
+  pedRing3.position.y = 0.12;
+  magPedestal.add(pedRing1, pedRing2, pedRing3);
+
+  // --- GIANT 8-BLADE 3D MECHANICAL IRIS VAULT PORTAL SURROUNDING THE ENTRANCE ---
+  const irisGate = new THREE.Group();
+  irisGate.position.set(0, 0.04, 1.05);
+  rig.add(irisGate);
+
+  const irisOuterRing = new THREE.Mesh(new THREE.TorusGeometry(2.55, 0.055, 18, 64), silver);
+  const irisGlowRing = new THREE.Mesh(new THREE.TorusGeometry(2.42, 0.026, 16, 64), skyMetal);
+  irisGlowRing.position.z = 0.04;
+  irisGate.add(irisOuterRing, irisGlowRing);
+
+  const irisBlades: { pivot: THREE.Group; mesh: THREE.Mesh; baseAngle: number }[] = [];
+  const bladeGeo = new RoundedBoxGeometry(1.15, 0.38, 0.05, 3, 0.02);
+  for (let b = 0; b < 8; b++) {
+    const ang = (b / 8) * Math.PI * 2;
+    const pivot = new THREE.Group();
+    pivot.rotation.z = ang;
+    const blade = new THREE.Mesh(bladeGeo, b % 2 === 0 ? cobaltMetal.clone() : silver.clone());
+    blade.position.set(1.35, 0, 0);
+    blade.rotation.z = 0.38;
+    pivot.add(blade);
+    irisGate.add(pivot);
+    irisBlades.push({ pivot, mesh: blade, baseAngle: ang });
+  }
+
+  const lap = new THREE.Group();
+  rig.add(lap);
 
   const hingeY = -(SH + 0.1) / 2;
   const hingeZ = -0.04;
@@ -1345,6 +1376,20 @@ function laptopScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resour
   screen.position.z = 0.004;
   lidGroup.add(screen);
 
+  // 3D Exploding Holographic Screen Layers that physically pop forward out of the Retina display!
+  const screenHoloLayers: THREE.Mesh[] = [];
+  [0.24, 0.48].forEach((lz, idx) => {
+    const holoRim = new THREE.Mesh(
+      new RoundedBoxGeometry(SW * (0.86 - idx * 0.14), SH * (0.82 - idx * 0.14), 0.014, 3, 0.01),
+      idx === 0 ? skyMetal.clone() : goldMetal.clone()
+    );
+    holoRim.material.transparent = true;
+    holoRim.material.opacity = 0.28;
+    holoRim.position.z = lz;
+    lidGroup.add(holoRim);
+    screenHoloLayers.push(holoRim);
+  });
+
   const baseG = new THREE.Group();
   baseG.position.set(0, -(SH + 0.1) / 2, -0.04);
   baseG.rotation.x = TH0;
@@ -1362,20 +1407,23 @@ function laptopScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resour
   const kC = resources.canvas(640, 256),
     kg = kC.getContext("2d")!;
   rr(kg, 0, 0, 640, 256, 18);
-  kg.fillStyle = "#CBD5E1";
+  kg.fillStyle = "#1E293B";
   kg.fill();
   for (let r = 0; r < 5; r++) {
     for (let c = 0; c < 14; c++) {
       const kx = 12 + c * 44.2;
       const ky = 12 + r * 47;
       rr(kg, kx, ky, 38, 39, 6);
-      kg.fillStyle = "#1E293B";
+      kg.fillStyle = "#0F172A";
       kg.fill();
+      kg.strokeStyle = "rgba(56,189,248,0.45)";
+      kg.lineWidth = 1.5;
+      kg.stroke();
     }
   }
   const kb = new THREE.Mesh(
     new THREE.PlaneGeometry(SW - 0.26, 1.04),
-    new THREE.MeshStandardMaterial({ map: resources.texture(kC), roughness: 0.45, metalness: 0.2 })
+    new THREE.MeshStandardMaterial({ map: resources.texture(kC), roughness: 0.35, metalness: 0.3 })
   );
   kb.rotation.x = -Math.PI / 2;
   kb.position.set(0, 0.002, 0.62);
@@ -1383,7 +1431,7 @@ function laptopScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resour
 
   const tp = new THREE.Mesh(
     new THREE.PlaneGeometry(1.02, 0.6),
-    new THREE.MeshStandardMaterial({ color: 0xd8e2f0, roughness: 0.3, metalness: 0.45 })
+    new THREE.MeshStandardMaterial({ color: 0x38bdf8, roughness: 0.2, metalness: 0.55 })
   );
   tp.rotation.x = -Math.PI / 2;
   tp.position.set(0, 0.002, 1.52);
@@ -1394,10 +1442,10 @@ function laptopScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resour
   rig.add(holoGroup);
 
   const holoDefs = [
-    { x: -2.2, y: 0.62, z: 0.45, rotY: 0.26, kind: 0, scale: 0.72 },
-    { x: 2.24, y: 0.54, z: 0.35, rotY: -0.26, kind: 3, scale: 0.72 },
-    { x: 2.1, y: -0.54, z: 0.78, rotY: -0.2, kind: 7, scale: 0.76 },
-    { x: -2.05, y: -0.5, z: 0.68, rotY: 0.22, kind: 8, scale: 0.7 },
+    { x: -2.35, y: 0.68, z: 0.45, rotY: 0.32, kind: 0, scale: 0.68 },
+    { x: 2.35, y: 0.62, z: 0.35, rotY: -0.32, kind: 3, scale: 0.68 },
+    { x: 2.25, y: -0.58, z: 0.78, rotY: -0.26, kind: 7, scale: 0.7 },
+    { x: -2.2, y: -0.54, z: 0.68, rotY: 0.28, kind: 8, scale: 0.66 },
   ];
 
   const holoCards = holoDefs.map(d => {
@@ -1415,12 +1463,12 @@ function laptopScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resour
 
   // Architectural perspective runway floor
   const runwayFloor = new THREE.Mesh(
-    new THREE.PlaneGeometry(5.2, 28),
+    new THREE.PlaneGeometry(5.6, 30),
     new THREE.MeshBasicMaterial({
       map: runwayFloorTexture(resources),
       transparent: true,
       depthWrite: false,
-      opacity: 0.88,
+      opacity: 0.92,
     })
   );
   runwayFloor.rotation.x = -Math.PI / 2;
@@ -1434,62 +1482,61 @@ function laptopScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resour
   const glassLayerMat = new THREE.MeshStandardMaterial({
     color: 0x38bdf8,
     roughness: 0.08,
-    metalness: 0.2,
+    metalness: 0.25,
     transparent: true,
-    opacity: 0.24,
+    opacity: 0.28,
     depthWrite: false,
   });
-  const explodedFrames = [-0.28, 0, 0.28].map((dz, idx) => {
+  const explodedFrames = [-0.36, 0, 0.36].map((dz, idx) => {
     const frameG = new THREE.Group();
     frameG.position.z = dz;
     const border = new THREE.Mesh(
-      new THREE.RingGeometry(1.12 + idx * 0.14, 1.18 + idx * 0.14, 4),
-       idx === 1 ? cobaltMetal.clone() : silver.clone()
+      new THREE.TorusGeometry(1.35 + idx * 0.18, 0.025, 16, 48),
+      idx === 1 ? cobaltMetal.clone() : skyMetal.clone()
     );
-    border.rotation.z = Math.PI / 4;
     const pane = new THREE.Mesh(new THREE.PlaneGeometry(2.1, 1.32), glassLayerMat.clone());
     frameG.add(border, pane);
     explodedStack.add(frameG);
     return frameG;
   });
 
-  // 6 Brushed-Silver Architectural Portal Arches framing the periphery
+  // 6 Brushed-Silver & Neon Cobalt Architectural Portal Arches framing the periphery
   const archGroup = new THREE.Group();
   inner.add(archGroup);
-  const pillarGeo = new RoundedBoxGeometry(0.075, 2.46, 0.075, 2, 0.02);
-  const beamGeo = new RoundedBoxGeometry(4.48, 0.075, 0.075, 2, 0.02);
-  const stripGeo = new THREE.BoxGeometry(0.022, 1.96, 0.028);
+  const pillarGeo = new RoundedBoxGeometry(0.085, 2.56, 0.085, 2, 0.02);
+  const beamGeo = new RoundedBoxGeometry(4.68, 0.085, 0.085, 2, 0.02);
+  const stripGeo = new THREE.BoxGeometry(0.028, 2.08, 0.034);
 
   const arches = [-3.4, -7.8, -12.2, -16.6, -21.0, -25.4].map(az => {
     const g = new THREE.Group();
     g.position.z = az;
 
     const leftP = new THREE.Mesh(pillarGeo, silver.clone());
-    leftP.position.set(-2.2, 0.05, 0);
+    leftP.position.set(-2.3, 0.05, 0);
     const rightP = new THREE.Mesh(pillarGeo, silver.clone());
-    rightP.position.set(2.2, 0.05, 0);
+    rightP.position.set(2.3, 0.05, 0);
     const topB = new THREE.Mesh(beamGeo, silver.clone());
-    topB.position.set(0, 1.28, 0);
+    topB.position.set(0, 1.32, 0);
 
-    const leftStrip = new THREE.Mesh(stripGeo, cobaltMetal.clone());
-    leftStrip.position.set(-2.14, 0.05, 0);
-    const rightStrip = new THREE.Mesh(stripGeo, cobaltMetal.clone());
-    rightStrip.position.set(2.14, 0.05, 0);
+    const leftStrip = new THREE.Mesh(stripGeo, skyMetal.clone());
+    leftStrip.position.set(-2.22, 0.05, 0);
+    const rightStrip = new THREE.Mesh(stripGeo, skyMetal.clone());
+    rightStrip.position.set(2.22, 0.05, 0);
 
     g.add(leftP, rightP, topB, leftStrip, rightStrip);
     archGroup.add(g);
     return { group: g, z: az };
   });
 
-  // --- 5 HEROIC 3D SCULPTURAL HARDWARE STAGES (1.32x SCALE) ---
-  // Stage 1 (z = -3.8): Heroic 3D Titanium Smartphone + 2 Orbiting Metallic Cards + NFC Ring
+  // --- 5 GIANT CENTER-RIGHT KINETIC 3D HARDWARE SCULPTURES (1.62x SCALE, UNOBSTRUCTED) ---
+  // Stage 1 (z = -3.8): Heroic 3D Titanium Smartphone + Orbiting Metallic Card + NFC Wave Ring
   const phoneStage = new THREE.Group();
-  phoneStage.position.set(-0.66, 0.22, -3.8);
-  phoneStage.scale.setScalar(1.26);
+  phoneStage.position.set(0.38, 0.14, -3.8);
+  phoneStage.scale.setScalar(1.58);
   inner.add(phoneStage);
 
   const phoneBody = new THREE.Group();
-  phoneBody.rotation.set(-0.08, 0.34, -0.04);
+  phoneBody.rotation.set(-0.08, -0.28, 0.04);
   phoneStage.add(phoneBody);
 
   const phoneChassis = new THREE.Mesh(
@@ -1507,15 +1554,15 @@ function laptopScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resour
   );
   phoneScreen.position.z = 0.034;
   const nfcWaveRing = new THREE.Mesh(
-    new THREE.TorusGeometry(0.44, 0.014, 12, 40),
+    new THREE.TorusGeometry(0.46, 0.016, 12, 44),
     skyMetal.clone()
   );
-  nfcWaveRing.position.z = 0.08;
+  nfcWaveRing.position.z = 0.09;
   phoneBody.add(phoneRim, phoneChassis, phoneScreen, nfcWaveRing);
 
   const nfcCard = new THREE.Group();
-  nfcCard.position.set(0.3, -0.14, 0.26);
-  nfcCard.rotation.set(0.12, -0.24, 0.14);
+  nfcCard.position.set(-0.34, -0.12, 0.28);
+  nfcCard.rotation.set(0.12, 0.26, -0.14);
   const nfcSlab = new THREE.Mesh(
     new RoundedBoxGeometry(0.6, 0.38, 0.024, 3, 0.012),
     cobaltMetal.clone()
@@ -1530,9 +1577,9 @@ function laptopScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resour
 
   // Stage 2 (z = -8.6): 3D 12-Tower Isometric Data Matrix & Command Console
   const chartStage = new THREE.Group();
-  chartStage.position.set(-0.66, 0.14, -8.6);
-  chartStage.rotation.set(0.14, 0.34, 0);
-  chartStage.scale.setScalar(1.28);
+  chartStage.position.set(0.4, 0.08, -8.6);
+  chartStage.rotation.set(0.16, -0.32, 0);
+  chartStage.scale.setScalar(1.62);
   inner.add(chartStage);
 
   const chartBase = new THREE.Mesh(
@@ -1551,18 +1598,18 @@ function laptopScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resour
   const barMeshes = barHeights.map((bh, idx) => {
     const row = Math.floor(idx / 6);
     const col = idx % 6;
-    const mat = col >= 4 ? cobaltMetal.clone() : col >= 2 ? skyMetal.clone() : silver.clone();
+    const mat = col >= 4 ? goldMetal.clone() : col >= 2 ? skyMetal.clone() : cobaltMetal.clone();
     const m = new THREE.Mesh(new RoundedBoxGeometry(0.115, 0.82, 0.115, 2, 0.022), mat);
     m.position.set(-0.44 + col * 0.176, -0.36 + (bh * 0.82) / 2, row === 0 ? 0.12 : -0.12);
     chartStage.add(m);
     return { mesh: m, targetH: bh };
   });
 
-  // Stage 3 (z = -13.4): 3D 3-Ring Gyroscopic Vault Lock & Sliding Bolts
+  // Stage 3 (z = -13.4): 3D 3-Ring Gyroscopic Vault Lock & Sliding Gold Bolts
   const shieldStage = new THREE.Group();
-  shieldStage.position.set(-0.64, 0.22, -13.4);
-  shieldStage.rotation.y = 0.28;
-  shieldStage.scale.setScalar(1.3);
+  shieldStage.position.set(0.38, 0.16, -13.4);
+  shieldStage.rotation.y = -0.26;
+  shieldStage.scale.setScalar(1.65);
   inner.add(shieldStage);
 
   const outerVaultRing = new THREE.Mesh(
@@ -1612,8 +1659,8 @@ function laptopScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resour
 
   // Stage 4 (z = -18.2): 3D Automated Fulfillment Gantry, Turntable Parcel & Dual Ring-Lights
   const parcelStage = new THREE.Group();
-  parcelStage.position.set(-0.64, 0.14, -18.2);
-  parcelStage.scale.setScalar(1.28);
+  parcelStage.position.set(0.38, 0.1, -18.2);
+  parcelStage.scale.setScalar(1.62);
   inner.add(parcelStage);
 
   const turntable = new THREE.Mesh(
@@ -1633,8 +1680,8 @@ function laptopScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resour
   parcelBoxGroup.position.y = -0.04;
   const craftMat = new THREE.MeshStandardMaterial({
     color: 0xd9a066,
-    roughness: 0.52,
-    metalness: 0.1,
+    roughness: 0.45,
+    metalness: 0.15,
   });
   const boxMesh = new THREE.Mesh(
     new RoundedBoxGeometry(0.48, 0.44, 0.48, 3, 0.026),
@@ -1654,12 +1701,12 @@ function laptopScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resour
   parcelStage.add(parcelBoxGroup);
 
   const studioRing = new THREE.Mesh(
-    new THREE.TorusGeometry(0.44, 0.024, 14, 36),
+    new THREE.TorusGeometry(0.46, 0.024, 14, 36),
     skyMetal.clone()
   );
   studioRing.position.y = 0.02;
   const studioRing2 = new THREE.Mesh(
-    new THREE.TorusGeometry(0.5, 0.016, 12, 36),
+    new THREE.TorusGeometry(0.52, 0.018, 12, 36),
     goldMetal.clone()
   );
   studioRing2.position.y = 0.02;
@@ -1667,58 +1714,58 @@ function laptopScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resour
 
   // Stage 5 (z = -26.4): Finale 3-Tier Multi-Device Flagship Amphitheater
   const finalePodium = new THREE.Group();
-  finalePodium.position.set(0.18, -0.78, -26.4);
+  finalePodium.position.set(0.22, -0.78, -26.4);
   inner.add(finalePodium);
 
   const podiumTier1 = new THREE.Mesh(
-    new THREE.CylinderGeometry(1.65, 1.78, 0.09, 48),
+    new THREE.CylinderGeometry(1.75, 1.88, 0.09, 48),
     silver.clone()
   );
   const podiumTier2 = new THREE.Mesh(
-    new THREE.CylinderGeometry(1.26, 1.36, 0.08, 48),
-    ceramicWhite.clone()
+    new THREE.CylinderGeometry(1.32, 1.42, 0.08, 48),
+    darkMetal.clone()
   );
   podiumTier2.position.y = 0.07;
   const podiumRing = new THREE.Mesh(
-    new THREE.TorusGeometry(1.32, 0.022, 12, 48),
-    cobaltMetal.clone()
+    new THREE.TorusGeometry(1.38, 0.024, 12, 48),
+    skyMetal.clone()
   );
   podiumRing.rotation.x = Math.PI / 2;
   podiumRing.position.y = 0.1;
   const haloArch = new THREE.Mesh(
-    new THREE.TorusGeometry(1.42, 0.024, 14, 48, Math.PI),
-    skyMetal.clone()
+    new THREE.TorusGeometry(1.52, 0.028, 14, 48, Math.PI),
+    goldMetal.clone()
   );
   haloArch.position.set(0, 0.12, -0.25);
   finalePodium.add(podiumTier1, podiumTier2, podiumRing, haloArch);
 
   const sideTablet = new THREE.Mesh(
-    new RoundedBoxGeometry(0.72, 0.5, 0.038, 3, 0.018),
-    darkMetal.clone()
-  );
-  sideTablet.position.set(-1.08, 0.56, 0.28);
-  sideTablet.rotation.y = 0.35;
-  const sidePhone = new THREE.Mesh(
-    new RoundedBoxGeometry(0.34, 0.66, 0.036, 3, 0.016),
+    new RoundedBoxGeometry(0.76, 0.52, 0.04, 3, 0.018),
     cobaltMetal.clone()
   );
-  sidePhone.position.set(1.08, 0.54, 0.28);
+  sideTablet.position.set(-1.12, 0.58, 0.28);
+  sideTablet.rotation.y = 0.35;
+  const sidePhone = new THREE.Mesh(
+    new RoundedBoxGeometry(0.36, 0.68, 0.038, 3, 0.016),
+    goldMetal.clone()
+  );
+  sidePhone.position.set(1.12, 0.56, 0.28);
   sidePhone.rotation.y = -0.35;
   finalePodium.add(sideTablet, sidePhone);
 
-  // Perfectly framed 3D glass cards along the runway (x = 0.44, width 1.24 so they NEVER clip on the right edge)
+  // Compact Floating 3D Telemetry Wing Cards tucked upper-left/periphery so the 3D Sculptures take center stage!
   const spots: [number, number, number, number, number][] = [
-    [0.44, 0.06, -2.5, 0, -0.1],     // Layer 1A: Payment Received
-    [0.46, -0.02, -4.9, 1, -0.1],    // Layer 1B: Dispatch Schedule
-    [0.44, 0.08, -7.3, 2, -0.1],     // Layer 2A: Live Buyer Chat
-    [0.46, -0.02, -9.7, 3, -0.1],    // Layer 2B: Live Store Traffic
-    [0.44, 0.08, -12.1, 4, -0.1],    // Layer 3A: Smart Fraud & Sync Toggles
-    [0.46, 0.0, -14.5, 5, -0.1],     // Layer 3B: Maya Reyes Verified Flagship
-    [0.44, 0.08, -16.9, 6, -0.1],    // Layer 4A: Fulfillment Checklist
-    [0.46, -0.02, -19.3, 9, -0.1],   // Layer 4B: Real-Time Commerce Pulse
-    [-0.18, 0.28, -21.7, 30, 0.06],  // Layer 5A: Neural AI Studio Engine
-    [0.44, 0.0, -24.0, 8, -0.08],    // Layer 5B: Studio Flagship Edition
-    [0.18, 0.14, -26.4, 7, 0],       // Final Hero Card: Golden Hour Collection
+    [-0.62, 0.42, -2.5, 0, 0.18],     // Layer 1A: Payment Received
+    [-0.58, 0.38, -5.2, 1, 0.18],     // Layer 1B: Dispatch Schedule
+    [-0.62, 0.42, -7.4, 2, 0.18],     // Layer 2A: Live Buyer Chat
+    [-0.58, 0.38, -9.9, 3, 0.18],     // Layer 2B: Live Store Traffic
+    [-0.62, 0.42, -12.2, 4, 0.18],    // Layer 3A: Smart Fraud & Sync Toggles
+    [-0.58, 0.38, -14.7, 5, 0.18],    // Layer 3B: Maya Reyes Verified Flagship
+    [-0.62, 0.42, -17.0, 6, 0.18],    // Layer 4A: Fulfillment Checklist
+    [-0.58, 0.38, -19.5, 9, 0.18],    // Layer 4B: Real-Time Commerce Pulse
+    [-0.48, 0.36, -21.8, 30, 0.14],   // Layer 5A: Neural AI Studio Engine
+    [0.52, 0.32, -24.0, 8, -0.14],    // Layer 5B: Studio Flagship Edition
+    [0.22, 0.18, -26.4, 7, 0],        // Final Hero Card: Golden Hour Collection
   ];
 
   const cardMeshes = spots.map((q, idx) => {
@@ -1726,8 +1773,8 @@ function laptopScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resour
     const cardObj = createFramedCard(
       resources,
       q[3],
-      isFinal ? 1.44 : 1.24,
-      isFinal ? 1.0 : 0.86,
+      isFinal ? 1.44 : 1.06,
+      isFinal ? 1.0 : 0.74,
       shadowTex
     );
     cardObj.group.position.set(q[0], q[1], q[2]);
@@ -1746,26 +1793,26 @@ function laptopScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resour
     const introOpen = reduced ? 1 : sm(0, 1.5, introElapsed);
 
     const mobile = camera.aspect < 0.8;
-    const baseFov = mobile ? 42 : 32;
+    const baseFov = mobile ? 44 : 34;
     const tunnelBlend = 1 - sm(1.4, 3.4, kf(p, [7.8, 4.5, 2.5, -1.0, -6.2, -11.6, -17.2, -22.8]));
     const lensBonus = lens === "wide" ? 10 : lens === "orbit" ? 4 : 0;
-    const targetFov = baseFov + tunnelBlend * (mobile ? 12 : 11) + lensBonus;
+    const targetFov = baseFov + tunnelBlend * (mobile ? 12 : 12) + lensBonus;
     if (Math.abs(camera.fov - targetFov) > 0.05) {
       camera.fov = targetFov;
       camera.updateProjectionMatrix();
     }
 
-    const fovHalfRad = (32 * Math.PI) / 360;
+    const fovHalfRad = (34 * Math.PI) / 360;
     const fillZ = Math.min(2.75, (SW * 0.94) / (2 * Math.tan(fovHalfRad) * camera.aspect));
     const z0 = mobile ? 9.4 : Math.max(6.8, 7.8 / Math.min(1.35, camera.aspect));
 
     const z = kf(p, [z0, 4.5, fillZ, -1.0, -6.2, -11.6, -17.2, -22.8]);
-    const orbitOffsetX = lens === "orbit" ? Math.sin(p * Math.PI * 2) * 0.42 : 0;
-    const orbitOffsetY = lens === "orbit" ? 0.18 : 0;
-    const cx = kf(p, [mobile ? 0 : 2.35, 0, 0, 0, 0, 0, 0, 0]) + orbitOffsetX;
-    const cy = kf(p, [1.05, 0.12, 0.02, 0, 0, 0, 0, 0]) + orbitOffsetY;
+    const orbitOffsetX = lens === "orbit" ? Math.sin(p * Math.PI * 2) * 0.45 : 0;
+    const orbitOffsetY = lens === "orbit" ? 0.2 : 0;
+    const cx = kf(p, [mobile ? 0 : 2.55, 0, 0, 0, 0, 0, 0, 0]) + orbitOffsetX;
+    const cy = kf(p, [1.18, 0.14, 0.02, 0, 0, 0, 0, 0]) + orbitOffsetY;
     const rotX = kf(p, [-TH0, -0.05, 0, 0, 0, 0, 0, 0]);
-    const rotY = kf(p, [mobile ? -0.4 : -0.68, 0, 0, 0, 0, 0, 0, 0]);
+    const rotY = kf(p, [mobile ? -0.45 : -0.78, 0, 0, 0, 0, 0, 0, 0]);
     const lookX = kf(p, [mobile ? 0 : -0.55, 0, 0, 0, 0, 0, 0, 0]);
     const lookY = kf(p, [mobile ? 0 : -0.32, -0.04, 0, 0, 0, 0, 0, 0]);
     const sway = reduced ? 0 : 1;
@@ -1775,6 +1822,36 @@ function laptopScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resour
     const closedAngle = 1.55 * (1 - openProgress);
     lidPivot.rotation.x = closedAngle;
 
+    // Animate 3D Holographic Layers popping forward out of the Laptop Screen as you scroll!
+    const popOut = sm(0.02, 0.28, p) * (1 - sm(0.32, 0.42, p));
+    screenHoloLayers.forEach((layer, idx) => {
+      layer.position.z = (idx + 1) * (0.12 + popOut * 0.34);
+      layer.scale.setScalar(1 + popOut * (idx + 1) * 0.08);
+    });
+
+    // Animate the 8-Blade 3D Mechanical Iris Portal opening & spinning around the Laptop!
+    const irisOpen = sm(0.0, 0.26, p);
+    const irisVis = sm(1.2, 2.8, z);
+    setGroupOpacity(irisGate, irisVis);
+    if (irisVis > 0.01) {
+      irisGate.rotation.z = (reduced ? 0 : time * 0.25) + irisOpen * 0.85;
+      irisBlades.forEach((b, idx) => {
+        b.mesh.position.x = 1.15 + irisOpen * 1.18;
+        b.mesh.rotation.z = 0.38 + irisOpen * 0.75;
+        b.pivot.rotation.z = b.baseAngle + (idx % 2 === 0 ? 1 : -1) * irisOpen * 0.25;
+      });
+    }
+
+    // Animate the 3-Ring Magnetic Levitation Pedestal under the Laptop
+    setGroupOpacity(magPedestal, irisVis);
+    if (irisVis > 0.01) {
+      pedRing1.rotation.z = reduced ? 0 : time * 0.35;
+      pedRing2.rotation.z = reduced ? 0 : -time * 0.55;
+      pedRing3.rotation.z = reduced ? 0 : time * 0.8;
+      pedRing2.position.y = 0.06 + Math.sin(time * 2.0) * 0.03;
+      pedRing3.position.y = 0.12 + Math.cos(time * 2.4) * 0.04;
+    }
+
     rig.rotation.x = rotX + pointer.y * 0.055 * sway;
     rig.rotation.y = rotY + pointer.x * 0.075 * sway;
     rig.updateMatrixWorld(true);
@@ -1783,9 +1860,12 @@ function laptopScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resour
     camera.position.copy(rig.localToWorld(vA.set(cx, cy, z)));
     camera.lookAt(rig.localToWorld(vB.set(lookX, lookY, tz)));
 
+    // Subtle cinematic Dutch-angle camera roll during high-speed tunnel flight
+    const bankRoll = z < 3.0 && !reduced ? Math.sin(p * Math.PI * 6) * 0.035 : 0;
+    camera.rotation.z += bankRoll;
+
     screenMat.opacity = sm(0.15, 1.65, z);
     lap.visible = z > 1.2;
-    floorShadow.visible = z > 1.6;
 
     const erupt = sm(0.15, 0.95, openProgress);
     const holoFade = sm(1.8, 3.4, z) * erupt;
@@ -1810,10 +1890,10 @@ function laptopScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resour
       const expAlpha = tunnelAlpha * sm(0.4, 1.6, expDist) * (1 - sm(4.5, 7.5, expDist));
       setGroupOpacity(explodedStack, expAlpha);
       if (expAlpha > 0.01) {
-        const spread = 1 + (1 - sm(0, 3.5, Math.abs(expDist))) * 0.35;
+        const spread = 1 + (1 - sm(0, 3.5, Math.abs(expDist))) * 0.42;
         explodedFrames.forEach((f, idx) => {
           f.scale.setScalar(spread);
-          f.rotation.z = (idx - 1) * 0.08 * spread;
+          f.rotation.z = (idx - 1) * 0.14 * spread + (reduced ? 0 : time * 0.2 * (idx - 1));
         });
       }
 
@@ -1824,74 +1904,74 @@ function laptopScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resour
         setGroupOpacity(a.group, alpha);
       });
 
-      // Animate & fade the 5 sculptural 3D hardware stages
+      // Animate & fade the 5 giant center-right 3D hardware sculptures
       const stageAlpha = (sz: number, isFinale = false) => {
         const dist = z - sz;
-        const near = isFinale ? 1 : sm(1.45, 2.65, dist);
+        const near = isFinale ? 1 : sm(1.35, 2.55, dist);
         const far = 1 - sm(10.0, 14.2, dist);
         return tunnelAlpha * near * far;
       };
 
-      // Stage 1: 3D Phone + NFC Card + Wave Ring
+      // Stage 1: Giant 3D Phone + NFC Card + Wave Ring (Center-Right x = +0.38)
       const s1 = stageAlpha(-3.8);
       setGroupOpacity(phoneStage, s1);
       if (s1 > 0.01) {
-        phoneStage.position.x = -0.66 * (mobile ? 0.6 : 1);
-        phoneBody.rotation.y = 0.34 + (reduced ? 0 : Math.sin(time * 1.1) * 0.09);
-        nfcCard.position.y = -0.14 + (reduced ? 0 : Math.cos(time * 1.6) * 0.04);
-        nfcCard.rotation.z = 0.14 + (reduced ? 0 : Math.sin(time * 1.4) * 0.06);
-        const waveScale = 0.85 + (reduced ? 0 : ((time * 0.65) % 1) * 0.45);
+        phoneStage.position.x = 0.38 * (mobile ? 0.45 : 1);
+        phoneBody.rotation.y = -0.28 + (reduced ? 0 : Math.sin(time * 1.2) * 0.14);
+        nfcCard.position.y = -0.12 + (reduced ? 0 : Math.cos(time * 1.6) * 0.05);
+        nfcCard.rotation.z = -0.14 + (reduced ? 0 : Math.sin(time * 1.4) * 0.08);
+        const waveScale = 0.85 + (reduced ? 0 : ((time * 0.75) % 1) * 0.55);
         nfcWaveRing.scale.setScalar(waveScale);
       }
 
-      // Stage 2: 3D 12-Tower Data Matrix Sculpture
+      // Stage 2: Giant 3D 12-Tower Data Matrix Sculpture (Center-Right x = +0.40)
       const s2 = stageAlpha(-8.6);
       setGroupOpacity(chartStage, s2);
       if (s2 > 0.01) {
-        chartStage.position.x = -0.66 * (mobile ? 0.6 : 1);
-        chartStage.rotation.y = 0.34 + (reduced ? 0 : Math.sin(time * 0.9) * 0.08);
+        chartStage.position.x = 0.4 * (mobile ? 0.45 : 1);
+        chartStage.rotation.y = -0.32 + (reduced ? 0 : Math.sin(time * 0.95) * 0.12);
         const rise = sm(6.5, 2.2, Math.abs(z - -8.6));
         barMeshes.forEach((b, idx) => {
-          const pulse = reduced ? 1 : 0.9 + Math.sin(time * 2.2 + idx * 0.55) * 0.1;
+          const pulse = reduced ? 1 : 0.88 + Math.sin(time * 2.5 + idx * 0.55) * 0.12;
           const hScale = Math.max(0.15, b.targetH * (0.3 + 0.7 * rise) * pulse);
           b.mesh.scale.y = hScale;
           b.mesh.position.y = -0.36 + (hScale * 0.82) / 2;
         });
       }
 
-      // Stage 3: 3D 3-Ring Gyroscopic Vault Lock
+      // Stage 3: Giant 3D 3-Ring Gyroscopic Vault Lock (Center-Right x = +0.38)
       const s3 = stageAlpha(-13.4);
       setGroupOpacity(shieldStage, s3);
       if (s3 > 0.01) {
-        shieldStage.position.x = -0.64 * (mobile ? 0.6 : 1);
-        outerVaultRing.rotation.z = reduced ? 0 : time * 0.45;
-        midVaultRing.rotation.x = reduced ? 0 : Math.sin(time * 0.9) * 0.45;
-        midVaultRing.rotation.y = reduced ? 0 : Math.cos(time * 0.9) * 0.45;
-        innerVaultRing.rotation.z = reduced ? 0 : -time * 0.8;
-        shieldStage.position.y = 0.22 + (reduced ? 0 : Math.sin(time * 1.3) * 0.035);
+        shieldStage.position.x = 0.38 * (mobile ? 0.45 : 1);
+        outerVaultRing.rotation.z = reduced ? 0 : time * 0.55;
+        midVaultRing.rotation.x = reduced ? 0 : Math.sin(time * 1.1) * 0.55;
+        midVaultRing.rotation.y = reduced ? 0 : Math.cos(time * 1.1) * 0.55;
+        innerVaultRing.rotation.z = reduced ? 0 : -time * 0.95;
+        shieldStage.position.y = 0.16 + (reduced ? 0 : Math.sin(time * 1.4) * 0.04);
       }
 
-      // Stage 4: 3D Turntable + Express Parcel + Dual Orbiting Ring-Lights
+      // Stage 4: Giant 3D Turntable + Express Parcel + Dual Orbiting Ring-Lights (Center-Right x = +0.38)
       const s4 = stageAlpha(-18.2);
       setGroupOpacity(parcelStage, s4);
       if (s4 > 0.01) {
-        parcelStage.position.x = -0.64 * (mobile ? 0.6 : 1);
-        parcelBoxGroup.rotation.y = reduced ? 0.6 : time * 0.7;
-        studioRing.rotation.y = reduced ? -0.4 : -time * 0.95;
-        studioRing.rotation.x = 0.35 + (reduced ? 0 : Math.sin(time * 1.2) * 0.18);
-        studioRing2.rotation.y = reduced ? 0.4 : time * 0.65;
-        studioRing2.rotation.z = 0.4 + (reduced ? 0 : Math.cos(time * 1.1) * 0.18);
+        parcelStage.position.x = 0.38 * (mobile ? 0.45 : 1);
+        parcelBoxGroup.rotation.y = reduced ? 0.6 : time * 0.85;
+        studioRing.rotation.y = reduced ? -0.4 : -time * 1.15;
+        studioRing.rotation.x = 0.35 + (reduced ? 0 : Math.sin(time * 1.3) * 0.22);
+        studioRing2.rotation.y = reduced ? 0.4 : time * 0.8;
+        studioRing2.rotation.z = 0.4 + (reduced ? 0 : Math.cos(time * 1.2) * 0.22);
       }
 
       // Stage 5: Finale 3D Multi-Device Flagship Amphitheater
       const s5 = stageAlpha(-26.4, true);
       setGroupOpacity(finalePodium, s5);
       if (s5 > 0.01) {
-        sideTablet.position.y = 0.56 + (reduced ? 0 : Math.sin(time * 1.3) * 0.035);
-        sidePhone.position.y = 0.54 + (reduced ? 0 : Math.cos(time * 1.5) * 0.035);
+        sideTablet.position.y = 0.58 + (reduced ? 0 : Math.sin(time * 1.3) * 0.04);
+        sidePhone.position.y = 0.56 + (reduced ? 0 : Math.cos(time * 1.5) * 0.04);
       }
 
-      // Layered 3D glass UI cards
+      // Compact peripheral 3D glass telemetry cards
       cardMeshes.forEach((c, i) => {
         const distAhead = z - c.basePos.z;
         const nearFade = i === cardMeshes.length - 1 ? 1 : sm(2.1, 3.3, distAhead);
@@ -1906,7 +1986,7 @@ function laptopScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resour
           c.group.position.z = c.basePos.z;
           c.group.rotation.y = c.baseRotY - pointer.x * 0.04 * sway;
           c.group.rotation.x = pointer.y * 0.03 * sway;
-          c.group.scale.setScalar(mobile ? 0.76 : 1);
+          c.group.scale.setScalar(mobile ? 0.74 : 1);
         }
       });
     }
@@ -2085,7 +2165,7 @@ function buildRailProductSculpture(stopIndex: number) {
 // --- SCENE 02: 3D DUAL-RAIL MONORAIL COASTER & 8 SCULPTED 3D PRODUCTS (8 CHAPTERS, ZERO PARTICLES) ---
 function railScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resources: Resources): SceneUpdate {
   camera.fov = 44;
-  scene.fog = new THREE.Fog(0xedf4ff, 5.5, 21.5);
+  scene.fog = new THREE.Fog(0x061026, 6.0, 22.5);
 
   const curve = new THREE.CatmullRomCurve3(
     [
@@ -2302,8 +2382,8 @@ function railScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resource
 
         if (c.sculpture) {
           c.sculpture.group.position.copy(c.point).addScaledVector(c.sculptOffset, mobile ? 0.55 : 1);
-          c.sculpture.group.position.y = c.point.y + 0.12 + lift * 0.08;
-          c.sculpture.group.scale.setScalar((mobile ? 0.78 : 1.08) * (1 + lift * 0.18));
+          c.sculpture.group.position.y = c.point.y + 0.14 + lift * 0.1;
+          c.sculpture.group.scale.setScalar((mobile ? 0.92 : 1.38) * (1 + lift * 0.22));
           c.sculpture.animate(time, reduced);
         }
       }
@@ -2316,7 +2396,7 @@ function railScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resource
 // --- SCENE 03: 3D ORBITAL LOGISTICS COMMAND GLOBE & GREAT-CIRCLE ARCS (6 CHAPTERS, ZERO PARTICLES) ---
 function globeScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resources: Resources): SceneUpdate {
   camera.fov = 38;
-  scene.fog = new THREE.Fog(0xeef5ff, 6.0, 22.0);
+  scene.fog = new THREE.Fog(0x050d22, 6.5, 23.0);
 
   const world = new THREE.Group();
   world.position.set(0.38, 0.06, 0);
