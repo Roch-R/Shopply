@@ -27,8 +27,8 @@ const laptopChapters = [
         <em>Every metric alive.</em>
       </>
     ),
-    text: "Instant settlement notifications and real-time visitor analytics expand around the display as the camera locks in.",
-    short: "Look closer",
+    text: "Instant settlement notifications and real-time visitor analytics expand in a 3D crown around the Retina display.",
+    short: "Orbital metrics",
   },
   {
     tag: "03 / CROSS THE GLASS",
@@ -39,32 +39,92 @@ const laptopChapters = [
         <em>the portal.</em>
       </>
     ),
-    text: "Fly straight through the glowing display frame and enter the multi-layered 3D interior of your storefront.",
-    short: "Step inside",
+    text: "Fly straight through the glowing Stargate bezel and enter the multi-layered 3D interior of your storefront.",
+    short: "Cross the glass",
   },
   {
     tag: "04 / SPATIAL WORKFLOWS",
     title: (
       <>
-         schedules, chat,
+        Schedules, chat,
         <br />
         <em>and smart controls.</em>
       </>
     ),
     text: "Glide past same-day dispatch calendars, live buyer conversations, and automated fraud shields suspended in 3D space.",
-    short: "In layers",
+    short: "Spatial workflows",
   },
   {
-    tag: "05 / FLAGSHIP CORE",
+    tag: "05 / CREATOR FLAGSHIPS",
     title: (
       <>
-        Real-time pulse.
+        Verified merchants.
+        <br />
+        <em>Zero-error dispatch.</em>
+      </>
+    ),
+    text: "Soar past top-rated creator profiles and automated thermal label checklists inside the illuminated vortex.",
+    short: "Creator hub",
+  },
+  {
+    tag: "06 / GYROSCOPIC NEXUS",
+    title: (
+      <>
+        Pass through the
+        <br />
+        <em>3D commerce gate.</em>
+      </>
+    ),
+    text: "Three counter-rotating metallic gimbal rings synchronize multi-warehouse inventory and cross-channel analytics.",
+    short: "Gyro nexus",
+  },
+  {
+    tag: "07 / NEURAL AI STUDIO",
+    title: (
+      <>
+        Raw phone snap to
+        <br />
+        <em>studio pro in 1 click.</em>
+      </>
+    ),
+    text: "Our built-in neural backdrop engine and dynamic kit bundler boost average order value by +34% automatically.",
+    short: "Neural AI",
+  },
+  {
+    tag: "08 / BIOMETRIC & 60FPS AR",
+    title: (
+      <>
+        One-tap FaceID.
+        <br />
+        <em>True-scale AR try-on.</em>
+      </>
+    ),
+    text: "Preview sneakers, watches, and home gear in 60fps spatial augmented reality before approving with 0.2s passkeys.",
+    short: "AR & FaceID",
+  },
+  {
+    tag: "09 / ESCROW & TREASURY",
+    title: (
+      <>
+        100% protected vault.
+        <br />
+        <em>5% instant cashback.</em>
+      </>
+    ),
+    text: "Shopply Authentic Shield holds funds safely in escrow until delivery, while every order mints never-expiring coins.",
+    short: "Escrow vault",
+  },
+  {
+    tag: "10 / FLAGSHIP SANCTUARY",
+    title: (
+      <>
+        Arrive at the core.
         <br />
         <em>Golden hour drops.</em>
       </>
     ),
-    text: "Arrive at the heart of the tunnel where verified creator profiles and curated audio collections converge.",
-    short: "Live command",
+    text: "Reach the glowing geodesic heart of the Shopply universe where curated collections and live creators converge.",
+    short: "Flagship core",
   },
 ];
 
@@ -90,8 +150,8 @@ const railChapters = [
         <em>Sapphire durability.</em>
       </>
     ),
-    text: "Bank through the second glowing portal past titanium wearables with live ECG and 7-day battery telemetry.",
-    short: "Wearables",
+    text: "Bank through the second glowing Stargate past titanium wearables with live ECG and 7-day battery telemetry.",
+    short: "Titanium watch",
   },
   {
     tag: "03 / KURO CUSTOM MECH",
@@ -102,32 +162,92 @@ const railChapters = [
         <em>Built for creators.</em>
       </>
     ),
-    text: "Experience CNC-machined 75% gasket keyboards and pro mirrorless f/1.4 camera optics along the high-speed spline.",
-    short: "Creator gear",
+    text: "Experience CNC-machined 75% gasket mechanical keyboards with hot-swap switches along the high-speed spline.",
+    short: "Custom mech",
   },
   {
-    tag: "04 / BOTANICA & BARISTA",
+    tag: "04 / PRO MIRRORLESS OPTICS",
     title: (
       <>
-        Everyday rituals.
+        Full-frame f/1.4.
         <br />
-        <em>Elevated at home.</em>
+        <em>Cinema-grade glass.</em>
       </>
     ),
-    text: "From pure Jeju centella skincare serums to 15-bar PID espresso stations, discover curated essentials at every turn.",
-    short: "Daily rituals",
+    text: "Dive down the coaster drop beside weather-sealed 4K60 mirrorless camera kits and aspherical prime lenses.",
+    short: "Pro optics",
   },
   {
-    tag: "05 / AERIAL & GPS RADAR",
+    tag: "05 / BOTANICA & SKINCARE",
     title: (
       <>
-        Tri-sensor drones to
+        Clean glow rituals.
         <br />
-        <em>8-minute rider ETA.</em>
+        <em>Dermatologist tested.</em>
       </>
     ),
-    text: "Finish the coaster run alongside 4K cinema drones and live HyperSpeed GPS courier radar tracking to your door.",
-    short: "Live radar",
+    text: "Sweep past pure Jeju centella and 10% niacinamide serums verified direct from official flagship labs.",
+    short: "Clean skincare",
+  },
+  {
+    tag: "06 / HOME BARISTA LAB",
+    title: (
+      <>
+        15-bar extraction.
+        <br />
+        <em>93.5°C PID precision.</em>
+      </>
+    ),
+    text: "Crest the mid-track apex alongside commercial-grade stainless espresso stations and micro-foam steam wands.",
+    short: "Home barista",
+  },
+  {
+    tag: "07 / NOVA 4K AERIAL DRONE",
+    title: (
+      <>
+        Tri-sensor flight.
+        <br />
+        <em>45-minute horizon.</em>
+      </>
+    ),
+    text: "Accelerate through high-banked neon rings with omnidirectional obstacle radar and 12km O4 video transmission.",
+    short: "4K cinema drone",
+  },
+  {
+    tag: "08 / HYPERSPEED GPS RADAR",
+    title: (
+      <>
+        Live courier sweep.
+        <br />
+        <em>8-minute door ETA.</em>
+      </>
+    ),
+    text: "Track your express rider in real time with sub-second GPS telemetry from local hub to your doorstep.",
+    short: "Live GPS radar",
+  },
+  {
+    tag: "09 / ARCHIPELAGO MEGA-HUBS",
+    title: (
+      <>
+        Luzon, Visayas,
+        <br />
+        <em>&amp; Mindanao linked.</em>
+      </>
+    ),
+    text: "Optical sortation hubs, sea-air bridges, and solar EV fleets connect every island with 99.7% same-day exit.",
+    short: "Island hubs",
+  },
+  {
+    tag: "10 / FLASH QUEUE SUMMIT",
+    title: (
+      <>
+        11.11 mega scale.
+        <br />
+        <em>Zero-crash finish.</em>
+      </>
+    ),
+    text: "Cross the final Hyperloop portal powered by high-concurrency flash queues and 28,400+ verified video unboxings.",
+    short: "Flash summit",
   },
 ];
 
@@ -146,20 +266,20 @@ const sceneMeta: Record<
   laptop: {
     id: "story",
     chapters: laptopChapters,
-    subtitle: "3D STUDIO PRO LAPTOP & SPATIAL PORTAL VORTEX",
-    badge: "01 — THE STUDIO",
-    hint: "DIVE INTO THE SCREEN",
-    footerNote: "5 CHAPTERS • STUDIO & PORTAL TUNNEL",
-    ariaLabel: "Meet Shopply: 3D laptop studio and portal tunnel",
+    subtitle: "3D STUDIO PRO LAPTOP & DEEP SPATIAL PORTAL ODYSSEY",
+    badge: "01 — THE STUDIO & PORTAL",
+    hint: "SCROLL TO DIVE THROUGH 10 3D CHAPTERS",
+    footerNote: "10 CHAPTERS • STUDIO, GYRO GATE, AI & SANCTUARY CORE",
+    ariaLabel: "Meet Shopply: 10-chapter 3D laptop studio and deep portal vortex",
   },
   rail: {
     id: "journey",
     chapters: railChapters,
-    subtitle: "3D HYPERLOOP COASTER & CURATED PRODUCT DROPS",
-    badge: "02 — THE COASTER",
-    hint: "RIDE THE HYPERLOOP",
-    footerNote: "5 CHAPTERS • FOOTWEAR, OPTICS, DRONES & RADAR",
-    ariaLabel: "Explore the Shopply 3D hyperloop product coaster",
+    subtitle: "3D HYPERLOOP COASTER & CURATED PRODUCT MEGA-RUN",
+    badge: "02 — THE HYPERLOOP COASTER",
+    hint: "RIDE THE 10-STAGE 3D HYPERLOOP",
+    footerNote: "10 CHAPTERS • FOOTWEAR, OPTICS, DRONES, HUBS & FLASH SUMMIT",
+    ariaLabel: "Explore the Shopply 10-chapter 3D hyperloop product coaster",
   },
 };
 
@@ -209,17 +329,27 @@ function ScrollScene({ kind, onLoginClick }: { kind: SceneKind; onLoginClick?: (
   function goTo(index: number) {
     const root = rootRef.current;
     if (!root) return;
+    const clampedIndex = Math.max(0, Math.min(chapters.length - 1, index));
     const stage = root.querySelector<HTMLElement>("[data-stage]");
     const stageH = stage ? stage.clientHeight : window.innerHeight;
     const travel = Math.max(1, root.offsetHeight - stageH);
     const scrollStart = root.getBoundingClientRect().top + window.scrollY;
-    const destY = scrollStart + (travel * index) / (chapters.length - 1);
+    const destY = scrollStart + (travel * clampedIndex) / (chapters.length - 1);
     smoothScrollTo(destY, 850);
+  }
+
+  function stepBy(delta: number) {
+    const root = rootRef.current;
+    if (!root) return;
+    const current = Number(root.dataset.chapter || "0");
+    goTo(current + delta);
   }
 
   const sceneClassName = [styles.journey, kind === "rail" ? styles.railJourney : ""]
     .filter(Boolean)
     .join(" ");
+
+  const totalFormatted = String(chapters.length).padStart(2, "0");
 
   return (
     <section
@@ -248,45 +378,82 @@ function ScrollScene({ kind, onLoginClick }: { kind: SceneKind; onLoginClick?: (
           <small>A WORLD OF POSSIBILITY</small>
         </div>
 
+        <div className={styles.topline}>
+          <span className={styles.worldBadge}>{meta.badge}</span>
+          <span className={styles.worldSub}>{meta.subtitle}</span>
+          <span className={styles.worldHint}>{meta.hint}</span>
+        </div>
+
         <div className={styles.copyStack}>
-          {chapters.map((chapter, index) => (
-            <div
-              key={chapter.tag}
-              className={`${styles.copy} ${kind === "laptop" && index === 0 ? styles.introCopy : ""}`}
-              data-copy
-              data-index={index}
-              aria-hidden={index !== 0}
-              inert={index !== 0}
-            >
-              <div className={styles.eyebrowRow}>
-                <p className={styles.eyebrow}>{chapter.tag}</p>
-                <span className={styles.stepPill}>
-                  0{index + 1} / 0{chapters.length}
-                </span>
-              </div>
-              {kind === "laptop" && index === 0 ? <h1>{chapter.title}</h1> : <h2>{chapter.title}</h2>}
-              <p className={styles.description}>{chapter.text}</p>
-              {kind === "laptop" && index === 0 && (
-                <div className={styles.actions}>
-                  <a
-                    href="/login"
-                    onClick={e => {
-                      if (onLoginClick) {
-                        e.preventDefault();
-                        onLoginClick();
-                      }
-                    }}
-                    className={styles.primary}
-                  >
-                    Start shopping <span aria-hidden="true">↗</span>
-                  </a>
-                  <button onClick={() => goTo(1)}>
-                    Explore 3D worlds <span aria-hidden="true">↓</span>
-                  </button>
+          {chapters.map((chapter, index) => {
+            const stepFormatted = String(index + 1).padStart(2, "0");
+            return (
+              <div
+                key={chapter.tag}
+                className={`${styles.copy} ${kind === "laptop" && index === 0 ? styles.introCopy : ""}`}
+                data-copy
+                data-index={index}
+                aria-hidden={index !== 0}
+                inert={index !== 0}
+              >
+                <div className={styles.eyebrowRow}>
+                  <p className={styles.eyebrow}>{chapter.tag}</p>
+                  <span className={styles.stepPill}>
+                    {stepFormatted} / {totalFormatted}
+                  </span>
                 </div>
-              )}
-            </div>
+                {kind === "laptop" && index === 0 ? <h1>{chapter.title}</h1> : <h2>{chapter.title}</h2>}
+                <p className={styles.description}>{chapter.text}</p>
+                {kind === "laptop" && index === 0 && (
+                  <div className={styles.actions}>
+                    <a
+                      href="/login"
+                      onClick={e => {
+                        if (onLoginClick) {
+                          e.preventDefault();
+                          onLoginClick();
+                        }
+                      }}
+                      className={styles.primary}
+                    >
+                      Start shopping <span aria-hidden="true">↗</span>
+                    </a>
+                    <button onClick={() => goTo(1)}>
+                      Explore 3D worlds <span aria-hidden="true">↓</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        <nav className={styles.stops} aria-label={`${meta.badge} chapters`}>
+          {chapters.map((chapter, index) => (
+            <button
+              key={chapter.tag}
+              type="button"
+              className={styles.stopBtn}
+              data-stop={index}
+              onClick={() => goTo(index)}
+              aria-label={`Jump to chapter ${index + 1}: ${chapter.short}`}
+            >
+              <span className={styles.stopLabel}>{chapter.short}</span>
+              <span className={styles.stopDot} />
+            </button>
           ))}
+        </nav>
+
+        <div className={styles.hudBar}>
+          <span className={styles.hudNote}>{meta.footerNote}</span>
+          <div className={styles.hudNav}>
+            <button type="button" onClick={() => stepBy(-1)} aria-label="Previous 3D chapter">
+              ↑ Prev
+            </button>
+            <button type="button" onClick={() => stepBy(1)} aria-label="Next 3D chapter">
+              Next ↓
+            </button>
+          </div>
         </div>
 
         <div className={styles.progress} aria-hidden="true">

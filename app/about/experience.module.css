@@ -1,13 +1,13 @@
 .journey {
   position: relative;
-  height: 500svh;
+  height: 1300svh;
   color: #1d1d1f;
   background: #f4f7fc;
   scroll-margin-top: 68px;
 }
 
 .railJourney {
-  height: 520svh;
+  height: 1300svh;
   background: #edf4ff;
 }
 
@@ -19,13 +19,13 @@
   overflow: hidden;
   isolation: isolate;
   background:
-    radial-gradient(50% 50% at 62% 44%, rgba(56, 189, 248, 0.2) 0%, rgba(10, 108, 255, 0.1) 45%, transparent 75%),
+    radial-gradient(50% 50% at 62% 44%, rgba(56, 189, 248, 0.22) 0%, rgba(10, 108, 255, 0.11) 45%, transparent 75%),
     radial-gradient(75% 65% at 50% 40%, #dcebff 0%, #f2f7ff 62%, #ffffff 100%);
 }
 
 .railJourney .sticky {
   background:
-    radial-gradient(50% 50% at 56% 46%, rgba(14, 165, 233, 0.2) 0%, rgba(10, 108, 255, 0.1) 46%, transparent 76%),
+    radial-gradient(50% 50% at 56% 46%, rgba(14, 165, 233, 0.22) 0%, rgba(10, 108, 255, 0.11) 46%, transparent 76%),
     radial-gradient(75% 65% at 50% 42%, #d9ecff 0%, #f1f7ff 62%, #ffffff 100%);
 }
 
@@ -40,6 +40,67 @@
   display: block;
   width: 100%;
   height: 100%;
+}
+
+.topline {
+  position: absolute;
+  top: 24px;
+  left: 6%;
+  right: 6%;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  pointer-events: none;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.worldBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 13px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(10, 108, 255, 0.2);
+  color: #0a6cff;
+  box-shadow: 0 4px 14px rgba(10, 108, 255, 0.08);
+}
+
+.worldBadge::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: #0a6cff;
+  box-shadow: 0 0 8px #0a6cff;
+}
+
+.worldSub {
+  color: #475569;
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.9);
+}
+
+.worldHint {
+  color: #0284c7;
+  background: rgba(240, 249, 255, 0.85);
+  border: 1px solid rgba(14, 165, 233, 0.24);
+  padding: 6px 13px;
+  border-radius: 999px;
+  opacity: var(--hint-opacity, 1);
+  transition: opacity 0.25s ease;
 }
 
 .copyStack {
@@ -204,12 +265,147 @@
   background: #ffffff;
 }
 
+/* Interactive 10-Chapter Right-Side Navigation Rail */
+.stops {
+  position: absolute;
+  right: 26px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.stopBtn {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  padding: 3px 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.stopLabel {
+  display: none;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #475569;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 3px 9px;
+  border-radius: 999px;
+  border: 1px solid rgba(10, 108, 255, 0.15);
+  opacity: 0;
+  transform: translateX(6px);
+  transition: opacity 0.2s ease, transform 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.stopBtn:hover .stopLabel,
+.stopBtn[data-active="true"] .stopLabel {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.stopBtn[data-active="true"] .stopLabel {
+  color: #0a6cff;
+  border-color: rgba(10, 108, 255, 0.38);
+  box-shadow: 0 4px 12px rgba(10, 108, 255, 0.12);
+}
+
+.stopDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(100, 116, 139, 0.36);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  transition: width 0.25s ease, height 0.25s ease, background 0.25s ease, box-shadow 0.25s ease;
+}
+
+.stopBtn:hover .stopDot {
+  background: #38bdf8;
+  transform: scale(1.2);
+}
+
+.stopBtn[data-active="true"] .stopDot {
+  width: 10px;
+  height: 24px;
+  background: linear-gradient(180deg, #0a6cff 0%, #38bdf8 100%);
+  box-shadow: 0 0 12px rgba(10, 108, 255, 0.6);
+}
+
+/* Bottom-Right 3D Telemetry & Stepper HUD */
+.hudBar {
+  position: absolute;
+  right: 6%;
+  bottom: 24px;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.hudNote {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: #475569;
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.92);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+
+.hudNav {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  padding: 4px;
+  border-radius: 999px;
+  border: 1px solid rgba(10, 108, 255, 0.2);
+  box-shadow: 0 8px 24px rgba(10, 108, 255, 0.1);
+}
+
+.hudNav button {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #0f172a;
+  padding: 6px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.18s ease, color 0.18s ease;
+}
+
+.hudNav button:hover {
+  background: #0a6cff;
+  color: #ffffff;
+}
+
 .progress {
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
-  height: 3px;
+  height: 4px;
   z-index: 4;
   background: rgba(203, 213, 225, 0.45);
 }
@@ -317,15 +513,15 @@
   outline-offset: 4px;
 }
 
-@media (min-width: 1400px) {
+@media (min-width: 1100px) {
   .stopLabel {
     display: inline-block;
   }
 }
 
 @media (max-width: 900px) {
-  .topline > span:nth-child(2),
-  .example {
+  .worldSub,
+  .hudNote {
     display: none;
   }
   .introCopy {
@@ -346,59 +542,58 @@
     min-height: 520px;
   }
   .journey {
-    height: 380svh;
+    height: 950svh;
   }
   .railJourney {
-    height: 440svh;
+    height: 950svh;
   }
   .topline {
-    top: 20px;
-    left: 6%;
-    right: 6%;
+    top: 16px;
+    left: 5%;
+    right: 5%;
     font-size: 9px;
   }
+  .worldHint {
+    display: none;
+  }
   .copy {
-    left: 6%;
-    right: 6%;
-    bottom: 11%;
+    left: 5%;
+    right: 5%;
+    bottom: 13%;
     width: auto;
   }
   .introCopy {
     top: auto;
-    bottom: 11%;
+    bottom: 13%;
     transform: none;
     width: auto;
   }
   .copy h1,
   .copy h2 {
-    font-size: clamp(28px, 8vw, 42px);
-    margin-bottom: 12px;
+    font-size: clamp(26px, 7.5vw, 38px);
+    margin-bottom: 10px;
   }
   .description {
     font-size: 12px;
-    line-height: 1.6;
+    line-height: 1.55;
   }
   .actions {
-    margin-top: 18px;
+    margin-top: 16px;
   }
   .primary {
     padding: 12px 18px;
     font-size: 12px;
   }
   .stops {
-    right: 3%;
-    height: 28%;
+    right: 10px;
+    gap: 7px;
   }
   .stopLabel {
     display: none;
   }
-  .bottomline {
-    left: 6%;
-    right: 6%;
-    bottom: 18px;
-  }
-  .sceneNumber {
-    display: none;
+  .hudBar {
+    right: 5%;
+    bottom: 14px;
   }
   .interlude {
     padding: 80px 20px;
