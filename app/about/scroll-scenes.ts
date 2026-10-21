@@ -1,6 +1,5 @@
 import * as THREE from "three";
 import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
-import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 
 const BLUE = "#0A6CFF",
   BLUE_DARK = "#0050C8",
@@ -1163,19 +1162,19 @@ function runwayFloorTexture(resources: Resources) {
     g = c.getContext("2d")!;
   g.clearRect(0, 0, 512, 1024);
 
-  // Deep sapphire-neon studio runway base with feathered edges
+  // Bright sky-sapphire glass studio runway base with feathered edges
   const sideFade = g.createLinearGradient(0, 0, 512, 0);
-  sideFade.addColorStop(0, "rgba(6,16,38,0)");
-  sideFade.addColorStop(0.18, "rgba(10,37,88,0.55)");
-  sideFade.addColorStop(0.5, "rgba(14,165,233,0.28)");
-  sideFade.addColorStop(0.82, "rgba(10,37,88,0.55)");
-  sideFade.addColorStop(1, "rgba(6,16,38,0)");
+  sideFade.addColorStop(0, "rgba(224,242,254,0)");
+  sideFade.addColorStop(0.18, "rgba(224,242,254,0.72)");
+  sideFade.addColorStop(0.5, "rgba(255,255,255,0.92)");
+  sideFade.addColorStop(0.82, "rgba(224,242,254,0.72)");
+  sideFade.addColorStop(1, "rgba(224,242,254,0)");
   g.fillStyle = sideFade;
   g.fillRect(0, 0, 512, 1024);
 
   // Longitudinal perspective laser guide lines
   [88, 172, 256, 340, 424].forEach((x, idx) => {
-    g.strokeStyle = idx === 2 ? "rgba(56,189,248,0.85)" : "rgba(56,189,248,0.35)";
+    g.strokeStyle = idx === 2 ? "rgba(10,108,255,0.68)" : "rgba(14,165,233,0.34)";
     g.lineWidth = idx === 2 ? 3 : 1.5;
     g.beginPath();
     g.moveTo(x, 0);
@@ -1185,7 +1184,7 @@ function runwayFloorTexture(resources: Resources) {
 
   // Cross-ties along the 3D runway
   for (let y = 32; y < 1024; y += 64) {
-    g.strokeStyle = y % 128 === 32 ? "rgba(56,189,248,0.5)" : "rgba(14,165,233,0.22)";
+    g.strokeStyle = y % 128 === 32 ? "rgba(10,108,255,0.36)" : "rgba(14,165,233,0.2)";
     g.lineWidth = y % 128 === 32 ? 2 : 1;
     g.beginPath();
     g.moveTo(64, y);
@@ -1243,7 +1242,7 @@ type SceneUpdate = (
 // --- SCENE 01: 3D MECHANICAL IRIS VAULT, EXPLODING HOLO-LAPTOP & 5 GIANT KINETIC 3D STAGES ---
 function laptopScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resources: Resources): SceneUpdate {
   camera.fov = 34;
-  scene.fog = new THREE.Fog(0x061026, 6.2, 17.5);
+  scene.fog = new THREE.Fog(0xeef5ff, 7.2, 19.0);
 
   const SW = 2.95,
     SH = 1.84,
@@ -1256,34 +1255,34 @@ function laptopScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resour
 
   const silver = new THREE.MeshStandardMaterial({
     color: 0xe2e8f3,
-    roughness: 0.18,
-    metalness: 0.82,
+    roughness: 0.22,
+    metalness: 0.65,
   });
   const darkMetal = new THREE.MeshStandardMaterial({
     color: 0x0f172a,
-    roughness: 0.26,
-    metalness: 0.78,
+    roughness: 0.28,
+    metalness: 0.62,
   });
   const cobaltMetal = new THREE.MeshStandardMaterial({
     color: 0x0a6cff,
-    roughness: 0.18,
-    metalness: 0.58,
+    roughness: 0.2,
+    metalness: 0.52,
     emissive: 0x042f80,
-    emissiveIntensity: 0.45,
+    emissiveIntensity: 0.35,
   });
   const skyMetal = new THREE.MeshStandardMaterial({
     color: 0x38bdf8,
-    roughness: 0.16,
-    metalness: 0.48,
+    roughness: 0.18,
+    metalness: 0.45,
     emissive: 0x0284c7,
-    emissiveIntensity: 0.55,
+    emissiveIntensity: 0.42,
   });
   const goldMetal = new THREE.MeshStandardMaterial({
     color: 0xfbbf24,
-    roughness: 0.18,
-    metalness: 0.82,
+    roughness: 0.2,
+    metalness: 0.68,
     emissive: 0x78350f,
-    emissiveIntensity: 0.35,
+    emissiveIntensity: 0.28,
   });
   const ceramicWhite = new THREE.MeshStandardMaterial({
     color: 0xffffff,
@@ -1296,12 +1295,12 @@ function laptopScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resour
   magPedestal.position.set(0, -1.06, 0.55);
   rig.add(magPedestal);
 
-  const pedRing1 = new THREE.Mesh(new THREE.TorusGeometry(2.35, 0.032, 16, 64), cobaltMetal);
+  const pedRing1 = new THREE.Mesh(new THREE.TorusGeometry(2.35, 0.032, 16, 64), cobaltMetal.clone());
   pedRing1.rotation.x = Math.PI / 2;
-  const pedRing2 = new THREE.Mesh(new THREE.TorusGeometry(1.88, 0.024, 16, 64), skyMetal);
+  const pedRing2 = new THREE.Mesh(new THREE.TorusGeometry(1.88, 0.024, 16, 64), skyMetal.clone());
   pedRing2.rotation.x = Math.PI / 2;
   pedRing2.position.y = 0.06;
-  const pedRing3 = new THREE.Mesh(new THREE.TorusGeometry(1.42, 0.02, 14, 48), goldMetal);
+  const pedRing3 = new THREE.Mesh(new THREE.TorusGeometry(1.42, 0.02, 14, 48), goldMetal.clone());
   pedRing3.rotation.x = Math.PI / 2;
   pedRing3.position.y = 0.12;
   magPedestal.add(pedRing1, pedRing2, pedRing3);
@@ -1311,8 +1310,8 @@ function laptopScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resour
   irisGate.position.set(0, 0.04, 1.05);
   rig.add(irisGate);
 
-  const irisOuterRing = new THREE.Mesh(new THREE.TorusGeometry(2.55, 0.055, 18, 64), silver);
-  const irisGlowRing = new THREE.Mesh(new THREE.TorusGeometry(2.42, 0.026, 16, 64), skyMetal);
+  const irisOuterRing = new THREE.Mesh(new THREE.TorusGeometry(2.55, 0.055, 18, 64), silver.clone());
+  const irisGlowRing = new THREE.Mesh(new THREE.TorusGeometry(2.42, 0.026, 16, 64), skyMetal.clone());
   irisGlowRing.position.z = 0.04;
   irisGate.add(irisOuterRing, irisGlowRing);
 
@@ -2165,7 +2164,7 @@ function buildRailProductSculpture(stopIndex: number) {
 // --- SCENE 02: 3D DUAL-RAIL MONORAIL COASTER & 8 SCULPTED 3D PRODUCTS (8 CHAPTERS, ZERO PARTICLES) ---
 function railScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resources: Resources): SceneUpdate {
   camera.fov = 44;
-  scene.fog = new THREE.Fog(0x061026, 6.0, 22.5);
+  scene.fog = new THREE.Fog(0xedf4ff, 6.8, 23.5);
 
   const curve = new THREE.CatmullRomCurve3(
     [
@@ -2396,7 +2395,7 @@ function railScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resource
 // --- SCENE 03: 3D ORBITAL LOGISTICS COMMAND GLOBE & GREAT-CIRCLE ARCS (6 CHAPTERS, ZERO PARTICLES) ---
 function globeScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resources: Resources): SceneUpdate {
   camera.fov = 38;
-  scene.fog = new THREE.Fog(0x050d22, 6.5, 23.0);
+  scene.fog = new THREE.Fog(0xebf3ff, 7.0, 23.5);
 
   const world = new THREE.Group();
   world.position.set(0.38, 0.06, 0);
@@ -2428,7 +2427,7 @@ function globeScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resourc
     new THREE.MeshStandardMaterial({
       color: 0x0f2952,
       roughness: 0.28,
-      metalness: 0.68,
+      metalness: 0.62,
     })
   );
   globeGroup.add(coreSphere);
@@ -2451,7 +2450,7 @@ function globeScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resourc
   const meridianMat = new THREE.MeshStandardMaterial({
     color: 0x60a5fa,
     roughness: 0.22,
-    metalness: 0.6,
+    metalness: 0.58,
   });
   for (let i = 0; i < 6; i++) {
     const lonRing = new THREE.Mesh(new THREE.TorusGeometry(R * 1.012, 0.01, 10, 64), meridianMat);
@@ -2478,7 +2477,7 @@ function globeScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resourc
   ];
 
   const beaconMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, roughness: 0.15, metalness: 0.4 });
-  const goldMat = new THREE.MeshStandardMaterial({ color: 0xfbbf24, roughness: 0.2, metalness: 0.75 });
+  const goldMat = new THREE.MeshStandardMaterial({ color: 0xfbbf24, roughness: 0.2, metalness: 0.7 });
   const hubPoints: THREE.Vector3[] = [];
 
   hubAngles.forEach(([lat, lon]) => {
@@ -2519,7 +2518,7 @@ function globeScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resourc
   orbitRing1.rotation.set(0.38, 0, -0.24);
   const ringMesh1 = new THREE.Mesh(
     new THREE.TorusGeometry(R * 1.36, 0.016, 12, 72),
-    new THREE.MeshStandardMaterial({ color: 0x0a6cff, roughness: 0.2, metalness: 0.65 })
+    new THREE.MeshStandardMaterial({ color: 0x0a6cff, roughness: 0.2, metalness: 0.6 })
   );
   ringMesh1.rotation.x = Math.PI / 2;
   orbitRing1.add(ringMesh1);
@@ -2606,29 +2605,31 @@ export function mountScrollScene(root: HTMLElement, kind: SceneKind, chapterCoun
   const resources = new Resources(),
     scene = new THREE.Scene();
 
-  const hemisphere = new THREE.HemisphereLight(0xffffff, 0x7b96c5, 2.6);
-  const light = new THREE.DirectionalLight(0xffffff, 3.4);
-  light.position.set(3, 6, 5);
-  scene.add(hemisphere, light);
+  // Studio 3-point lighting rig (eliminates heavy PMREM cubemap overhead & prevents WebGL context loss)
+  const hemisphere = new THREE.HemisphereLight(0xffffff, 0x93c5fd, 2.5);
+  const light = new THREE.DirectionalLight(0xffffff, 3.2);
+  light.position.set(3.5, 6.5, 5.5);
+  const fillLight = new THREE.DirectionalLight(0x38bdf8, 1.5);
+  fillLight.position.set(-4.0, 2.5, 4.0);
+  scene.add(hemisphere, light, fillLight);
 
   const camera = new THREE.PerspectiveCamera(40, 1, 0.025, 100);
   let renderer: THREE.WebGLRenderer | undefined;
-  let environment: THREE.WebGLRenderTarget | undefined;
   let updateScene: SceneUpdate | undefined;
   root.dataset.enhanced = "true";
+  root.dataset.webgl = "ready";
 
   let frame = 0,
-    warmup = 0,
     target = 0,
     progress = 0,
-    visible = false,
+    visible = true,
     disposed = false;
   let initialized = false,
     contextReady = true,
     last = 0;
   let travel = 1,
-    width = 1,
-    height = 1,
+    width = Math.max(1, stage.clientWidth || window.innerWidth),
+    height = Math.max(1, stage.clientHeight || window.innerHeight),
     quality = 1,
     frameAverage = 16.7,
     movingFrames = 0;
@@ -2641,90 +2642,16 @@ export function mountScrollScene(root: HTMLElement, kind: SceneKind, chapterCoun
 
   function setResolution() {
     if (!renderer) return;
-    const ratio = Math.min(window.devicePixelRatio, 1.75, Math.sqrt(2_100_000 / (width * height))) * quality;
+    const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+    const maxPixels = Math.sqrt(1_850_000 / Math.max(1, width * height));
+    const ratio = Math.max(0.75, Math.min(dpr, maxPixels) * quality);
     renderer.setPixelRatio(ratio);
     renderer.setSize(width, height, false);
     root.dataset.renderScale = ratio.toFixed(2);
   }
 
-  function initialize() {
-    warmup = 0;
-    if (disposed || initialized) return;
-    initialized = true;
-    try {
-      renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: "high-performance" });
-      renderer.outputColorSpace = THREE.SRGBColorSpace;
-      renderer.toneMapping = THREE.ACESFilmicToneMapping;
-      renderer.toneMappingExposure = 1.04;
-      const pmrem = new THREE.PMREMGenerator(renderer),
-        room = new RoomEnvironment();
-      environment = pmrem.fromScene(room, 0.04);
-      room.dispose();
-      pmrem.dispose();
-      scene.environment = environment.texture;
-      scene.environmentIntensity = kind === "laptop" ? 1.1 : 0.95;
-      if (kind === "laptop") {
-        hemisphere.intensity = 0.78;
-        light.intensity = 1.5;
-        updateScene = laptopScene(scene, camera, resources);
-      } else if (kind === "rail") {
-        updateScene = railScene(scene, camera, resources);
-      } else {
-        hemisphere.intensity = 0.9;
-        light.intensity = 1.8;
-        updateScene = globeScene(scene, camera, resources);
-      }
-      camera.updateProjectionMatrix();
-      setResolution();
-      resources.textures.forEach(t => renderer!.initTexture(t));
-      renderer.compile(scene, camera);
-      renderer.domElement.addEventListener("webglcontextlost", contextLost);
-      renderer.domElement.addEventListener("webglcontextrestored", contextRestored);
-      host.appendChild(renderer.domElement);
-      root.dataset.webgl = "ready";
-    } catch {
-      resources.dispose(scene);
-      renderer?.dispose();
-      renderer = undefined;
-      updateScene = undefined;
-      root.dataset.webgl = "unavailable";
-    }
-    progress = target;
-    schedule();
-  }
-
-  function prepare() {
-    if (initialized || warmup) return;
-    if ("requestIdleCallback" in window) warmup = window.requestIdleCallback(initialize, { timeout: 500 });
-    else initialize();
-  }
-
-  function draw(time: number) {
-    frame = 0;
-    if (disposed || !visible || document.hidden || !initialized || !contextReady) return;
-    const elapsed = last ? time - last : 16.7;
-    const dt = Math.min(0.08, elapsed / 1000);
-    last = time;
-
-    const rawVel = target - progress;
-    progress += rawVel * (1 - Math.exp(-dt * 6.0));
-    if (Math.abs(progress - target) < 0.00005) progress = target;
-
-    if (!isDragging) {
-      dragOffset.x *= Math.exp(-dt * 3.5);
-      dragOffset.y *= Math.exp(-dt * 3.5);
-    }
-
-    const ease = 1 - Math.exp(-dt * 4.5);
-    const combinedTargetX = Math.max(-2.2, Math.min(2.2, pointerTarget.x + dragOffset.x));
-    const combinedTargetY = Math.max(-1.8, Math.min(1.8, pointerTarget.y + dragOffset.y));
-    pointer.x += (combinedTargetX - pointer.x) * ease;
-    pointer.y += (combinedTargetY - pointer.y) * ease;
-
-    root.style.setProperty("--px", pointer.x.toFixed(3));
-    root.style.setProperty("--py", pointer.y.toFixed(3));
-
-    const idx = progress * (chapterCount - 1);
+  function updateDOM(p: number) {
+    const idx = p * (chapterCount - 1);
     const activeChapter = Math.round(idx);
     root.dataset.chapter = String(activeChapter);
 
@@ -2747,14 +2674,92 @@ export function mountScrollScene(root: HTMLElement, kind: SceneKind, chapterCoun
 
     fills.forEach(el => {
       if (el.dataset.orientation === "horizontal") {
-        el.style.transform = `scaleX(${progress.toFixed(4)})`;
+        el.style.transform = `scaleX(${p.toFixed(4)})`;
       } else {
-        el.style.transform = `scaleY(${progress.toFixed(4)})`;
+        el.style.transform = `scaleY(${p.toFixed(4)})`;
       }
     });
 
-    const hintOpacity = 1 - sm(0.01, 0.08, progress);
+    const hintOpacity = 1 - sm(0.01, 0.08, p);
     root.style.setProperty("--hint-opacity", hintOpacity.toFixed(2));
+  }
+
+  function initialize() {
+    if (disposed || initialized) return;
+    initialized = true;
+    try {
+      try {
+        renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: "default" });
+      } catch {
+        renderer = new THREE.WebGLRenderer({ alpha: true, antialias: false });
+      }
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.06;
+
+      if (!updateScene) {
+        if (kind === "laptop") {
+          updateScene = laptopScene(scene, camera, resources);
+        } else if (kind === "rail") {
+          updateScene = railScene(scene, camera, resources);
+        } else {
+          updateScene = globeScene(scene, camera, resources);
+        }
+      }
+
+      camera.aspect = width / height;
+      camera.updateProjectionMatrix();
+      setResolution();
+
+      renderer.domElement.addEventListener("webglcontextlost", contextLost);
+      renderer.domElement.addEventListener("webglcontextrestored", contextRestored);
+      host.innerHTML = "";
+      host.appendChild(renderer.domElement);
+      root.dataset.webgl = "ready";
+
+      // Render initial frame immediately so the 3D scene is visible without waiting for scroll
+      const lensMode = (root.dataset.lens as LensMode) || "cinema";
+      updateScene?.(progress, performance.now() / 1000, false, pointer, lensMode);
+      renderer.render(scene, camera);
+    } catch {
+      renderer?.dispose();
+      renderer = undefined;
+      root.dataset.webgl = "unavailable";
+    }
+    progress = target;
+    updateDOM(progress);
+    schedule();
+  }
+
+  function draw(time: number) {
+    frame = 0;
+    if (disposed || !visible || document.hidden) return;
+    if (!initialized) initialize();
+    if (!contextReady) return;
+
+    const elapsed = last ? time - last : 16.7;
+    const dt = Math.min(0.08, elapsed / 1000);
+    last = time;
+
+    const rawVel = target - progress;
+    progress += rawVel * (1 - Math.exp(-dt * 6.0));
+    if (Math.abs(progress - target) < 0.00005) progress = target;
+
+    if (!isDragging) {
+      dragOffset.x *= Math.exp(-dt * 3.5);
+      dragOffset.y *= Math.exp(-dt * 3.5);
+    }
+
+    const ease = 1 - Math.exp(-dt * 4.5);
+    const combinedTargetX = Math.max(-2.2, Math.min(2.2, pointerTarget.x + dragOffset.x));
+    const combinedTargetY = Math.max(-1.8, Math.min(1.8, pointerTarget.y + dragOffset.y));
+    pointer.x += (combinedTargetX - pointer.x) * ease;
+    pointer.y += (combinedTargetY - pointer.y) * ease;
+
+    root.style.setProperty("--px", pointer.x.toFixed(3));
+    root.style.setProperty("--py", pointer.y.toFixed(3));
+
+    updateDOM(progress);
 
     const lensMode = (root.dataset.lens as LensMode) || "cinema";
     const info = updateScene?.(progress, time / 1000, false, pointer, lensMode);
@@ -2770,8 +2775,8 @@ export function mountScrollScene(root: HTMLElement, kind: SceneKind, chapterCoun
     if (renderer) {
       frameAverage = frameAverage * 0.9 + elapsed * 0.1;
       if (++movingFrames >= 45) {
-        if (frameAverage > 24 && quality > 0.6) {
-          quality = Math.max(0.6, quality * 0.85);
+        if (frameAverage > 26 && quality > 0.65) {
+          quality = Math.max(0.65, quality * 0.88);
           setResolution();
         }
         movingFrames = 0;
@@ -2781,7 +2786,7 @@ export function mountScrollScene(root: HTMLElement, kind: SceneKind, chapterCoun
   }
 
   function schedule() {
-    if (!frame && visible && !document.hidden && initialized && contextReady) {
+    if (!frame && visible && !document.hidden && contextReady) {
       frame = requestAnimationFrame(draw);
     }
   }
@@ -2814,13 +2819,17 @@ export function mountScrollScene(root: HTMLElement, kind: SceneKind, chapterCoun
 
   function onScroll() {
     target = clamp01(-root.getBoundingClientRect().top / travel);
+    if (!initialized) {
+      progress = target;
+      updateDOM(progress);
+    }
     schedule();
   }
 
   function measure() {
     travel = Math.max(1, root.offsetHeight - stage.clientHeight);
-    const nextWidth = stage.clientWidth,
-      nextHeight = stage.clientHeight;
+    const nextWidth = Math.max(1, stage.clientWidth || window.innerWidth),
+      nextHeight = Math.max(1, stage.clientHeight || window.innerHeight);
     if (width !== nextWidth || height !== nextHeight) {
       width = nextWidth;
       height = nextHeight;
@@ -2849,7 +2858,6 @@ export function mountScrollScene(root: HTMLElement, kind: SceneKind, chapterCoun
     event.preventDefault();
     contextReady = false;
     stop();
-    root.dataset.webgl = "unavailable";
   }
 
   function contextRestored() {
@@ -2858,26 +2866,21 @@ export function mountScrollScene(root: HTMLElement, kind: SceneKind, chapterCoun
     schedule();
   }
 
-  const warmupObserver = new IntersectionObserver(
+  const observer = new IntersectionObserver(
     entries => {
-      if (entries[0].isIntersecting) prepare();
+      visible = entries[0].isIntersecting;
+      if (visible) {
+        last = 0;
+        onScroll();
+        progress = target;
+        initialize();
+        schedule();
+      } else {
+        stop();
+      }
     },
-    { rootMargin: "250px" }
+    { rootMargin: "450px" }
   );
-  warmupObserver.observe(stage);
-
-  const observer = new IntersectionObserver(entries => {
-    visible = entries[0].isIntersecting;
-    if (visible) {
-      last = 0;
-      onScroll();
-      progress = target;
-      prepare();
-      schedule();
-    } else {
-      stop();
-    }
-  });
   observer.observe(stage);
 
   const resizeObserver = new ResizeObserver(measure);
@@ -2896,12 +2899,13 @@ export function mountScrollScene(root: HTMLElement, kind: SceneKind, chapterCoun
     if (!disposed) measure();
   });
   measure();
+  if (kind === "laptop") {
+    initialize();
+  }
 
   return () => {
     disposed = true;
     stop();
-    if (warmup) window.cancelIdleCallback(warmup);
-    warmupObserver.disconnect();
     observer.disconnect();
     resizeObserver.disconnect();
     stage.removeEventListener("pointerdown", onPointerDown);
@@ -2913,12 +2917,11 @@ export function mountScrollScene(root: HTMLElement, kind: SceneKind, chapterCoun
     document.removeEventListener("visibilitychange", visibility);
     renderer?.domElement.removeEventListener("webglcontextlost", contextLost);
     renderer?.domElement.removeEventListener("webglcontextrestored", contextRestored);
-    environment?.dispose();
     resources.dispose(scene);
     renderer?.dispose();
-    renderer?.forceContextLoss();
     renderer?.domElement.remove();
   };
 }
+
 
 
