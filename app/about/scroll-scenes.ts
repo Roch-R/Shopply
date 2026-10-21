@@ -1305,25 +1305,25 @@ function laptopScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resour
   pedRing3.position.y = 0.12;
   magPedestal.add(pedRing1, pedRing2, pedRing3);
 
-  // --- GIANT 8-BLADE 3D MECHANICAL IRIS VAULT PORTAL SURROUNDING THE ENTRANCE ---
+  // --- GIANT 8-BLADE 3D MECHANICAL HALO PORTAL FRAMING BEHIND THE LAPTOP ---
   const irisGate = new THREE.Group();
-  irisGate.position.set(0, 0.04, 1.05);
+  irisGate.position.set(0, 0.08, -0.45);
   rig.add(irisGate);
 
-  const irisOuterRing = new THREE.Mesh(new THREE.TorusGeometry(2.55, 0.055, 18, 64), silver.clone());
-  const irisGlowRing = new THREE.Mesh(new THREE.TorusGeometry(2.42, 0.026, 16, 64), skyMetal.clone());
-  irisGlowRing.position.z = 0.04;
+  const irisOuterRing = new THREE.Mesh(new THREE.TorusGeometry(2.15, 0.042, 18, 64), silver.clone());
+  const irisGlowRing = new THREE.Mesh(new THREE.TorusGeometry(2.02, 0.022, 16, 64), skyMetal.clone());
+  irisGlowRing.position.z = 0.03;
   irisGate.add(irisOuterRing, irisGlowRing);
 
   const irisBlades: { pivot: THREE.Group; mesh: THREE.Mesh; baseAngle: number }[] = [];
-  const bladeGeo = new RoundedBoxGeometry(1.15, 0.38, 0.05, 3, 0.02);
+  const bladeGeo = new RoundedBoxGeometry(0.68, 0.22, 0.04, 3, 0.015);
   for (let b = 0; b < 8; b++) {
     const ang = (b / 8) * Math.PI * 2;
     const pivot = new THREE.Group();
     pivot.rotation.z = ang;
     const blade = new THREE.Mesh(bladeGeo, b % 2 === 0 ? cobaltMetal.clone() : silver.clone());
-    blade.position.set(1.35, 0, 0);
-    blade.rotation.z = 0.38;
+    blade.position.set(1.92, 0, 0);
+    blade.rotation.z = 0.42;
     pivot.add(blade);
     irisGate.add(pivot);
     irisBlades.push({ pivot, mesh: blade, baseAngle: ang });
@@ -1818,7 +1818,7 @@ function laptopScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resour
 
     const scrollOpen = sm(0, 0.16, p);
     const openProgress = Math.max(introOpen, scrollOpen);
-    const closedAngle = 1.55 * (1 - openProgress);
+    const closedAngle = 0.22 * (1 - openProgress);
     lidPivot.rotation.x = closedAngle;
 
     // Animate 3D Holographic Layers popping forward out of the Laptop Screen as you scroll!
@@ -1828,16 +1828,16 @@ function laptopScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resour
       layer.scale.setScalar(1 + popOut * (idx + 1) * 0.08);
     });
 
-    // Animate the 8-Blade 3D Mechanical Iris Portal opening & spinning around the Laptop!
+    // Animate the 8-Blade 3D Mechanical Halo Portal behind the Laptop!
     const irisOpen = sm(0.0, 0.26, p);
     const irisVis = sm(1.2, 2.8, z);
     setGroupOpacity(irisGate, irisVis);
     if (irisVis > 0.01) {
       irisGate.rotation.z = (reduced ? 0 : time * 0.25) + irisOpen * 0.85;
       irisBlades.forEach((b, idx) => {
-        b.mesh.position.x = 1.15 + irisOpen * 1.18;
-        b.mesh.rotation.z = 0.38 + irisOpen * 0.75;
-        b.pivot.rotation.z = b.baseAngle + (idx % 2 === 0 ? 1 : -1) * irisOpen * 0.25;
+        b.mesh.position.x = 1.9 + irisOpen * 0.55;
+        b.mesh.rotation.z = 0.42 + irisOpen * 0.65;
+        b.pivot.rotation.z = b.baseAngle + (idx % 2 === 0 ? 1 : -1) * irisOpen * 0.22;
       });
     }
 
@@ -1866,7 +1866,7 @@ function laptopScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resour
     screenMat.opacity = sm(0.15, 1.65, z);
     lap.visible = z > 1.2;
 
-    const erupt = sm(0.15, 0.95, openProgress);
+    const erupt = 0.85 + 0.15 * sm(0.0, 0.6, openProgress);
     const holoFade = sm(1.8, 3.4, z) * erupt;
     holoGroup.visible = holoFade > 0.01;
     if (holoGroup.visible) {
