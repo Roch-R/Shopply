@@ -583,7 +583,7 @@ function ScrollScene({ kind, onLoginClick }: { kind: SceneKind; onLoginClick?: (
 export default function AboutExperience({ onLoginClick }: { onLoginClick?: () => void } = {}) {
   return (
     <>
-      <HeroZoomOut />
+      <HeroZoomOut onLoginClick={onLoginClick} />
       <ScrollScene kind="laptop" onLoginClick={onLoginClick} />
       <div className={styles.interlude}>
         <p>SCENE 01 → SCENE 02 • SCULPTED 3D PRODUCTS ALONG THE MONORAIL</p>

@@ -7,20 +7,22 @@ import "./globals.css";
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.shop-ply.site"),
   title: {
-    default: "Aethera® — Beyond silence, we build the eternal.",
-    template: "%s | Aethera®",
+    default: "Shopply | Online Shopping & Marketplace Philippines",
+    template: "%s | Shopply",
   },
-  description: "Building platforms for brilliant minds, fearless makers, and thoughtful souls. Through the noise, we craft digital havens for deep work and pure flows.",
+  description: "Shop quality electronics, gadgets, clothes, tools, and beauty essentials on Shopply. Fast shipping and verified sellers across the Philippines.",
   keywords: [
-    "Aethera",
-    "Aethera Studio",
     "Shopply",
     "shop-ply",
-    "shop-ply.site"
+    "shop ply",
+    "shop-ply.site",
+    "shopply philippines",
+    "online shopping philippines",
+    "e-commerce marketplace"
   ],
-  authors: [{ name: "Aethera" }],
-  creator: "Aethera",
-  publisher: "Aethera",
+  authors: [{ name: "Shopply" }],
+  creator: "Shopply",
+  publisher: "Shopply",
   robots: {
     index: true,
     follow: true,
@@ -36,22 +38,22 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_PH",
     url: "https://shop-ply.site",
-    title: "Aethera® — Beyond silence, we build the eternal.",
-    description: "Building platforms for brilliant minds, fearless makers, and thoughtful souls. Through the noise, we craft digital havens for deep work and pure flows.",
-    siteName: "Aethera",
+    title: "Shopply | Online Shopping & Marketplace Philippines",
+    description: "Shop quality electronics, gadgets, tools, clothes, and home essentials on Shopply.",
+    siteName: "Shopply",
     images: [
       {
         url: "/icon.png",
         width: 512,
         height: 512,
-        alt: "Aethera",
+        alt: "Shopply Marketplace",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Aethera® — Beyond silence, we build the eternal.",
-    description: "Building platforms for brilliant minds, fearless makers, and thoughtful souls. Through the noise, we craft digital havens for deep work and pure flows.",
+    title: "Shopply | Online Shopping & Marketplace Philippines",
+    description: "Shop quality electronics, gadgets, tools, clothes, and home essentials on Shopply.",
     images: ["/icon.png"],
   },
   icons: {
@@ -129,8 +131,8 @@ export default function RootLayout({
         <Script id="service-worker-registration" strategy="afterInteractive">
           {`
             // One-time automatic cache clearance to force update old cached client pages
-            if (!localStorage.getItem('shopply_force_clear_v42')) {
-              localStorage.setItem('shopply_force_clear_v42', 'true');
+            if (!localStorage.getItem('shopply_force_clear_v43')) {
+              localStorage.setItem('shopply_force_clear_v43', 'true');
               if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.getRegistrations().then(function(registrations) {
                   for (var i = 0; i < registrations.length; i++) {

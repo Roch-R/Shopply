@@ -5,15 +5,11 @@ import { useEffect, useRef } from "react";
 const VIDEO_URL =
   "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260328_083109_283f3553-e28f-428b-a723-d639c617eb2b.mp4";
 
-const NAV_ITEMS = [
-  { label: "Home", active: true, href: "#" },
-  { label: "Studio", active: false, href: "#story" },
-  { label: "About", active: false, href: "#journey" },
-  { label: "Journal", active: false, href: "#network" },
-  { label: "Reach Us", active: false, href: "/login" },
-];
-
-export default function HeroZoomOut() {
+export default function HeroZoomOut({
+  onLoginClick,
+}: {
+  onLoginClick?: () => void;
+} = {}) {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -24,7 +20,12 @@ export default function HeroZoomOut() {
     let restartTimeout: ReturnType<typeof setTimeout> | null = null;
 
     const updateOpacity = () => {
-      if (video && video.duration && !Number.isNaN(video.duration) && video.duration > 1) {
+      if (
+        video &&
+        video.duration &&
+        !Number.isNaN(video.duration) &&
+        video.duration > 1
+      ) {
         const current = video.currentTime;
         const duration = video.duration;
         const fadeDuration = 0.5;
@@ -80,68 +81,42 @@ export default function HeroZoomOut() {
           className="pointer-events-none absolute inset-0 bg-gradient-to-b from-background via-transparent to-background"
           style={{
             background:
-              "linear-gradient(to bottom, #FFFFFF 0%, rgba(255, 255, 255, 0.35) 14%, rgba(255, 255, 255, 0) 30%, rgba(255, 255, 255, 0) 88%, rgba(255, 255, 255, 0.75) 100%)",
+              "linear-gradient(to bottom, #FFFFFF 0%, rgba(255, 255, 255, 0.35) 14%, rgba(255, 255, 255, 0) 30%, rgba(255, 255, 255, 0) 88%, rgba(255, 255, 255, 0.78) 100%)",
           }}
         />
       </div>
 
-      {/* Navigation bar (z-10) */}
-      <header className="relative z-10">
-        <nav className="mx-auto flex max-w-7xl items-center justify-between px-8 py-6">
-          <a
-            href="#"
-            className="font-instrument text-3xl tracking-tight text-[#000000]"
-          >
-            Aethera<sup className="text-[0.55em] align-super">®</sup>
-          </a>
-
-          <div className="hidden items-center gap-8 md:flex">
-            {NAV_ITEMS.map((item) => (
-              <a
-                key={item.label}
-                href={item.href}
-                className={`text-sm transition-colors hover:text-[#000000] ${
-                  item.active ? "text-[#000000]" : "text-[#6F6F6F]"
-                }`}
-              >
-                {item.label}
-              </a>
-            ))}
-          </div>
-
-          <a
-            href="#story"
-            className="rounded-full bg-[#000000] px-6 py-2.5 text-sm text-[#FFFFFF] transition-transform duration-200 hover:scale-[1.03]"
-          >
-            Begin Journey
-          </a>
-        </nav>
-      </header>
-
       {/* Hero section (z-10) */}
       <section
         className="relative z-10 flex flex-col items-center justify-center px-6 pb-40 text-center"
-        style={{ paddingTop: "calc(8rem - 75px)" }}
+        style={{ paddingTop: "calc(8rem + 12px)" }}
+        aria-label="Shopply flagship hero"
       >
         <h1
           className="animate-fade-rise font-instrument max-w-7xl text-5xl font-normal text-[#000000] sm:text-7xl md:text-8xl"
           style={{ lineHeight: 0.95, letterSpacing: "-2.46px" }}
         >
-          Beyond <em className="italic text-[#6F6F6F]">silence,</em> we build{" "}
-          <em className="italic text-[#6F6F6F]">the eternal.</em>
+          Beyond <em className="italic text-[#6F6F6F]">ordinary,</em> we build{" "}
+          <em className="italic text-[#6F6F6F]">Shopply.</em>
         </h1>
 
         <p className="animate-fade-rise-delay mt-8 max-w-2xl text-base leading-relaxed text-[#6F6F6F] sm:text-lg">
-          Building platforms for brilliant minds, fearless makers, and
-          thoughtful souls. Through the noise, we craft digital havens for deep
-          work and pure flows.
+          Building the flagship marketplace for brilliant creators, verified
+          brands, and thoughtful shoppers. Instant payouts, curated drops, and
+          nationwide express delivery.
         </p>
 
         <a
-          href="#story"
+          href="/login"
+          onClick={(e) => {
+            if (onLoginClick) {
+              e.preventDefault();
+              onLoginClick();
+            }
+          }}
           className="animate-fade-rise-delay-2 mt-12 rounded-full bg-[#000000] px-14 py-5 text-base text-[#FFFFFF] transition-transform duration-200 hover:scale-[1.03]"
         >
-          Begin Journey
+          Start Shopping
         </a>
       </section>
     </div>
