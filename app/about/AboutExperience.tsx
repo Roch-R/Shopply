@@ -131,195 +131,6 @@ const railChapters = [
   },
 ];
 
-const globeChapters = [
-  {
-    tag: "01 / LUZON MEGA-HUB",
-    title: (
-      <>
-        Manila to Clark.
-        <br />
-        <em>18,400 parcels a day.</em>
-      </>
-    ),
-    text: "Orbit our 3D geodesic planet as automated optical sortation hubs clear 99.7% of Luzon orders for same-day exit.",
-    short: "Luzon hub",
-  },
-  {
-    tag: "02 / VISAYAS SEA & AIR BRIDGE",
-    title: (
-      <>
-        Cebu, Iloilo, Bacolod.
-        <br />
-        <em>4.2-hour transit.</em>
-      </>
-    ),
-    text: "Glowing 3D flight arcs connect every island with high-frequency cargo bridges and real-time vessel telemetry.",
-    short: "Visayas bridge",
-  },
-  {
-    tag: "03 / MINDANAO PRIORITY CARGO",
-    title: (
-      <>
-        Davao & CDO.
-        <br />
-        <em>Direct night freighters.</em>
-      </>
-    ),
-    text: " Dedicated air-cargo corridors power +52% merchant growth across Mindanao with door-to-door cold-chain tracking.",
-    short: "Mindanao air",
-  },
-  {
-    tag: "04 / ASEAN CROSS-BORDER",
-    title: (
-      <>
-        Tokyo, Seoul, Singapore.
-        <br />
-        <em>Zero FX markup.</em>
-      </>
-    ),
-    text: "Shop international flagship boutiques directly in PHP with instant customs clearance and gyroscopic route optimization.",
-    short: "ASEAN gateway",
-  },
-  {
-    tag: "05 / ROBOTICS & GREEN EV FLEET",
-    title: (
-      <>
-        1,200 packs an hour.
-        <br />
-        <em>84% electric last-mile.</em>
-      </>
-    ),
-    text: "Autonomous warehouse grids and solar-charged EV courier vans cut 12.4 tons of CO₂ every single month.",
-    short: "Green robotics",
-  },
-];
-
-const vaultChapters = [
-  {
-    tag: "01 / PASSKEY BIOMETRIC PAY",
-    title: (
-      <>
-        One-tap FaceID.
-        <br />
-        <em>0.2-second approval.</em>
-      </>
-    ),
-    text: "Meet the 3D Titanium Flagship Phone—engineered with hardware-backed cryptographic passkeys for instant checkout.",
-    short: "Biometric pay",
-  },
-  {
-    tag: "02 / EXPLODED 3D LAYERS",
-    title: (
-      <>
-        Unpack the stack.
-        <br />
-        <em>60fps spatial AR.</em>
-      </>
-    ),
-    text: "Watch the phone screen physically separate into 3D floating layers—revealing true-scale AR room try-on and live streams.",
-    short: "Exploded 3D",
-  },
-  {
-    tag: "03 / LIVE DROP STUDIO",
-    title: (
-      <>
-        14.2k watching live.
-        <br />
-        <em>320 cart adds a minute.</em>
-      </>
-    ),
-    text: "Creators broadcast interactive HD product drops with one-tap pinned items and real-time community reactions.",
-    short: "Live studio",
-  },
-  {
-    tag: "04 / ESCROW & 0% SPLIT-PAY",
-    title: (
-      <>
-        100% protected vault.
-        <br />
-        <em>Pay in 4 at 0% interest.</em>
-      </>
-    ),
-    text: "Shopply Authentic Shield holds funds in escrow until you inspect your parcel, paired with flexible 4x split payments.",
-    short: "Escrow & split",
-  },
-  {
-    tag: "05 / CASHBACK TREASURY",
-    title: (
-      <>
-        Earn 5% back in
-        <br />
-        <em>never-expiring coins.</em>
-      </>
-    ),
-    text: "Every verified purchase builds your instant rewards vault—redeemable across thousands of flagship merchants.",
-    short: "Rewards vault",
-  },
-];
-
-const helixChapters = [
-  {
-    tag: "01 / THE DNA OF COMMERCE",
-    title: (
-      <>
-        Ascend the 3D
-        <br />
-        <em>Double-Helix Tower.</em>
-      </>
-    ),
-    text: "Two intertwined neon strands connect 22 glowing energy rungs—powering the next generation of AI merchant tools.",
-    short: "DNA helix",
-  },
-  {
-    tag: "02 / NEURAL AI PHOTO STUDIO",
-    title: (
-      <>
-        Raw phone snap to
-        <br />
-        <em>studio lighting in 1 click.</em>
-      </>
-    ),
-    text: "Our built-in neural backdrop engine removes clutter and renders realistic 3D studio shadows automatically.",
-    short: "AI photo studio",
-  },
-  {
-    tag: "03 / DYNAMIC BUNDLE ENGINE",
-    title: (
-      <>
-        Smart kit pairing.
-        <br />
-        <em>+34% order value.</em>
-      </>
-    ),
-    text: "Automatically pair compatible accessories with tiered volume discounts as the camera spirals up the tower.",
-    short: "Smart bundler",
-  },
-  {
-    tag: "04 / 11.11 FLASH QUEUE ENGINE",
-    title: (
-      <>
-        High-concurrency drops.
-        <br />
-        <em>Zero-crash checkout.</em>
-      </>
-    ),
-    text: "Built to handle tens of thousands of simultaneous flash-sale claims with fair queue locks and instant inventory sync.",
-    short: "Flash engine",
-  },
-  {
-    tag: "05 / VERIFIED VIDEO UNBOXINGS",
-    title: (
-      <>
-        28,400 buyer videos.
-        <br />
-        <em>4.96★ real community proof.</em>
-      </>
-    ),
-    text: "Reach the summit of the 3D Helix where authentic video reviews and verified merchants build lasting trust.",
-    short: "Video proof",
-  },
-];
-
 const sceneMeta: Record<
   SceneKind,
   {
@@ -349,33 +160,6 @@ const sceneMeta: Record<
     hint: "RIDE THE HYPERLOOP",
     footerNote: "5 CHAPTERS • FOOTWEAR, OPTICS, DRONES & RADAR",
     ariaLabel: "Explore the Shopply 3D hyperloop product coaster",
-  },
-  globe: {
-    id: "network",
-    chapters: globeChapters,
-    subtitle: "3D GEODESIC PLANET & GYROSCOPIC CARGO ARCS",
-    badge: "03 — THE NETWORK",
-    hint: "ORBIT THE PLANET",
-    footerNote: "5 CHAPTERS • LUZON, VISAYAS, MINDANAO & ASEAN",
-    ariaLabel: "Explore the Shopply 3D planetary logistics network",
-  },
-  vault: {
-    id: "ecosystem",
-    chapters: vaultChapters,
-    subtitle: "3D TITANIUM PHONE & EXPLODING HOLOGRAPHIC LAYERS",
-    badge: "04 — THE POCKET VAULT",
-    hint: "UNPACK 3D LAYERS",
-    footerNote: "5 CHAPTERS • FACEID, 60FPS AR, LIVE & ESCROW",
-    ariaLabel: "Explore the Shopply 3D mobile flagship and exploded layers",
-  },
-  helix: {
-    id: "helix",
-    chapters: helixChapters,
-    subtitle: "3D DOUBLE-HELIX DNA TOWER & NEURAL AI ENGINE",
-    badge: "05 — THE DNA HELIX",
-    hint: "ASCEND THE HELIX",
-    footerNote: "5 CHAPTERS • AI STUDIO, BUNDLER & FLASH ENGINE",
-    ariaLabel: "Explore the Shopply 3D double-helix AI commerce tower",
   },
 };
 
@@ -433,13 +217,7 @@ function ScrollScene({ kind, onLoginClick }: { kind: SceneKind; onLoginClick?: (
     smoothScrollTo(destY, 850);
   }
 
-  const sceneClassName = [
-    styles.journey,
-    kind === "rail" ? styles.railJourney : "",
-    kind === "globe" ? styles.globeJourney : "",
-    kind === "vault" ? styles.vaultJourney : "",
-    kind === "helix" ? styles.helixJourney : "",
-  ]
+  const sceneClassName = [styles.journey, kind === "rail" ? styles.railJourney : ""]
     .filter(Boolean)
     .join(" ");
 
@@ -541,42 +319,6 @@ export default function AboutExperience({ onLoginClick }: { onLoginClick?: () =>
         </span>
       </div>
       <ScrollScene kind="rail" />
-      <div className={styles.interlude}>
-        <p>WORLD 02 → WORLD 03 • ARCHIPELAGO-WIDE LOGISTICS TELEMETRY</p>
-        <h2>
-          Luzon, Visayas, Mindanao,
-          <br />
-          and <em>ASEAN in real time.</em>
-        </h2>
-        <span>
-          Orbit the 3D Planetary Network <b aria-hidden="true">↓</b>
-        </span>
-      </div>
-      <ScrollScene kind="globe" />
-      <div className={styles.interlude}>
-        <p>WORLD 03 → WORLD 04 • SPATIAL MOBILE ARCHITECTURE</p>
-        <h2>
-          Biometric security meets
-          <br />
-          <em>60fps augmented reality.</em>
-        </h2>
-        <span>
-          Unpack the 3D Pocket Flagship <b aria-hidden="true">↓</b>
-        </span>
-      </div>
-      <ScrollScene kind="vault" />
-      <div className={styles.interlude}>
-        <p>WORLD 04 → WORLD 05 • NEURAL AI & HIGH-CONCURRENCY SCALE</p>
-        <h2>
-          Ascend the spiral of
-          <br />
-          <em>autonomous commerce.</em>
-        </h2>
-        <span>
-          Climb the 3D Double-Helix Tower <b aria-hidden="true">↓</b>
-        </span>
-      </div>
-      <ScrollScene kind="helix" />
     </>
   );
 }
