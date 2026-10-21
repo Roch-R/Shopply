@@ -341,7 +341,7 @@
   box-shadow: 0 0 12px rgba(10, 108, 255, 0.6);
 }
 
-/* Bottom-Right 3D Telemetry & Stepper HUD */
+/* Bottom-Right 3D Telemetry, Lens Switcher & Stepper HUD */
 .hudBar {
   position: absolute;
   right: 6%;
@@ -349,22 +349,92 @@
   z-index: 3;
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 10px;
 }
 
-.hudNote {
+.telemetryPill {
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 9.5px;
   font-weight: 700;
-  letter-spacing: 0.14em;
-  color: #475569;
-  background: rgba(255, 255, 255, 0.82);
+  letter-spacing: 0.13em;
+  color: #0a6cff;
+  background: rgba(255, 255, 255, 0.88);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  padding: 8px 14px;
+  padding: 7px 13px;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(10, 108, 255, 0.22);
   box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+  white-space: nowrap;
+}
+
+.lensGroup {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  padding: 3.5px;
+  border-radius: 999px;
+  border: 1px solid rgba(10, 108, 255, 0.18);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+
+.lensGroup button {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: #475569;
+  padding: 5px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.lensGroup button:hover {
+  color: #0a6cff;
+}
+
+.lensGroup button[data-active="true"] {
+  background: #0a6cff;
+  color: #ffffff;
+  box-shadow: 0 2px 10px rgba(10, 108, 255, 0.35);
+}
+
+.cruiseBtn {
+  appearance: none;
+  border: 1px solid rgba(10, 108, 255, 0.24);
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #0a6cff;
+  padding: 7px 13px;
+  border-radius: 999px;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(10, 108, 255, 0.09);
+  transition: background 0.18s ease, color 0.18s ease, transform 0.18s ease;
+  white-space: nowrap;
+}
+
+.cruiseBtn:hover {
+  background: #0a6cff;
+  color: #ffffff;
+}
+
+.cruiseBtn[data-active="true"] {
+  background: linear-gradient(135deg, #0a6cff 0%, #4f46e5 100%);
+  color: #ffffff;
+  border-color: transparent;
+  box-shadow: 0 6px 18px rgba(10, 108, 255, 0.38);
 }
 
 .hudNav {
@@ -521,7 +591,7 @@
 
 @media (max-width: 900px) {
   .worldSub,
-  .hudNote {
+  .telemetryPill {
     display: none;
   }
   .introCopy {
@@ -553,7 +623,8 @@
     right: 5%;
     font-size: 9px;
   }
-  .worldHint {
+  .worldHint,
+  .lensGroup {
     display: none;
   }
   .copy {

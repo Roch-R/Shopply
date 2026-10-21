@@ -73,7 +73,9 @@ class Resources {
   texture(c: HTMLCanvasElement) {
     const t = new THREE.CanvasTexture(c);
     t.colorSpace = THREE.SRGBColorSpace;
-    t.anisotropy = 4;
+    t.anisotropy = 8;
+    t.minFilter = THREE.LinearMipmapLinearFilter;
+    t.magFilter = THREE.LinearFilter;
     this.textures.add(t);
     return t;
   }
@@ -292,12 +294,12 @@ function drawImageCard(
   subtitleText: string,
   fallbackColors: [string, string, string]
 ) {
-  const c = resources.canvas(640, 448),
+  const c = resources.canvas(960, 672),
     g = c.getContext("2d")!;
   const t = resources.texture(c);
 
   const renderCard = (imgObj?: HTMLImageElement) => {
-    g.setTransform(2, 0, 0, 2, 0, 0);
+    g.setTransform(3, 0, 0, 3, 0, 0);
     g.clearRect(0, 0, 320, 224);
 
     rr(g, 4, 4, 312, 216, 22);
@@ -583,9 +585,9 @@ const BESPOKE_CARDS: BespokeCardSpec[] = [
 ];
 
 function drawBespokeCard(resources: Resources, spec: BespokeCardSpec) {
-  const c = resources.canvas(640, 448),
+  const c = resources.canvas(960, 672),
     g = c.getContext("2d")!;
-  g.setTransform(2, 0, 0, 2, 0, 0);
+  g.setTransform(3, 0, 0, 3, 0, 0);
   g.clearRect(0, 0, 320, 224);
 
   rr(g, 4, 4, 312, 216, 22);
@@ -822,11 +824,11 @@ function cardTexture(resources: Resources, kind: number) {
     );
   }
 
-  const c = resources.canvas(640, 448),
+  const c = resources.canvas(960, 672),
     g = c.getContext("2d")!;
   g.setTransform(1, 0, 0, 1, 0, 0);
-  g.clearRect(0, 0, 640, 448);
-  g.scale(2, 2);
+  g.clearRect(0, 0, 960, 672);
+  g.scale(3, 3);
 
   rr(g, 4, 4, 312, 216, 22);
   g.fillStyle = "#ffffff";
@@ -1038,23 +1040,50 @@ function shadowTexture(resources: Resources) {
 function createFramedCard(
   resources: Resources,
   kind: number,
-  width = 1.62,
-  height = 1.13,
+  width = 1.38,
+  height = 0.96,
   shadowTex?: THREE.Texture
 ) {
   const group = new THREE.Group();
 
-  const slabGeo = new RoundedBoxGeometry(width + 0.04, height + 0.04, 0.036, 2, 0.018);
+  // Outer brushed metallic-silver chassis for real 3D thickness
+  const rimGeo = new RoundedBoxGeometry(width + 0.058, height + 0.058, 0.044, 3, 0.022);
+  const rimMat = new THREE.MeshStandardMaterial({
+    color: 0xdbe7f8,
+    roughness: 0.24,
+    metalness: 0.58,
+    transparent: true,
+    opacity: 1,
+  });
+  const rim = new THREE.Mesh(rimGeo, rimMat);
+  rim.position.z = -0.024;
+  group.add(rim);
+
+  // Inner ceramic-white bevel slab
+  const slabGeo = new RoundedBoxGeometry(width + 0.022, height + 0.022, 0.032, 3, 0.014);
   const slabMat = new THREE.MeshStandardMaterial({
     color: 0xffffff,
-    roughness: 0.28,
+    roughness: 0.25,
     metalness: 0.08,
     transparent: true,
     opacity: 1,
   });
   const slab = new THREE.Mesh(slabGeo, slabMat);
-  slab.position.z = -0.02;
+  slab.position.z = -0.012;
   group.add(slab);
+
+  // Floating 3D cobalt accent pill above the top edge for multi-layer parallax
+  const badgeBarGeo = new RoundedBoxGeometry(width * 0.34, 0.022, 0.016, 2, 0.008);
+  const badgeBarMat = new THREE.MeshStandardMaterial({
+    color: 0x0a6cff,
+    roughness: 0.2,
+    metalness: 0.4,
+    transparent: true,
+    opacity: 1,
+  });
+  const badgeBar = new THREE.Mesh(badgeBarGeo, badgeBarMat);
+  badgeBar.position.set(-width * 0.26, height * 0.5 + 0.012, 0.016);
+  group.add(badgeBar);
 
   const faceGeo = new THREE.PlaneGeometry(width, height);
   const faceMat = new THREE.MeshBasicMaterial({
@@ -1064,7 +1093,7 @@ function createFramedCard(
     toneMapped: false,
   });
   const face = new THREE.Mesh(faceGeo, faceMat);
-  face.position.z = 0.002;
+  face.position.z = 0.005;
   group.add(face);
 
   let shadeMat: THREE.MeshBasicMaterial | undefined;
@@ -1073,10 +1102,10 @@ function createFramedCard(
       map: shadowTex,
       transparent: true,
       depthWrite: false,
-      opacity: 0.55,
+      opacity: 0.52,
     });
-    const shade = new THREE.Mesh(new THREE.PlaneGeometry(width * 1.34, height * 1.34), shadeMat);
-    shade.position.set(0.04, -0.08, -0.05);
+    const shade = new THREE.Mesh(new THREE.PlaneGeometry(width * 1.32, height * 1.32), shadeMat);
+    shade.position.set(0.035, -0.07, -0.055);
     group.add(shade);
   }
 
@@ -1085,19 +1114,118 @@ function createFramedCard(
     group.visible = a > 0.01;
     faceMat.opacity = a;
     slabMat.opacity = a;
-    if (shadeMat) shadeMat.opacity = a * 0.55;
+    rimMat.opacity = a;
+    badgeBarMat.opacity = a;
+    if (shadeMat) shadeMat.opacity = a * 0.52;
   }
 
   return { group, faceMat, setOpacity };
 }
 
-type Pointer = { x: number; y: number };
-type SceneUpdate = (p: number, time: number, reduced: boolean, pointer: Pointer) => void;
+function setGroupOpacity(group: THREE.Group, alpha: number) {
+  const a = clamp01(alpha);
+  group.visible = a > 0.01;
+  if (!group.visible) return;
+  group.traverse(obj => {
+    if (obj instanceof THREE.Mesh) {
+      const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
+      mats.forEach(m => {
+        if (m.userData.baseOpacity === undefined) {
+          m.userData.baseOpacity = m.opacity ?? 1;
+        }
+        m.transparent = true;
+        m.opacity = m.userData.baseOpacity * a;
+      });
+    }
+  });
+}
 
-// --- SCENE 01: CLEAN 3D LAPTOP & LAYERED CARD TUNNEL (8 CHAPTERS, ZERO PARTICLES) ---
+function runwayFloorTexture(resources: Resources) {
+  const c = resources.canvas(512, 1024),
+    g = c.getContext("2d")!;
+  g.clearRect(0, 0, 512, 1024);
+
+  // Soft studio runway base with feathered edges
+  const sideFade = g.createLinearGradient(0, 0, 512, 0);
+  sideFade.addColorStop(0, "rgba(244,247,252,0)");
+  sideFade.addColorStop(0.18, "rgba(226,236,252,0.55)");
+  sideFade.addColorStop(0.5, "rgba(238,244,255,0.85)");
+  sideFade.addColorStop(0.82, "rgba(226,236,252,0.55)");
+  sideFade.addColorStop(1, "rgba(244,247,252,0)");
+  g.fillStyle = sideFade;
+  g.fillRect(0, 0, 512, 1024);
+
+  // Longitudinal perspective guide lines
+  [96, 176, 256, 336, 416].forEach((x, idx) => {
+    g.strokeStyle = idx === 2 ? "rgba(10,108,255,0.32)" : "rgba(100,116,139,0.16)";
+    g.lineWidth = idx === 2 ? 2.5 : 1.5;
+    g.beginPath();
+    g.moveTo(x, 0);
+    g.lineTo(x, 1024);
+    g.stroke();
+  });
+
+  // Cross-ties along the runway
+  for (let y = 32; y < 1024; y += 64) {
+    g.strokeStyle = y % 128 === 32 ? "rgba(10,108,255,0.22)" : "rgba(100,116,139,0.12)";
+    g.lineWidth = y % 128 === 32 ? 2 : 1;
+    g.beginPath();
+    g.moveTo(72, y);
+    g.lineTo(440, y);
+    g.stroke();
+  }
+
+  return resources.texture(c);
+}
+
+function phoneScreenTexture(resources: Resources) {
+  const c = resources.canvas(360, 720),
+    g = c.getContext("2d")!;
+  const gr = g.createLinearGradient(0, 0, 360, 720);
+  gr.addColorStop(0, "#0F172A");
+  gr.addColorStop(0.5, "#1E293B");
+  gr.addColorStop(1, "#0A6CFF");
+  g.fillStyle = gr;
+  g.fillRect(0, 0, 360, 720);
+
+  rr(g, 28, 72, 304, 180, 24);
+  g.fillStyle = "rgba(255,255,255,0.12)";
+  g.fill();
+  txt(g, "SHOPPLY EXPRESS PAY", 52, 114, "700 14px " + FONT, "#38BDF8");
+  txt(g, "PHP 1,280.00", 52, 168, "700 38px " + FONT, "#FFFFFF");
+  txt(g, "✓ Biometric Passkey Verified", 52, 212, "600 14px " + FONT, "#4ADE80");
+
+  rr(g, 28, 284, 304, 240, 24);
+  g.fillStyle = "#FFFFFF";
+  g.fill();
+  txt(g, "Instant Escrow Settlement", 52, 330, "700 18px " + FONT, INK);
+  bar(g, 52, 356, 256, 10, BG_BAR2);
+  bar(g, 52, 356, 212, 10, BLUE);
+  txt(g, "Courier Dispatch", 52, 412, "700 16px " + FONT, INK);
+  txt(g, "Same-Day Priority • #SP-2048", 52, 438, "500 13px " + FONT, MUTED);
+
+  rr(g, 52, 462, 256, 42, 21);
+  g.fillStyle = BLUE;
+  g.fill();
+  txt(g, "APPROVED • 0.2S", 180, 488, "700 14px " + FONT, "#FFFFFF", "center");
+
+  return resources.texture(c);
+}
+
+export type LensMode = "cinema" | "wide" | "orbit";
+type Pointer = { x: number; y: number };
+type SceneUpdate = (
+  p: number,
+  time: number,
+  reduced: boolean,
+  pointer: Pointer,
+  lens: LensMode
+) => { depthMeters: number };
+
+// --- SCENE 01: 3D STUDIO LAPTOP, ARCHITECTURAL RUNWAY & 5 SCULPTURAL 3D STAGES (ZERO PARTICLES) ---
 function laptopScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resources: Resources): SceneUpdate {
   camera.fov = 32;
-  scene.fog = new THREE.Fog(0xf4f7fc, 4.2, 13.8);
+  scene.fog = new THREE.Fog(0xf4f7fc, 5.2, 15.8);
 
   const SW = 2.95,
     SH = 1.84,
@@ -1134,6 +1262,26 @@ function laptopScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resour
     color: 0x1e293b,
     roughness: 0.32,
     metalness: 0.7,
+  });
+  const cobaltMetal = new THREE.MeshStandardMaterial({
+    color: 0x0a6cff,
+    roughness: 0.24,
+    metalness: 0.52,
+  });
+  const skyMetal = new THREE.MeshStandardMaterial({
+    color: 0x38bdf8,
+    roughness: 0.22,
+    metalness: 0.45,
+  });
+  const goldMetal = new THREE.MeshStandardMaterial({
+    color: 0xf59e0b,
+    roughness: 0.22,
+    metalness: 0.75,
+  });
+  const ceramicWhite = new THREE.MeshStandardMaterial({
+    color: 0xffffff,
+    roughness: 0.25,
+    metalness: 0.1,
   });
 
   const hingeY = -(SH + 0.1) / 2;
@@ -1223,19 +1371,19 @@ function laptopScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resour
   tp.position.set(0, 0.002, 1.52);
   baseG.add(tp);
 
-  // 4 clean floating UI cards flanking the laptop in Chapters 01 & 02
+  // 4 floating UI cards flanking the laptop in Chapters 01 & 02
   const holoGroup = new THREE.Group();
   rig.add(holoGroup);
 
   const holoDefs = [
-    { x: -2.2, y: 0.62, z: 0.45, rotY: 0.26, kind: 0, scale: 0.64 },
-    { x: 2.24, y: 0.54, z: 0.35, rotY: -0.26, kind: 3, scale: 0.64 },
-    { x: 2.1, y: -0.54, z: 0.78, rotY: -0.2, kind: 7, scale: 0.68 },
-    { x: -2.05, y: -0.5, z: 0.68, rotY: 0.22, kind: 8, scale: 0.62 },
+    { x: -2.2, y: 0.62, z: 0.45, rotY: 0.26, kind: 0, scale: 0.72 },
+    { x: 2.24, y: 0.54, z: 0.35, rotY: -0.26, kind: 3, scale: 0.72 },
+    { x: 2.1, y: -0.54, z: 0.78, rotY: -0.2, kind: 7, scale: 0.76 },
+    { x: -2.05, y: -0.5, z: 0.68, rotY: 0.22, kind: 8, scale: 0.7 },
   ];
 
   const holoCards = holoDefs.map(d => {
-    const cardObj = createFramedCard(resources, d.kind, 1.62, 1.13, shadowTex);
+    const cardObj = createFramedCard(resources, d.kind, 1.38, 0.96, shadowTex);
     cardObj.group.position.set(d.x, d.y, d.z);
     cardObj.group.rotation.y = d.rotY;
     cardObj.group.scale.setScalar(d.scale);
@@ -1243,28 +1391,262 @@ function laptopScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resour
     return { ...cardObj, base: new THREE.Vector3(d.x, d.y, d.z), rotY: d.rotY, scale: d.scale };
   });
 
-  // Clean layered card tunnel behind the screen (12 cards spaced cleanly in Z so they never pile up or clip)
+  // --- 3D ARCHITECTURAL RUNWAY & SCULPTURAL HARDWARE STAGES INSIDE THE SCREEN ---
   const inner = new THREE.Group();
   rig.add(inner);
 
-  // Each card is positioned well inside the camera frustum:
-  // Right cards at x = +0.92..1.08, Left/Upper cards at x = -0.28..0.82 (above bottom-left copy), final card centered
+  // Architectural perspective runway floor
+  const runwayFloor = new THREE.Mesh(
+    new THREE.PlaneGeometry(4.8, 28),
+    new THREE.MeshBasicMaterial({
+      map: runwayFloorTexture(resources),
+      transparent: true,
+      depthWrite: false,
+      opacity: 0.85,
+    })
+  );
+  runwayFloor.rotation.x = -Math.PI / 2;
+  runwayFloor.position.set(0, -1.16, -14.5);
+  inner.add(runwayFloor);
+
+  // 6 Brushed-Silver Architectural Portal Arches framing the periphery (zero clutter in center)
+  const archGroup = new THREE.Group();
+  inner.add(archGroup);
+  const pillarGeo = new RoundedBoxGeometry(0.065, 2.42, 0.065, 2, 0.018);
+  const beamGeo = new RoundedBoxGeometry(4.42, 0.065, 0.065, 2, 0.018);
+  const stripGeo = new THREE.BoxGeometry(0.018, 1.9, 0.024);
+
+  const arches = [-3.4, -7.8, -12.2, -16.6, -21.0, -25.4].map(az => {
+    const g = new THREE.Group();
+    g.position.z = az;
+
+    const leftP = new THREE.Mesh(pillarGeo, silver.clone());
+    leftP.position.set(-2.18, 0.05, 0);
+    const rightP = new THREE.Mesh(pillarGeo, silver.clone());
+    rightP.position.set(2.18, 0.05, 0);
+    const topB = new THREE.Mesh(beamGeo, silver.clone());
+    topB.position.set(0, 1.26, 0);
+
+    const leftStrip = new THREE.Mesh(stripGeo, cobaltMetal.clone());
+    leftStrip.position.set(-2.13, 0.05, 0);
+    const rightStrip = new THREE.Mesh(stripGeo, cobaltMetal.clone());
+    rightStrip.position.set(2.13, 0.05, 0);
+
+    g.add(leftP, rightP, topB, leftStrip, rightStrip);
+    archGroup.add(g);
+    return { group: g, z: az };
+  });
+
+  // --- 5 BESPOKE 3D SCULPTURAL HARDWARE STAGES ---
+  // Stage 1 (z = -3.8): 3D Titanium Smartphone + Floating Metallic NFC Card
+  const phoneStage = new THREE.Group();
+  phoneStage.position.set(-0.62, 0.24, -3.8);
+  inner.add(phoneStage);
+
+  const phoneBody = new THREE.Group();
+  phoneBody.rotation.set(-0.08, 0.32, -0.05);
+  phoneStage.add(phoneBody);
+
+  const phoneChassis = new THREE.Mesh(
+    new RoundedBoxGeometry(0.64, 1.28, 0.058, 4, 0.03),
+    darkMetal.clone()
+  );
+  const phoneRim = new THREE.Mesh(
+    new RoundedBoxGeometry(0.66, 1.3, 0.048, 4, 0.03),
+    silver.clone()
+  );
+  phoneRim.position.z = -0.004;
+  const phoneScreen = new THREE.Mesh(
+    new THREE.PlaneGeometry(0.58, 1.2),
+    new THREE.MeshBasicMaterial({ map: phoneScreenTexture(resources), transparent: true })
+  );
+  phoneScreen.position.z = 0.031;
+  phoneBody.add(phoneRim, phoneChassis, phoneScreen);
+
+  const nfcCard = new THREE.Group();
+  nfcCard.position.set(0.28, -0.14, 0.24);
+  nfcCard.rotation.set(0.12, -0.24, 0.14);
+  const nfcSlab = new THREE.Mesh(
+    new RoundedBoxGeometry(0.58, 0.36, 0.022, 3, 0.01),
+    cobaltMetal.clone()
+  );
+  const nfcChip = new THREE.Mesh(
+    new RoundedBoxGeometry(0.09, 0.07, 0.026, 2, 0.005),
+    goldMetal.clone()
+  );
+  nfcChip.position.set(-0.16, 0.02, 0.004);
+  nfcCard.add(nfcSlab, nfcChip);
+  phoneStage.add(nfcCard);
+
+  // Stage 2 (z = -8.6): 3D Scroll-Reactive Extruded Analytics Bar Sculpture
+  const chartStage = new THREE.Group();
+  chartStage.position.set(-0.62, 0.14, -8.6);
+  chartStage.rotation.y = 0.26;
+  inner.add(chartStage);
+
+  const chartBase = new THREE.Mesh(
+    new RoundedBoxGeometry(1.16, 0.075, 0.44, 3, 0.022),
+    silver.clone()
+  );
+  chartBase.position.y = -0.42;
+  chartStage.add(chartBase);
+
+  const barHeights = [0.36, 0.52, 0.46, 0.68, 0.84, 1.02];
+  const barMeshes = barHeights.map((bh, idx) => {
+    const mat = idx >= 4 ? cobaltMetal.clone() : idx >= 2 ? skyMetal.clone() : silver.clone();
+    const m = new THREE.Mesh(new RoundedBoxGeometry(0.115, 0.8, 0.115, 2, 0.02), mat);
+    m.position.set(-0.42 + idx * 0.168, -0.38 + (bh * 0.8) / 2, 0);
+    chartStage.add(m);
+    return { mesh: m, targetH: bh };
+  });
+
+  // Stage 3 (z = -13.4): 3D Precision Authentic Shield & Rotating Vault Lock
+  const shieldStage = new THREE.Group();
+  shieldStage.position.set(-0.6, 0.24, -13.4);
+  shieldStage.rotation.y = 0.24;
+  inner.add(shieldStage);
+
+  const outerVaultRing = new THREE.Mesh(
+    new THREE.TorusGeometry(0.46, 0.042, 18, 48),
+    silver.clone()
+  );
+  const innerVaultRing = new THREE.Mesh(
+    new THREE.TorusGeometry(0.35, 0.022, 14, 40),
+    cobaltMetal.clone()
+  );
+  const shieldCore = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.3, 0.3, 0.055, 8),
+    cobaltMetal.clone()
+  );
+  shieldCore.rotation.x = Math.PI / 2;
+
+  const checkGroup = new THREE.Group();
+  checkGroup.position.z = 0.038;
+  const checkShort = new THREE.Mesh(
+    new RoundedBoxGeometry(0.055, 0.16, 0.03, 2, 0.01),
+    ceramicWhite.clone()
+  );
+  checkShort.position.set(-0.06, -0.03, 0);
+  checkShort.rotation.z = 0.72;
+  const checkLong = new THREE.Mesh(
+    new RoundedBoxGeometry(0.055, 0.28, 0.03, 2, 0.01),
+    ceramicWhite.clone()
+  );
+  checkLong.position.set(0.05, 0.02, 0);
+  checkLong.rotation.z = -0.68;
+  checkGroup.add(checkShort, checkLong);
+  shieldStage.add(outerVaultRing, innerVaultRing, shieldCore, checkGroup);
+
+  // Stage 4 (z = -18.2): 3D Studio Turntable + Isometric Express Parcel + Ring-Light
+  const parcelStage = new THREE.Group();
+  parcelStage.position.set(-0.62, 0.14, -18.2);
+  inner.add(parcelStage);
+
+  const turntable = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.52, 0.58, 0.08, 36),
+    silver.clone()
+  );
+  turntable.position.y = -0.34;
+  const turntableRim = new THREE.Mesh(
+    new THREE.TorusGeometry(0.54, 0.018, 12, 36),
+    cobaltMetal.clone()
+  );
+  turntableRim.rotation.x = Math.PI / 2;
+  turntableRim.position.y = -0.3;
+  parcelStage.add(turntable, turntableRim);
+
+  const parcelBoxGroup = new THREE.Group();
+  parcelBoxGroup.position.y = -0.05;
+  const craftMat = new THREE.MeshStandardMaterial({
+    color: 0xd9a066,
+    roughness: 0.55,
+    metalness: 0.08,
+  });
+  const boxMesh = new THREE.Mesh(
+    new RoundedBoxGeometry(0.46, 0.42, 0.46, 3, 0.025),
+    craftMat
+  );
+  const tapeTop = new THREE.Mesh(
+    new THREE.BoxGeometry(0.47, 0.04, 0.1),
+    cobaltMetal.clone()
+  );
+  tapeTop.position.y = 0.2;
+  const shippingLabel = new THREE.Mesh(
+    new THREE.BoxGeometry(0.22, 0.16, 0.47),
+    ceramicWhite.clone()
+  );
+  shippingLabel.position.set(0.06, 0.04, 0);
+  parcelBoxGroup.add(boxMesh, tapeTop, shippingLabel);
+  parcelStage.add(parcelBoxGroup);
+
+  const studioRing = new THREE.Mesh(
+    new THREE.TorusGeometry(0.42, 0.022, 14, 36),
+    skyMetal.clone()
+  );
+  studioRing.position.y = 0.02;
+  parcelStage.add(studioRing);
+
+  // Stage 5 (z = -26.4): Finale 3D Multi-Device Flagship Podium
+  const finalePodium = new THREE.Group();
+  finalePodium.position.set(0.18, -0.78, -26.4);
+  inner.add(finalePodium);
+
+  const podiumTier1 = new THREE.Mesh(
+    new THREE.CylinderGeometry(1.55, 1.68, 0.09, 48),
+    silver.clone()
+  );
+  const podiumTier2 = new THREE.Mesh(
+    new THREE.CylinderGeometry(1.18, 1.28, 0.08, 48),
+    ceramicWhite.clone()
+  );
+  podiumTier2.position.y = 0.07;
+  const podiumRing = new THREE.Mesh(
+    new THREE.TorusGeometry(1.24, 0.02, 12, 48),
+    cobaltMetal.clone()
+  );
+  podiumRing.rotation.x = Math.PI / 2;
+  podiumRing.position.y = 0.1;
+  finalePodium.add(podiumTier1, podiumTier2, podiumRing);
+
+  // Left 3D Studio Tablet & Right 3D Smartphone on the Finale Podium
+  const sideTablet = new THREE.Mesh(
+    new RoundedBoxGeometry(0.68, 0.48, 0.036, 3, 0.018),
+    darkMetal.clone()
+  );
+  sideTablet.position.set(-1.05, 0.56, 0.28);
+  sideTablet.rotation.y = 0.35;
+  const sidePhone = new THREE.Mesh(
+    new RoundedBoxGeometry(0.32, 0.62, 0.034, 3, 0.016),
+    cobaltMetal.clone()
+  );
+  sidePhone.position.set(1.05, 0.54, 0.28);
+  sidePhone.rotation.y = -0.35;
+  finalePodium.add(sideTablet, sidePhone);
+
+  // Perfectly framed 3D UI cards along the runway (width 1.34, x within [-0.22, +0.66] so they NEVER clip)
   const spots: [number, number, number, number, number][] = [
-    [-0.25, 0.26, -2.4, 0, 0.04],    // Layer 1A: Payment Received
-    [0.98, -0.06, -4.8, 1, -0.1],    // Layer 1B: Dispatch Schedule
-    [-0.28, 0.24, -7.2, 2, 0.04],    // Layer 2A: Live Buyer Chat
-    [1.02, -0.04, -9.6, 3, -0.1],    // Layer 2B: Live Store Traffic
-    [-0.24, 0.26, -12.0, 4, 0.04],   // Layer 3A: Smart Fraud & Sync Toggles
-    [0.96, -0.05, -14.4, 5, -0.1],   // Layer 3B: Maya Reyes Verified Flagship
-    [-0.26, 0.25, -16.8, 6, 0.04],   // Layer 4A: Fulfillment Checklist
-    [1.0, -0.04, -19.2, 9, -0.1],    // Layer 4B: Real-Time Commerce Pulse
-    [-0.25, 0.24, -21.6, 30, 0.04],  // Layer 5A: Neural AI Studio Engine
-    [0.95, -0.06, -24.0, 8, -0.08],  // Layer 5B: Studio Flagship Edition
+    [0.64, 0.04, -2.5, 0, -0.12],    // Layer 1A: Payment Received
+    [0.66, -0.04, -4.9, 1, -0.12],   // Layer 1B: Dispatch Schedule
+    [0.64, 0.06, -7.3, 2, -0.12],    // Layer 2A: Live Buyer Chat
+    [0.66, -0.04, -9.7, 3, -0.12],   // Layer 2B: Live Store Traffic
+    [0.64, 0.06, -12.1, 4, -0.12],   // Layer 3A: Smart Fraud & Sync Toggles
+    [0.66, -0.02, -14.5, 5, -0.12],  // Layer 3B: Maya Reyes Verified Flagship
+    [0.64, 0.06, -16.9, 6, -0.12],   // Layer 4A: Fulfillment Checklist
+    [0.66, -0.04, -19.3, 9, -0.12],  // Layer 4B: Real-Time Commerce Pulse
+    [-0.22, 0.28, -21.7, 30, 0.08],  // Layer 5A: Neural AI Studio Engine
+    [0.64, -0.02, -24.0, 8, -0.1],   // Layer 5B: Studio Flagship Edition
     [0.18, 0.14, -26.4, 7, 0],       // Final Hero Card: Golden Hour Collection
   ];
 
-  const cardMeshes = spots.map(q => {
-    const cardObj = createFramedCard(resources, q[3], 1.62, 1.13, shadowTex);
+  const cardMeshes = spots.map((q, idx) => {
+    const isFinal = idx === spots.length - 1;
+    const cardObj = createFramedCard(
+      resources,
+      q[3],
+      isFinal ? 1.48 : 1.32,
+      isFinal ? 1.03 : 0.92,
+      shadowTex
+    );
     cardObj.group.position.set(q[0], q[1], q[2]);
     cardObj.group.rotation.y = q[4];
     inner.add(cardObj.group);
@@ -1275,24 +1657,30 @@ function laptopScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resour
   const vB = new THREE.Vector3();
   let introStart = 0;
 
-  return (p: number, time: number, reduced: boolean, pointer: Pointer) => {
+  return (p: number, time: number, reduced: boolean, pointer: Pointer, lens: LensMode) => {
     if (!introStart && time > 0) introStart = time;
     const introElapsed = introStart ? Math.max(0, time - introStart) : 0;
     const introOpen = reduced ? 1 : sm(0, 1.5, introElapsed);
 
     const mobile = camera.aspect < 0.8;
-    const fovHalfRad = (camera.fov * Math.PI) / 360;
+    const baseFov = mobile ? 42 : 32;
+    const tunnelBlend = 1 - sm(1.4, 3.4, kf(p, [7.8, 4.5, 2.5, -1.0, -6.2, -11.6, -17.2, -22.8]));
+    const lensBonus = lens === "wide" ? 10 : lens === "orbit" ? 4 : 0;
+    const targetFov = baseFov + tunnelBlend * (mobile ? 12 : 11) + lensBonus;
+    if (Math.abs(camera.fov - targetFov) > 0.05) {
+      camera.fov = targetFov;
+      camera.updateProjectionMatrix();
+    }
+
+    const fovHalfRad = (32 * Math.PI) / 360;
     const fillZ = Math.min(2.75, (SW * 0.94) / (2 * Math.tan(fovHalfRad) * camera.aspect));
     const z0 = mobile ? 9.4 : Math.max(6.8, 7.8 / Math.min(1.35, camera.aspect));
 
-    // 8-Chapter held smootherstep camera keyframes:
-    // Ch 0: Three-quarter laptop view (z0)
-    // Ch 1: Closer front laptop view (4.5)
-    // Ch 2: Screen fills frame (fillZ)
-    // Ch 3..7: Smooth linear glide through the 11 layered cards inside the screen (-1.0 -> -22.8)
     const z = kf(p, [z0, 4.5, fillZ, -1.0, -6.2, -11.6, -17.2, -22.8]);
-    const cx = kf(p, [mobile ? 0 : 2.35, 0, 0, 0, 0, 0, 0, 0]);
-    const cy = kf(p, [1.05, 0.12, 0.02, 0, 0, 0, 0, 0]);
+    const orbitOffsetX = lens === "orbit" ? Math.sin(p * Math.PI * 2) * 0.42 : 0;
+    const orbitOffsetY = lens === "orbit" ? 0.18 : 0;
+    const cx = kf(p, [mobile ? 0 : 2.35, 0, 0, 0, 0, 0, 0, 0]) + orbitOffsetX;
+    const cy = kf(p, [1.05, 0.12, 0.02, 0, 0, 0, 0, 0]) + orbitOffsetY;
     const rotX = kf(p, [-TH0, -0.05, 0, 0, 0, 0, 0, 0]);
     const rotY = kf(p, [mobile ? -0.4 : -0.68, 0, 0, 0, 0, 0, 0, 0]);
     const lookX = kf(p, [mobile ? 0 : -0.55, 0, 0, 0, 0, 0, 0, 0]);
@@ -1312,12 +1700,10 @@ function laptopScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resour
     camera.position.copy(rig.localToWorld(vA.set(cx, cy, z)));
     camera.lookAt(rig.localToWorld(vB.set(lookX, lookY, tz)));
 
-    // Fade the laptop screen glass as the camera crosses through it, then hide the laptop body
     screenMat.opacity = sm(0.15, 1.65, z);
     lap.visible = z > 1.2;
     floorShadow.visible = z > 1.6;
 
-    // Flanking laptop cards fade out cleanly before the camera enters the screen
     const erupt = sm(0.15, 0.95, openProgress);
     const holoFade = sm(1.8, 3.4, z) * erupt;
     holoGroup.visible = holoFade > 0.01;
@@ -1332,40 +1718,108 @@ function laptopScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resour
       });
     }
 
-    // Layered cards inside the tunnel: fade in from distance, fade out before passing camera
     inner.visible = z < 3.4;
     if (inner.visible) {
       const tunnelAlpha = 1 - sm(1.5, 3.2, z);
+
+      // Update architectural portal arches
+      arches.forEach(a => {
+        const dist = z - a.z;
+        const alpha = tunnelAlpha * sm(0.6, 1.8, dist) * (1 - sm(11.5, 15.5, dist));
+        setGroupOpacity(a.group, alpha);
+      });
+
+      // Animate & fade the 5 sculptural 3D hardware stages
+      const stageAlpha = (sz: number, isFinale = false) => {
+        const dist = z - sz;
+        const near = isFinale ? 1 : sm(1.45, 2.65, dist);
+        const far = 1 - sm(10.0, 14.2, dist);
+        return tunnelAlpha * near * far;
+      };
+
+      // Stage 1: 3D Phone + NFC Card
+      const s1 = stageAlpha(-3.8);
+      setGroupOpacity(phoneStage, s1);
+      if (s1 > 0.01) {
+        phoneStage.position.x = -0.62 * (mobile ? 0.62 : 1);
+        phoneBody.rotation.y = 0.32 + (reduced ? 0 : Math.sin(time * 1.1) * 0.08);
+        nfcCard.position.y = -0.14 + (reduced ? 0 : Math.cos(time * 1.6) * 0.035);
+        nfcCard.rotation.z = 0.14 + (reduced ? 0 : Math.sin(time * 1.4) * 0.05);
+      }
+
+      // Stage 2: 3D Extruded Bar Chart Sculpture
+      const s2 = stageAlpha(-8.6);
+      setGroupOpacity(chartStage, s2);
+      if (s2 > 0.01) {
+        chartStage.position.x = -0.62 * (mobile ? 0.62 : 1);
+        chartStage.rotation.y = 0.26 + (reduced ? 0 : Math.sin(time * 0.9) * 0.06);
+        const rise = sm(6.5, 2.2, Math.abs(z - -8.6));
+        barMeshes.forEach((b, idx) => {
+          const pulse = reduced ? 1 : 0.92 + Math.sin(time * 2.0 + idx * 0.7) * 0.08;
+          const hScale = Math.max(0.15, b.targetH * (0.3 + 0.7 * rise) * pulse);
+          b.mesh.scale.y = hScale;
+          b.mesh.position.y = -0.38 + (hScale * 0.8) / 2;
+        });
+      }
+
+      // Stage 3: 3D Authentic Shield & Rotating Vault Lock
+      const s3 = stageAlpha(-13.4);
+      setGroupOpacity(shieldStage, s3);
+      if (s3 > 0.01) {
+        shieldStage.position.x = -0.6 * (mobile ? 0.62 : 1);
+        outerVaultRing.rotation.z = reduced ? 0 : time * 0.45;
+        innerVaultRing.rotation.z = reduced ? 0 : -time * 0.75;
+        shieldStage.position.y = 0.24 + (reduced ? 0 : Math.sin(time * 1.3) * 0.035);
+      }
+
+      // Stage 4: 3D Turntable + Express Parcel + Orbiting Ring-Light
+      const s4 = stageAlpha(-18.2);
+      setGroupOpacity(parcelStage, s4);
+      if (s4 > 0.01) {
+        parcelStage.position.x = -0.62 * (mobile ? 0.62 : 1);
+        parcelBoxGroup.rotation.y = reduced ? 0.6 : time * 0.65;
+        studioRing.rotation.y = reduced ? -0.4 : -time * 0.9;
+        studioRing.rotation.x = 0.35 + (reduced ? 0 : Math.sin(time * 1.2) * 0.15);
+      }
+
+      // Stage 5: Finale 3D Multi-Device Flagship Podium
+      const s5 = stageAlpha(-26.4, true);
+      setGroupOpacity(finalePodium, s5);
+      if (s5 > 0.01) {
+        sideTablet.position.y = 0.56 + (reduced ? 0 : Math.sin(time * 1.3) * 0.03);
+        sidePhone.position.y = 0.54 + (reduced ? 0 : Math.cos(time * 1.5) * 0.03);
+      }
+
+      // Layered 3D UI cards (properly sized and framed so they never clip on screen edges)
       cardMeshes.forEach((c, i) => {
-        // Distance ahead of the camera along -z
         const distAhead = z - c.basePos.z;
-        // Fade out smoothly when closer than 2.0 units so cards never clip on the screen edge
-        const nearFade = i === cardMeshes.length - 1 ? 1 : sm(0.85, 2.1, distAhead);
-        // Fade in smoothly from the distant fog (between 13.5 and 9.5 units ahead)
-        const farFade = 1 - sm(9.5, 13.5, distAhead);
+        const nearFade = i === cardMeshes.length - 1 ? 1 : sm(1.55, 2.75, distAhead);
+        const farFade = 1 - sm(9.8, 13.8, distAhead);
         const alpha = tunnelAlpha * nearFade * farFade;
 
         c.setOpacity(alpha);
         if (alpha > 0.01) {
-          const bob = reduced ? 0 : Math.sin(time * 1.2 + i * 1.4) * 0.035;
-          c.group.position.x = c.basePos.x * (mobile ? 0.65 : 1);
+          const bob = reduced ? 0 : Math.sin(time * 1.2 + i * 1.4) * 0.032;
+          c.group.position.x = c.basePos.x * (mobile ? 0.58 : 1);
           c.group.position.y = c.basePos.y + bob;
           c.group.position.z = c.basePos.z;
           c.group.rotation.y = c.baseRotY - pointer.x * 0.04 * sway;
           c.group.rotation.x = pointer.y * 0.03 * sway;
-          c.group.scale.setScalar(mobile ? 0.8 : 1);
+          c.group.scale.setScalar(mobile ? 0.76 : 1);
         }
       });
     }
+
+    return { depthMeters: z };
   };
 }
 
-// --- SCENE 02: CLEAN CAMERA-ON-A-RAIL SCROLL SCENE (8 CHAPTERS, ZERO PARTICLES) ---
+// --- SCENE 02: 3D DUAL-RAIL MONORAIL COASTER & TURNTABLE PODIUMS (8 CHAPTERS, ZERO PARTICLES) ---
 function railScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resources: Resources): SceneUpdate {
   camera.fov = 44;
-  scene.fog = new THREE.Fog(0xedf4ff, 5.0, 20.0);
+  scene.fog = new THREE.Fog(0xedf4ff, 5.5, 21.5);
 
-  // Smooth 16-point Catmull-Rom spline snaking 54 units along -z with gentle x and y changes
+  // Smooth 16-point Catmull-Rom spline snaking 60 units along -z
   const curve = new THREE.CatmullRomCurve3(
     [
       [-2.6, 0.1, 6],
@@ -1389,8 +1843,51 @@ function railScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resource
     "centripetal"
   );
 
-  // Clean accent-blue dotted route line below the camera path (faithful to the BrewedOps specification)
-  const routePoints = curve.getSpacedPoints(260).map(p => p.setY(p.y - 0.28));
+  const up = new THREE.Vector3(0, 1, 0);
+  const sideways = new THREE.Vector3();
+
+  // Physical 3D Dual-Rail Monorail Track + Metallic Cross-Tie Sleepers
+  const leftRailPts: THREE.Vector3[] = [];
+  const rightRailPts: THREE.Vector3[] = [];
+  const sampleCount = 80;
+  for (let i = 0; i <= sampleCount; i++) {
+    const u = i / sampleCount;
+    const pt = curve.getPointAt(u);
+    const tan = curve.getTangentAt(u);
+    sideways.crossVectors(tan, up).normalize();
+    leftRailPts.push(pt.clone().addScaledVector(sideways, -0.28).setY(pt.y - 0.38));
+    rightRailPts.push(pt.clone().addScaledVector(sideways, 0.28).setY(pt.y - 0.38));
+  }
+
+  const leftCurve = new THREE.CatmullRomCurve3(leftRailPts);
+  const rightCurve = new THREE.CatmullRomCurve3(rightRailPts);
+  const railMat = new THREE.MeshStandardMaterial({
+    color: 0x3b82f6,
+    roughness: 0.25,
+    metalness: 0.65,
+  });
+  const sleeperMat = new THREE.MeshStandardMaterial({
+    color: 0xcbd5e1,
+    roughness: 0.3,
+    metalness: 0.6,
+  });
+
+  scene.add(new THREE.Mesh(new THREE.TubeGeometry(leftCurve, 160, 0.02, 8, false), railMat));
+  scene.add(new THREE.Mesh(new THREE.TubeGeometry(rightCurve, 160, 0.02, 8, false), railMat));
+
+  const sleeperGeo = new RoundedBoxGeometry(0.64, 0.02, 0.055, 2, 0.008);
+  for (let i = 0; i < 46; i++) {
+    const u = (i + 0.5) / 46;
+    const pt = curve.getPointAt(u);
+    const tan = curve.getTangentAt(u);
+    const sleeper = new THREE.Mesh(sleeperGeo, sleeperMat);
+    sleeper.position.set(pt.x, pt.y - 0.39, pt.z);
+    sleeper.lookAt(pt.x + tan.x, pt.y - 0.39 + tan.y, pt.z + tan.z);
+    scene.add(sleeper);
+  }
+
+  // Central accent-blue dotted guide line along the monorail
+  const routePoints = curve.getSpacedPoints(260).map(p => p.setY(p.y - 0.34));
   const routeGeo = new THREE.BufferGeometry().setFromPoints(routePoints);
   const dotCanvas = resources.canvas(32, 32),
     dg = dotCanvas.getContext("2d")!;
@@ -1410,9 +1907,19 @@ function railScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resource
     )
   );
 
-  const up = new THREE.Vector3(0, 1, 0);
-  const sideways = new THREE.Vector3();
   const shadow = shadowTexture(resources);
+  const podiumGeo = new THREE.CylinderGeometry(0.62, 0.7, 0.08, 32);
+  const podiumRimGeo = new THREE.TorusGeometry(0.66, 0.018, 12, 36);
+  const podiumMat = new THREE.MeshStandardMaterial({
+    color: 0xffffff,
+    roughness: 0.25,
+    metalness: 0.2,
+  });
+  const podiumRimMat = new THREE.MeshStandardMaterial({
+    color: 0x0a6cff,
+    roughness: 0.22,
+    metalness: 0.55,
+  });
 
   // 8 primary chapter stops (focus: 0..7) + 4 intermediate cards (focus: -1)
   const focusKinds = [10, 11, 12, 13, 14, 15, 16, 17];
@@ -1430,15 +1937,25 @@ function railScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resource
     const tangent = curve.getTangentAt(stop.u);
     sideways.crossVectors(tangent, up).normalize();
 
-    const cardObj = createFramedCard(resources, stop.kind, 1.54, 1.08, shadow);
-    const sideDir = (i % 2 ? 1 : -1) * 1.35;
+    const cardObj = createFramedCard(resources, stop.kind, 1.42, 0.98, shadow);
+    // Add a 3D circular studio turntable pedestal beneath each card
+    const pod = new THREE.Mesh(podiumGeo, podiumMat.clone());
+    pod.position.set(0, -0.62, -0.02);
+    const podRim = new THREE.Mesh(podiumRimGeo, podiumRimMat.clone());
+    podRim.rotation.x = Math.PI / 2;
+    podRim.position.set(0, -0.58, -0.02);
+    cardObj.group.add(pod, podRim);
+
+    const sideDir = (i % 2 ? 1 : -1) * 1.28;
     cardObj.group.position.copy(point).addScaledVector(sideways, sideDir);
-    cardObj.group.position.y += 0.3;
+    cardObj.group.position.y += 0.28;
     cardObj.group.lookAt(point.clone().addScaledVector(tangent, -2.4));
     scene.add(cardObj.group);
 
     return {
       ...cardObj,
+      podMat: pod.material as THREE.MeshStandardMaterial,
+      podRimMat: podRim.material as THREE.MeshStandardMaterial,
       u: stop.u,
       point: point.clone(),
       offset: sideways.clone().multiplyScalar(sideDir),
@@ -1449,11 +1966,14 @@ function railScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resource
 
   const point = new THREE.Vector3();
   const look = new THREE.Vector3();
+  const tanNow = new THREE.Vector3();
+  const tanAhead = new THREE.Vector3();
 
-  return (p: number, time: number, reduced: boolean, pointer: Pointer) => {
+  return (p: number, time: number, reduced: boolean, pointer: Pointer, lens: LensMode) => {
     const mobile = camera.aspect < 0.8;
-    const fov = mobile ? 56 : 44;
-    if (camera.fov !== fov) {
+    const lensBonus = lens === "wide" ? 10 : lens === "orbit" ? 4 : 0;
+    const fov = (mobile ? 56 : 44) + lensBonus;
+    if (Math.abs(camera.fov - fov) > 0.05) {
       camera.fov = fov;
       camera.updateProjectionMatrix();
     }
@@ -1461,31 +1981,49 @@ function railScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resource
     const u = 0.02 + p * 0.86;
     curve.getPointAt(u, point);
     curve.getPointAt(Math.min(1, u + 0.045), look);
+    curve.getTangentAt(u, tanNow);
+    curve.getTangentAt(Math.min(1, u + 0.03), tanAhead);
 
     const sway = reduced ? 0 : 1;
-    camera.position.set(point.x + pointer.x * 0.12 * sway, point.y + 0.16 - pointer.y * 0.08 * sway, point.z);
+    const orbitSide = lens === "orbit" ? 0.48 : 0;
+    const orbitUp = lens === "orbit" ? 0.22 : 0;
+
+    camera.position.set(
+      point.x + orbitSide + pointer.x * 0.12 * sway,
+      point.y + 0.18 + orbitUp - pointer.y * 0.08 * sway,
+      point.z
+    );
+
+    // Subtle smooth coaster banking around curves
+    const turnRate = (tanAhead.x - tanNow.x) * (reduced ? 0 : 0.35);
+    const bankAngle = Math.max(-0.085, Math.min(0.085, -turnRate));
+    camera.up.set(Math.sin(bankAngle), Math.cos(bankAngle), 0);
     camera.lookAt(look.x + pointer.x * 0.25 * sway, look.y + 0.05 - pointer.y * 0.14 * sway, look.z);
 
     const current = p * 7;
 
     cards.forEach(c => {
-      // Fade out smoothly right as the camera passes the card so it never clips on the screen edge
       const du = c.u - u;
-      const nearFade = sm(-0.005, 0.028, du);
+      const nearFade = sm(0.002, 0.032, du);
       const farFade = 1 - sm(0.28, 0.38, du);
       const alpha = nearFade * farFade;
       c.setOpacity(alpha);
+      c.podMat.transparent = true;
+      c.podMat.opacity = alpha;
+      c.podRimMat.transparent = true;
+      c.podRimMat.opacity = alpha;
 
       if (alpha > 0.01) {
         const lift = c.focus < 0 ? 0 : 1 - sm(0, 0.55, Math.abs(current - c.focus));
-        c.group.position.copy(c.point).addScaledVector(c.offset, mobile ? 0.58 : 1);
-        c.group.scale.setScalar((mobile ? 0.8 : 1) * (1 + lift * 0.2));
-        c.group.position.y = c.y + (reduced ? 0 : Math.sin(time * 1.2 + c.u * 12) * 0.045);
+        c.group.position.copy(c.point).addScaledVector(c.offset, mobile ? 0.56 : 1);
+        c.group.scale.setScalar((mobile ? 0.78 : 1) * (1 + lift * 0.16));
+        c.group.position.y = c.y + lift * 0.08 + (reduced ? 0 : Math.sin(time * 1.2 + c.u * 12) * 0.04);
       }
     });
+
+    return { depthMeters: point.z };
   };
 }
-
 
 export function mountScrollScene(root: HTMLElement, kind: SceneKind, chapterCount: number) {
   const stage = root.querySelector<HTMLElement>("[data-stage]")!,
@@ -1493,6 +2031,7 @@ export function mountScrollScene(root: HTMLElement, kind: SceneKind, chapterCoun
   const copies = [...root.querySelectorAll<HTMLElement>("[data-copy]")];
   const fills = [...root.querySelectorAll<HTMLElement>("[data-progress]")];
   const stopBtns = [...root.querySelectorAll<HTMLElement>("[data-stop]")];
+  const telemetryEl = root.querySelector<HTMLElement>("[data-telemetry]");
   const resources = new Resources(),
     scene = new THREE.Scene();
 
@@ -1527,7 +2066,7 @@ export function mountScrollScene(root: HTMLElement, kind: SceneKind, chapterCoun
 
   function setResolution() {
     if (!renderer) return;
-    const ratio = Math.min(window.devicePixelRatio, 1.65, Math.sqrt(1_800_000 / (width * height))) * quality;
+    const ratio = Math.min(window.devicePixelRatio, 1.75, Math.sqrt(2_100_000 / (width * height))) * quality;
     renderer.setPixelRatio(ratio);
     renderer.setSize(width, height, false);
     root.dataset.renderScale = ratio.toFixed(2);
@@ -1550,8 +2089,8 @@ export function mountScrollScene(root: HTMLElement, kind: SceneKind, chapterCoun
       scene.environment = environment.texture;
       scene.environmentIntensity = kind === "laptop" ? 1.1 : 0.9;
       if (kind === "laptop") {
-        hemisphere.intensity = 0.75;
-        light.intensity = 1.45;
+        hemisphere.intensity = 0.78;
+        light.intensity = 1.5;
         updateScene = laptopScene(scene, camera, resources);
       } else {
         updateScene = railScene(scene, camera, resources);
@@ -1631,7 +2170,14 @@ export function mountScrollScene(root: HTMLElement, kind: SceneKind, chapterCoun
     const hintOpacity = 1 - sm(0.01, 0.08, progress);
     root.style.setProperty("--hint-opacity", hintOpacity.toFixed(2));
 
-    updateScene?.(progress, time / 1000, false, pointer);
+    const lensMode = (root.dataset.lens as LensMode) || "cinema";
+    const info = updateScene?.(progress, time / 1000, false, pointer, lensMode);
+
+    if (telemetryEl && info) {
+      const pct = Math.round(progress * 100);
+      const depthStr = info.depthMeters >= 0 ? `+${info.depthMeters.toFixed(1)}M` : `${info.depthMeters.toFixed(1)}M`;
+      telemetryEl.textContent = `Z-DEPTH ${depthStr} • ${pct}%`;
+    }
 
     renderer?.render(scene, camera);
 
@@ -1762,3 +2308,4 @@ export function mountScrollScene(root: HTMLElement, kind: SceneKind, chapterCoun
     renderer?.domElement.remove();
   };
 }
+

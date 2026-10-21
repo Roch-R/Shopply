@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import styles from "./experience.module.css";
 import HeroZoomOut from "./HeroZoomOut";
-import type { SceneKind } from "./scroll-scenes";
+import type { LensMode, SceneKind } from "./scroll-scenes";
 
 const laptopChapters = [
   {
@@ -255,6 +255,8 @@ function smoothScrollTo(targetY: number, duration = 850) {
 
 function ScrollScene({ kind, onLoginClick }: { kind: SceneKind; onLoginClick?: () => void }) {
   const rootRef = useRef<HTMLElement>(null);
+  const [lens, setLens] = useState<LensMode>("cinema");
+  const [cruising, setCruising] = useState(false);
   const meta = sceneMeta[kind];
   const chapters = meta.chapters;
 
@@ -278,7 +280,50 @@ function ScrollScene({ kind, onLoginClick }: { kind: SceneKind; onLoginClick?: (
     };
   }, [kind, chapters.length]);
 
+  useEffect(() => {
+    if (!cruising) return;
+    let raf = 0;
+    let lastTime = performance.now();
+
+    function stopCruise() {
+      setCruising(false);
+    }
+
+    function tick(now: number) {
+      const root = rootRef.current;
+      if (!root) return;
+      const dt = Math.min(0.05, (now - lastTime) / 1000);
+      lastTime = now;
+
+      const stage = root.querySelector<HTMLElement>("[data-stage]");
+      const stageH = stage ? stage.clientHeight : window.innerHeight;
+      const scrollStart = root.getBoundingClientRect().top + window.scrollY;
+      const scrollEnd = scrollStart + Math.max(1, root.offsetHeight - stageH);
+
+      if (window.scrollY < scrollStart - 10) {
+        window.scrollTo(0, scrollStart);
+      } else if (window.scrollY >= scrollEnd - 4) {
+        setCruising(false);
+        return;
+      } else {
+        window.scrollBy(0, dt * 210);
+      }
+      raf = requestAnimationFrame(tick);
+    }
+
+    raf = requestAnimationFrame(tick);
+    window.addEventListener("wheel", stopCruise, { passive: true });
+    window.addEventListener("touchstart", stopCruise, { passive: true });
+
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("wheel", stopCruise);
+      window.removeEventListener("touchstart", stopCruise);
+    };
+  }, [cruising]);
+
   function goTo(index: number) {
+    setCruising(false);
     const root = rootRef.current;
     if (!root) return;
     const clampedIndex = Math.max(0, Math.min(chapters.length - 1, index));
@@ -310,6 +355,7 @@ function ScrollScene({ kind, onLoginClick }: { kind: SceneKind; onLoginClick?: (
       className={sceneClassName}
       data-kind={kind}
       data-chapter="0"
+      data-lens={lens}
       aria-label={meta.ariaLabel}
     >
       <div className={styles.sticky} data-stage>
@@ -370,8 +416,8 @@ function ScrollScene({ kind, onLoginClick }: { kind: SceneKind; onLoginClick?: (
                     >
                       Start shopping <span aria-hidden="true">↗</span>
                     </a>
-                    <button onClick={() => goTo(1)}>
-                      Explore 3D worlds <span aria-hidden="true">↓</span>
+                    <button type="button" onClick={() => setCruising(true)}>
+                      ▶ Auto-Cruise 3D
                     </button>
                   </div>
                 )}
@@ -397,7 +443,32 @@ function ScrollScene({ kind, onLoginClick }: { kind: SceneKind; onLoginClick?: (
         </nav>
 
         <div className={styles.hudBar}>
-          <span className={styles.hudNote}>{meta.footerNote}</span>
+          <span className={styles.telemetryPill} data-telemetry>
+            Z-DEPTH +7.8M • 0%
+          </span>
+
+          <div className={styles.lensGroup} role="group" aria-label="3D Camera Lens">
+            {(["cinema", "wide", "orbit"] as LensMode[]).map(mode => (
+              <button
+                key={mode}
+                type="button"
+                data-active={lens === mode}
+                onClick={() => setLens(mode)}
+              >
+                {mode === "cinema" ? "Cinema" : mode === "wide" ? "Wide 3D" : "Orbit"}
+              </button>
+            ))}
+          </div>
+
+          <button
+            type="button"
+            className={styles.cruiseBtn}
+            data-active={cruising}
+            onClick={() => setCruising(c => !c)}
+          >
+            {cruising ? "⏸ Pause 3D" : "▶ Auto-Cruise"}
+          </button>
+
           <div className={styles.hudNav}>
             <button type="button" onClick={() => stepBy(-1)} aria-label="Previous 3D chapter">
               ↑ Prev
