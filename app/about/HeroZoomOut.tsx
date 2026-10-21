@@ -7,17 +7,15 @@ const VIDEO_URL =
   "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260328_083109_283f3553-e28f-428b-a723-d639c617eb2b.mp4";
 
 const NAV_ITEMS = [
-  { label: "3D Studio", active: true, href: "#story" },
+  { label: "Home", active: true, href: "#about-top" },
+  { label: "3D Studio", active: false, href: "#story" },
   { label: "Product Coaster", active: false, href: "#journey" },
   { label: "Global Orbit", active: false, href: "#globe-journey" },
   { label: "Features", active: false, href: "#features" },
-  { label: "Marketplace", active: false, href: "/shop" },
 ];
 
 export default function HeroZoomOut({
   onLoginClick,
-  user,
-  onLogout,
 }: {
   onLoginClick?: () => void;
   user?: { name: string; email: string } | null;
@@ -146,44 +144,24 @@ export default function HeroZoomOut({
           </div>
 
           <div className="flex items-center gap-3">
-            {user?.name ? (
-              <>
-                <Link
-                  href="/shop"
-                  className="text-sm font-semibold text-[#0f172a] transition-colors hover:text-[#0a6cff]"
-                >
-                  Hi, {user.name.split(" ")[0]}
-                </Link>
-                <button
-                  type="button"
-                  onClick={onLogout}
-                  className="rounded-full bg-[#0f172a] px-6 py-2.5 text-sm font-semibold text-white shadow-md transition-transform duration-200 hover:scale-[1.03]"
-                >
-                  Log Out
-                </button>
-              </>
-            ) : (
-              <>
-                <Link
-                  href="/login"
-                  onClick={(e) => {
-                    if (onLoginClick) {
-                      e.preventDefault();
-                      onLoginClick();
-                    }
-                  }}
-                  className="rounded-full border border-slate-300/80 bg-white/80 px-5 py-2.5 text-sm font-semibold text-[#0f172a] shadow-sm backdrop-blur-md transition-all duration-200 hover:border-[#0a6cff] hover:text-[#0a6cff]"
-                >
-                  Log In
-                </Link>
-                <Link
-                  href="/register"
-                  className="rounded-full bg-gradient-to-r from-[#0a6cff] to-[#0284c7] px-6 py-2.5 text-sm font-semibold text-white shadow-[0_8px_22px_rgba(10,108,255,0.35)] transition-transform duration-200 hover:scale-[1.03]"
-                >
-                  Sign Up Now
-                </Link>
-              </>
-            )}
+            <Link
+              href="/login"
+              onClick={(e) => {
+                if (onLoginClick) {
+                  e.preventDefault();
+                  onLoginClick();
+                }
+              }}
+              className="rounded-full border border-slate-300/80 bg-white/80 px-5 py-2.5 text-sm font-semibold text-[#0f172a] shadow-sm backdrop-blur-md transition-all duration-200 hover:border-[#0a6cff] hover:text-[#0a6cff]"
+            >
+              Log In
+            </Link>
+            <Link
+              href="/register"
+              className="rounded-full bg-gradient-to-r from-[#0a6cff] to-[#0284c7] px-6 py-2.5 text-sm font-semibold text-white shadow-[0_8px_22px_rgba(10,108,255,0.35)] transition-transform duration-200 hover:scale-[1.03]"
+            >
+              Sign Up Now
+            </Link>
           </div>
         </nav>
       </header>
@@ -197,7 +175,7 @@ export default function HeroZoomOut({
         <div
           className="pointer-events-none hidden xl:block absolute left-6 top-[22%] w-64 rounded-3xl border border-white/90 bg-white/75 p-5 text-left shadow-[0_24px_54px_rgba(15,23,42,0.12),inset_0_1px_1px_rgba(255,255,255,0.95)] backdrop-blur-2xl transition-transform duration-200 ease-out"
           style={{
-            transform: ` perspective(1000px) rotateY(${(14 + tilt.x * 8).toFixed(1)}deg) rotateX(${(-tilt.y * 6).toFixed(1)}deg) translate3d(${(tilt.x * 14).toFixed(1)}px, ${(tilt.y * 10).toFixed(1)}px, 40px)`,
+            transform: `perspective(1000px) rotateY(${(14 + tilt.x * 8).toFixed(1)}deg) rotateX(${(-tilt.y * 6).toFixed(1)}deg) translate3d(${(tilt.x * 14).toFixed(1)}px, ${(tilt.y * 10).toFixed(1)}px, 40px)`,
           }}
         >
           <div className="flex items-center justify-between text-[10px] font-mono font-bold uppercase tracking-widest text-[#0a6cff]">
@@ -258,16 +236,8 @@ export default function HeroZoomOut({
           Step inside the interactive 3D storefront universe — explore sculpted flagship drops, instant passkey checkout, and live nationwide delivery telemetry.
         </p>
 
-        {/* Primary Action Buttons Connected to Login, Sign Up & Marketplace */}
+        {/* Primary Action Buttons Connected Exclusively to Log In & Sign Up Now */}
         <div className="animate-fade-rise-delay-2 mt-9 flex flex-wrap items-center justify-center gap-4">
-          <Link
-            href="/register"
-            className="group inline-flex items-center gap-3 rounded-full bg-gradient-to-r from-[#0a6cff] via-[#0284c7] to-[#38bdf8] px-10 py-4.5 text-base font-semibold text-white shadow-[0_14px_34px_rgba(10,108,255,0.38),inset_0_1px_1px_rgba(255,255,255,0.5)] transition-all duration-200 hover:-translate-y-0.5 hover:scale-[1.03] hover:shadow-[0_18px_40px_rgba(10,108,255,0.5)]"
-          >
-            <span>Sign Up Now</span>
-            <span className="transition-transform duration-200 group-hover:translate-x-1">→</span>
-          </Link>
-
           <Link
             href="/login"
             onClick={(e) => {
@@ -276,17 +246,17 @@ export default function HeroZoomOut({
                 onLoginClick();
               }
             }}
-            className="inline-flex items-center gap-2 rounded-full border border-white/95 bg-white/85 px-10 py-4.5 text-base font-semibold text-[#0f172a] shadow-[0_12px_28px_rgba(15,23,42,0.1)] backdrop-blur-xl transition-all duration-200 hover:-translate-y-0.5 hover:border-[#0a6cff] hover:text-[#0a6cff]"
+            className="group inline-flex items-center gap-3 rounded-full bg-gradient-to-r from-[#0a6cff] via-[#0284c7] to-[#38bdf8] px-10 py-4.5 text-base font-semibold text-white shadow-[0_14px_34px_rgba(10,108,255,0.38),inset_0_1px_1px_rgba(255,255,255,0.5)] transition-all duration-200 hover:-translate-y-0.5 hover:scale-[1.03] hover:shadow-[0_18px_40px_rgba(10,108,255,0.5)]"
           >
             <span>Log In</span>
+            <span className="transition-transform duration-200 group-hover:translate-x-1">→</span>
           </Link>
 
           <Link
-            href="/shop"
-            className="inline-flex items-center gap-2 rounded-full border border-sky-200/90 bg-sky-50/80 px-7 py-4.5 text-sm font-semibold text-[#0284c7] backdrop-blur-xl transition-all duration-200 hover:bg-white hover:text-[#0a6cff]"
+            href="/register"
+            className="inline-flex items-center gap-2 rounded-full border border-white/95 bg-white/85 px-10 py-4.5 text-base font-semibold text-[#0f172a] shadow-[0_12px_28px_rgba(15,23,42,0.1)] backdrop-blur-xl transition-all duration-200 hover:-translate-y-0.5 hover:border-[#0a6cff] hover:text-[#0a6cff]"
           >
-            <span>Explore Marketplace</span>
-            <span>↗</span>
+            <span>Sign Up Now</span>
           </Link>
         </div>
 

@@ -2118,7 +2118,7 @@ export default function ShopPage() {
           display: flex;
           flex-direction: column;
           justify-content: space-between;
-          padding: 36px 36px 24px;
+          padding: 36px 64px 24px;
           box-shadow: 0 16px 36px rgba(0,0,0,0.12);
           transition: all 0.3s ease;
         }
@@ -2412,6 +2412,24 @@ export default function ShopPage() {
             <span className="logo-text">Shopply</span>
           </Link>
           <div className="nav-right">
+            <Link
+              href="/"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6,
+                padding: '8px 14px',
+                borderRadius: 999,
+                border: '1.5px solid #e2e8f0',
+                background: '#f8fafc',
+                color: '#0f172a',
+                fontSize: 13,
+                fontWeight: 700,
+                textDecoration: 'none',
+              }}
+            >
+              <span>← 3D Home</span>
+            </Link>
             <Link href="/cart" className="cart-nav-icon">
               <IconCart />
               {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
