@@ -64,14 +64,17 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 13px;
+  padding: 6px 14px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(10, 108, 255, 0.2);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.48) 0%, rgba(235, 246, 255, 0.28) 100%);
+  backdrop-filter: blur(22px) saturate(190%);
+  -webkit-backdrop-filter: blur(22px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.78);
   color: #0a6cff;
-  box-shadow: 0 4px 14px rgba(10, 108, 255, 0.08);
+  box-shadow:
+    0 8px 24px rgba(10, 108, 255, 0.1),
+    inset 0 1px 1px rgba(255, 255, 255, 0.92),
+    inset 0 -1px 1px rgba(10, 108, 255, 0.15);
 }
 
 .worldBadge::before {
@@ -84,20 +87,28 @@
 }
 
 .worldSub {
-  color: #475569;
-  background: rgba(255, 255, 255, 0.72);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  padding: 6px 14px;
+  color: #1e293b;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.44) 0%, rgba(240, 248, 255, 0.24) 100%);
+  backdrop-filter: blur(22px) saturate(190%);
+  -webkit-backdrop-filter: blur(22px) saturate(190%);
+  padding: 6px 15px;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.76);
+  box-shadow:
+    0 8px 24px rgba(15, 23, 42, 0.06),
+    inset 0 1px 1px rgba(255, 255, 255, 0.9);
 }
 
 .worldHint {
-  color: #0284c7;
-  background: rgba(240, 249, 255, 0.85);
-  border: 1px solid rgba(14, 165, 233, 0.24);
-  padding: 6px 13px;
+  color: #0369a1;
+  background: linear-gradient(135deg, rgba(224, 242, 254, 0.46) 0%, rgba(255, 255, 255, 0.28) 100%);
+  backdrop-filter: blur(22px) saturate(190%);
+  -webkit-backdrop-filter: blur(22px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.78);
+  box-shadow:
+    0 8px 24px rgba(14, 165, 233, 0.1),
+    inset 0 1px 1px rgba(255, 255, 255, 0.92);
+  padding: 6px 14px;
   border-radius: 999px;
   opacity: var(--hint-opacity, 1);
   transition: opacity 0.25s ease;
@@ -118,15 +129,22 @@
   visibility: hidden;
   pointer-events: none;
   padding: 26px 28px;
-  border-radius: 24px;
-  background: linear-gradient(155deg, rgba(255, 255, 255, 0.94) 0%, rgba(246, 250, 255, 0.88) 100%);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.96);
+  border-radius: 26px;
+  background: linear-gradient(
+    140deg,
+    rgba(255, 255, 255, 0.44) 0%,
+    rgba(238, 247, 255, 0.24) 52%,
+    rgba(219, 238, 255, 0.34) 100%
+  );
+  backdrop-filter: blur(28px) saturate(200%);
+  -webkit-backdrop-filter: blur(28px) saturate(200%);
+  border: 1px solid rgba(255, 255, 255, 0.78);
   box-shadow:
-    0 24px 60px rgba(15, 23, 42, 0.09),
-    0 4px 16px rgba(10, 108, 255, 0.06),
-    inset 0 1px 0 rgba(255, 255, 255, 0.95);
+    0 28px 64px rgba(10, 37, 88, 0.14),
+    0 6px 20px rgba(10, 108, 255, 0.09),
+    inset 0 1.5px 1.5px rgba(255, 255, 255, 0.95),
+    inset 0 -1px 1.5px rgba(10, 108, 255, 0.18),
+    inset 1px 0 1px rgba(255, 255, 255, 0.7);
   opacity: var(--o, 0);
   transform: translate3d(0, var(--y, 0px), 0) scale(var(--scale, 1));
   transform-origin: left bottom;
@@ -138,14 +156,32 @@
   content: "";
   position: absolute;
   top: 0;
-  left: 16px;
-  right: 16px;
+  left: 18px;
+  right: 18px;
   height: 2px;
-  background: linear-gradient(90deg, #0a6cff 0%, #38bdf8 55%, transparent 100%);
-  opacity: 0.85;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.95) 0%, #0a6cff 35%, #38bdf8 75%, transparent 100%);
+  opacity: 0.95;
+  z-index: 2;
+}
+
+.copy::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    125deg,
+    rgba(255, 255, 255, 0.52) 0%,
+    rgba(255, 255, 255, 0.14) 36%,
+    rgba(255, 255, 255, 0) 60%
+  );
+  pointer-events: none;
+  z-index: 0;
 }
 
 .copy > * {
+  position: relative;
+  z-index: 1;
   pointer-events: auto;
 }
 
@@ -177,10 +213,13 @@
   font-size: 9.5px;
   font-weight: 700;
   letter-spacing: 0.12em;
-  color: #0284c7;
-  background: rgba(14, 165, 233, 0.1);
-  border: 1px solid rgba(14, 165, 233, 0.24);
-  padding: 3px 9px;
+  color: #0369a1;
+  background: rgba(255, 255, 255, 0.46);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.82);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  padding: 3px 10px;
   border-radius: 999px;
 }
 
@@ -207,7 +246,7 @@
 .description {
   font-size: clamp(12.5px, 1.15vw, 15px);
   line-height: 1.58;
-  color: #334155;
+  color: #1e293b;
   max-width: 405px;
   margin: 0;
 }
@@ -227,10 +266,13 @@
   font-size: 13px;
   font-weight: 600;
   color: #fff;
-  background: linear-gradient(135deg, #0a6cff 0%, #2563eb 100%);
+  background: linear-gradient(135deg, rgba(10, 108, 255, 0.92) 0%, rgba(37, 99, 235, 0.92) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.45);
   border-radius: 999px;
   padding: 14px 24px;
-  box-shadow: 0 6px 20px rgba(10, 108, 255, 0.32);
+  box-shadow:
+    0 8px 24px rgba(10, 108, 255, 0.32),
+    inset 0 1px 1px rgba(255, 255, 255, 0.55);
   transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
 }
 
@@ -246,13 +288,18 @@
 }
 
 .actions button {
-  border: 1px solid rgba(10, 108, 255, 0.18);
-  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.82);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.52) 0%, rgba(235, 246, 255, 0.32) 100%);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow:
+    0 6px 18px rgba(15, 23, 42, 0.06),
+    inset 0 1px 1px rgba(255, 255, 255, 0.92);
   display: flex;
   gap: 8px;
   font-size: 12px;
   font-weight: 600;
-  color: #1e293b;
+  color: #0f172a;
   cursor: pointer;
   padding: 11px 16px;
   border-radius: 999px;
@@ -261,11 +308,11 @@
 
 .actions button:hover {
   color: #0a6cff;
-  border-color: rgba(10, 108, 255, 0.4);
-  background: #ffffff;
+  border-color: rgba(10, 108, 255, 0.45);
+  background: rgba(255, 255, 255, 0.78);
 }
 
-/* Interactive 10-Chapter Right-Side Navigation Rail */
+/* Interactive 8-Chapter Right-Side Navigation Rail */
 .stops {
   position: absolute;
   right: 26px;
@@ -296,13 +343,14 @@
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: #475569;
-  background: rgba(255, 255, 255, 0.88);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  padding: 3px 9px;
+  color: #1e293b;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.52) 0%, rgba(235, 246, 255, 0.32) 100%);
+  backdrop-filter: blur(18px) saturate(190%);
+  -webkit-backdrop-filter: blur(18px) saturate(190%);
+  padding: 4px 10px;
   border-radius: 999px;
-  border: 1px solid rgba(10, 108, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.92);
   opacity: 0;
   transform: translateX(6px);
   transition: opacity 0.2s ease, transform 0.2s ease, color 0.2s ease, border-color 0.2s ease;
@@ -316,8 +364,10 @@
 
 .stopBtn[data-active="true"] .stopLabel {
   color: #0a6cff;
-  border-color: rgba(10, 108, 255, 0.38);
-  box-shadow: 0 4px 12px rgba(10, 108, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.92);
+  box-shadow:
+    0 6px 16px rgba(10, 108, 255, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95);
 }
 
 .stopDot {
@@ -358,13 +408,15 @@
   font-weight: 700;
   letter-spacing: 0.13em;
   color: #0a6cff;
-  background: rgba(255, 255, 255, 0.88);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  padding: 7px 13px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.46) 0%, rgba(235, 246, 255, 0.28) 100%);
+  backdrop-filter: blur(22px) saturate(190%);
+  -webkit-backdrop-filter: blur(22px) saturate(190%);
+  padding: 7px 14px;
   border-radius: 999px;
-  border: 1px solid rgba(10, 108, 255, 0.22);
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow:
+    0 8px 24px rgba(15, 23, 42, 0.08),
+    inset 0 1px 1px rgba(255, 255, 255, 0.92);
   white-space: nowrap;
 }
 
@@ -372,13 +424,15 @@
   display: inline-flex;
   align-items: center;
   gap: 3px;
-  background: rgba(255, 255, 255, 0.88);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.46) 0%, rgba(235, 246, 255, 0.28) 100%);
+  backdrop-filter: blur(22px) saturate(190%);
+  -webkit-backdrop-filter: blur(22px) saturate(190%);
   padding: 3.5px;
   border-radius: 999px;
-  border: 1px solid rgba(10, 108, 255, 0.18);
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow:
+    0 8px 24px rgba(15, 23, 42, 0.08),
+    inset 0 1px 1px rgba(255, 255, 255, 0.92);
 }
 
 .lensGroup button {
@@ -389,7 +443,7 @@
   font-size: 9.5px;
   font-weight: 700;
   letter-spacing: 0.06em;
-  color: #475569;
+  color: #334155;
   padding: 5px 10px;
   border-radius: 999px;
   cursor: pointer;
@@ -408,19 +462,21 @@
 
 .cruiseBtn {
   appearance: none;
-  border: 1px solid rgba(10, 108, 255, 0.24);
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.82);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.48) 0%, rgba(235, 246, 255, 0.3) 100%);
+  backdrop-filter: blur(22px) saturate(190%);
+  -webkit-backdrop-filter: blur(22px) saturate(190%);
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 9.5px;
   font-weight: 700;
   letter-spacing: 0.08em;
   color: #0a6cff;
-  padding: 7px 13px;
+  padding: 7px 14px;
   border-radius: 999px;
   cursor: pointer;
-  box-shadow: 0 8px 24px rgba(10, 108, 255, 0.09);
+  box-shadow:
+    0 8px 24px rgba(10, 108, 255, 0.1),
+    inset 0 1px 1px rgba(255, 255, 255, 0.92);
   transition: background 0.18s ease, color 0.18s ease, transform 0.18s ease;
   white-space: nowrap;
 }
@@ -441,13 +497,15 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.48) 0%, rgba(235, 246, 255, 0.3) 100%);
+  backdrop-filter: blur(22px) saturate(190%);
+  -webkit-backdrop-filter: blur(22px) saturate(190%);
   padding: 4px;
   border-radius: 999px;
-  border: 1px solid rgba(10, 108, 255, 0.2);
-  box-shadow: 0 8px 24px rgba(10, 108, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.82);
+  box-shadow:
+    0 8px 24px rgba(10, 108, 255, 0.1),
+    inset 0 1px 1px rgba(255, 255, 255, 0.92);
 }
 
 .hudNav button {

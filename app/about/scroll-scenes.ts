@@ -285,6 +285,37 @@ function dashboard(resources: Resources) {
   return resources.texture(c);
 }
 
+function drawGlassCardBase(g: CanvasRenderingContext2D) {
+  rr(g, 4, 4, 312, 216, 22);
+  const glassFill = g.createLinearGradient(4, 4, 316, 220);
+  glassFill.addColorStop(0, "rgba(255, 255, 255, 0.72)");
+  glassFill.addColorStop(0.52, "rgba(236, 246, 255, 0.54)");
+  glassFill.addColorStop(1, "rgba(220, 238, 255, 0.66)");
+  g.fillStyle = glassFill;
+  g.fill();
+
+  g.save();
+  rr(g, 4, 4, 312, 216, 22);
+  g.clip();
+  const sheen = g.createLinearGradient(4, 4, 210, 175);
+  sheen.addColorStop(0, "rgba(255, 255, 255, 0.56)");
+  sheen.addColorStop(0.38, "rgba(255, 255, 255, 0.14)");
+  sheen.addColorStop(0.68, "rgba(255, 255, 255, 0)");
+  g.fillStyle = sheen;
+  g.fillRect(4, 4, 312, 216);
+  g.restore();
+
+  rr(g, 6.5, 6.5, 307, 211, 20);
+  g.lineWidth = 1.2;
+  g.strokeStyle = "rgba(56, 189, 248, 0.34)";
+  g.stroke();
+
+  rr(g, 4, 4, 312, 216, 22);
+  g.lineWidth = 2.4;
+  g.strokeStyle = "rgba(255, 255, 255, 0.94)";
+  g.stroke();
+}
+
 function drawImageCard(
   resources: Resources,
   imagePath: string,
@@ -302,12 +333,7 @@ function drawImageCard(
     g.setTransform(3, 0, 0, 3, 0, 0);
     g.clearRect(0, 0, 320, 224);
 
-    rr(g, 4, 4, 312, 216, 22);
-    g.fillStyle = "#ffffff";
-    g.fill();
-    g.lineWidth = 2;
-    g.strokeStyle = BG_LINE;
-    g.stroke();
+    drawGlassCardBase(g);
 
     g.save();
     rr(g, 4, 4, 312, 146, 22);
@@ -590,12 +616,7 @@ function drawBespokeCard(resources: Resources, spec: BespokeCardSpec) {
   g.setTransform(3, 0, 0, 3, 0, 0);
   g.clearRect(0, 0, 320, 224);
 
-  rr(g, 4, 4, 312, 216, 22);
-  g.fillStyle = "#ffffff";
-  g.fill();
-  g.lineWidth = 2;
-  g.strokeStyle = BG_LINE;
-  g.stroke();
+  drawGlassCardBase(g);
 
   g.save();
   rr(g, 4, 4, 312, 146, 22);
@@ -830,12 +851,7 @@ function cardTexture(resources: Resources, kind: number) {
   g.clearRect(0, 0, 960, 672);
   g.scale(3, 3);
 
-  rr(g, 4, 4, 312, 216, 22);
-  g.fillStyle = "#ffffff";
-  g.fill();
-  g.lineWidth = 2;
-  g.strokeStyle = BG_LINE;
-  g.stroke();
+  drawGlassCardBase(g);
 
   g.save();
   rr(g, 4, 4, 312, 216, 22);
@@ -1046,40 +1062,42 @@ function createFramedCard(
 ) {
   const group = new THREE.Group();
 
-  // Outer brushed metallic-silver chassis for real 3D thickness
-  const rimGeo = new RoundedBoxGeometry(width + 0.058, height + 0.058, 0.044, 3, 0.022);
+  // Outer translucent ice-crystal glass rim
+  const rimGeo = new RoundedBoxGeometry(width + 0.056, height + 0.056, 0.04, 3, 0.02);
   const rimMat = new THREE.MeshStandardMaterial({
-    color: 0xdbe7f8,
-    roughness: 0.24,
-    metalness: 0.58,
+    color: 0xdbeafe,
+    roughness: 0.08,
+    metalness: 0.18,
     transparent: true,
-    opacity: 1,
+    opacity: 0.38,
+    depthWrite: false,
   });
   const rim = new THREE.Mesh(rimGeo, rimMat);
-  rim.position.z = -0.024;
+  rim.position.z = -0.022;
   group.add(rim);
 
-  // Inner ceramic-white bevel slab
-  const slabGeo = new RoundedBoxGeometry(width + 0.022, height + 0.022, 0.032, 3, 0.014);
+  // Inner frosted crystal glass slab
+  const slabGeo = new RoundedBoxGeometry(width + 0.02, height + 0.02, 0.028, 3, 0.014);
   const slabMat = new THREE.MeshStandardMaterial({
-    color: 0xffffff,
-    roughness: 0.25,
-    metalness: 0.08,
+    color: 0xf0f9ff,
+    roughness: 0.06,
+    metalness: 0.1,
     transparent: true,
-    opacity: 1,
+    opacity: 0.32,
+    depthWrite: false,
   });
   const slab = new THREE.Mesh(slabGeo, slabMat);
-  slab.position.z = -0.012;
+  slab.position.z = -0.01;
   group.add(slab);
 
   // Floating 3D cobalt accent pill above the top edge for multi-layer parallax
   const badgeBarGeo = new RoundedBoxGeometry(width * 0.34, 0.022, 0.016, 2, 0.008);
   const badgeBarMat = new THREE.MeshStandardMaterial({
     color: 0x0a6cff,
-    roughness: 0.2,
-    metalness: 0.4,
+    roughness: 0.18,
+    metalness: 0.35,
     transparent: true,
-    opacity: 1,
+    opacity: 0.9,
   });
   const badgeBar = new THREE.Mesh(badgeBarGeo, badgeBarMat);
   badgeBar.position.set(-width * 0.26, height * 0.5 + 0.012, 0.016);
@@ -1089,7 +1107,7 @@ function createFramedCard(
   const faceMat = new THREE.MeshBasicMaterial({
     map: cardTexture(resources, kind),
     transparent: true,
-    opacity: 1,
+    opacity: 0.95,
     toneMapped: false,
   });
   const face = new THREE.Mesh(faceGeo, faceMat);
@@ -1102,21 +1120,21 @@ function createFramedCard(
       map: shadowTex,
       transparent: true,
       depthWrite: false,
-      opacity: 0.52,
+      opacity: 0.38,
     });
-    const shade = new THREE.Mesh(new THREE.PlaneGeometry(width * 1.32, height * 1.32), shadeMat);
-    shade.position.set(0.035, -0.07, -0.055);
+    const shade = new THREE.Mesh(new THREE.PlaneGeometry(width * 1.28, height * 1.28), shadeMat);
+    shade.position.set(0.03, -0.065, -0.05);
     group.add(shade);
   }
 
   function setOpacity(alpha: number) {
     const a = clamp01(alpha);
     group.visible = a > 0.01;
-    faceMat.opacity = a;
-    slabMat.opacity = a;
-    rimMat.opacity = a;
-    badgeBarMat.opacity = a;
-    if (shadeMat) shadeMat.opacity = a * 0.52;
+    faceMat.opacity = a * 0.95;
+    slabMat.opacity = a * 0.32;
+    rimMat.opacity = a * 0.38;
+    badgeBarMat.opacity = a * 0.9;
+    if (shadeMat) shadeMat.opacity = a * 0.38;
   }
 
   return { group, faceMat, setOpacity };
@@ -1623,18 +1641,18 @@ function laptopScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resour
   sidePhone.rotation.y = -0.35;
   finalePodium.add(sideTablet, sidePhone);
 
-  // Perfectly framed 3D UI cards along the runway (width 1.34, x within [-0.22, +0.66] so they NEVER clip)
+  // Perfectly framed 3D glass cards along the runway (x = 0.44, width 1.24 so they NEVER clip on the right edge)
   const spots: [number, number, number, number, number][] = [
-    [0.64, 0.04, -2.5, 0, -0.12],    // Layer 1A: Payment Received
-    [0.66, -0.04, -4.9, 1, -0.12],   // Layer 1B: Dispatch Schedule
-    [0.64, 0.06, -7.3, 2, -0.12],    // Layer 2A: Live Buyer Chat
-    [0.66, -0.04, -9.7, 3, -0.12],   // Layer 2B: Live Store Traffic
-    [0.64, 0.06, -12.1, 4, -0.12],   // Layer 3A: Smart Fraud & Sync Toggles
-    [0.66, -0.02, -14.5, 5, -0.12],  // Layer 3B: Maya Reyes Verified Flagship
-    [0.64, 0.06, -16.9, 6, -0.12],   // Layer 4A: Fulfillment Checklist
-    [0.66, -0.04, -19.3, 9, -0.12],  // Layer 4B: Real-Time Commerce Pulse
-    [-0.22, 0.28, -21.7, 30, 0.08],  // Layer 5A: Neural AI Studio Engine
-    [0.64, -0.02, -24.0, 8, -0.1],   // Layer 5B: Studio Flagship Edition
+    [0.44, 0.06, -2.5, 0, -0.1],     // Layer 1A: Payment Received
+    [0.46, -0.02, -4.9, 1, -0.1],    // Layer 1B: Dispatch Schedule
+    [0.44, 0.08, -7.3, 2, -0.1],     // Layer 2A: Live Buyer Chat
+    [0.46, -0.02, -9.7, 3, -0.1],    // Layer 2B: Live Store Traffic
+    [0.44, 0.08, -12.1, 4, -0.1],    // Layer 3A: Smart Fraud & Sync Toggles
+    [0.46, 0.0, -14.5, 5, -0.1],     // Layer 3B: Maya Reyes Verified Flagship
+    [0.44, 0.08, -16.9, 6, -0.1],    // Layer 4A: Fulfillment Checklist
+    [0.46, -0.02, -19.3, 9, -0.1],   // Layer 4B: Real-Time Commerce Pulse
+    [-0.18, 0.28, -21.7, 30, 0.06],  // Layer 5A: Neural AI Studio Engine
+    [0.44, 0.0, -24.0, 8, -0.08],    // Layer 5B: Studio Flagship Edition
     [0.18, 0.14, -26.4, 7, 0],       // Final Hero Card: Golden Hour Collection
   ];
 
@@ -1643,8 +1661,8 @@ function laptopScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resour
     const cardObj = createFramedCard(
       resources,
       q[3],
-      isFinal ? 1.48 : 1.32,
-      isFinal ? 1.03 : 0.92,
+      isFinal ? 1.44 : 1.24,
+      isFinal ? 1.0 : 0.86,
       shadowTex
     );
     cardObj.group.position.set(q[0], q[1], q[2]);
@@ -1790,10 +1808,10 @@ function laptopScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resour
         sidePhone.position.y = 0.54 + (reduced ? 0 : Math.cos(time * 1.5) * 0.03);
       }
 
-      // Layered 3D UI cards (properly sized and framed so they never clip on screen edges)
+      // Layered 3D glass UI cards (properly sized and framed so they never clip on screen edges)
       cardMeshes.forEach((c, i) => {
         const distAhead = z - c.basePos.z;
-        const nearFade = i === cardMeshes.length - 1 ? 1 : sm(1.55, 2.75, distAhead);
+        const nearFade = i === cardMeshes.length - 1 ? 1 : sm(2.1, 3.3, distAhead);
         const farFade = 1 - sm(9.8, 13.8, distAhead);
         const alpha = tunnelAlpha * nearFade * farFade;
 
