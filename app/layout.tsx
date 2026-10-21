@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
-import CookieBanner from "@/components/CookieBanner";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
@@ -8,25 +7,21 @@ import "./globals.css";
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.shop-ply.site"),
   title: {
-    default: "Shopply | Online Shopping & Marketplace Philippines",
-    template: "%s | Shopply",
+    default: "Palomar - One Unified System for LLMs",
+    template: "%s | Palomar",
   },
-  description: "Shop quality electronics, gadgets, clothes, tools, and beauty essentials on Shopply. Fast shipping and verified sellers across the Philippines.",
+  description: "One unified system to build, test, ship, and observe LLMs.",
   keywords: [
+    "Palomar",
+    "Palomar Labs",
+    "LLMs",
     "Shopply",
     "shop-ply",
-    "shop ply",
-    "shop-ply.site",
-    "shopply philippines",
-    "online shopping philippines",
-    "e-commerce marketplace",
-    "tools and hardware",
-    "electronics online shop",
-    "buy clothes and shoes online"
+    "shop-ply.site"
   ],
-  authors: [{ name: "Shopply" }],
-  creator: "Shopply",
-  publisher: "Shopply",
+  authors: [{ name: "Palomar" }],
+  creator: "Palomar",
+  publisher: "Palomar",
   robots: {
     index: true,
     follow: true,
@@ -42,22 +37,22 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_PH",
     url: "https://shop-ply.site",
-    title: "Shopply | Online Shopping & Marketplace Philippines",
-    description: "Shop quality electronics, gadgets, tools, clothes, and home essentials on Shopply.",
-    siteName: "Shopply",
+    title: "Palomar - One Unified System for LLMs",
+    description: "One unified system to build, test, ship, and observe LLMs.",
+    siteName: "Palomar",
     images: [
       {
         url: "/icon.png",
         width: 512,
         height: 512,
-        alt: "Shopply Marketplace",
+        alt: "Palomar",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Shopply | Online Shopping & Marketplace Philippines",
-    description: "Shop quality electronics, gadgets, tools, clothes, and home essentials on Shopply.",
+    title: "Palomar - One Unified System for LLMs",
+    description: "One unified system to build, test, ship, and observe LLMs.",
     images: ["/icon.png"],
   },
   icons: {
@@ -117,6 +112,8 @@ export default function RootLayout({
         {/* Preconnect to Google Fonts for faster font loading */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://db.onlinewebfonts.com/c/0e6de1ec911a2e267ff136bbdd384a44?family=Helvetica+Neue+Light" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Oswald:wght@500&family=Montserrat:wght@700&family=Roboto+Slab:wght@600&family=Raleway:wght@700&display=swap" rel="stylesheet" />
         
         {/* Preconnect to API server for faster data fetches */}
         <link rel="preconnect" href="http://127.0.0.1:8000" />
@@ -129,7 +126,6 @@ export default function RootLayout({
         {children}
         <Analytics />
         <SpeedInsights />
-        <CookieBanner />
         
         {/* Service Worker Registration */}
         <Script id="service-worker-registration" strategy="afterInteractive">
