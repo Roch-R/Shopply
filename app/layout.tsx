@@ -7,21 +7,20 @@ import "./globals.css";
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.shop-ply.site"),
   title: {
-    default: "Palomar - One Unified System for LLMs",
-    template: "%s | Palomar",
+    default: "Aethera® — Beyond silence, we build the eternal.",
+    template: "%s | Aethera®",
   },
-  description: "One unified system to build, test, ship, and observe LLMs.",
+  description: "Building platforms for brilliant minds, fearless makers, and thoughtful souls. Through the noise, we craft digital havens for deep work and pure flows.",
   keywords: [
-    "Palomar",
-    "Palomar Labs",
-    "LLMs",
+    "Aethera",
+    "Aethera Studio",
     "Shopply",
     "shop-ply",
     "shop-ply.site"
   ],
-  authors: [{ name: "Palomar" }],
-  creator: "Palomar",
-  publisher: "Palomar",
+  authors: [{ name: "Aethera" }],
+  creator: "Aethera",
+  publisher: "Aethera",
   robots: {
     index: true,
     follow: true,
@@ -37,22 +36,22 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_PH",
     url: "https://shop-ply.site",
-    title: "Palomar - One Unified System for LLMs",
-    description: "One unified system to build, test, ship, and observe LLMs.",
-    siteName: "Palomar",
+    title: "Aethera® — Beyond silence, we build the eternal.",
+    description: "Building platforms for brilliant minds, fearless makers, and thoughtful souls. Through the noise, we craft digital havens for deep work and pure flows.",
+    siteName: "Aethera",
     images: [
       {
         url: "/icon.png",
         width: 512,
         height: 512,
-        alt: "Palomar",
+        alt: "Aethera",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Palomar - One Unified System for LLMs",
-    description: "One unified system to build, test, ship, and observe LLMs.",
+    title: "Aethera® — Beyond silence, we build the eternal.",
+    description: "Building platforms for brilliant minds, fearless makers, and thoughtful souls. Through the noise, we craft digital havens for deep work and pure flows.",
     images: ["/icon.png"],
   },
   icons: {
@@ -112,8 +111,7 @@ export default function RootLayout({
         {/* Preconnect to Google Fonts for faster font loading */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://db.onlinewebfonts.com/c/0e6de1ec911a2e267ff136bbdd384a44?family=Helvetica+Neue+Light" rel="stylesheet" />
-        <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Oswald:wght@500&family=Montserrat:wght@700&family=Roboto+Slab:wght@600&family=Raleway:wght@700&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
         
         {/* Preconnect to API server for faster data fetches */}
         <link rel="preconnect" href="http://127.0.0.1:8000" />
