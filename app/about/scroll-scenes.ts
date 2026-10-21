@@ -12,7 +12,7 @@ const BLUE = "#0A6CFF",
   BG_BAR2 = "#F1F5F9";
 const FONT = 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
 
-export type SceneKind = "laptop" | "rail";
+export type SceneKind = "laptop" | "rail" | "globe";
 
 const clamp01 = (x: number) => (x < 0 ? 0 : x > 1 ? 1 : x);
 const sm = (a: number, b: number, x: number) => {
@@ -1415,182 +1415,238 @@ function laptopScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resour
 
   // Architectural perspective runway floor
   const runwayFloor = new THREE.Mesh(
-    new THREE.PlaneGeometry(4.8, 28),
+    new THREE.PlaneGeometry(5.2, 28),
     new THREE.MeshBasicMaterial({
       map: runwayFloorTexture(resources),
       transparent: true,
       depthWrite: false,
-      opacity: 0.85,
+      opacity: 0.88,
     })
   );
   runwayFloor.rotation.x = -Math.PI / 2;
   runwayFloor.position.set(0, -1.16, -14.5);
   inner.add(runwayFloor);
 
-  // 6 Brushed-Silver Architectural Portal Arches framing the periphery (zero clutter in center)
+  // Exploded 3D Display Layers right behind the laptop screen (Ch 03: Cross the Glass)
+  const explodedStack = new THREE.Group();
+  explodedStack.position.set(0, 0, -1.15);
+  inner.add(explodedStack);
+  const glassLayerMat = new THREE.MeshStandardMaterial({
+    color: 0x38bdf8,
+    roughness: 0.08,
+    metalness: 0.2,
+    transparent: true,
+    opacity: 0.24,
+    depthWrite: false,
+  });
+  const explodedFrames = [-0.28, 0, 0.28].map((dz, idx) => {
+    const frameG = new THREE.Group();
+    frameG.position.z = dz;
+    const border = new THREE.Mesh(
+      new THREE.RingGeometry(1.12 + idx * 0.14, 1.18 + idx * 0.14, 4),
+       idx === 1 ? cobaltMetal.clone() : silver.clone()
+    );
+    border.rotation.z = Math.PI / 4;
+    const pane = new THREE.Mesh(new THREE.PlaneGeometry(2.1, 1.32), glassLayerMat.clone());
+    frameG.add(border, pane);
+    explodedStack.add(frameG);
+    return frameG;
+  });
+
+  // 6 Brushed-Silver Architectural Portal Arches framing the periphery
   const archGroup = new THREE.Group();
   inner.add(archGroup);
-  const pillarGeo = new RoundedBoxGeometry(0.065, 2.42, 0.065, 2, 0.018);
-  const beamGeo = new RoundedBoxGeometry(4.42, 0.065, 0.065, 2, 0.018);
-  const stripGeo = new THREE.BoxGeometry(0.018, 1.9, 0.024);
+  const pillarGeo = new RoundedBoxGeometry(0.075, 2.46, 0.075, 2, 0.02);
+  const beamGeo = new RoundedBoxGeometry(4.48, 0.075, 0.075, 2, 0.02);
+  const stripGeo = new THREE.BoxGeometry(0.022, 1.96, 0.028);
 
   const arches = [-3.4, -7.8, -12.2, -16.6, -21.0, -25.4].map(az => {
     const g = new THREE.Group();
     g.position.z = az;
 
     const leftP = new THREE.Mesh(pillarGeo, silver.clone());
-    leftP.position.set(-2.18, 0.05, 0);
+    leftP.position.set(-2.2, 0.05, 0);
     const rightP = new THREE.Mesh(pillarGeo, silver.clone());
-    rightP.position.set(2.18, 0.05, 0);
+    rightP.position.set(2.2, 0.05, 0);
     const topB = new THREE.Mesh(beamGeo, silver.clone());
-    topB.position.set(0, 1.26, 0);
+    topB.position.set(0, 1.28, 0);
 
     const leftStrip = new THREE.Mesh(stripGeo, cobaltMetal.clone());
-    leftStrip.position.set(-2.13, 0.05, 0);
+    leftStrip.position.set(-2.14, 0.05, 0);
     const rightStrip = new THREE.Mesh(stripGeo, cobaltMetal.clone());
-    rightStrip.position.set(2.13, 0.05, 0);
+    rightStrip.position.set(2.14, 0.05, 0);
 
     g.add(leftP, rightP, topB, leftStrip, rightStrip);
     archGroup.add(g);
     return { group: g, z: az };
   });
 
-  // --- 5 BESPOKE 3D SCULPTURAL HARDWARE STAGES ---
-  // Stage 1 (z = -3.8): 3D Titanium Smartphone + Floating Metallic NFC Card
+  // --- 5 HEROIC 3D SCULPTURAL HARDWARE STAGES (1.32x SCALE) ---
+  // Stage 1 (z = -3.8): Heroic 3D Titanium Smartphone + 2 Orbiting Metallic Cards + NFC Ring
   const phoneStage = new THREE.Group();
-  phoneStage.position.set(-0.62, 0.24, -3.8);
+  phoneStage.position.set(-0.66, 0.22, -3.8);
+  phoneStage.scale.setScalar(1.26);
   inner.add(phoneStage);
 
   const phoneBody = new THREE.Group();
-  phoneBody.rotation.set(-0.08, 0.32, -0.05);
+  phoneBody.rotation.set(-0.08, 0.34, -0.04);
   phoneStage.add(phoneBody);
 
   const phoneChassis = new THREE.Mesh(
-    new RoundedBoxGeometry(0.64, 1.28, 0.058, 4, 0.03),
+    new RoundedBoxGeometry(0.66, 1.32, 0.064, 4, 0.032),
     darkMetal.clone()
   );
   const phoneRim = new THREE.Mesh(
-    new RoundedBoxGeometry(0.66, 1.3, 0.048, 4, 0.03),
+    new RoundedBoxGeometry(0.68, 1.34, 0.054, 4, 0.032),
     silver.clone()
   );
   phoneRim.position.z = -0.004;
   const phoneScreen = new THREE.Mesh(
-    new THREE.PlaneGeometry(0.58, 1.2),
+    new THREE.PlaneGeometry(0.6, 1.22),
     new THREE.MeshBasicMaterial({ map: phoneScreenTexture(resources), transparent: true })
   );
-  phoneScreen.position.z = 0.031;
-  phoneBody.add(phoneRim, phoneChassis, phoneScreen);
+  phoneScreen.position.z = 0.034;
+  const nfcWaveRing = new THREE.Mesh(
+    new THREE.TorusGeometry(0.44, 0.014, 12, 40),
+    skyMetal.clone()
+  );
+  nfcWaveRing.position.z = 0.08;
+  phoneBody.add(phoneRim, phoneChassis, phoneScreen, nfcWaveRing);
 
   const nfcCard = new THREE.Group();
-  nfcCard.position.set(0.28, -0.14, 0.24);
+  nfcCard.position.set(0.3, -0.14, 0.26);
   nfcCard.rotation.set(0.12, -0.24, 0.14);
   const nfcSlab = new THREE.Mesh(
-    new RoundedBoxGeometry(0.58, 0.36, 0.022, 3, 0.01),
+    new RoundedBoxGeometry(0.6, 0.38, 0.024, 3, 0.012),
     cobaltMetal.clone()
   );
   const nfcChip = new THREE.Mesh(
-    new RoundedBoxGeometry(0.09, 0.07, 0.026, 2, 0.005),
+    new RoundedBoxGeometry(0.095, 0.075, 0.028, 2, 0.005),
     goldMetal.clone()
   );
   nfcChip.position.set(-0.16, 0.02, 0.004);
   nfcCard.add(nfcSlab, nfcChip);
   phoneStage.add(nfcCard);
 
-  // Stage 2 (z = -8.6): 3D Scroll-Reactive Extruded Analytics Bar Sculpture
+  // Stage 2 (z = -8.6): 3D 12-Tower Isometric Data Matrix & Command Console
   const chartStage = new THREE.Group();
-  chartStage.position.set(-0.62, 0.14, -8.6);
-  chartStage.rotation.y = 0.26;
+  chartStage.position.set(-0.66, 0.14, -8.6);
+  chartStage.rotation.set(0.14, 0.34, 0);
+  chartStage.scale.setScalar(1.28);
   inner.add(chartStage);
 
   const chartBase = new THREE.Mesh(
-    new RoundedBoxGeometry(1.16, 0.075, 0.44, 3, 0.022),
+    new RoundedBoxGeometry(1.24, 0.085, 0.64, 3, 0.024),
     silver.clone()
   );
   chartBase.position.y = -0.42;
-  chartStage.add(chartBase);
+  const chartRim = new THREE.Mesh(
+    new RoundedBoxGeometry(1.28, 0.03, 0.68, 3, 0.012),
+    cobaltMetal.clone()
+  );
+  chartRim.position.y = -0.38;
+  chartStage.add(chartBase, chartRim);
 
-  const barHeights = [0.36, 0.52, 0.46, 0.68, 0.84, 1.02];
+  const barHeights = [0.38, 0.54, 0.48, 0.72, 0.88, 1.06, 0.32, 0.46, 0.62, 0.58, 0.76, 0.94];
   const barMeshes = barHeights.map((bh, idx) => {
-    const mat = idx >= 4 ? cobaltMetal.clone() : idx >= 2 ? skyMetal.clone() : silver.clone();
-    const m = new THREE.Mesh(new RoundedBoxGeometry(0.115, 0.8, 0.115, 2, 0.02), mat);
-    m.position.set(-0.42 + idx * 0.168, -0.38 + (bh * 0.8) / 2, 0);
+    const row = Math.floor(idx / 6);
+    const col = idx % 6;
+    const mat = col >= 4 ? cobaltMetal.clone() : col >= 2 ? skyMetal.clone() : silver.clone();
+    const m = new THREE.Mesh(new RoundedBoxGeometry(0.115, 0.82, 0.115, 2, 0.022), mat);
+    m.position.set(-0.44 + col * 0.176, -0.36 + (bh * 0.82) / 2, row === 0 ? 0.12 : -0.12);
     chartStage.add(m);
     return { mesh: m, targetH: bh };
   });
 
-  // Stage 3 (z = -13.4): 3D Precision Authentic Shield & Rotating Vault Lock
+  // Stage 3 (z = -13.4): 3D 3-Ring Gyroscopic Vault Lock & Sliding Bolts
   const shieldStage = new THREE.Group();
-  shieldStage.position.set(-0.6, 0.24, -13.4);
-  shieldStage.rotation.y = 0.24;
+  shieldStage.position.set(-0.64, 0.22, -13.4);
+  shieldStage.rotation.y = 0.28;
+  shieldStage.scale.setScalar(1.3);
   inner.add(shieldStage);
 
   const outerVaultRing = new THREE.Mesh(
-    new THREE.TorusGeometry(0.46, 0.042, 18, 48),
+    new THREE.TorusGeometry(0.5, 0.045, 18, 48),
     silver.clone()
   );
+  for (let b = 0; b < 6; b++) {
+    const ang = (b / 6) * Math.PI * 2;
+    const bolt = new THREE.Mesh(
+      new RoundedBoxGeometry(0.06, 0.12, 0.06, 2, 0.015),
+      goldMetal.clone()
+    );
+    bolt.position.set(Math.cos(ang) * 0.5, Math.sin(ang) * 0.5, 0);
+    bolt.rotation.z = ang + Math.PI / 2;
+    outerVaultRing.add(bolt);
+  }
+  const midVaultRing = new THREE.Mesh(
+    new THREE.TorusGeometry(0.39, 0.026, 16, 44),
+    skyMetal.clone()
+  );
   const innerVaultRing = new THREE.Mesh(
-    new THREE.TorusGeometry(0.35, 0.022, 14, 40),
+    new THREE.TorusGeometry(0.31, 0.02, 14, 40),
     cobaltMetal.clone()
   );
   const shieldCore = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.3, 0.3, 0.055, 8),
+    new THREE.CylinderGeometry(0.27, 0.27, 0.06, 8),
     cobaltMetal.clone()
   );
   shieldCore.rotation.x = Math.PI / 2;
 
   const checkGroup = new THREE.Group();
-  checkGroup.position.z = 0.038;
+  checkGroup.position.z = 0.042;
   const checkShort = new THREE.Mesh(
-    new RoundedBoxGeometry(0.055, 0.16, 0.03, 2, 0.01),
+    new RoundedBoxGeometry(0.055, 0.16, 0.032, 2, 0.01),
     ceramicWhite.clone()
   );
   checkShort.position.set(-0.06, -0.03, 0);
   checkShort.rotation.z = 0.72;
   const checkLong = new THREE.Mesh(
-    new RoundedBoxGeometry(0.055, 0.28, 0.03, 2, 0.01),
+    new RoundedBoxGeometry(0.055, 0.28, 0.032, 2, 0.01),
     ceramicWhite.clone()
   );
   checkLong.position.set(0.05, 0.02, 0);
   checkLong.rotation.z = -0.68;
   checkGroup.add(checkShort, checkLong);
-  shieldStage.add(outerVaultRing, innerVaultRing, shieldCore, checkGroup);
+  shieldStage.add(outerVaultRing, midVaultRing, innerVaultRing, shieldCore, checkGroup);
 
-  // Stage 4 (z = -18.2): 3D Studio Turntable + Isometric Express Parcel + Ring-Light
+  // Stage 4 (z = -18.2): 3D Automated Fulfillment Gantry, Turntable Parcel & Dual Ring-Lights
   const parcelStage = new THREE.Group();
-  parcelStage.position.set(-0.62, 0.14, -18.2);
+  parcelStage.position.set(-0.64, 0.14, -18.2);
+  parcelStage.scale.setScalar(1.28);
   inner.add(parcelStage);
 
   const turntable = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.52, 0.58, 0.08, 36),
+    new THREE.CylinderGeometry(0.54, 0.6, 0.09, 36),
     silver.clone()
   );
   turntable.position.y = -0.34;
   const turntableRim = new THREE.Mesh(
-    new THREE.TorusGeometry(0.54, 0.018, 12, 36),
+    new THREE.TorusGeometry(0.56, 0.02, 12, 36),
     cobaltMetal.clone()
   );
   turntableRim.rotation.x = Math.PI / 2;
-  turntableRim.position.y = -0.3;
+  turntableRim.position.y = -0.29;
   parcelStage.add(turntable, turntableRim);
 
   const parcelBoxGroup = new THREE.Group();
-  parcelBoxGroup.position.y = -0.05;
+  parcelBoxGroup.position.y = -0.04;
   const craftMat = new THREE.MeshStandardMaterial({
     color: 0xd9a066,
-    roughness: 0.55,
-    metalness: 0.08,
+    roughness: 0.52,
+    metalness: 0.1,
   });
   const boxMesh = new THREE.Mesh(
-    new RoundedBoxGeometry(0.46, 0.42, 0.46, 3, 0.025),
+    new RoundedBoxGeometry(0.48, 0.44, 0.48, 3, 0.026),
     craftMat
   );
   const tapeTop = new THREE.Mesh(
-    new THREE.BoxGeometry(0.47, 0.04, 0.1),
+    new THREE.BoxGeometry(0.49, 0.045, 0.11),
     cobaltMetal.clone()
   );
-  tapeTop.position.y = 0.2;
+  tapeTop.position.y = 0.21;
   const shippingLabel = new THREE.Mesh(
-    new THREE.BoxGeometry(0.22, 0.16, 0.47),
+    new THREE.BoxGeometry(0.24, 0.17, 0.49),
     ceramicWhite.clone()
   );
   shippingLabel.position.set(0.06, 0.04, 0);
@@ -1598,46 +1654,55 @@ function laptopScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resour
   parcelStage.add(parcelBoxGroup);
 
   const studioRing = new THREE.Mesh(
-    new THREE.TorusGeometry(0.42, 0.022, 14, 36),
+    new THREE.TorusGeometry(0.44, 0.024, 14, 36),
     skyMetal.clone()
   );
   studioRing.position.y = 0.02;
-  parcelStage.add(studioRing);
+  const studioRing2 = new THREE.Mesh(
+    new THREE.TorusGeometry(0.5, 0.016, 12, 36),
+    goldMetal.clone()
+  );
+  studioRing2.position.y = 0.02;
+  parcelStage.add(studioRing, studioRing2);
 
-  // Stage 5 (z = -26.4): Finale 3D Multi-Device Flagship Podium
+  // Stage 5 (z = -26.4): Finale 3-Tier Multi-Device Flagship Amphitheater
   const finalePodium = new THREE.Group();
   finalePodium.position.set(0.18, -0.78, -26.4);
   inner.add(finalePodium);
 
   const podiumTier1 = new THREE.Mesh(
-    new THREE.CylinderGeometry(1.55, 1.68, 0.09, 48),
+    new THREE.CylinderGeometry(1.65, 1.78, 0.09, 48),
     silver.clone()
   );
   const podiumTier2 = new THREE.Mesh(
-    new THREE.CylinderGeometry(1.18, 1.28, 0.08, 48),
+    new THREE.CylinderGeometry(1.26, 1.36, 0.08, 48),
     ceramicWhite.clone()
   );
   podiumTier2.position.y = 0.07;
   const podiumRing = new THREE.Mesh(
-    new THREE.TorusGeometry(1.24, 0.02, 12, 48),
+    new THREE.TorusGeometry(1.32, 0.022, 12, 48),
     cobaltMetal.clone()
   );
   podiumRing.rotation.x = Math.PI / 2;
   podiumRing.position.y = 0.1;
-  finalePodium.add(podiumTier1, podiumTier2, podiumRing);
+  const haloArch = new THREE.Mesh(
+    new THREE.TorusGeometry(1.42, 0.024, 14, 48, Math.PI),
+    skyMetal.clone()
+  );
+  haloArch.position.set(0, 0.12, -0.25);
+  finalePodium.add(podiumTier1, podiumTier2, podiumRing, haloArch);
 
-  // Left 3D Studio Tablet & Right 3D Smartphone on the Finale Podium
   const sideTablet = new THREE.Mesh(
-    new RoundedBoxGeometry(0.68, 0.48, 0.036, 3, 0.018),
+    new RoundedBoxGeometry(0.72, 0.5, 0.038, 3, 0.018),
     darkMetal.clone()
   );
-  sideTablet.position.set(-1.05, 0.56, 0.28);
+  sideTablet.position.set(-1.08, 0.56, 0.28);
   sideTablet.rotation.y = 0.35;
   const sidePhone = new THREE.Mesh(
-    new RoundedBoxGeometry(0.32, 0.62, 0.034, 3, 0.016),
+    new RoundedBoxGeometry(0.34, 0.66, 0.036, 3, 0.016),
     cobaltMetal.clone()
   );
-  sidePhone.position.set(1.05, 0.54, 0.28);
+  sidePhone.position.set(1.08, 0.54, 0.28);
   sidePhone.rotation.y = -0.35;
   finalePodium.add(sideTablet, sidePhone);
 
@@ -1710,8 +1775,8 @@ function laptopScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resour
     const closedAngle = 1.55 * (1 - openProgress);
     lidPivot.rotation.x = closedAngle;
 
-    rig.rotation.x = rotX + pointer.y * 0.035 * sway;
-    rig.rotation.y = rotY + pointer.x * 0.045 * sway;
+    rig.rotation.x = rotX + pointer.y * 0.055 * sway;
+    rig.rotation.y = rotY + pointer.x * 0.075 * sway;
     rig.updateMatrixWorld(true);
 
     const tz = z > 3 ? 0 : z - 3.6;
@@ -1740,6 +1805,18 @@ function laptopScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resour
     if (inner.visible) {
       const tunnelAlpha = 1 - sm(1.5, 3.2, z);
 
+      // Exploded 3D Display Stack animation at z = -1.15
+      const expDist = z - -1.15;
+      const expAlpha = tunnelAlpha * sm(0.4, 1.6, expDist) * (1 - sm(4.5, 7.5, expDist));
+      setGroupOpacity(explodedStack, expAlpha);
+      if (expAlpha > 0.01) {
+        const spread = 1 + (1 - sm(0, 3.5, Math.abs(expDist))) * 0.35;
+        explodedFrames.forEach((f, idx) => {
+          f.scale.setScalar(spread);
+          f.rotation.z = (idx - 1) * 0.08 * spread;
+        });
+      }
+
       // Update architectural portal arches
       arches.forEach(a => {
         const dist = z - a.z;
@@ -1755,60 +1832,66 @@ function laptopScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resour
         return tunnelAlpha * near * far;
       };
 
-      // Stage 1: 3D Phone + NFC Card
+      // Stage 1: 3D Phone + NFC Card + Wave Ring
       const s1 = stageAlpha(-3.8);
       setGroupOpacity(phoneStage, s1);
       if (s1 > 0.01) {
-        phoneStage.position.x = -0.62 * (mobile ? 0.62 : 1);
-        phoneBody.rotation.y = 0.32 + (reduced ? 0 : Math.sin(time * 1.1) * 0.08);
-        nfcCard.position.y = -0.14 + (reduced ? 0 : Math.cos(time * 1.6) * 0.035);
-        nfcCard.rotation.z = 0.14 + (reduced ? 0 : Math.sin(time * 1.4) * 0.05);
+        phoneStage.position.x = -0.66 * (mobile ? 0.6 : 1);
+        phoneBody.rotation.y = 0.34 + (reduced ? 0 : Math.sin(time * 1.1) * 0.09);
+        nfcCard.position.y = -0.14 + (reduced ? 0 : Math.cos(time * 1.6) * 0.04);
+        nfcCard.rotation.z = 0.14 + (reduced ? 0 : Math.sin(time * 1.4) * 0.06);
+        const waveScale = 0.85 + (reduced ? 0 : ((time * 0.65) % 1) * 0.45);
+        nfcWaveRing.scale.setScalar(waveScale);
       }
 
-      // Stage 2: 3D Extruded Bar Chart Sculpture
+      // Stage 2: 3D 12-Tower Data Matrix Sculpture
       const s2 = stageAlpha(-8.6);
       setGroupOpacity(chartStage, s2);
       if (s2 > 0.01) {
-        chartStage.position.x = -0.62 * (mobile ? 0.62 : 1);
-        chartStage.rotation.y = 0.26 + (reduced ? 0 : Math.sin(time * 0.9) * 0.06);
+        chartStage.position.x = -0.66 * (mobile ? 0.6 : 1);
+        chartStage.rotation.y = 0.34 + (reduced ? 0 : Math.sin(time * 0.9) * 0.08);
         const rise = sm(6.5, 2.2, Math.abs(z - -8.6));
         barMeshes.forEach((b, idx) => {
-          const pulse = reduced ? 1 : 0.92 + Math.sin(time * 2.0 + idx * 0.7) * 0.08;
+          const pulse = reduced ? 1 : 0.9 + Math.sin(time * 2.2 + idx * 0.55) * 0.1;
           const hScale = Math.max(0.15, b.targetH * (0.3 + 0.7 * rise) * pulse);
           b.mesh.scale.y = hScale;
-          b.mesh.position.y = -0.38 + (hScale * 0.8) / 2;
+          b.mesh.position.y = -0.36 + (hScale * 0.82) / 2;
         });
       }
 
-      // Stage 3: 3D Authentic Shield & Rotating Vault Lock
+      // Stage 3: 3D 3-Ring Gyroscopic Vault Lock
       const s3 = stageAlpha(-13.4);
       setGroupOpacity(shieldStage, s3);
       if (s3 > 0.01) {
-        shieldStage.position.x = -0.6 * (mobile ? 0.62 : 1);
+        shieldStage.position.x = -0.64 * (mobile ? 0.6 : 1);
         outerVaultRing.rotation.z = reduced ? 0 : time * 0.45;
-        innerVaultRing.rotation.z = reduced ? 0 : -time * 0.75;
-        shieldStage.position.y = 0.24 + (reduced ? 0 : Math.sin(time * 1.3) * 0.035);
+        midVaultRing.rotation.x = reduced ? 0 : Math.sin(time * 0.9) * 0.45;
+        midVaultRing.rotation.y = reduced ? 0 : Math.cos(time * 0.9) * 0.45;
+        innerVaultRing.rotation.z = reduced ? 0 : -time * 0.8;
+        shieldStage.position.y = 0.22 + (reduced ? 0 : Math.sin(time * 1.3) * 0.035);
       }
 
-      // Stage 4: 3D Turntable + Express Parcel + Orbiting Ring-Light
+      // Stage 4: 3D Turntable + Express Parcel + Dual Orbiting Ring-Lights
       const s4 = stageAlpha(-18.2);
       setGroupOpacity(parcelStage, s4);
       if (s4 > 0.01) {
-        parcelStage.position.x = -0.62 * (mobile ? 0.62 : 1);
-        parcelBoxGroup.rotation.y = reduced ? 0.6 : time * 0.65;
-        studioRing.rotation.y = reduced ? -0.4 : -time * 0.9;
-        studioRing.rotation.x = 0.35 + (reduced ? 0 : Math.sin(time * 1.2) * 0.15);
+        parcelStage.position.x = -0.64 * (mobile ? 0.6 : 1);
+        parcelBoxGroup.rotation.y = reduced ? 0.6 : time * 0.7;
+        studioRing.rotation.y = reduced ? -0.4 : -time * 0.95;
+        studioRing.rotation.x = 0.35 + (reduced ? 0 : Math.sin(time * 1.2) * 0.18);
+        studioRing2.rotation.y = reduced ? 0.4 : time * 0.65;
+        studioRing2.rotation.z = 0.4 + (reduced ? 0 : Math.cos(time * 1.1) * 0.18);
       }
 
-      // Stage 5: Finale 3D Multi-Device Flagship Podium
+      // Stage 5: Finale 3D Multi-Device Flagship Amphitheater
       const s5 = stageAlpha(-26.4, true);
       setGroupOpacity(finalePodium, s5);
       if (s5 > 0.01) {
-        sideTablet.position.y = 0.56 + (reduced ? 0 : Math.sin(time * 1.3) * 0.03);
-        sidePhone.position.y = 0.54 + (reduced ? 0 : Math.cos(time * 1.5) * 0.03);
+        sideTablet.position.y = 0.56 + (reduced ? 0 : Math.sin(time * 1.3) * 0.035);
+        sidePhone.position.y = 0.54 + (reduced ? 0 : Math.cos(time * 1.5) * 0.035);
       }
 
-      // Layered 3D glass UI cards (properly sized and framed so they never clip on screen edges)
+      // Layered 3D glass UI cards
       cardMeshes.forEach((c, i) => {
         const distAhead = z - c.basePos.z;
         const nearFade = i === cardMeshes.length - 1 ? 1 : sm(2.1, 3.3, distAhead);
@@ -1832,12 +1915,178 @@ function laptopScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resour
   };
 }
 
-// --- SCENE 02: 3D DUAL-RAIL MONORAIL COASTER & TURNTABLE PODIUMS (8 CHAPTERS, ZERO PARTICLES) ---
+// Helper: Builds 8 Bespoke 3D Sculpted Product Models for the 8 Rail Coaster Stops
+function buildRailProductSculpture(stopIndex: number) {
+  const root = new THREE.Group();
+  const spinGroup = new THREE.Group();
+  root.add(spinGroup);
+
+  const silver = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.22, metalness: 0.76 });
+  const darkMetal = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.3, metalness: 0.68 });
+  const cobalt = new THREE.MeshStandardMaterial({ color: 0x0a6cff, roughness: 0.22, metalness: 0.52 });
+  const sky = new THREE.MeshStandardMaterial({ color: 0x38bdf8, roughness: 0.2, metalness: 0.45 });
+  const orange = new THREE.MeshStandardMaterial({ color: 0xf97316, roughness: 0.25, metalness: 0.4 });
+  const emerald = new THREE.MeshStandardMaterial({ color: 0x10b981, roughness: 0.18, metalness: 0.35 });
+  const gold = new THREE.MeshStandardMaterial({ color: 0xf59e0b, roughness: 0.22, metalness: 0.78 });
+  const white = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.22, metalness: 0.12 });
+
+  // 3D Turntable Podium base
+  const podBase = new THREE.Mesh(new THREE.CylinderGeometry(0.46, 0.52, 0.07, 32), silver);
+  podBase.position.y = -0.34;
+  const podRim = new THREE.Mesh(new THREE.TorusGeometry(0.48, 0.016, 12, 36), cobalt);
+  podRim.rotation.x = Math.PI / 2;
+  podRim.position.y = -0.3;
+  root.add(podBase, podRim);
+
+  const animatedParts: THREE.Object3D[] = [];
+
+  if (stopIndex === 0) {
+    // 01: AeroPulse Carbon Runner 3D Sneaker Sculpture
+    const sole = new THREE.Mesh(new RoundedBoxGeometry(0.62, 0.11, 0.25, 3, 0.045), white);
+    sole.position.y = -0.1;
+    const carbonPlate = new THREE.Mesh(new RoundedBoxGeometry(0.64, 0.03, 0.26, 2, 0.01), orange);
+    carbonPlate.position.y = -0.04;
+    const upper = new THREE.Mesh(new RoundedBoxGeometry(0.42, 0.22, 0.22, 3, 0.06), cobalt);
+    upper.position.set(-0.04, 0.06, 0);
+    upper.rotation.z = -0.18;
+    const collar = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.11, 0.14, 20), darkMetal);
+    collar.position.set(-0.16, 0.16, 0);
+    spinGroup.add(sole, carbonPlate, upper, collar);
+    spinGroup.rotation.z = 0.18;
+  } else if (stopIndex === 1) {
+    // 02: Chronos Titanium Smartwatch S10
+    const caseMesh = new THREE.Mesh(new RoundedBoxGeometry(0.42, 0.5, 0.11, 4, 0.045), silver);
+    const faceMesh = new THREE.Mesh(new RoundedBoxGeometry(0.36, 0.44, 0.12, 3, 0.035), darkMetal);
+    const ring1 = new THREE.Mesh(new THREE.TorusGeometry(0.12, 0.015, 10, 32), sky);
+    ring1.position.z = 0.065;
+    const ring2 = new THREE.Mesh(new THREE.TorusGeometry(0.08, 0.015, 10, 32), emerald);
+    ring2.position.z = 0.065;
+    const crown = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 0.06, 16), orange);
+    crown.rotation.z = Math.PI / 2;
+    crown.position.set(0.22, 0.08, 0);
+    const strap = new THREE.Mesh(new THREE.TorusGeometry(0.28, 0.06, 12, 32), cobalt);
+    strap.rotation.y = Math.PI / 2;
+    strap.position.z = -0.06;
+    spinGroup.add(caseMesh, faceMesh, ring1, ring2, crown, strap);
+  } else if (stopIndex === 2) {
+    // 03: Kuro 75% CNC Mechanical Keyboard with 18 Rippling Keycaps
+    const kbCase = new THREE.Mesh(new RoundedBoxGeometry(0.72, 0.08, 0.36, 3, 0.024), darkMetal);
+    kbCase.rotation.x = 0.35;
+    spinGroup.add(kbCase);
+    const keyGeo = new RoundedBoxGeometry(0.085, 0.045, 0.08, 2, 0.01);
+    for (let r = 0; r < 3; r++) {
+      for (let c = 0; c < 6; c++) {
+        const kMat = (r + c) % 4 === 0 ? orange : (r + c) % 2 === 0 ? cobalt : white;
+        const key = new THREE.Mesh(keyGeo, kMat);
+        key.position.set(-0.25 + c * 0.1, 0.05, -0.09 + r * 0.09);
+        kbCase.add(key);
+        animatedParts.push(key);
+      }
+    }
+  } else if (stopIndex === 3) {
+    // 04: Lumix f/1.4 Mirrorless Camera + Multi-Stage Lens Barrel
+    const body = new THREE.Mesh(new RoundedBoxGeometry(0.58, 0.4, 0.22, 3, 0.03), darkMetal);
+    const evf = new THREE.Mesh(new RoundedBoxGeometry(0.2, 0.1, 0.16, 2, 0.02), silver);
+    evf.position.set(0, 0.22, 0);
+    const barrel1 = new THREE.Mesh(new THREE.CylinderGeometry(0.17, 0.18, 0.22, 32), silver);
+    barrel1.rotation.x = Math.PI / 2;
+    barrel1.position.z = 0.18;
+    const focusRing = new THREE.Mesh(new THREE.TorusGeometry(0.175, 0.016, 12, 36), cobalt);
+    focusRing.position.z = 0.22;
+    const glassFront = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.14, 0.04, 32), sky);
+    glassFront.rotation.x = Math.PI / 2;
+    glassFront.position.z = 0.28;
+    spinGroup.add(body, evf, barrel1, focusRing, glassFront);
+  } else if (stopIndex === 4) {
+    // 05: Botanica Jeju Glow Serum Dropper Bottle
+    const bottle = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.2, 0.44, 32), emerald);
+    bottle.position.y = -0.04;
+    const collar = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.11, 0.08, 24), gold);
+    collar.position.y = 0.22;
+    const bulb = new THREE.Mesh(new THREE.CylinderGeometry(0.065, 0.075, 0.14, 24), white);
+    bulb.position.y = 0.32;
+    const auraRing = new THREE.Mesh(new THREE.TorusGeometry(0.32, 0.014, 12, 36), gold);
+    auraRing.rotation.x = 1.1;
+    spinGroup.add(bottle, collar, bulb, auraRing);
+    animatedParts.push(auraRing);
+  } else if (stopIndex === 5) {
+    // 06: CremaPro 15-Bar Stainless Espresso Machine
+    const tower = new THREE.Mesh(new RoundedBoxGeometry(0.46, 0.52, 0.36, 3, 0.03), silver);
+    const gauge = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.04, 24), gold);
+    gauge.rotation.x = Math.PI / 2;
+    gauge.position.set(0, 0.12, 0.18);
+    const groupHead = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 0.08, 24), darkMetal);
+    groupHead.position.set(0, -0.02, 0.18);
+    const handle = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.026, 0.26, 16), darkMetal);
+    handle.rotation.x = Math.PI / 2;
+    handle.position.set(0, -0.02, 0.3);
+    const cup = new THREE.Mesh(new THREE.CylinderGeometry(0.065, 0.05, 0.1, 20), white);
+    cup.position.set(0, -0.18, 0.18);
+    spinGroup.add(tower, gauge, groupHead, handle, cup);
+  } else if (stopIndex === 6) {
+    // 07: Nova 4K Tri-Sensor Quadcopter Drone with 4 Spinning Rotors
+    const fuselage = new THREE.Mesh(new RoundedBoxGeometry(0.28, 0.11, 0.42, 3, 0.03), darkMetal);
+    const gimbal = new THREE.Mesh(new THREE.SphereGeometry(0.075, 20, 20), sky);
+    gimbal.position.set(0, -0.06, 0.18);
+    spinGroup.add(fuselage, gimbal);
+    [
+      [-0.26, 0.24],
+      [0.26, 0.24],
+      [-0.26, -0.24],
+      [0.26, -0.24],
+    ].forEach(([rx, rz]) => {
+      const arm = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.03, 0.04), silver);
+      arm.position.set(rx * 0.5, 0, rz * 0.5);
+      arm.rotation.y = Math.atan2(rz, rx);
+      const rotorHub = new THREE.Group();
+      rotorHub.position.set(rx, 0.04, rz);
+      const blade1 = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.01, 0.03), cobalt);
+      const blade2 = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.01, 0.26), sky);
+      rotorHub.add(blade1, blade2);
+      spinGroup.add(arm, rotorHub);
+      animatedParts.push(rotorHub);
+    });
+  } else {
+    // 08: HyperSpeed Autonomous EV Delivery Pod & Rotating Radar Dish
+    const podHull = new THREE.Mesh(new RoundedBoxGeometry(0.54, 0.32, 0.34, 4, 0.06), cobalt);
+    podHull.position.y = -0.04;
+    const windshield = new THREE.Mesh(new RoundedBoxGeometry(0.56, 0.14, 0.26, 3, 0.03), darkMetal);
+    windshield.position.set(0, 0.03, 0);
+    const radarMast = new THREE.Group();
+    radarMast.position.y = 0.2;
+    const dish = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.04, 0.06, 24), emerald);
+    dish.rotation.z = 0.45;
+    radarMast.add(dish);
+    spinGroup.add(podHull, windshield, radarMast);
+    animatedParts.push(radarMast);
+  }
+
+  function animate(time: number, reduced: boolean) {
+    spinGroup.rotation.y = reduced ? 0.4 : time * 0.75;
+    spinGroup.position.y = 0.06 + (reduced ? 0 : Math.sin(time * 1.5 + stopIndex) * 0.035);
+    if (stopIndex === 2 && !reduced) {
+      animatedParts.forEach((k, idx) => {
+        k.position.y = 0.05 + Math.sin(time * 4.0 + idx * 0.45) * 0.018;
+      });
+    } else if (stopIndex === 4 && !reduced && animatedParts[0]) {
+      animatedParts[0].rotation.z = time * 1.2;
+    } else if (stopIndex === 6 && !reduced) {
+      animatedParts.forEach(r => {
+        r.rotation.y = time * 14.0;
+      });
+    } else if (stopIndex === 7 && !reduced && animatedParts[0]) {
+      animatedParts[0].rotation.y = time * 2.4;
+    }
+  }
+
+  return { group: root, animate };
+}
+
+// --- SCENE 02: 3D DUAL-RAIL MONORAIL COASTER & 8 SCULPTED 3D PRODUCTS (8 CHAPTERS, ZERO PARTICLES) ---
 function railScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resources: Resources): SceneUpdate {
   camera.fov = 44;
   scene.fog = new THREE.Fog(0xedf4ff, 5.5, 21.5);
 
-  // Smooth 16-point Catmull-Rom spline snaking 60 units along -z
   const curve = new THREE.CatmullRomCurve3(
     [
       [-2.6, 0.1, 6],
@@ -1955,25 +2204,36 @@ function railScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resource
     const tangent = curve.getTangentAt(stop.u);
     sideways.crossVectors(tangent, up).normalize();
 
-    const cardObj = createFramedCard(resources, stop.kind, 1.42, 0.98, shadow);
-    // Add a 3D circular studio turntable pedestal beneath each card
+    const cardObj = createFramedCard(resources, stop.kind, 1.38, 0.95, shadow);
     const pod = new THREE.Mesh(podiumGeo, podiumMat.clone());
-    pod.position.set(0, -0.62, -0.02);
+    pod.position.set(0, -0.6, -0.02);
     const podRim = new THREE.Mesh(podiumRimGeo, podiumRimMat.clone());
     podRim.rotation.x = Math.PI / 2;
-    podRim.position.set(0, -0.58, -0.02);
+    podRim.position.set(0, -0.56, -0.02);
     cardObj.group.add(pod, podRim);
 
-    const sideDir = (i % 2 ? 1 : -1) * 1.28;
+    const sideDir = (i % 2 ? 1 : -1) * 1.18;
     cardObj.group.position.copy(point).addScaledVector(sideways, sideDir);
     cardObj.group.position.y += 0.28;
     cardObj.group.lookAt(point.clone().addScaledVector(tangent, -2.4));
     scene.add(cardObj.group);
 
+    // If this is one of the 8 primary chapter stops, place its bespoke 3D Sculpted Product Model on the opposite side of the monorail!
+    let sculpture: ReturnType<typeof buildRailProductSculpture> | undefined;
+    const sculptOffset = sideways.clone().multiplyScalar(-sideDir * 0.72);
+    if (stop.focus >= 0) {
+      sculpture = buildRailProductSculpture(stop.focus);
+      sculpture.group.position.copy(point).add(sculptOffset);
+      sculpture.group.position.y += 0.12;
+      scene.add(sculpture.group);
+    }
+
     return {
       ...cardObj,
       podMat: pod.material as THREE.MeshStandardMaterial,
       podRimMat: podRim.material as THREE.MeshStandardMaterial,
+      sculpture,
+      sculptOffset,
       u: stop.u,
       point: point.clone(),
       offset: sideways.clone().multiplyScalar(sideDir),
@@ -2007,22 +2267,21 @@ function railScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resource
     const orbitUp = lens === "orbit" ? 0.22 : 0;
 
     camera.position.set(
-      point.x + orbitSide + pointer.x * 0.12 * sway,
-      point.y + 0.18 + orbitUp - pointer.y * 0.08 * sway,
+      point.x + orbitSide + pointer.x * 0.16 * sway,
+      point.y + 0.18 + orbitUp - pointer.y * 0.1 * sway,
       point.z
     );
 
-    // Subtle smooth coaster banking around curves
     const turnRate = (tanAhead.x - tanNow.x) * (reduced ? 0 : 0.35);
     const bankAngle = Math.max(-0.085, Math.min(0.085, -turnRate));
     camera.up.set(Math.sin(bankAngle), Math.cos(bankAngle), 0);
-    camera.lookAt(look.x + pointer.x * 0.25 * sway, look.y + 0.05 - pointer.y * 0.14 * sway, look.z);
+    camera.lookAt(look.x + pointer.x * 0.28 * sway, look.y + 0.05 - pointer.y * 0.16 * sway, look.z);
 
     const current = p * 7;
 
     cards.forEach(c => {
       const du = c.u - u;
-      const nearFade = sm(0.002, 0.032, du);
+      const nearFade = sm(0.005, 0.036, du);
       const farFade = 1 - sm(0.28, 0.38, du);
       const alpha = nearFade * farFade;
       c.setOpacity(alpha);
@@ -2031,15 +2290,229 @@ function railScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resource
       c.podRimMat.transparent = true;
       c.podRimMat.opacity = alpha;
 
+      if (c.sculpture) {
+        setGroupOpacity(c.sculpture.group, alpha);
+      }
+
       if (alpha > 0.01) {
         const lift = c.focus < 0 ? 0 : 1 - sm(0, 0.55, Math.abs(current - c.focus));
-        c.group.position.copy(c.point).addScaledVector(c.offset, mobile ? 0.56 : 1);
-        c.group.scale.setScalar((mobile ? 0.78 : 1) * (1 + lift * 0.16));
+        c.group.position.copy(c.point).addScaledVector(c.offset, mobile ? 0.54 : 1);
+        c.group.scale.setScalar((mobile ? 0.76 : 1) * (1 + lift * 0.14));
         c.group.position.y = c.y + lift * 0.08 + (reduced ? 0 : Math.sin(time * 1.2 + c.u * 12) * 0.04);
+
+        if (c.sculpture) {
+          c.sculpture.group.position.copy(c.point).addScaledVector(c.sculptOffset, mobile ? 0.55 : 1);
+          c.sculpture.group.position.y = c.point.y + 0.12 + lift * 0.08;
+          c.sculpture.group.scale.setScalar((mobile ? 0.78 : 1.08) * (1 + lift * 0.18));
+          c.sculpture.animate(time, reduced);
+        }
       }
     });
 
     return { depthMeters: point.z };
+  };
+}
+
+// --- SCENE 03: 3D ORBITAL LOGISTICS COMMAND GLOBE & GREAT-CIRCLE ARCS (6 CHAPTERS, ZERO PARTICLES) ---
+function globeScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resources: Resources): SceneUpdate {
+  camera.fov = 38;
+  scene.fog = new THREE.Fog(0xeef5ff, 6.0, 22.0);
+
+  const world = new THREE.Group();
+  world.position.set(0.38, 0.06, 0);
+  scene.add(world);
+
+  const shadowTex = shadowTexture(resources);
+
+  // Soft studio floor shadow under the 3D Globe
+  const floorShadow = new THREE.Mesh(
+    new THREE.PlaneGeometry(4.6, 4.6),
+    new THREE.MeshBasicMaterial({
+      map: shadowTex,
+      transparent: true,
+      depthWrite: false,
+      opacity: 0.72,
+    })
+  );
+  floorShadow.rotation.x = -Math.PI / 2;
+  floorShadow.position.set(0, -1.78, 0);
+  world.add(floorShadow);
+
+  const globeGroup = new THREE.Group();
+  world.add(globeGroup);
+
+  const R = 1.32;
+  // Core sapphire metallic sphere
+  const coreSphere = new THREE.Mesh(
+    new THREE.SphereGeometry(R, 48, 48),
+    new THREE.MeshStandardMaterial({
+      color: 0x0f2952,
+      roughness: 0.28,
+      metalness: 0.68,
+    })
+  );
+  globeGroup.add(coreSphere);
+
+  // Translucent crystal-glass atmosphere shell
+  const glassShell = new THREE.Mesh(
+    new THREE.SphereGeometry(R * 1.035, 48, 48),
+    new THREE.MeshStandardMaterial({
+      color: 0x38bdf8,
+      roughness: 0.06,
+      metalness: 0.15,
+      transparent: true,
+      opacity: 0.2,
+      depthWrite: false,
+    })
+  );
+  globeGroup.add(glassShell);
+
+  // Sculpted 3D Latitude & Longitude Meridian Rings
+  const meridianMat = new THREE.MeshStandardMaterial({
+    color: 0x60a5fa,
+    roughness: 0.22,
+    metalness: 0.6,
+  });
+  for (let i = 0; i < 6; i++) {
+    const lonRing = new THREE.Mesh(new THREE.TorusGeometry(R * 1.012, 0.01, 10, 64), meridianMat);
+    lonRing.rotation.y = (i / 6) * Math.PI;
+    globeGroup.add(lonRing);
+  }
+  [-0.55, 0, 0.55].forEach(lat => {
+    const latRadius = Math.cos(lat) * R * 1.014;
+    const latY = Math.sin(lat) * R * 1.014;
+    const latRing = new THREE.Mesh(new THREE.TorusGeometry(latRadius, 0.01, 10, 64), meridianMat);
+    latRing.rotation.x = Math.PI / 2;
+    latRing.position.y = latY;
+    globeGroup.add(latRing);
+  });
+
+  // 6 Hub Coordinates on the 3D Globe + Elevated Great-Circle Cargo Arcs
+  const hubAngles: [number, number][] = [
+    [0.25, 0.1],    // 0: Luzon Mega-Hub
+    [0.12, 0.45],   // 1: Visayas Express
+    [-0.08, 0.78],  // 2: Mindanao Air Link
+    [0.52, 1.25],   // 3: ASEAN / Tokyo Gateway
+    [0.35, 1.85],   // 4: Smart Warehouse Grid
+    [0.05, 2.45],   // 5: Green EV Fleet Network
+  ];
+
+  const beaconMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, roughness: 0.15, metalness: 0.4 });
+  const goldMat = new THREE.MeshStandardMaterial({ color: 0xfbbf24, roughness: 0.2, metalness: 0.75 });
+  const hubPoints: THREE.Vector3[] = [];
+
+  hubAngles.forEach(([lat, lon]) => {
+    const pos = new THREE.Vector3(
+      R * Math.cos(lat) * Math.sin(lon),
+      R * Math.sin(lat),
+      R * Math.cos(lat) * Math.cos(lon)
+    );
+    hubPoints.push(pos);
+
+    const tower = new THREE.Group();
+    tower.position.copy(pos);
+    tower.lookAt(pos.clone().multiplyScalar(2));
+    const pin = new THREE.Mesh(new THREE.CylinderGeometry(0.032, 0.016, 0.18, 16), goldMat);
+    pin.rotation.x = Math.PI / 2;
+    pin.position.z = 0.09;
+    const halo = new THREE.Mesh(new THREE.TorusGeometry(0.085, 0.012, 10, 28), beaconMat);
+    halo.position.z = 0.02;
+    tower.add(pin, halo);
+    globeGroup.add(tower);
+  });
+
+  // Elevated 3D Great-Circle Arc Tubes connecting consecutive hubs
+  for (let i = 0; i < hubPoints.length - 1; i++) {
+    const pA = hubPoints[i];
+    const pB = hubPoints[i + 1];
+    const mid = pA.clone().add(pB).multiplyScalar(0.5).normalize().multiplyScalar(R * 1.28);
+    const arcCurve = new THREE.QuadraticBezierCurve3(pA, mid, pB);
+    const arcMesh = new THREE.Mesh(
+      new THREE.TubeGeometry(arcCurve, 36, 0.016, 8, false),
+      beaconMat
+    );
+    globeGroup.add(arcMesh);
+  }
+
+  // 2 Tilted Equatorial Orbital Rings + 4 Orbiting 3D Cargo Satellites
+  const orbitRing1 = new THREE.Group();
+  orbitRing1.rotation.set(0.38, 0, -0.24);
+  const ringMesh1 = new THREE.Mesh(
+    new THREE.TorusGeometry(R * 1.36, 0.016, 12, 72),
+    new THREE.MeshStandardMaterial({ color: 0x0a6cff, roughness: 0.2, metalness: 0.65 })
+  );
+  ringMesh1.rotation.x = Math.PI / 2;
+  orbitRing1.add(ringMesh1);
+
+  const satNodes: THREE.Group[] = [];
+  for (let s = 0; s < 4; s++) {
+    const sat = new THREE.Group();
+    const core = new THREE.Mesh(new RoundedBoxGeometry(0.09, 0.06, 0.09, 2, 0.015), goldMat);
+    const wing = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.01, 0.06), beaconMat);
+    sat.add(core, wing);
+    orbitRing1.add(sat);
+    satNodes.push(sat);
+  }
+  world.add(orbitRing1);
+
+  // 6 Liquid Glass Telemetry Cards (kinds 18..23) positioned cleanly to the right of the globe
+  const globeCards = [18, 19, 20, 21, 22, 23].map((kind, i) => {
+    const cardObj = createFramedCard(resources, kind, 1.28, 0.88, shadowTex);
+    cardObj.group.position.set(1.38, 0.16, 1.35);
+    cardObj.group.rotation.y = -0.22;
+    world.add(cardObj.group);
+    return { ...cardObj, index: i };
+  });
+
+  return (p: number, time: number, reduced: boolean, pointer: Pointer, lens: LensMode) => {
+    const mobile = camera.aspect < 0.8;
+    const lensBonus = lens === "wide" ? 9 : lens === "orbit" ? 4 : 0;
+    const targetFov = (mobile ? 48 : 38) + lensBonus;
+    if (Math.abs(camera.fov - targetFov) > 0.05) {
+      camera.fov = targetFov;
+      camera.updateProjectionMatrix();
+    }
+
+    const sway = reduced ? 0 : 1;
+    const camZ = kf(p, [5.8, 5.1, 4.7, 4.9, 5.2, 5.6]);
+    const camX = (mobile ? 0 : 0.22) + (lens === "orbit" ? Math.sin(p * Math.PI * 2) * 0.55 : 0) + pointer.x * 0.28 * sway;
+    const camY = (mobile ? 0.35 : 0.14) - pointer.y * 0.18 * sway;
+
+    camera.position.set(camX, camY, camZ);
+    camera.lookAt(mobile ? 0 : 0.35, 0, 0);
+
+    world.position.x = mobile ? 0 : 0.32;
+    world.position.y = mobile ? 0.42 : 0.06;
+
+    // Smoothly rotate the 3D Globe across the 6 chapters so each hub arc faces the camera
+    const targetRotY = -kf(p, [0.1, 0.45, 0.78, 1.25, 1.85, 2.45]) + (reduced ? 0 : time * 0.08);
+    const targetRotX = kf(p, [0.22, 0.12, -0.06, 0.38, 0.25, 0.08]);
+    globeGroup.rotation.y = targetRotY + pointer.x * 0.22 * sway;
+    globeGroup.rotation.x = targetRotX + pointer.y * 0.14 * sway;
+
+    // Animate orbiting 3D cargo satellites
+    satNodes.forEach((sat, idx) => {
+      const ang = (reduced ? 0 : time * 0.55) + (idx / 4) * Math.PI * 2;
+      sat.position.set(Math.cos(ang) * R * 1.36, 0, Math.sin(ang) * R * 1.36);
+      sat.rotation.y = -ang;
+    });
+
+    // Show the active chapter's Liquid Glass card with smooth 3D slide & fade
+    const current = p * 5;
+    globeCards.forEach(c => {
+      const diff = current - c.index;
+      const alpha = 1 - sm(0.18, 0.62, Math.abs(diff));
+      c.setOpacity(alpha);
+      if (alpha > 0.01) {
+        c.group.position.x = mobile ? 0 : 1.36;
+        c.group.position.y = (mobile ? -0.45 : 0.14) - diff * 0.32 + (reduced ? 0 : Math.sin(time * 1.3 + c.index) * 0.03);
+        c.group.position.z = 1.35 - Math.abs(diff) * 0.35;
+        c.group.rotation.y = (mobile ? 0 : -0.22) - pointer.x * 0.05 * sway;
+        c.group.scale.setScalar(mobile ? 0.78 : 0.96);
+      }
+    });
+
+    return { depthMeters: camZ };
   };
 }
 
@@ -2080,7 +2553,11 @@ export function mountScrollScene(root: HTMLElement, kind: SceneKind, chapterCoun
     frameAverage = 16.7,
     movingFrames = 0;
   const pointer = { x: 0, y: 0 },
-    pointerTarget = { x: 0, y: 0 };
+    pointerTarget = { x: 0, y: 0 },
+    dragOffset = { x: 0, y: 0 };
+  let isDragging = false,
+    dragStartX = 0,
+    dragStartY = 0;
 
   function setResolution() {
     if (!renderer) return;
@@ -2105,13 +2582,17 @@ export function mountScrollScene(root: HTMLElement, kind: SceneKind, chapterCoun
       room.dispose();
       pmrem.dispose();
       scene.environment = environment.texture;
-      scene.environmentIntensity = kind === "laptop" ? 1.1 : 0.9;
+      scene.environmentIntensity = kind === "laptop" ? 1.1 : 0.95;
       if (kind === "laptop") {
         hemisphere.intensity = 0.78;
         light.intensity = 1.5;
         updateScene = laptopScene(scene, camera, resources);
-      } else {
+      } else if (kind === "rail") {
         updateScene = railScene(scene, camera, resources);
+      } else {
+        hemisphere.intensity = 0.9;
+        light.intensity = 1.8;
+        updateScene = globeScene(scene, camera, resources);
       }
       camera.updateProjectionMatrix();
       setResolution();
@@ -2149,9 +2630,16 @@ export function mountScrollScene(root: HTMLElement, kind: SceneKind, chapterCoun
     progress += rawVel * (1 - Math.exp(-dt * 6.0));
     if (Math.abs(progress - target) < 0.00005) progress = target;
 
+    if (!isDragging) {
+      dragOffset.x *= Math.exp(-dt * 3.5);
+      dragOffset.y *= Math.exp(-dt * 3.5);
+    }
+
     const ease = 1 - Math.exp(-dt * 4.5);
-    pointer.x += (pointerTarget.x - pointer.x) * ease;
-    pointer.y += (pointerTarget.y - pointer.y) * ease;
+    const combinedTargetX = Math.max(-2.2, Math.min(2.2, pointerTarget.x + dragOffset.x));
+    const combinedTargetY = Math.max(-1.8, Math.min(1.8, pointerTarget.y + dragOffset.y));
+    pointer.x += (combinedTargetX - pointer.x) * ease;
+    pointer.y += (combinedTargetY - pointer.y) * ease;
 
     root.style.setProperty("--px", pointer.x.toFixed(3));
     root.style.setProperty("--py", pointer.y.toFixed(3));
@@ -2218,7 +2706,27 @@ export function mountScrollScene(root: HTMLElement, kind: SceneKind, chapterCoun
     }
   }
 
+  function onPointerDown(event: PointerEvent) {
+    const targetEl = event.target as HTMLElement | null;
+    if (targetEl?.closest("button, a")) return;
+    isDragging = true;
+    dragStartX = event.clientX;
+    dragStartY = event.clientY;
+    root.dataset.dragging = "true";
+  }
+
+  function onPointerUp() {
+    if (!isDragging) return;
+    isDragging = false;
+    delete root.dataset.dragging;
+  }
+
   function onPointer(event: PointerEvent) {
+    if (isDragging) {
+      dragOffset.x = ((event.clientX - dragStartX) / Math.max(300, window.innerWidth)) * 3.2;
+      dragOffset.y = ((event.clientY - dragStartY) / Math.max(300, window.innerHeight)) * 2.4;
+      schedule();
+    }
     if (event.pointerType !== "mouse") return;
     pointerTarget.x = (event.clientX / window.innerWidth) * 2 - 1;
     pointerTarget.y = (event.clientY / window.innerHeight) * 2 - 1;
@@ -2296,6 +2804,9 @@ export function mountScrollScene(root: HTMLElement, kind: SceneKind, chapterCoun
   resizeObserver.observe(stage);
   resizeObserver.observe(root);
 
+  stage.addEventListener("pointerdown", onPointerDown);
+  window.addEventListener("pointerup", onPointerUp);
+  window.addEventListener("pointercancel", onPointerUp);
   window.addEventListener("scroll", onScroll, { passive: true });
   window.addEventListener("resize", measure);
   window.addEventListener("pointermove", onPointer, { passive: true });
@@ -2313,6 +2824,9 @@ export function mountScrollScene(root: HTMLElement, kind: SceneKind, chapterCoun
     warmupObserver.disconnect();
     observer.disconnect();
     resizeObserver.disconnect();
+    stage.removeEventListener("pointerdown", onPointerDown);
+    window.removeEventListener("pointerup", onPointerUp);
+    window.removeEventListener("pointercancel", onPointerUp);
     window.removeEventListener("scroll", onScroll);
     window.removeEventListener("resize", measure);
     window.removeEventListener("pointermove", onPointer);
@@ -2326,4 +2840,5 @@ export function mountScrollScene(root: HTMLElement, kind: SceneKind, chapterCoun
     renderer?.domElement.remove();
   };
 }
+
 

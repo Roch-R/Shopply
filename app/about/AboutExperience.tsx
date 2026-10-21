@@ -203,6 +203,81 @@ const railChapters = [
   },
 ];
 
+const globeChapters = [
+  {
+    tag: "01 / LUZON MEGA-HUB",
+    title: (
+      <>
+        Manila &amp; Clark.
+        <br />
+        <em>Sub-2hr sortation.</em>
+      </>
+    ),
+    text: "Watch 3D great-circle cargo corridors radiate from our automated Luzon mega-hub across every province.",
+    short: "Luzon hub",
+  },
+  {
+    tag: "02 / VISAYAS EXPRESS BRIDGE",
+    title: (
+      <>
+        Cebu &amp; Iloilo air-link.
+        <br />
+        <em>Island-to-island speed.</em>
+      </>
+    ),
+    text: "High-frequency air freighters and RoRo sea-lanes synchronize island inventory in real time.",
+    short: "Visayas bridge",
+  },
+  {
+    tag: "03 / MINDANAO PRIORITY CARGO",
+    title: (
+      <>
+        Davao &amp; CDO hubs.
+        <br />
+        <em>Dedicated night flight.</em>
+      </>
+    ),
+    text: "Direct southern cargo arcs connect Mindanao creators and buyers with next-day temperature-controlled delivery.",
+    short: "Mindanao cargo",
+  },
+  {
+    tag: "04 / ASEAN DIRECT GATEWAY",
+    title: (
+      <>
+        Tokyo, Seoul &amp; SG.
+        <br />
+        <em>Zero-FX cross-border.</em>
+      </>
+    ),
+    text: "Pre-cleared customs telemetry and orbital flight corridors bring official international flagships straight home.",
+    short: "ASEAN gateway",
+  },
+  {
+    tag: "05 / AUTONOMOUS FULFILL GRID",
+    title: (
+      <>
+        1,200 parcels / hr.
+        <br />
+        <em>99.98% pick accuracy.</em>
+      </>
+    ),
+    text: "Optical 3D scanners and automated sortation arms verify weight, barcode, and packaging before dispatch.",
+    short: "Robotic grid",
+  },
+  {
+    tag: "06 / GREEN SOLAR EV FLEET",
+    title: (
+      <>
+        84% electric fleet.
+        <br />
+        <em>Zero-carbon last mile.</em>
+      </>
+    ),
+    text: "Solar-charged EV delivery vans and two-wheel couriers complete the final mile with live GPS precision.",
+    short: "Green EV fleet",
+  },
+];
+
 const sceneMeta: Record<
   SceneKind,
   {
@@ -218,20 +293,29 @@ const sceneMeta: Record<
   laptop: {
     id: "story",
     chapters: laptopChapters,
-    subtitle: "3D STUDIO LAPTOP & LAYERED WORKSPACE",
-    badge: "01 — THE STUDIO WORKSPACE",
-    hint: "SCROLL TO EXPLORE 8 3D CHAPTERS",
+    subtitle: "3D STUDIO LAPTOP & EXPLODED HARDWARE STACK",
+    badge: "01 — THE 3D STUDIO WORKSPACE",
+    hint: "SCROLL OR DRAG TO ORBIT 3D",
     footerNote: "8 CHAPTERS • STUDIO, PAYMENTS, ANALYTICS & FLAGSHIP",
     ariaLabel: "Meet Shopply: 8-chapter 3D laptop studio and layered card workspace",
   },
   rail: {
     id: "journey",
     chapters: railChapters,
-    subtitle: "3D PRODUCT RAIL & CURATED SHOWCASE",
+    subtitle: "3D SCULPTED PRODUCT MONORAIL SHOWCASE",
     badge: "02 — THE 3D PRODUCT RAIL",
-    hint: "SCROLL ALONG THE 8-STOP 3D RAIL",
-    footerNote: "8 CHAPTERS • FOOTWEAR, OPTICS, ESPRESSO, DRONES & GPS",
+    hint: "SCROLL OR DRAG TO ORBIT 3D",
+    footerNote: "8 CHAPTERS • FOOTWEAR, OPTICS, ESPRESSO, DRONES & EV PODS",
     ariaLabel: "Explore the Shopply 8-chapter 3D product rail",
+  },
+  globe: {
+    id: "network",
+    chapters: globeChapters,
+    subtitle: "3D ORBITAL LOGISTICS GLOBE & CARGO ARCS",
+    badge: "03 — 3D ORBITAL COMMAND GLOBE",
+    hint: "DRAG GLOBE TO ORBIT • 6 HUBS",
+    footerNote: "6 CHAPTERS • LUZON, VISAYAS, MINDANAO, ASEAN & EV FLEET",
+    ariaLabel: "Explore the Shopply 6-chapter 3D orbital logistics globe",
   },
 };
 
@@ -342,7 +426,11 @@ function ScrollScene({ kind, onLoginClick }: { kind: SceneKind; onLoginClick?: (
     goTo(current + delta);
   }
 
-  const sceneClassName = [styles.journey, kind === "rail" ? styles.railJourney : ""]
+  const sceneClassName = [
+    styles.journey,
+    kind === "rail" ? styles.railJourney : "",
+    kind === "globe" ? styles.globeJourney : "",
+  ]
     .filter(Boolean)
     .join(" ");
 
@@ -498,7 +586,7 @@ export default function AboutExperience({ onLoginClick }: { onLoginClick?: () =>
       <HeroZoomOut />
       <ScrollScene kind="laptop" onLoginClick={onLoginClick} />
       <div className={styles.interlude}>
-        <p>SCENE 01 → SCENE 02 • CURATED DROPS ALONG THE 3D RAIL</p>
+        <p>SCENE 01 → SCENE 02 • SCULPTED 3D PRODUCTS ALONG THE MONORAIL</p>
         <h2>
           From carbon runners to
           <br />
@@ -509,6 +597,18 @@ export default function AboutExperience({ onLoginClick }: { onLoginClick?: () =>
         </span>
       </div>
       <ScrollScene kind="rail" />
+      <div className={styles.interlude}>
+        <p>SCENE 02 → SCENE 03 • 3D ORBITAL LOGISTICS COMMAND GLOBE</p>
+        <h2>
+          Every island connected.
+          <br />
+          <em>Orbital speed to your door.</em>
+        </h2>
+        <span>
+          Enter the 3D Orbital Command Globe <b aria-hidden="true">↓</b>
+        </span>
+      </div>
+      <ScrollScene kind="globe" />
     </>
   );
 }

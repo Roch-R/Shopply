@@ -11,6 +11,11 @@
   background: #edf4ff;
 }
 
+.globeJourney {
+  height: 760svh;
+  background: #e8f1ff;
+}
+
 .sticky {
   position: sticky;
   top: 0;
@@ -18,15 +23,27 @@
   min-height: 520px;
   overflow: hidden;
   isolation: isolate;
+  cursor: grab;
+  user-select: none;
   background:
     radial-gradient(50% 50% at 62% 44%, rgba(56, 189, 248, 0.22) 0%, rgba(10, 108, 255, 0.11) 45%, transparent 75%),
     radial-gradient(75% 65% at 50% 40%, #dcebff 0%, #f2f7ff 62%, #ffffff 100%);
+}
+
+.journey[data-dragging="true"] .sticky {
+  cursor: grabbing;
 }
 
 .railJourney .sticky {
   background:
     radial-gradient(50% 50% at 56% 46%, rgba(14, 165, 233, 0.22) 0%, rgba(10, 108, 255, 0.11) 46%, transparent 76%),
     radial-gradient(75% 65% at 50% 42%, #d9ecff 0%, #f1f7ff 62%, #ffffff 100%);
+}
+
+.globeJourney .sticky {
+  background:
+    radial-gradient(48% 48% at 64% 48%, rgba(56, 189, 248, 0.28) 0%, rgba(10, 108, 255, 0.15) 48%, transparent 78%),
+    radial-gradient(75% 65% at 52% 44%, #d4e8ff 0%, #eef6ff 64%, #ffffff 100%);
 }
 
 .canvas {
@@ -674,6 +691,9 @@
   }
   .railJourney {
     height: 720svh;
+  }
+  .globeJourney {
+    height: 580svh;
   }
   .topline {
     top: 16px;
