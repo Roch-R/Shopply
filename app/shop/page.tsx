@@ -2484,7 +2484,7 @@ function MarketplaceContent() {
 
       <div className="root">
         <nav className="nav">
-          <Link href="/" onClick={() => revokeMarketplaceAccess()} className="nav-logo">
+          <Link href="/shop" className="nav-logo">
             <svg width="30" height="30" viewBox="0 0 200 260" xmlns="http://www.w3.org/2000/svg">
               <rect x="8" y="68" width="184" height="176" rx="24" fill="none" stroke="#7c3aed" strokeWidth="14"/>
               <path d="M56 70 Q56 18 100 18 Q144 18 144 70" fill="none" stroke="#7c3aed" strokeWidth="14" strokeLinecap="round"/>
@@ -2497,25 +2497,6 @@ function MarketplaceContent() {
             <span className="logo-text">Shopply</span>
           </Link>
           <div className="nav-right">
-            <Link
-              href="/"
-              onClick={() => revokeMarketplaceAccess()}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 6,
-                padding: '8px 14px',
-                borderRadius: 999,
-                border: '1.5px solid #e2e8f0',
-                background: '#f8fafc',
-                color: '#0f172a',
-                fontSize: 13,
-                fontWeight: 700,
-                textDecoration: 'none',
-              }}
-            >
-              <span>← 3D Home</span>
-            </Link>
             <Link href="/cart" className="cart-nav-icon">
               <IconCart />
               {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
