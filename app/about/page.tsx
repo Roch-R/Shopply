@@ -17,7 +17,9 @@ export default function AboutPage() {
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    // Clear stale lock flags from older versions so logged-in users are never blocked
+    // Visiting the public home page must not revoke a member's shop access.
+    localStorage.removeItem("shopply_on_landing");
+    sessionStorage.removeItem("shopply_on_landing");
     localStorage.removeItem("shopply_landing_lock");
 
     const token = localStorage.getItem("token");

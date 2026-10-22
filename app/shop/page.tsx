@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState, useRef, useCallback } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { getApiCache, createSmartPoller } from "@/lib/apiCache";
 import MeetupMap from "@/components/MeetupMap";
 import { SkeletonShopCard, SkeletonChatMessage } from "@/components/Skeleton";
@@ -178,23 +179,68 @@ const CURATED_CATEGORIES = [
 ];
 
 export default function ShopPage() {
-  const [shopAuthorized, setShopAuthorized] = useState(false);
-  const [items, setItems] = useState<ShopItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  const router = useRouter();
+  const [access, setAccess] = useState<"checking" | "allowed" | "error">("checking");
+  const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
+    const controller = new AbortController();
     const token = localStorage.getItem("token");
-    const storedUser = localStorage.getItem("user");
 
-    // Only block the marketplace when the visitor is NOT logged in
-    if (!token || !storedUser) {
-      window.location.replace("/login");
+    if (!token) {
+      router.replace("/");
       return;
     }
-    // Clean up the old over-strict lock flag from previous versions
-    localStorage.removeItem("shopply_landing_lock");
-    setShopAuthorized(true);
-  }, []);
+
+    // Validate the session, regardless of which page or tab the member came from.
+    fetch("/api/me", {
+      headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
+      cache: "no-store",
+      signal: controller.signal,
+    })
+      .then(async response => {
+        if (controller.signal.aborted) return;
+        if (response.status === 401 || response.status === 403) {
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          localStorage.removeItem("shopply_user");
+          getApiCache().invalidateAll();
+          router.replace("/");
+          return;
+        }
+        if (!response.ok) throw new Error("Session check failed");
+        const data = await response.json();
+        if (controller.signal.aborted) return;
+        if (!data.user?.id) throw new Error("Missing session user");
+        localStorage.setItem("user", JSON.stringify(data.user));
+        setAccess("allowed");
+      })
+      .catch(() => {
+        if (!controller.signal.aborted) setAccess("error");
+      });
+
+    return () => controller.abort();
+  }, [router, attempt]);
+
+  if (access === "allowed") return <MarketplaceContent />;
+
+  return (
+    <main style={{ minHeight: "100vh", background: "#f5f7ff", display: "grid", placeItems: "center", padding: 24 }}>
+      <div role="status" aria-live="polite" style={{ textAlign: "center", color: "#334155" }}>
+        <p>{access === "error" ? "We couldn’t connect to your account. Please try again." : "Opening your shop…"}</p>
+        {access === "error" && (
+          <button type="button" onClick={() => { setAccess("checking"); setAttempt(value => value + 1); }} style={{ marginTop: 16, padding: "12px 24px", border: 0, borderRadius: 12, background: "#7c3aed", color: "white", cursor: "pointer" }}>
+            Try again
+          </button>
+        )}
+      </div>
+    </main>
+  );
+}
+
+function MarketplaceContent() {
+  const [items, setItems] = useState<ShopItem[]>([]);
+  const [loading, setLoading] = useState(true);
   const [viewItem, setViewItem] = useState<ShopItem | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [selectedVariant, setSelectedVariant] = useState<number | null>(null);
@@ -1673,77 +1719,6 @@ export default function ShopPage() {
       if (sortBy === 'popular') return Number(b.sold_count || b.reviews_count || 0) - Number(a.sold_count || a.reviews_count || 0);
       return 0; // featured default
     });
-
-  if (!shopAuthorized) {
-    return (
-      <div
-        style={{
-          minHeight: "100vh",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          background: "linear-gradient(180deg, #dff0ff 0%, #f4faff 100%)",
-          fontFamily: "Inter, -apple-system, sans-serif",
-          color: "#06152d",
-          padding: 24,
-          textAlign: "center",
-        }}
-      >
-        <div
-          style={{
-            padding: "32px 36px",
-            borderRadius: 28,
-            background: "rgba(255, 255, 255, 0.92)",
-            border: "1.5px solid rgba(10, 108, 255, 0.22)",
-            boxShadow: "0 24px 60px rgba(7, 25, 58, 0.12)",
-            maxWidth: 420,
-          }}
-        >
-          <div
-            style={{
-              width: 48,
-              height: 48,
-              borderRadius: 999,
-              background: "linear-gradient(135deg, #0a6cff, #00c2ff)",
-              color: "#fff",
-              display: "inline-flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontWeight: 800,
-              fontSize: 20,
-              marginBottom: 14,
-            }}
-          >
-            🔒
-          </div>
-          <h1 style={{ fontSize: 20, fontWeight: 800, margin: "0 0 8px" }}>
-            Please Log In First
-          </h1>
-          <p style={{ fontSize: 14, color: "#3d5678", lineHeight: 1.55, margin: "0 0 18px" }}>
-            The marketplace is only available to signed-in members. Redirecting you to the login page...
-          </p>
-          <a
-            href="/login"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              justifyContent: "center",
-              padding: "11px 24px",
-              borderRadius: 999,
-              background: "linear-gradient(135deg, #0a6cff, #0051d5)",
-              color: "#fff",
-              fontWeight: 700,
-              fontSize: 14,
-              textDecoration: "none",
-            }}
-          >
-            Go to Log In →
-          </a>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <>
