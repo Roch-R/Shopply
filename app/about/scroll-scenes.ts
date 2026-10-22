@@ -1336,20 +1336,6 @@ function laptopScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resour
   screen.position.z = 0.004;
   lidGroup.add(screen);
 
-  // 3D Exploding Holographic Screen Layers that physically pop forward out of the Retina display!
-  const screenHoloLayers: THREE.Mesh[] = [];
-  [0.24, 0.48].forEach((lz, idx) => {
-    const holoRim = new THREE.Mesh(
-      new RoundedBoxGeometry(SW * (0.86 - idx * 0.14), SH * (0.82 - idx * 0.14), 0.014, 3, 0.01),
-      idx === 0 ? skyMetal.clone() : goldMetal.clone()
-    );
-    holoRim.material.transparent = true;
-    holoRim.material.opacity = 0.28;
-    holoRim.position.z = lz;
-    lidGroup.add(holoRim);
-    screenHoloLayers.push(holoRim);
-  });
-
   const baseG = new THREE.Group();
   baseG.position.set(0, -(SH + 0.1) / 2, -0.04);
   baseG.rotation.x = TH0;
@@ -1781,13 +1767,6 @@ function laptopScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resour
     const openProgress = Math.max(introOpen, scrollOpen);
     const closedAngle = 0.22 * (1 - openProgress);
     lidPivot.rotation.x = closedAngle;
-
-    // Animate 3D Holographic Layers popping forward out of the Laptop Screen as you scroll!
-    const popOut = sm(0.02, 0.28, p) * (1 - sm(0.32, 0.42, p));
-    screenHoloLayers.forEach((layer, idx) => {
-      layer.position.z = (idx + 1) * (0.12 + popOut * 0.34);
-      layer.scale.setScalar(1 + popOut * (idx + 1) * 0.08);
-    });
 
     rig.rotation.x = rotX + pointer.y * 0.055 * sway;
     rig.rotation.y = rotY + pointer.x * 0.075 * sway;
