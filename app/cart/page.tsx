@@ -83,10 +83,8 @@ export default function CartPage() {
 
   const fetchCart = async () => {
     const token = localStorage.getItem("token");
-    const landingLock = localStorage.getItem("shopply_landing_lock") === "true";
-    const shopUnlocked = sessionStorage.getItem("shopply_shop_unlocked") === "true";
-    if (!token || landingLock || !shopUnlocked) {
-      window.location.replace("/");
+    if (!token) {
+      router.push("/login");
       return;
     }
     try {

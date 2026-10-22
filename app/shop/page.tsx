@@ -185,13 +185,14 @@ export default function ShopPage() {
   useEffect(() => {
     const token = localStorage.getItem("token");
     const storedUser = localStorage.getItem("user");
-    const landingLock = localStorage.getItem("shopply_landing_lock") === "true";
-    const shopUnlocked = sessionStorage.getItem("shopply_shop_unlocked") === "true";
 
-    if (!token || !storedUser || landingLock || !shopUnlocked) {
-      window.location.replace("/");
+    // Only block the marketplace when the visitor is NOT logged in
+    if (!token || !storedUser) {
+      window.location.replace("/login");
       return;
     }
+    // Clean up the old over-strict lock flag from previous versions
+    localStorage.removeItem("shopply_landing_lock");
     setShopAuthorized(true);
   }, []);
   const [viewItem, setViewItem] = useState<ShopItem | null>(null);
@@ -1717,13 +1718,13 @@ export default function ShopPage() {
             🔒
           </div>
           <h1 style={{ fontSize: 20, fontWeight: 800, margin: "0 0 8px" }}>
-            Marketplace Access Blocked
+            Please Log In First
           </h1>
           <p style={{ fontSize: 14, color: "#3d5678", lineHeight: 1.55, margin: "0 0 18px" }}>
-            Direct access to <strong>/shop</strong> from the landing page is blocked. Redirecting you back to the 3D landing page...
+            The marketplace is only available to signed-in members. Redirecting you to the login page...
           </p>
           <a
-            href="/"
+            href="/login"
             style={{
               display: "inline-flex",
               alignItems: "center",
@@ -1737,7 +1738,7 @@ export default function ShopPage() {
               textDecoration: "none",
             }}
           >
-            ← Back to 3D Landing Page
+            Go to Log In →
           </a>
         </div>
       </div>

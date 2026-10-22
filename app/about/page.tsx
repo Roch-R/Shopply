@@ -17,9 +17,8 @@ export default function AboutPage() {
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    // Lock direct /shop access whenever the user is on the public 3D landing page
-    localStorage.setItem("shopply_landing_lock", "true");
-    sessionStorage.removeItem("shopply_shop_unlocked");
+    // Clear stale lock flags from older versions so logged-in users are never blocked
+    localStorage.removeItem("shopply_landing_lock");
 
     const token = localStorage.getItem("token");
     if (token) {

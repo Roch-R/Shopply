@@ -978,11 +978,7 @@ export default function DashboardPage() {
   });
   const [ready, setReady] = useState(() => {
     if (typeof window !== 'undefined') {
-      return Boolean(
-        localStorage.getItem("token") &&
-        (localStorage.getItem("user") || localStorage.getItem("shopply_user")) &&
-        localStorage.getItem("shopply_landing_lock") !== "true"
-      );
+      return Boolean(localStorage.getItem("token") && (localStorage.getItem("user") || localStorage.getItem("shopply_user")));
     }
     return false;
   });
@@ -1958,10 +1954,9 @@ export default function DashboardPage() {
   useEffect(() => {
     const token = localStorage.getItem("token");
     const stored = localStorage.getItem("user");
-    const landingLock = localStorage.getItem("shopply_landing_lock") === "true";
 
-    if (!token || !stored || landingLock) { router.replace("/login"); return; }
-    sessionStorage.setItem("shopply_shop_unlocked", "true");
+    if (!token || !stored) { router.replace("/login"); return; }
+    localStorage.removeItem("shopply_landing_lock");
 
     const cache = getApiCache();
     cache.fetch(`${API}/me`, {
@@ -2676,8 +2671,6 @@ export default function DashboardPage() {
     }
     localStorage.removeItem("token");
     localStorage.removeItem("user");
-    localStorage.setItem("shopply_landing_lock", "true");
-    sessionStorage.removeItem("shopply_shop_unlocked");
     getApiCache().invalidateAll();
     router.push("/login");
   };
