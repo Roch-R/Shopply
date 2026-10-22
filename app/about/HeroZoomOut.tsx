@@ -92,14 +92,9 @@ export default function HeroZoomOut({
         <nav className="mx-auto flex max-w-7xl items-center justify-between rounded-full border border-white/90 bg-white/80 px-6 py-3.5 shadow-[0_16px_44px_rgba(15,23,42,0.06),inset_0_1px_1px_rgba(255,255,255,0.95)] backdrop-blur-2xl">
           <Link
             href="/"
-            className="flex items-center gap-2.5 font-instrument text-3xl tracking-tight text-[#0f172a]"
+            className="flex items-center font-instrument text-3xl tracking-tight text-[#0f172a] hover:opacity-90 transition-opacity"
           >
-            <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-[#0a6cff] to-[#38bdf8] text-sm font-sans font-bold text-white shadow-[0_4px_14px_rgba(10,108,255,0.4)]">
-              S
-            </span>
-            <span>
-              Shopply<sup className="text-[0.52em] align-super text-[#0a6cff]">®</sup>
-            </span>
+            <span>Shopply</span>
           </Link>
 
           <div className="hidden items-center gap-7 lg:flex">
