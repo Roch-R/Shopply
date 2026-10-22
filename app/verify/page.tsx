@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Skeleton } from "@/components/Skeleton";
 import { getApiCache } from "@/lib/apiCache";
+import { grantMarketplaceAccess } from "@/lib/marketplaceAccess";
 
 export default function VerifyPage() {
   const router = useRouter();
@@ -150,12 +151,17 @@ export default function VerifyPage() {
         return;
       }
 
-      if (data.token) localStorage.setItem("token", data.token);
+      if (data.token) {
+        localStorage.setItem("token", data.token);
+        grantMarketplaceAccess(data.token);
+      }
       if (data.user) localStorage.setItem("user", JSON.stringify(data.user));
       localStorage.removeItem("pending_email");
-      localStorage.removeItem("otp_expires_at");
+      localStorage.removeItem("shopply_on_landing");
+      sessionStorage.removeItem("shopply_on_landing");
+      localStorage.setItem("shopply_dashboard_access", "true");
+      sessionStorage.setItem("shopply_dashboard_access", "true");
       localStorage.removeItem("shopply_landing_lock");
-      sessionStorage.setItem("shopply_shop_unlocked", "true");
 
       setSuccess("✓ Email verified successfully! Redirecting...");
       setRedirecting(true);

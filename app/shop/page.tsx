@@ -190,14 +190,17 @@ export default function ShopPage() {
 
     if (!hasMarketplaceAccess(token)) {
       router.replace("/");
+      if (typeof window !== "undefined" && window.location?.replace) window.location.replace("/");
       return;
     }
 
     const recheckAccess = () => {
-      if (!hasMarketplaceAccess(localStorage.getItem("token"))) {
+      const currentToken = localStorage.getItem("token");
+      if (!hasMarketplaceAccess(currentToken)) {
         controller.abort();
         setAccess("checking");
         router.replace("/");
+        if (typeof window !== "undefined" && window.location?.replace) window.location.replace("/");
       }
     };
     window.addEventListener("pageshow", recheckAccess);
@@ -218,6 +221,7 @@ export default function ShopPage() {
           localStorage.removeItem("shopply_user");
           getApiCache().invalidateAll();
           router.replace("/");
+          if (typeof window !== "undefined" && window.location?.replace) window.location.replace("/");
           return;
         }
         if (!response.ok) throw new Error("Session check failed");
@@ -243,11 +247,15 @@ export default function ShopPage() {
   return (
     <main style={{ minHeight: "100vh", background: "#f5f7ff", display: "grid", placeItems: "center", padding: 24 }}>
       <div role="status" aria-live="polite" style={{ textAlign: "center", color: "#334155" }}>
-        <p>{access === "error" ? "We couldn’t connect to your account. Please try again." : "Opening your shop…"}</p>
-        {access === "error" && (
-          <button type="button" onClick={() => { setAccess("checking"); setAttempt(value => value + 1); }} style={{ marginTop: 16, padding: "12px 24px", border: 0, borderRadius: 12, background: "#7c3aed", color: "white", cursor: "pointer" }}>
-            Try again
-          </button>
+        {access === "error" ? (
+          <>
+            <p>We couldn’t connect to your account. Please try again.</p>
+            <button type="button" onClick={() => { setAccess("checking"); setAttempt(value => value + 1); }} style={{ marginTop: 16, padding: "12px 24px", border: 0, borderRadius: 12, background: "#7c3aed", color: "white", cursor: "pointer" }}>
+              Try again
+            </button>
+          </>
+        ) : (
+          <div style={{ width: 36, height: 36, border: "3px solid #e2e8f0", borderTopColor: "#7c3aed", borderRadius: "50%", animation: "spin .7s linear infinite", margin: "0 auto" }} />
         )}
       </div>
     </main>
@@ -2476,7 +2484,7 @@ function MarketplaceContent() {
 
       <div className="root">
         <nav className="nav">
-          <Link href="/" className="nav-logo">
+          <Link href="/" onClick={() => revokeMarketplaceAccess()} className="nav-logo">
             <svg width="30" height="30" viewBox="0 0 200 260" xmlns="http://www.w3.org/2000/svg">
               <rect x="8" y="68" width="184" height="176" rx="24" fill="none" stroke="#7c3aed" strokeWidth="14"/>
               <path d="M56 70 Q56 18 100 18 Q144 18 144 70" fill="none" stroke="#7c3aed" strokeWidth="14" strokeLinecap="round"/>
@@ -2491,6 +2499,7 @@ function MarketplaceContent() {
           <div className="nav-right">
             <Link
               href="/"
+              onClick={() => revokeMarketplaceAccess()}
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',

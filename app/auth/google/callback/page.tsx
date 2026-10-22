@@ -4,6 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { apiGoogleAuth } from "@/lib/api";
 import { getApiCache } from "@/lib/apiCache";
+import { grantMarketplaceAccess } from "@/lib/marketplaceAccess";
 
 function GoogleCallbackContent() {
   const router = useRouter();
@@ -47,8 +48,12 @@ function GoogleCallbackContent() {
         
         localStorage.setItem("token", data.token!);
         localStorage.setItem("user", JSON.stringify(data.user));
+        if (data.token) grantMarketplaceAccess(data.token);
+        localStorage.removeItem("shopply_on_landing");
+        sessionStorage.removeItem("shopply_on_landing");
+        localStorage.setItem("shopply_dashboard_access", "true");
+        sessionStorage.setItem("shopply_dashboard_access", "true");
         localStorage.removeItem("shopply_landing_lock");
-        sessionStorage.setItem("shopply_shop_unlocked", "true");
         router.replace("/dashboard");
       } catch (err: unknown) {
         setError(err instanceof Error ? err.message : "Authentication failed.");

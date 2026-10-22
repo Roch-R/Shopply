@@ -2585,9 +2585,10 @@ export default function DashboardPage() {
   const handleBuyAgain = async (order: Order) => {
     const token = localStorage.getItem("token");
     if (!token) {
-      router.push("/shop");
+      router.push("/login");
       return;
     }
+    grantMarketplaceAccess(token);
     try {
       const res = await fetch(`${API}/cart`, {
         method: "POST",
@@ -5444,7 +5445,7 @@ export default function DashboardPage() {
                         </div>
                         <div className="empty-title" style={{ fontSize: 18, fontWeight: 700, color: '#0f172a', marginBottom: 6 }}>No orders placed yet</div>
                         <div className="empty-desc" style={{ color: '#64748b', fontSize: 14, marginBottom: 20 }}>Explore thousands of quality products from verified sellers on Shopply.</div>
-                        <Link href="/shop" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#7c3aed', color: '#fff', textDecoration: 'none', padding: '10px 22px', borderRadius: 12, fontWeight: 700, fontSize: 14, boxShadow: '0 4px 14px rgba(124,58,237,0.25)' }}>
+                        <Link href="/shop" onClick={handleGoToShop} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#7c3aed', color: '#fff', textDecoration: 'none', padding: '10px 22px', borderRadius: 12, fontWeight: 700, fontSize: 14, boxShadow: '0 4px 14px rgba(124,58,237,0.25)' }}>
                           <IconShop /> Browse Marketplace
                         </Link>
                       </div>

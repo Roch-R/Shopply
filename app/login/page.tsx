@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { apiLogin } from "@/lib/api";
 import { getApiCache } from "@/lib/apiCache";
+import { grantMarketplaceAccess } from "@/lib/marketplaceAccess";
 import LogoDrawPreloader from "@/components/LogoDrawPreloader";
 
 const EyeOpen = () => (
@@ -72,8 +73,12 @@ export default function LoginPage() {
       getApiCache().invalidateAll();
       localStorage.setItem("token", data.token!);
       localStorage.setItem("user", JSON.stringify(data.user));
+      if (data.token) grantMarketplaceAccess(data.token);
+      localStorage.removeItem("shopply_on_landing");
+      sessionStorage.removeItem("shopply_on_landing");
+      localStorage.setItem("shopply_dashboard_access", "true");
+      sessionStorage.setItem("shopply_dashboard_access", "true");
       localStorage.removeItem("shopply_landing_lock");
-      sessionStorage.setItem("shopply_shop_unlocked", "true");
       // Hard navigate so dashboard loads with fresh localStorage state
       window.location.href = "/dashboard";
     } catch (err: unknown) {
