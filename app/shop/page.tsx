@@ -2,6 +2,7 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { hasMarketplaceAccess, revokeMarketplaceAccess } from "@/lib/marketplaceAccess";
 import { getApiCache, createSmartPoller } from "@/lib/apiCache";
 import MeetupMap from "@/components/MeetupMap";
 import { SkeletonShopCard, SkeletonChatMessage } from "@/components/Skeleton";
@@ -187,12 +188,22 @@ export default function ShopPage() {
     const controller = new AbortController();
     const token = localStorage.getItem("token");
 
-    if (!token) {
+    if (!hasMarketplaceAccess(token)) {
       router.replace("/");
       return;
     }
 
-    // Validate the session, regardless of which page or tab the member came from.
+    const recheckAccess = () => {
+      if (!hasMarketplaceAccess(localStorage.getItem("token"))) {
+        controller.abort();
+        setAccess("checking");
+        router.replace("/");
+      }
+    };
+    window.addEventListener("pageshow", recheckAccess);
+    window.addEventListener("storage", recheckAccess);
+
+    // The dashboard opens this tab's gate; the API independently validates login.
     fetch("/api/me", {
       headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
       cache: "no-store",
@@ -201,6 +212,7 @@ export default function ShopPage() {
       .then(async response => {
         if (controller.signal.aborted) return;
         if (response.status === 401 || response.status === 403) {
+          revokeMarketplaceAccess();
           localStorage.removeItem("token");
           localStorage.removeItem("user");
           localStorage.removeItem("shopply_user");
@@ -219,7 +231,11 @@ export default function ShopPage() {
         if (!controller.signal.aborted) setAccess("error");
       });
 
-    return () => controller.abort();
+    return () => {
+      controller.abort();
+      window.removeEventListener("pageshow", recheckAccess);
+      window.removeEventListener("storage", recheckAccess);
+    };
   }, [router, attempt]);
 
   if (access === "allowed") return <MarketplaceContent />;

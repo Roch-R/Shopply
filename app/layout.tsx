@@ -131,8 +131,8 @@ export default function RootLayout({
         <Script id="service-worker-registration" strategy="afterInteractive">
           {`
             // One-time automatic cache clearance to force update old cached client pages
-            if (!localStorage.getItem('shopply_force_clear_v50')) {
-              localStorage.setItem('shopply_force_clear_v50', 'true');
+            if (!localStorage.getItem('shopply_force_clear_v52')) {
+              localStorage.setItem('shopply_force_clear_v52', 'true');
               if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.getRegistrations().then(function(registrations) {
                   for (var i = 0; i < registrations.length; i++) {

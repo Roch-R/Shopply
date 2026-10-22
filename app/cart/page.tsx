@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { getApiCache } from "@/lib/apiCache";
+import { hasMarketplaceAccess } from "@/lib/marketplaceAccess";
 import { SkeletonCartItem } from "@/components/Skeleton";
 import { db } from "@/lib/firebase";
 import { doc, getDoc, getDocs, collection } from "firebase/firestore";
@@ -83,8 +84,8 @@ export default function CartPage() {
 
   const fetchCart = async () => {
     const token = localStorage.getItem("token");
-    if (!token) {
-      router.push("/login");
+    if (!hasMarketplaceAccess(token)) {
+      window.location.replace("/");
       return;
     }
     try {

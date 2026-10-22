@@ -4,19 +4,17 @@
  * Real caching strategies:
  * - Static assets (JS/CSS/fonts): Cache-first with long TTL
  * - Product images: Stale-while-revalidate
- * - Page navigations: Network-first with fallback
+ * - Page navigations and Next.js route data: Browser network handling
  * - API calls: Network-only (handled by client-side apiCache)
  */
 
-const CACHE_VERSION = 'shopply-v50';
+const CACHE_VERSION = 'shopply-v52';
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const IMAGE_CACHE = `${CACHE_VERSION}-images`;
 const PAGE_CACHE = `${CACHE_VERSION}-pages`;
 
 // Static assets to precache on install
-const PRECACHE_URLS = [
-  '/login',
-];
+const PRECACHE_URLS = [];
 
 // --- Install: precache critical pages ---
 self.addEventListener('install', (event) => {
@@ -61,6 +59,13 @@ self.addEventListener('fetch', (event) => {
   // Skip API requests — handled by client-side apiCache.ts
   if (url.pathname.includes('/api/')) return;
 
+  // Let the browser handle document redirects and Next.js route responses.
+  // Cached HTML/RSC can display the wrong route or an obsolete access gate.
+  if (request.mode === 'navigate' ||
+      request.headers.get('accept')?.includes('text/html') ||
+      request.headers.get('rsc') === '1' ||
+      request.headers.has('next-router-state-tree')) return;
+
   // Skip WebSocket and extension requests
   if (url.protocol === 'chrome-extension:' || url.protocol === 'ws:') return;
 
@@ -73,12 +78,6 @@ self.addEventListener('fetch', (event) => {
   // Strategy 2: Images — Stale-While-Revalidate
   if (isImage(url)) {
     event.respondWith(staleWhileRevalidate(request, IMAGE_CACHE));
-    return;
-  }
-
-  // Strategy 3: Page navigations — Network-First with cache fallback
-  if (request.mode === 'navigate' || request.headers.get('accept')?.includes('text/html')) {
-    event.respondWith(networkFirst(request, PAGE_CACHE));
     return;
   }
 

@@ -7,6 +7,7 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import { IconUser, IconBox, IconPlus, IconShop, IconCart, IconTrash, IconEye, IconEyeOff, IconCamera, IconUpload, IconMail, IconId, IconStorefront, IconFollowers, IconFollowing, IconStar, IconCheck, IconCalendar, IconActivity, IconWarning, IconBell, IconChat, IconOrders, IconSearch, IconStore, IconSettings, IconLogout } from "@/components/icons";
 import { getApiCache, createSmartPoller } from "@/lib/apiCache";
+import { grantMarketplaceAccess, revokeMarketplaceAccess } from "@/lib/marketplaceAccess";
 import { Skeleton, SkeletonStatCard, SkeletonChatMessage, SkeletonChatListItem } from "@/components/Skeleton";
 const MeetupMap = dynamic(() => import("@/components/MeetupMap"), { 
   ssr: false,
@@ -1956,13 +1957,21 @@ export default function DashboardPage() {
     const stored = localStorage.getItem("user");
 
     if (!token || !stored) { router.replace("/login"); return; }
+    let cancelled = false;
     localStorage.removeItem("shopply_landing_lock");
+    revokeMarketplaceAccess();
 
     const cache = getApiCache();
-    cache.fetch(`${API}/me`, {
+    fetch(`${API}/me`, {
+      cache: "no-store",
       headers: { Accept: "application/json", Authorization: `Bearer ${token}` },
     })
+      .then(response => {
+        if (!response.ok) throw new Error("Session check failed");
+        return response.json();
+      })
       .then((data: any) => {
+        if (cancelled) return;
         if (!data) return;
         const freshUser: User = data.user;
         localStorage.setItem("user", JSON.stringify(freshUser));
@@ -1970,12 +1979,13 @@ export default function DashboardPage() {
           router.replace("/verify");
           return;
         }
+        grantMarketplaceAccess(token);
         setUser(freshUser);
         setProfileName(freshUser.name);
         setReady(true);
       })
       .catch(() => {
-        router.replace("/login");
+        if (!cancelled) router.replace("/login");
       });
 
     lastFetchedRef.current = Date.now();
@@ -2023,7 +2033,10 @@ export default function DashboardPage() {
       }
     };
     window.addEventListener('user_updated', handleUserUpdate);
-    return () => window.removeEventListener('user_updated', handleUserUpdate);
+    return () => {
+      cancelled = true;
+      window.removeEventListener('user_updated', handleUserUpdate);
+    };
   }, [router, API]);
 
   useEffect(() => {
@@ -2654,7 +2667,13 @@ export default function DashboardPage() {
     setTimeout(() => setToast(null), 3000);
   };
 
+  const handleGoToShop = () => {
+    const token = localStorage.getItem("token");
+    if (ready && user && token) grantMarketplaceAccess(token);
+  };
+
   const handleLogout = async () => {
+    revokeMarketplaceAccess();
     const token = localStorage.getItem("token");
     if (token) {
       try {
@@ -2671,6 +2690,9 @@ export default function DashboardPage() {
     }
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    localStorage.removeItem("shopply_dashboard_access");
+    sessionStorage.removeItem("shopply_dashboard_access");
+    localStorage.setItem("shopply_on_landing", "true");
     getApiCache().invalidateAll();
     router.push("/login");
   };
@@ -4889,7 +4911,7 @@ export default function DashboardPage() {
           </Link>
           <div className="nav-right">
             <span className="nav-name">Hi, {user.name.split(" ")[0]} 👋</span>
-            <Link href="/shop" className="shop-link" style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+            <Link href="/shop" onClick={handleGoToShop} className="shop-link" style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
               <IconShop /> <span className="shop-text">Shop</span>
             </Link>
             <Link href="/cart" className="cart-nav-icon" style={{ marginRight: 8 }}>
@@ -4985,6 +5007,7 @@ export default function DashboardPage() {
                               setIsMobileMenuOpen(false);
                             }
                             if (si.id === "shop") {
+                              handleGoToShop();
                               router.push("/shop");
                             } else if (si.id === "logout") {
                               handleLogout();

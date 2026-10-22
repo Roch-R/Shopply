@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Skeleton } from "@/components/Skeleton";
 import { getApiCache } from "@/lib/apiCache";
+import { revokeMarketplaceAccess } from "@/lib/marketplaceAccess";
 import AboutExperience from "./AboutExperience";
 import AboutSections, { AboutFooter } from "./AboutSections";
 import LogoDrawPreloader from "./LogoDrawPreloader";
@@ -17,7 +18,8 @@ export default function AboutPage() {
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    // Visiting the public home page must not revoke a member's shop access.
+    // Returning home closes this tab's marketplace until the dashboard is opened.
+    revokeMarketplaceAccess();
     localStorage.removeItem("shopply_on_landing");
     sessionStorage.removeItem("shopply_on_landing");
     localStorage.removeItem("shopply_landing_lock");
@@ -39,7 +41,11 @@ export default function AboutPage() {
     };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    window.addEventListener("pageshow", revokeMarketplaceAccess);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("pageshow", revokeMarketplaceAccess);
+    };
   }, []);
 
   function handleLogout() {
