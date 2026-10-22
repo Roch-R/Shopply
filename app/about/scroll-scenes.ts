@@ -1290,45 +1290,6 @@ function laptopScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resour
     metalness: 0.15,
   });
 
-  // --- 3D MAGNETIC LEVITATION GYRO-PEDESTAL UNDER THE LAPTOP ---
-  const magPedestal = new THREE.Group();
-  magPedestal.position.set(0, -1.06, 0.55);
-  rig.add(magPedestal);
-
-  const pedRing1 = new THREE.Mesh(new THREE.TorusGeometry(2.35, 0.032, 16, 64), cobaltMetal.clone());
-  pedRing1.rotation.x = Math.PI / 2;
-  const pedRing2 = new THREE.Mesh(new THREE.TorusGeometry(1.88, 0.024, 16, 64), skyMetal.clone());
-  pedRing2.rotation.x = Math.PI / 2;
-  pedRing2.position.y = 0.06;
-  const pedRing3 = new THREE.Mesh(new THREE.TorusGeometry(1.42, 0.02, 14, 48), goldMetal.clone());
-  pedRing3.rotation.x = Math.PI / 2;
-  pedRing3.position.y = 0.12;
-  magPedestal.add(pedRing1, pedRing2, pedRing3);
-
-  // --- GIANT 8-BLADE 3D MECHANICAL HALO PORTAL FRAMING BEHIND THE LAPTOP ---
-  const irisGate = new THREE.Group();
-  irisGate.position.set(0, 0.08, -0.45);
-  rig.add(irisGate);
-
-  const irisOuterRing = new THREE.Mesh(new THREE.TorusGeometry(2.15, 0.042, 18, 64), silver.clone());
-  const irisGlowRing = new THREE.Mesh(new THREE.TorusGeometry(2.02, 0.022, 16, 64), skyMetal.clone());
-  irisGlowRing.position.z = 0.03;
-  irisGate.add(irisOuterRing, irisGlowRing);
-
-  const irisBlades: { pivot: THREE.Group; mesh: THREE.Mesh; baseAngle: number }[] = [];
-  const bladeGeo = new RoundedBoxGeometry(0.68, 0.22, 0.04, 3, 0.015);
-  for (let b = 0; b < 8; b++) {
-    const ang = (b / 8) * Math.PI * 2;
-    const pivot = new THREE.Group();
-    pivot.rotation.z = ang;
-    const blade = new THREE.Mesh(bladeGeo, b % 2 === 0 ? cobaltMetal.clone() : silver.clone());
-    blade.position.set(1.92, 0, 0);
-    blade.rotation.z = 0.42;
-    pivot.add(blade);
-    irisGate.add(pivot);
-    irisBlades.push({ pivot, mesh: blade, baseAngle: ang });
-  }
-
   const lap = new THREE.Group();
   rig.add(lap);
 
@@ -1827,29 +1788,6 @@ function laptopScene(scene: THREE.Scene, camera: THREE.PerspectiveCamera, resour
       layer.position.z = (idx + 1) * (0.12 + popOut * 0.34);
       layer.scale.setScalar(1 + popOut * (idx + 1) * 0.08);
     });
-
-    // Animate the 8-Blade 3D Mechanical Halo Portal behind the Laptop!
-    const irisOpen = sm(0.0, 0.26, p);
-    const irisVis = sm(1.2, 2.8, z);
-    setGroupOpacity(irisGate, irisVis);
-    if (irisVis > 0.01) {
-      irisGate.rotation.z = (reduced ? 0 : time * 0.25) + irisOpen * 0.85;
-      irisBlades.forEach((b, idx) => {
-        b.mesh.position.x = 1.9 + irisOpen * 0.55;
-        b.mesh.rotation.z = 0.42 + irisOpen * 0.65;
-        b.pivot.rotation.z = b.baseAngle + (idx % 2 === 0 ? 1 : -1) * irisOpen * 0.22;
-      });
-    }
-
-    // Animate the 3-Ring Magnetic Levitation Pedestal under the Laptop
-    setGroupOpacity(magPedestal, irisVis);
-    if (irisVis > 0.01) {
-      pedRing1.rotation.z = reduced ? 0 : time * 0.35;
-      pedRing2.rotation.z = reduced ? 0 : -time * 0.55;
-      pedRing3.rotation.z = reduced ? 0 : time * 0.8;
-      pedRing2.position.y = 0.06 + Math.sin(time * 2.0) * 0.03;
-      pedRing3.position.y = 0.12 + Math.cos(time * 2.4) * 0.04;
-    }
 
     rig.rotation.x = rotX + pointer.y * 0.055 * sway;
     rig.rotation.y = rotY + pointer.x * 0.075 * sway;
