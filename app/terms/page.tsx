@@ -36,7 +36,7 @@ export default function TermsOfServicePage() {
       `}</style>
       <div className="page">
         <nav className="nav">
-          <Link href="/dashboard" className="nav-logo">
+          <Link href="/" className="nav-logo">
             <svg width="32" height="32" viewBox="0 0 200 260" xmlns="http://www.w3.org/2000/svg">
               <rect x="8" y="68" width="184" height="176" rx="24" fill="none" stroke="url(#ng)" strokeWidth="14" />
               <path d="M56 70 Q56 18 100 18 Q144 18 144 70" fill="none" stroke="url(#ng)" strokeWidth="14" strokeLinecap="round" />
@@ -52,7 +52,7 @@ export default function TermsOfServicePage() {
           </Link>
           <div className="nav-right">
             <Link href="/about" className="nav-link">About</Link>
-            <Link href="/dashboard" className="nav-link">Dashboard</Link>
+            <Link href="/login" className="nav-link">Log In</Link>
           </div>
         </nav>
         

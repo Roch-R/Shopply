@@ -117,46 +117,24 @@ export default function HeroZoomOut({
           </div>
 
           <div className="flex items-center gap-3">
-            {user ? (
-              <>
-                <Link
-                  href="/dashboard"
-                  className="rounded-full bg-gradient-to-r from-[#0a6cff] to-[#0284c7] px-6 py-2.5 text-sm font-semibold text-white shadow-[0_8px_22px_rgba(10,108,255,0.35)] transition-transform duration-200 hover:scale-[1.03]"
-                >
-                  Dashboard
-                </Link>
-                {onLogout && (
-                  <button
-                    type="button"
-                    onClick={onLogout}
-                    className="rounded-full border border-slate-300/80 bg-white/80 px-4 py-2 text-xs font-semibold text-slate-600 transition-colors hover:text-red-600"
-                  >
-                    Log Out
-                  </button>
-                )}
-              </>
-            ) : (
-              <>
-                <Link
-                  href="/login"
-                  onClick={(e) => {
-                    if (onLoginClick) {
-                      e.preventDefault();
-                      onLoginClick();
-                    }
-                  }}
-                  className="rounded-full border border-slate-300/80 bg-white/80 px-5 py-2.5 text-sm font-semibold text-[#0f172a] shadow-sm backdrop-blur-md transition-all duration-200 hover:border-[#0a6cff] hover:text-[#0a6cff]"
-                >
-                  Log In
-                </Link>
-                <Link
-                  href="/register"
-                  className="rounded-full bg-gradient-to-r from-[#0a6cff] to-[#0284c7] px-6 py-2.5 text-sm font-semibold text-white shadow-[0_8px_22px_rgba(10,108,255,0.35)] transition-transform duration-200 hover:scale-[1.03]"
-                >
-                  Sign Up Now
-                </Link>
-              </>
-            )}
+            <Link
+              href="/login"
+              onClick={(e) => {
+                if (onLoginClick) {
+                  e.preventDefault();
+                  onLoginClick();
+                }
+              }}
+              className="rounded-full border border-slate-300/80 bg-white/80 px-5 py-2.5 text-sm font-semibold text-[#0f172a] shadow-sm backdrop-blur-md transition-all duration-200 hover:border-[#0a6cff] hover:text-[#0a6cff]"
+            >
+              Log In
+            </Link>
+            <Link
+              href="/register"
+              className="rounded-full bg-gradient-to-r from-[#0a6cff] to-[#0284c7] px-6 py-2.5 text-sm font-semibold text-white shadow-[0_8px_22px_rgba(10,108,255,0.35)] transition-transform duration-200 hover:scale-[1.03]"
+            >
+              Sign Up Now
+            </Link>
           </div>
         </nav>
       </header>

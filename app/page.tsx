@@ -13,26 +13,22 @@ import styles from "./about/page.module.css";
 export default function Home() {
   const router = useRouter();
   const [ready, setReady] = useState(false);
-  const [user, setUser] = useState<{ name: string; email: string } | null>(null);
   const [isPreloading, setIsPreloading] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    // Returning home closes this tab's marketplace until the dashboard is opened.
+    // Visiting the landing page treats the visitor as unauthenticated.
+    // Revoke marketplace session, reset dashboard flags and purge lingering credentials.
     revokeMarketplaceAccess();
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    localStorage.removeItem("shopply_user");
+    localStorage.removeItem("shopply_dashboard_access");
     localStorage.removeItem("shopply_on_landing");
-    sessionStorage.removeItem("shopply_on_landing");
     localStorage.removeItem("shopply_landing_lock");
+    sessionStorage.clear();
+    getApiCache().invalidateAll();
 
-    const token = localStorage.getItem("token");
-    if (token) {
-      try {
-        const storedUser = JSON.parse(localStorage.getItem("user") ?? "null");
-        setUser(storedUser);
-      } catch {
-        /* An expired profile can be refreshed from the dashboard. */
-      }
-    }
     setReady(true);
 
     const onScroll = () => {
@@ -46,20 +42,6 @@ export default function Home() {
       window.removeEventListener("pageshow", revokeMarketplaceAccess);
     };
   }, []);
-
-  function handleLogout() {
-    const token = localStorage.getItem("token");
-    if (token)
-      fetch("/api/logout", {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
-      }).catch(err => console.error("Logout failed:", err));
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    getApiCache().invalidateAll();
-    setUser(null);
-    router.push("/login");
-  }
 
   function handleStartLogin() {
     setIsPreloading(true);
@@ -84,8 +66,7 @@ export default function Home() {
       <main className={styles.main} data-curtain-main>
         <AboutExperience
           onLoginClick={handleStartLogin}
-          user={user}
-          onLogout={handleLogout}
+          user={null}
         />
         <AboutSections />
       </main>

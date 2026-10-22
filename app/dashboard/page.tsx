@@ -968,21 +968,8 @@ const formatDividerDate = (dateString: string) => {
 
 export default function DashboardPage() {
   const router = useRouter();
-  const [user, setUser] = useState<User | null>(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        const stored = localStorage.getItem("user") || localStorage.getItem("shopply_user");
-        if (stored) return JSON.parse(stored);
-      } catch (e) {}
-    }
-    return null;
-  });
-  const [ready, setReady] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return Boolean(localStorage.getItem("token") && (localStorage.getItem("user") || localStorage.getItem("shopply_user")));
-    }
-    return false;
-  });
+  const [user, setUser] = useState<User | null>(null);
+  const [ready, setReady] = useState(false);
   const [isUserBlockedModalOpen, setIsUserBlockedModalOpen] = useState(false);
   const [avatarLoadFailed, setAvatarLoadFailed] = useState(false);
 
@@ -1953,10 +1940,30 @@ export default function DashboardPage() {
 
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    const stored = localStorage.getItem("user");
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    const stored = typeof window !== "undefined" ? (localStorage.getItem("user") || localStorage.getItem("shopply_user")) : null;
 
-    if (!token || !stored) { router.replace("/login"); return; }
+    if (!token || !stored) {
+      if (typeof window !== "undefined" && window.location?.replace) {
+        window.location.replace("/login");
+      }
+      router.replace("/login");
+      return;
+    }
+
+    const handleRecheck = () => {
+      const curToken = localStorage.getItem("token");
+      const curStored = localStorage.getItem("user") || localStorage.getItem("shopply_user");
+      if (!curToken || !curStored) {
+        if (typeof window !== "undefined" && window.location?.replace) {
+          window.location.replace("/login");
+        }
+        router.replace("/login");
+      }
+    };
+    window.addEventListener("pageshow", handleRecheck);
+    window.addEventListener("storage", handleRecheck);
+
     let cancelled = false;
     localStorage.removeItem("shopply_landing_lock");
     revokeMarketplaceAccess();
@@ -1985,7 +1992,16 @@ export default function DashboardPage() {
         setReady(true);
       })
       .catch(() => {
-        if (!cancelled) router.replace("/login");
+        if (!cancelled) {
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          localStorage.removeItem("shopply_user");
+          revokeMarketplaceAccess();
+          if (typeof window !== "undefined" && window.location?.replace) {
+            window.location.replace("/login");
+          }
+          router.replace("/login");
+        }
       });
 
     lastFetchedRef.current = Date.now();
@@ -2035,6 +2051,8 @@ export default function DashboardPage() {
     window.addEventListener('user_updated', handleUserUpdate);
     return () => {
       cancelled = true;
+      window.removeEventListener("pageshow", handleRecheck);
+      window.removeEventListener("storage", handleRecheck);
       window.removeEventListener('user_updated', handleUserUpdate);
     };
   }, [router, API]);

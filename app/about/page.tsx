@@ -83,7 +83,7 @@ export default function AboutPage() {
       <div className="page">
         {/* Navigation */}
         <nav className="nav">
-          <Link href="/dashboard" className="nav-logo">
+          <Link href="/" className="nav-logo">
             <svg width="32" height="32" viewBox="0 0 200 260" xmlns="http://www.w3.org/2000/svg">
               <rect x="8" y="68" width="184" height="176" rx="24" fill="none" stroke="url(#ng)" strokeWidth="14" />
               <path d="M56 70 Q56 18 100 18 Q144 18 144 70" fill="none" stroke="url(#ng)" strokeWidth="14" strokeLinecap="round" />
@@ -105,8 +105,8 @@ export default function AboutPage() {
             <Link href="/about" className="nav-link active">About</Link>
             <Link href="/shop" className="nav-link">Marketplace</Link>
             <Link href="/features" className="nav-link">Features</Link>
-            <Link href="/dashboard" className="nav-btn">
-              <span>Dashboard</span> →
+            <Link href="/login" className="nav-btn">
+              <span>Log In</span> →
             </Link>
           </div>
         </nav>
@@ -207,7 +207,7 @@ export default function AboutPage() {
             </p>
             <div className="cta-btns">
               <Link href="/shop" className="btn-white">Browse Marketplace</Link>
-              <Link href="/dashboard" className="btn-ghost">Go to Dashboard</Link>
+              <Link href="/login" className="btn-ghost">Log In</Link>
               <Link href="/contact" className="btn-ghost">Contact Support</Link>
             </div>
           </section>
@@ -221,7 +221,7 @@ export default function AboutPage() {
               <div className="footer-links">
                 <Link href="/guides">Help Centre & FAQs</Link>
                 <Link href="/guides">How to Buy on Shopply</Link>
-                <Link href="/dashboard">Track SPX Delivery</Link>
+                <Link href="/login">Track SPX Delivery</Link>
                 <Link href="/terms">7-Day Free Returns</Link>
                 <Link href="/contact">Shopply Guarantee & COD</Link>
               </div>

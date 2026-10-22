@@ -119,3 +119,27 @@ test('service worker does not serve cached pages, redirects, or Next route data'
     });
   }
 });
+
+test('landing page and static pages never link logo or navbar to dashboard', () => {
+  const heroZoomOut = fs.readFileSync('app/about/HeroZoomOut.tsx', 'utf8');
+  assert.equal(heroZoomOut.includes('href="/dashboard"'), false, 'HeroZoomOut must not contain dashboard links');
+
+  const landingPage = fs.readFileSync('app/page.tsx', 'utf8');
+  assert.match(landingPage, /localStorage\.removeItem\("token"\)/, 'Landing page must purge token');
+  assert.match(landingPage, /user=\{null\}/, 'Landing page must pass null user');
+
+  const staticPages = [
+    'app/about/page.tsx',
+    'app/features/page.tsx',
+    'app/contact/page.tsx',
+    'app/careers/page.tsx',
+    'app/terms/page.tsx',
+    'app/privacy/page.tsx',
+  ];
+  for (const page of staticPages) {
+    const src = fs.readFileSync(page, 'utf8');
+    assert.equal(src.includes('href="/dashboard" className="nav-logo"'), false, `${page} logo must not link to /dashboard`);
+    assert.equal(src.includes('href="/dashboard" className="nav-link">Dashboard</Link>'), false, `${page} nav must not link to /dashboard`);
+  }
+});
+

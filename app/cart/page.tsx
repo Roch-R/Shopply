@@ -575,7 +575,7 @@ export default function CartPage() {
 
       {/* Navigation */}
       <nav className="nav">
-        <Link href="/dashboard" className="nav-logo">
+        <Link href="/shop" className="nav-logo">
           <svg width="24" height="24" viewBox="0 0 200 260" xmlns="http://www.w3.org/2000/svg">
             <rect x="8" y="68" width="184" height="176" rx="24" fill="none" stroke="url(#ng)" strokeWidth="14" />
             <path d="M56 70 Q56 18 100 18 Q144 18 144 70" fill="none" stroke="url(#ng)" strokeWidth="14" strokeLinecap="round" />
