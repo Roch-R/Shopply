@@ -273,3 +273,21 @@ test('shop storefront uses 100% real catalog metrics with zero fake sold formula
   assert.match(itemsApiSrc, /collection\(db,\s*"orders"\)/, 'Items API must aggregate real orders');
   assert.match(itemsApiSrc, /collection\(db,\s*"reviews"\)/, 'Items API must aggregate real reviews');
 });
+
+test('shop storefront preserves sticky header, sidebar filters, and in-stock merchandising arrangement', () => {
+  const shopSrc = fs.readFileSync('app/shop/page.tsx', 'utf8');
+  assert.equal(
+    shopSrc.includes('html, body{max-width:100%;overflow-x:hidden}'),
+    false,
+    'html/body must not use overflow-x:hidden which breaks position:sticky header'
+  );
+  assert.match(shopSrc, /overflow-x:clip/, 'Shop must use overflow-x:clip so sticky header stays pinned while scrolling');
+  assert.match(shopSrc, /className="filter-sidebar"/, 'Shop must include structured left e-commerce filter sidebar');
+  assert.match(shopSrc, /className="commerce-sort-bar"/, 'Shop must include horizontal e-commerce sort bar');
+  assert.match(shopSrc, /className="top-utility-bar"/, 'Shop must include retail utility bar');
+  assert.match(shopSrc, /availTierB\s*-\s*availTierA/, 'Shop must arrange in-stock priced items ahead of sold-out items');
+  assert.equal(shopSrc.includes('if (validPrices.length === 0) return `₱0.00`'), false, 'Sold-out unpriced items must not show broken ₱0.00');
+
+  const itemsApiSrc = fs.readFileSync('app/api/shop/items/route.ts', 'utf8');
+  assert.match(itemsApiSrc, /tierB\s*-\s*tierA/, 'Items API must arrange in-stock priced items ahead of out-of-stock items');
+});

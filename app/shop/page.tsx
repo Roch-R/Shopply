@@ -91,20 +91,38 @@ const compressImage = (file: File, maxWidth: number = 800): Promise<File> => {
   });
 };
 
+const parseItemAttributes = (item: any): NonNullable<ShopItem["attributes"]> | null => {
+  if (!item || !item.attributes) return null;
+  if (typeof item.attributes === "string") {
+    try {
+      const parsed = JSON.parse(item.attributes);
+      return parsed && typeof parsed === "object" ? parsed : null;
+    } catch {
+      return null;
+    }
+  }
+  return typeof item.attributes === "object" ? item.attributes : null;
+};
+
+const normalizeCatalogItems = (rawItems: any[]): ShopItem[] => {
+  if (!Array.isArray(rawItems)) return [];
+  return rawItems.map((it) => ({
+    ...it,
+    attributes: parseItemAttributes(it),
+  }));
+};
+
 const calculateTotalStock = (item: any) => {
   try {
-    let attrs = item.attributes;
-    if (typeof attrs === 'string') {
-      try { attrs = JSON.parse(attrs); } catch (e) {}
-    }
-    if (attrs && typeof attrs === 'object' && attrs.size_stocks && Object.keys(attrs.size_stocks).length > 0) {
+    const attrs = parseItemAttributes(item);
+    if (attrs && attrs.size_stocks && Object.keys(attrs.size_stocks).length > 0) {
       const sum = Object.values(attrs.size_stocks).reduce((acc: number, qty: any) => acc + Number(qty || 0), 0);
       return sum;
     }
-  } catch(e) {
+  } catch (e) {
     console.error("calculateTotalStock error", e);
   }
-  return item.stock || 0;
+  return Number(item?.stock || 0);
 };
 
 const isFootwearCategory = (cat?: string | null) => {
@@ -307,6 +325,14 @@ function MarketplaceContent() {
     }
   }, []);
   const [sortBy, setSortBy] = useState<"featured" | "newest" | "price-asc" | "price-desc" | "rating" | "popular">("featured");
+  const [inStockOnly, setInStockOnly] = useState<boolean>(false);
+  const [minPriceInput, setMinPriceInput] = useState<string>("");
+  const [maxPriceInput, setMaxPriceInput] = useState<string>("");
+  const [appliedMinPrice, setAppliedMinPrice] = useState<number | null>(null);
+  const [appliedMaxPrice, setAppliedMaxPrice] = useState<number | null>(null);
+  const [minRatingFilter, setMinRatingFilter] = useState<number>(0);
+  const [selectedSellerCity, setSelectedSellerCity] = useState<string>("All");
+  const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState<boolean>(false);
   const [copiedVoucher, setCopiedVoucher] = useState<string | null>(null);
   const [claimedVoucher, setClaimedVoucher] = useState<string | null>(null);
   const [allCoupons, setAllCoupons] = useState<any[]>([]);
@@ -878,24 +904,28 @@ function MarketplaceContent() {
 
   const formatPriceDisplay = (item: ShopItem) => {
     const activeDeal = getActiveFlashDeal(item.id);
-    if (activeDeal) {
+    if (activeDeal && Number(activeDeal.flash_price) > 0) {
       return `₱${Number(activeDeal.flash_price).toFixed(2)}`;
     }
-    const basePrice = parseFloat(item.price) || 0;
-    let prices: number[] = [basePrice];
-    if (item.attributes?.variant_prices && item.attributes.variant_prices.length > 0) {
-      const vPrices = item.attributes.variant_prices.map(p => parseFloat(p)).filter(p => !isNaN(p) && p > 0);
+    const attrs = parseItemAttributes(item);
+    const basePrice = parseFloat(String(item.price ?? "0")) || 0;
+    let prices: number[] = basePrice > 0 ? [basePrice] : [];
+    if (attrs?.variant_prices && Array.isArray(attrs.variant_prices) && attrs.variant_prices.length > 0) {
+      const vPrices = attrs.variant_prices
+        .map((p: any) => parseFloat(String(p)))
+        .filter((p: number) => !isNaN(p) && p > 0);
       if (vPrices.length > 0) {
         prices = prices.concat(vPrices);
       }
     }
-    const validPrices = prices.filter(p => p > 0);
-    if (validPrices.length === 0) return `₱0.00`;
-    const minPrice = Math.min(...validPrices);
-    const maxPrice = Math.max(...validPrices);
+    if (prices.length === 0) {
+      return calculateTotalStock(item) <= 0 ? "Unavailable" : "Price on inquiry";
+    }
+    const minPrice = Math.min(...prices);
+    const maxPrice = Math.max(...prices);
 
     if (minPrice !== maxPrice) {
-      return `₱${minPrice.toFixed(2)} - ₱${maxPrice.toFixed(2)}`;
+      return `₱${minPrice.toFixed(2)} – ₱${maxPrice.toFixed(2)}`;
     }
     return `₱${minPrice.toFixed(2)}`;
   };
@@ -1008,7 +1038,7 @@ function MarketplaceContent() {
         const cache = getApiCache();
         cache.invalidate('/shop/items');
         cache.fetch(`${API}/shop/items`, {})
-          .then((d: any) => { if (d.items) setItems(d.items); })
+          .then((d: any) => { if (d.items) setItems(normalizeCatalogItems(d.items)); })
           .catch(() => {});
       }
     };
@@ -1344,7 +1374,7 @@ function MarketplaceContent() {
     const cache = getApiCache();
     cache.fetch(`${API}/shop/items`, {})
       .then((data: any) => {
-        if (data.items) setItems(data.items);
+        if (data.items) setItems(normalizeCatalogItems(data.items));
         setLoading(false);
       })
       .catch((err: any) => {
@@ -1697,14 +1727,17 @@ function MarketplaceContent() {
 
   const getEffectiveNumericPrice = (item: ShopItem) => {
     const deal = getActiveFlashDeal(item.id);
-    if (deal) return Number(deal.flash_price) || 0;
-    const base = parseFloat(item.price) || 0;
+    if (deal && Number(deal.flash_price) > 0) return Number(deal.flash_price);
+    const attrs = parseItemAttributes(item);
+    const base = parseFloat(String(item.price ?? "0")) || 0;
     if (base > 0) return base;
-    if (item.attributes?.variant_prices && item.attributes.variant_prices.length > 0) {
-      const valid = item.attributes.variant_prices.map(p => parseFloat(p)).filter(p => !isNaN(p) && p > 0);
+    if (attrs?.variant_prices && Array.isArray(attrs.variant_prices) && attrs.variant_prices.length > 0) {
+      const valid = attrs.variant_prices
+        .map((p: any) => parseFloat(String(p)))
+        .filter((p: number) => !isNaN(p) && p > 0);
       if (valid.length > 0) return Math.min(...valid);
     }
-    return base;
+    return 0;
   };
 
   // Build real department tabs strictly from categories present in the catalog so there are zero empty "0" dummy tabs
@@ -1734,8 +1767,78 @@ function MarketplaceContent() {
     return tabs;
   })();
 
+  // Real live counts for sidebar filters
+  const inStockTotalCount = items.filter(i => calculateTotalStock(i) > 0).length;
+
+  const availableSellerCities = (() => {
+    const counts = new Map<string, number>();
+    for (const it of items) {
+      const rawLoc = (it.user?.location || (it as any).location || "").trim();
+      if (!rawLoc) continue;
+      const city = rawLoc.split(",")[0].trim();
+      if (!city) continue;
+      counts.set(city, (counts.get(city) || 0) + 1);
+    }
+    return Array.from(counts.entries())
+      .map(([city, count]) => ({ city, count }))
+      .sort((a, b) => b.count - a.count || a.city.localeCompare(b.city));
+  })();
+
+  const applyPriceRangeFilter = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const minVal = minPriceInput.trim() !== "" ? Math.max(0, parseFloat(minPriceInput)) : null;
+    const maxVal = maxPriceInput.trim() !== "" ? Math.max(0, parseFloat(maxPriceInput)) : null;
+    setAppliedMinPrice(minVal !== null && !isNaN(minVal) ? minVal : null);
+    setAppliedMaxPrice(maxVal !== null && !isNaN(maxVal) ? maxVal : null);
+  };
+
+  const selectPricePreset = (min: number | null, max: number | null) => {
+    const isSame = appliedMinPrice === min && appliedMaxPrice === max;
+    if (isSame) {
+      setAppliedMinPrice(null);
+      setAppliedMaxPrice(null);
+      setMinPriceInput("");
+      setMaxPriceInput("");
+    } else {
+      setAppliedMinPrice(min);
+      setAppliedMaxPrice(max);
+      setMinPriceInput(min !== null ? String(min) : "");
+      setMaxPriceInput(max !== null ? String(max) : "");
+    }
+  };
+
+  const hasAnyCatalogFilter =
+    selectedCategory !== "All" ||
+    searchQuery.trim() !== "" ||
+    inStockOnly ||
+    appliedMinPrice !== null ||
+    appliedMaxPrice !== null ||
+    minRatingFilter > 0 ||
+    selectedSellerCity !== "All";
+
+  const activeSidebarFilterCount =
+    (selectedCategory !== "All" ? 1 : 0) +
+    (inStockOnly ? 1 : 0) +
+    (appliedMinPrice !== null || appliedMaxPrice !== null ? 1 : 0) +
+    (minRatingFilter > 0 ? 1 : 0) +
+    (selectedSellerCity !== "All" ? 1 : 0);
+
+  const resetAllCatalogFilters = () => {
+    setSelectedCategory("All");
+    setSearchQuery("");
+    setInStockOnly(false);
+    setMinPriceInput("");
+    setMaxPriceInput("");
+    setAppliedMinPrice(null);
+    setAppliedMaxPrice(null);
+    setMinRatingFilter(0);
+    setSelectedSellerCity("All");
+  };
+
   const totalUnreadChats = chatConversations.reduce((sum, conv) => sum + Number(conv?.unread_count || 0), 0);
 
+  // Real E-Commerce Filtering & Merchandising Arrangement:
+  // In EVERY sort mode, active buyable listings (in-stock & priced) ALWAYS arrange ahead of out-of-stock/unpriced items.
   const filteredItems = items
     .filter(i => {
       const matchesCategory = matchesCategoryItem(i, selectedCategory);
@@ -1746,14 +1849,41 @@ function MarketplaceContent() {
         (i.category || "").toLowerCase().includes(q) ||
         (i.user?.name || "").toLowerCase().includes(q) ||
         (i.user?.location || "").toLowerCase().includes(q);
-      return matchesCategory && matchesSearch;
+
+      if (!matchesCategory || !matchesSearch) return false;
+      if (inStockOnly && calculateTotalStock(i) <= 0) return false;
+
+      const effPrice = getEffectiveNumericPrice(i);
+      if (appliedMinPrice !== null && effPrice < appliedMinPrice) return false;
+      if (appliedMaxPrice !== null && (effPrice <= 0 || effPrice > appliedMaxPrice)) return false;
+
+      if (minRatingFilter > 0 && Number(i.reviews_avg_rating || 0) < minRatingFilter) return false;
+
+      if (selectedSellerCity !== "All") {
+        const itemCity = ((i.user?.location || (i as any).location || "").split(",")[0] || "").trim().toLowerCase();
+        if (itemCity !== selectedSellerCity.toLowerCase()) return false;
+      }
+
+      return true;
     })
     .sort((a, b) => {
+      const stockA = calculateTotalStock(a);
+      const stockB = calculateTotalStock(b);
+      const priceA = getEffectiveNumericPrice(a);
+      const priceB = getEffectiveNumericPrice(b);
+
+      // Merchandising priority: 2 = In-stock & priced, 1 = In-stock unpriced, 0 = Sold Out
+      const availTierA = stockA > 0 && priceA > 0 ? 2 : stockA > 0 ? 1 : 0;
+      const availTierB = stockB > 0 && priceB > 0 ? 2 : stockB > 0 ? 1 : 0;
+      if (availTierA !== availTierB) return availTierB - availTierA;
+
       if (sortBy === "newest") {
-        return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
+        const tA = new Date(a.created_at || 0).getTime() || Number(a.id || 0);
+        const tB = new Date(b.created_at || 0).getTime() || Number(b.id || 0);
+        return tB - tA;
       }
-      if (sortBy === "price-asc") return getEffectiveNumericPrice(a) - getEffectiveNumericPrice(b);
-      if (sortBy === "price-desc") return getEffectiveNumericPrice(b) - getEffectiveNumericPrice(a);
+      if (sortBy === "price-asc") return priceA - priceB;
+      if (sortBy === "price-desc") return priceB - priceA;
       if (sortBy === "rating") {
         const diff = Number(b.reviews_avg_rating || 0) - Number(a.reviews_avg_rating || 0);
         return diff !== 0 ? diff : Number(b.reviews_count || 0) - Number(a.reviews_count || 0);
@@ -1762,56 +1892,240 @@ function MarketplaceContent() {
         const diff = Number(b.sold_count || 0) - Number(a.sold_count || 0);
         return diff !== 0 ? diff : Number(b.reviews_count || 0) - Number(a.reviews_count || 0);
       }
-      return 0;
+
+      // Default "featured" (Recommended): Flash deals -> real sales & reviews -> newest listings
+      const dealA = getActiveFlashDeal(a.id) ? 1 : 0;
+      const dealB = getActiveFlashDeal(b.id) ? 1 : 0;
+      if (dealA !== dealB) return dealB - dealA;
+
+      const scoreA = Number(a.sold_count || 0) * 2 + Number(a.reviews_count || 0);
+      const scoreB = Number(b.sold_count || 0) * 2 + Number(b.reviews_count || 0);
+      if (scoreA !== scoreB) return scoreB - scoreA;
+
+      const timeA = new Date(a.created_at || 0).getTime() || Number(a.id || 0);
+      const timeB = new Date(b.created_at || 0).getTime() || Number(b.id || 0);
+      return timeB - timeA;
     });
 
+  const filteredInStockCount = filteredItems.filter(i => calculateTotalStock(i) > 0).length;
   const activeCategoryLabel = departmentTabs.find(t => t.id.toLowerCase() === selectedCategory.toLowerCase())?.label || selectedCategory;
+
+  const renderSidebarFilterControls = (closeOnSelect?: boolean) => (
+    <div className="sidebar-sections">
+      {/* 1. Department / Category */}
+      <div className="filter-group">
+        <h3 className="filter-group-title">By Category</h3>
+        <div className="filter-cat-list">
+          {departmentTabs.map((tab) => {
+            const isActive = selectedCategory.toLowerCase() === tab.id.toLowerCase();
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                className={`filter-cat-btn ${isActive ? "active" : ""}`}
+                onClick={() => {
+                  handleSelectCategory(tab.id);
+                  if (closeOnSelect) setIsMobileFiltersOpen(false);
+                }}
+              >
+                <span className="filter-cat-label">{tab.label}</span>
+                <span className="filter-cat-count">{tab.count}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* 2. Availability */}
+      <div className="filter-group">
+        <h3 className="filter-group-title">Availability</h3>
+        <label className="filter-check-row">
+          <input
+            type="checkbox"
+            checked={inStockOnly}
+            onChange={(e) => setInStockOnly(e.target.checked)}
+          />
+          <span className="filter-check-text">In Stock Only</span>
+          <span className="filter-cat-count">{inStockTotalCount}</span>
+        </label>
+      </div>
+
+      {/* 3. Price Range (PHP) */}
+      <div className="filter-group">
+        <h3 className="filter-group-title">Price Range (₱)</h3>
+        <form onSubmit={applyPriceRangeFilter} className="price-range-form">
+          <div className="price-inputs-row">
+            <input
+              type="number"
+              min="0"
+              placeholder="₱ MIN"
+              value={minPriceInput}
+              onChange={(e) => setMinPriceInput(e.target.value)}
+              className="price-range-input"
+              aria-label="Minimum price in Pesos"
+            />
+            <span className="price-range-sep">–</span>
+            <input
+              type="number"
+              min="0"
+              placeholder="₱ MAX"
+              value={maxPriceInput}
+              onChange={(e) => setMaxPriceInput(e.target.value)}
+              className="price-range-input"
+              aria-label="Maximum price in Pesos"
+            />
+          </div>
+          <button type="submit" className="price-apply-btn">
+            Apply
+          </button>
+        </form>
+        <div className="price-presets-grid">
+          {[
+            { label: "Under ₱100", min: null as number | null, max: 100 as number | null },
+            { label: "₱100 – ₱300", min: 100 as number | null, max: 300 as number | null },
+            { label: "Over ₱300", min: 300 as number | null, max: null as number | null },
+          ].map((preset) => {
+            const active = appliedMinPrice === preset.min && appliedMaxPrice === preset.max;
+            return (
+              <button
+                key={preset.label}
+                type="button"
+                className={`price-preset-btn ${active ? "active" : ""}`}
+                onClick={() => selectPricePreset(preset.min, preset.max)}
+              >
+                {preset.label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* 4. Shipped From (Dynamically populated from real seller locations) */}
+      {availableSellerCities.length > 0 && (
+        <div className="filter-group">
+          <h3 className="filter-group-title">Shipped From</h3>
+          <div className="filter-cat-list">
+            <button
+              type="button"
+              className={`filter-cat-btn ${selectedSellerCity === "All" ? "active" : ""}`}
+              onClick={() => setSelectedSellerCity("All")}
+            >
+              <span className="filter-cat-label">All Locations</span>
+              <span className="filter-cat-count">{items.length}</span>
+            </button>
+            {availableSellerCities.map(({ city, count }) => {
+              const isCityActive = selectedSellerCity.toLowerCase() === city.toLowerCase();
+              return (
+                <button
+                  key={city}
+                  type="button"
+                  className={`filter-cat-btn ${isCityActive ? "active" : ""}`}
+                  onClick={() => setSelectedSellerCity(isCityActive ? "All" : city)}
+                >
+                  <span className="filter-cat-label">{city}</span>
+                  <span className="filter-cat-count">{count}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* 5. Rating */}
+      <div className="filter-group" style={{ borderBottom: "none", paddingBottom: 0 }}>
+        <h3 className="filter-group-title">Customer Rating</h3>
+        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+          {[4, 3].map((stars) => {
+            const isSelected = minRatingFilter === stars;
+            return (
+              <button
+                key={stars}
+                type="button"
+                className={`rating-filter-btn ${isSelected ? "active" : ""}`}
+                onClick={() => setMinRatingFilter(isSelected ? 0 : stars)}
+              >
+                <span style={{ display: "inline-flex", gap: 2, color: "#F59E0B" }}>
+                  {[1, 2, 3, 4, 5].map((s) => (
+                    <svg key={s} width="12" height="12" viewBox="0 0 24 24" fill={s <= stars ? "#F59E0B" : "none"} stroke="#F59E0B" strokeWidth="2">
+                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.27 5.82 22 7 14.14l-5-4.87 6.91-1.01L12 2z" />
+                    </svg>
+                  ))}
+                </span>
+                <span>&amp; Up</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {hasAnyCatalogFilter && (
+        <button
+          type="button"
+          className="sidebar-clear-all-btn"
+          onClick={() => {
+            resetAllCatalogFilters();
+            if (closeOnSelect) setIsMobileFiltersOpen(false);
+          }}
+        >
+          Clear All Filters
+        </button>
+      )}
+    </div>
+  );
 
   return (
     <>
       <style>{`
-        html, body{max-width:100%;overflow-x:hidden}
+        /* Use overflow-x: clip (NOT hidden) and height: auto so position: sticky works reliably on all browsers */
+        html, body{max-width:100%;overflow-x:clip;height:auto !important}
         *{box-sizing:border-box;margin:0;padding:0}
-        body{background:#F7F7F6;color:#111827;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+        body{background:#F4F5F7;color:#111827;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;-webkit-font-smoothing:antialiased}
         input, textarea, select { color: #111827 !important; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
-        .root{min-height:100vh;background:#F7F7F6;display:flex;flex-direction:column}
+        .root{min-height:100vh;background:#F4F5F7;display:flex;flex-direction:column}
 
-        /* AUTHENTIC STOREFRONT HEADER */
-        .store-header{background:#FFFFFF;border-bottom:1px solid #E5E7EB;position:sticky;top:0;z-index:50}
-        .header-top-inner{max-width:1280px;margin:0 auto;padding:0 24px;height:64px;display:flex;align-items:center;gap:16px}
-        .brand-cluster{display:flex;align-items:center;gap:14px;flex-shrink:0}
-        .nav-logo{display:inline-flex;align-items:center;gap:9px;text-decoration:none}
-        .logo-text{font-family:'Plus Jakarta Sans','Inter',sans-serif;font-size:19px;font-weight:800;color:#111827;letter-spacing:-0.03em}
-        .header-divider{width:1px;height:20px;background:#E5E7EB;flex-shrink:0}
-        .deliver-btn{display:inline-flex;align-items:center;gap:6px;background:transparent;border:1px solid transparent;
-          padding:5px 8px;border-radius:6px;cursor:pointer;transition:background .15s,border-color .15s;text-align:left;max-width:210px}
-        .deliver-btn:hover{background:#F9FAFB;border-color:#E5E7EB}
-        .deliver-label{font-size:10.5px;color:#6B7280;line-height:1.1;display:block}
-        .deliver-val{font-size:12px;font-weight:600;color:#111827;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;max-width:165px}
+        /* TWO-TIER STICKY REAL E-COMMERCE HEADER */
+        .store-header{background:#FFFFFF;border-bottom:1px solid #E5E7EB;position:sticky;top:0;z-index:60;box-shadow:0 1px 3px rgba(17,24,39,0.04)}
+        .top-utility-bar{background:#F9FAFB;border-bottom:1px solid #F3F4F6;font-size:12px;color:#4B5563}
+        .top-utility-inner{max-width:1320px;margin:0 auto;padding:0 24px;height:32px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+        .utility-links-left{display:flex;align-items:center;gap:14px}
+        .utility-link{color:#4B5563;text-decoration:none;font-weight:500;transition:color .15s;white-space:nowrap}
+        .utility-link:hover{color:#111827}
+        .utility-sep{color:#D1D5DB;font-size:11px;user-select:none}
+        .utility-right{display:flex;align-items:center;gap:12px}
+        .utility-loc-btn{display:inline-flex;align-items:center;gap:5px;background:none;border:none;color:#374151;font-size:12px;font-weight:500;cursor:pointer;padding:2px 6px;border-radius:4px;transition:background .15s}
+        .utility-loc-btn:hover{background:#EEF0F3;color:#111827}
 
-        /* HEADER INTEGRATED SEARCH */
-        .header-search-form{flex:1;max-width:580px;margin:0 auto;display:flex;align-items:center;height:40px;
-          background:#F3F4F6;border:1px solid #E5E7EB;border-radius:8px;padding:0 4px 0 12px;gap:8px;transition:background .15s,border-color .15s,box-shadow .15s}
-        .header-search-form:focus-within{background:#FFFFFF;border-color:#111827;box-shadow:0 0 0 3px rgba(17,24,39,0.06)}
-        .header-search-input{flex:1;min-width:0;border:none;outline:none;background:transparent;font-size:13.5px;color:#111827}
+        .header-top-inner{max-width:1320px;margin:0 auto;padding:0 24px;height:66px;display:flex;align-items:center;gap:20px}
+        .brand-cluster{display:flex;align-items:center;gap:12px;flex-shrink:0}
+        .nav-logo{display:inline-flex;align-items:center;gap:9px;text-decoration:none;cursor:pointer}
+        .logo-text{font-family:'Plus Jakarta Sans','Inter',sans-serif;font-size:21px;font-weight:800;color:#111827;letter-spacing:-0.03em}
+
+        /* SCOPED RETAIL SEARCH BAR */
+        .header-search-form{flex:1;max-width:650px;margin:0 auto;display:flex;align-items:center;height:42px;
+          background:#FFFFFF;border:1.5px solid #111827;border-radius:8px;overflow:hidden;transition:box-shadow .15s}
+        .header-search-form:focus-within{box-shadow:0 0 0 3px rgba(17,24,39,0.08)}
+        .search-scope-select{height:100%;border:none;border-right:1px solid #E5E7EB;background:#F9FAFB;padding:0 10px;
+          font-size:12.5px;font-weight:500;color:#374151;cursor:pointer;outline:none;max-width:135px;flex-shrink:0}
+        .search-scope-select:hover{background:#F3F4F6}
+        .header-search-input{flex:1;min-width:0;border:none;outline:none;background:transparent;padding:0 12px;font-size:13.5px;color:#111827}
         .header-search-input::placeholder{color:#6B7280}
-        .header-search-clear{width:20px;height:20px;border-radius:50%;border:none;background:#E5E7EB;color:#4B5563;
+        .header-search-clear{width:20px;height:20px;margin-right:6px;border-radius:50%;border:none;background:#E5E7EB;color:#4B5563;
           font-size:11px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
         .header-search-clear:hover{background:#D1D5DB;color:#111827}
-        .header-search-submit{height:32px;padding:0 14px;border-radius:6px;border:none;background:#111827;color:#FFFFFF;
-          font-size:12.5px;font-weight:600;cursor:pointer;flex-shrink:0;transition:background .15s}
+        .header-search-submit{height:100%;padding:0 18px;border:none;background:#111827;color:#FFFFFF;
+          font-size:13px;font-weight:600;cursor:pointer;flex-shrink:0;display:inline-flex;align-items:center;gap:6px;transition:background .15s}
         .header-search-submit:hover{background:#1F2937}
 
         /* HEADER ACTIONS */
         .nav-right{display:flex;align-items:center;gap:8px;margin-left:auto;flex-shrink:0}
-        .header-util-btn{position:relative;height:38px;padding:0 12px;border-radius:8px;border:1px solid #E5E7EB;background:#FFFFFF;
+        .header-util-btn{position:relative;height:40px;padding:0 12px;border-radius:8px;border:1px solid #E5E7EB;background:#FFFFFF;
           color:#374151;font-size:13px;font-weight:500;display:inline-flex;align-items:center;justify-content:center;gap:7px;
           cursor:pointer;text-decoration:none;transition:background .15s,border-color .15s,color .15s}
         .header-util-btn:hover{background:#F9FAFB;border-color:#D1D5DB;color:#111827}
-        .header-badge{position:absolute;top:-5px;right:-5px;background:#0D6847;color:#FFFFFF;
+        .header-badge{position:absolute;top:-5px;right:-5px;background:#DC2626;color:#FFFFFF;
           font-size:10px;font-weight:700;min-width:18px;height:18px;padding:0 4px;border-radius:999px;
           display:flex;align-items:center;justify-content:center;border:2px solid #FFFFFF;font-variant-numeric:tabular-nums}
-        .account-pill{height:38px;padding:0 12px 0 8px;border-radius:8px;border:1px solid #D1D5DB;background:#FFFFFF;
+        .account-pill{height:40px;padding:0 12px 0 8px;border-radius:8px;border:1px solid #D1D5DB;background:#FFFFFF;
           color:#111827;font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:8px;text-decoration:none;
           transition:background .15s,border-color .15s}
         .account-pill:hover{background:#F9FAFB;border-color:#9CA3AF}
@@ -1821,13 +2135,13 @@ function MarketplaceContent() {
         /* MOBILE SEARCH ROW */
         .mobile-search-row{display:none;padding:0 12px 10px;gap:8px;align-items:center}
 
-        /* CLEAN DEPARTMENT NAVIGATION BAR */
+        /* DEPARTMENT NAVIGATION STRIP */
         .dept-bar{border-top:1px solid #F3F4F6;background:#FFFFFF}
-        .dept-bar-inner{max-width:1280px;margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between;gap:16px}
-        .dept-tabs{display:flex;align-items:center;gap:4px;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none}
+        .dept-bar-inner{max-width:1320px;margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+        .dept-tabs{display:flex;align-items:center;gap:2px;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none}
         .dept-tabs::-webkit-scrollbar{display:none}
-        .dept-tab{height:42px;padding:0 12px;background:transparent;border:none;border-bottom:2px solid transparent;
-          font-size:13px;font-weight:500;color:#4B5563;cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:6px;
+        .dept-tab{height:40px;padding:0 12px;background:transparent;border:none;border-bottom:2px solid transparent;
+          font-size:13px;font-weight:500;color:#4B5563;cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:5px;
           transition:color .15s,border-color .15s}
         .dept-tab:hover{color:#111827}
         .dept-tab.active{color:#111827;font-weight:600;border-bottom-color:#111827}
@@ -1836,76 +2150,146 @@ function MarketplaceContent() {
         .dept-guarantees{display:flex;align-items:center;gap:16px;font-size:12px;color:#6B7280;flex-shrink:0}
         .dept-guarantee-item{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
 
-        /* MAIN CATALOG LAYOUT */
-        .main{max-width:1280px;width:100%;margin:0 auto;padding:20px 24px 56px;flex:1}
+        /* MAIN MARKETPLACE CONTAINER & TWO-COLUMN E-COMMERCE LAYOUT */
+        .main{max-width:1320px;width:100%;margin:0 auto;padding:16px 24px 56px;flex:1}
+        .commerce-breadcrumb{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;font-size:12.5px;color:#6B7280;flex-wrap:wrap}
+        .breadcrumb-trail{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+        .breadcrumb-link{background:none;border:none;padding:0;font-size:12.5px;color:#6B7280;cursor:pointer;font-weight:500}
+        .breadcrumb-link:hover{color:#111827;text-decoration:underline}
+        .breadcrumb-current{color:#111827;font-weight:600}
+
+        .commerce-layout{display:grid;grid-template-columns:236px minmax(0,1fr);gap:20px;align-items:start}
+
+        /* LEFT FILTER SIDEBAR */
+        .filter-sidebar{background:#FFFFFF;border:1px solid #E5E7EB;border-radius:8px;padding:16px;position:sticky;top:154px}
+        .sidebar-header{display:flex;align-items:center;justify-content:space-between;gap:8px;padding-bottom:12px;border-bottom:1px solid #E5E7EB;margin-bottom:14px}
+        .sidebar-title{display:inline-flex;align-items:center;gap:7px;font-size:13.5px;font-weight:700;color:#111827;text-transform:uppercase;letter-spacing:0.03em}
+        .sidebar-reset-inline{background:none;border:none;font-size:12px;font-weight:600;color:#DC2626;cursor:pointer;padding:0}
+        .sidebar-reset-inline:hover{text-decoration:underline}
+        .sidebar-sections{display:flex;flex-direction:column;gap:14px}
+        .filter-group{padding-bottom:14px;border-bottom:1px solid #F3F4F6}
+        .filter-group-title{font-size:12.5px;font-weight:600;color:#111827;margin-bottom:9px}
+        .filter-cat-list{display:flex;flex-direction:column;gap:3px}
+        .filter-cat-btn{width:100%;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 8px;
+          border-radius:6px;border:none;background:transparent;color:#4B5563;font-size:13px;font-weight:500;cursor:pointer;text-align:left;transition:background .12s,color .12s}
+        .filter-cat-btn:hover{background:#F9FAFB;color:#111827}
+        .filter-cat-btn.active{background:#F3F4F6;color:#111827;font-weight:600}
+        .filter-cat-label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+        .filter-cat-count{font-size:11.5px;color:#6B7280;font-variant-numeric:tabular-nums;flex-shrink:0}
+        .filter-cat-btn.active .filter-cat-count{color:#111827;font-weight:600}
+
+        .filter-check-row{display:flex;align-items:center;gap:8px;padding:4px 2px;cursor:pointer;font-size:13px;color:#374151;user-select:none}
+        .filter-check-row input{width:15px;height:15px;accent-color:#111827;cursor:pointer;flex-shrink:0}
+        .filter-check-text{flex:1;font-weight:500}
+
+        .price-range-form{display:flex;flex-direction:column;gap:8px}
+        .price-inputs-row{display:flex;align-items:center;gap:6px}
+        .price-range-input{width:100%;min-width:0;height:32px;padding:0 8px;border:1px solid #D1D5DB;border-radius:6px;background:#FFFFFF;font-size:12px;outline:none;font-variant-numeric:tabular-nums}
+        .price-range-input:focus{border-color:#111827}
+        .price-range-sep{color:#9CA3AF;font-size:12px;flex-shrink:0}
+        .price-apply-btn{height:32px;width:100%;border-radius:6px;border:1px solid #111827;background:#111827;color:#FFFFFF;font-size:12px;font-weight:600;cursor:pointer;transition:background .15s}
+        .price-apply-btn:hover{background:#1F2937}
+        .price-presets-grid{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+        .price-preset-btn{padding:4px 8px;border-radius:5px;border:1px solid #E5E7EB;background:#F9FAFB;color:#374151;font-size:11.5px;font-weight:500;cursor:pointer;transition:all .12s}
+        .price-preset-btn:hover{border-color:#D1D5DB;color:#111827}
+        .price-preset-btn.active{background:#111827;border-color:#111827;color:#FFFFFF;font-weight:600}
+
+        .rating-filter-btn{width:100%;display:flex;align-items:center;gap:7px;padding:6px 8px;border-radius:6px;border:1px solid transparent;background:transparent;font-size:12.5px;font-weight:500;color:#374151;cursor:pointer;transition:background .12s}
+        .rating-filter-btn:hover{background:#F9FAFB}
+        .rating-filter-btn.active{background:#F3F4F6;border-color:#D1D5DB;color:#111827;font-weight:600}
+        .sidebar-clear-all-btn{width:100%;height:34px;border-radius:6px;border:1px solid #D1D5DB;background:#FFFFFF;color:#111827;font-size:12.5px;font-weight:600;cursor:pointer;margin-top:2px;transition:background .15s}
+        .sidebar-clear-all-btn:hover{background:#F9FAFB}
+
+        /* RIGHT MAIN CATALOG COLUMN */
+        .catalog-main-col{min-width:0;display:flex;flex-direction:column}
 
         /* CONDITIONAL REAL VOUCHER STRIP */
-        .voucher-strip{display:flex;align-items:stretch;gap:12px;overflow-x:auto;padding-bottom:4px;margin-bottom:20px;scrollbar-width:none}
+        .voucher-strip{display:flex;align-items:stretch;gap:12px;overflow-x:auto;padding-bottom:4px;margin-bottom:16px;scrollbar-width:none}
         .voucher-strip::-webkit-scrollbar{display:none}
         .voucher-ticket{display:flex;align-items:center;justify-content:space-between;gap:16px;background:#FFFFFF;
-          border:1px solid #E5E7EB;border-left:3px solid #0D6847;border-radius:8px;padding:10px 14px;min-width:270px;flex-shrink:0}
+          border:1px solid #E5E7EB;border-left:3px solid #0D6847;border-radius:8px;padding:10px 14px;min-width:265px;flex-shrink:0}
 
         /* FLASH DEALS SHELF */
-        .flash-deals-banner{background:#FFFFFF;border-radius:10px;padding:18px 20px;border:1px solid #E5E7EB;margin-bottom:22px;
-          display:flex;flex-direction:column;gap:16px;scroll-margin-top:120px}
+        .flash-deals-banner{background:#FFFFFF;border-radius:8px;padding:16px 18px;border:1px solid #E5E7EB;margin-bottom:16px;
+          display:flex;flex-direction:column;gap:14px;scroll-margin-top:154px}
         .flash-clock-box{background:#111827;color:#FFFFFF;font-weight:700;font-size:12px;padding:3px 7px;border-radius:5px;
           font-variant-numeric:tabular-nums;display:inline-block;min-width:26px;text-align:center}
-        .flash-items-slider{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+        .flash-items-slider{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
 
-        /* CATALOG TOOLBAR */
-        .catalog-toolbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px}
-        .catalog-heading-group{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
-        .catalog-title{font-family:'Plus Jakarta Sans','Inter',sans-serif;font-size:19px;font-weight:700;color:#111827;letter-spacing:-0.02em}
-        .catalog-count{font-size:13px;color:#6B7280;font-variant-numeric:tabular-nums}
+        /* REAL E-COMMERCE HORIZONTAL SORT BAR */
+        .commerce-sort-bar{background:#FFFFFF;border:1px solid #E5E7EB;border-radius:8px;padding:9px 14px;margin-bottom:14px;
+          display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+        .sort-bar-left{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+        .sort-bar-label{font-size:12.5px;color:#6B7280;font-weight:500;margin-right:4px}
+        .sort-pill-btn{height:32px;padding:0 12px;border-radius:6px;border:1px solid #E5E7EB;background:#FFFFFF;
+          color:#374151;font-size:12.5px;font-weight:500;cursor:pointer;transition:all .15s;white-space:nowrap}
+        .sort-pill-btn:hover{background:#F9FAFB;border-color:#D1D5DB;color:#111827}
+        .sort-pill-btn.active{background:#111827;border-color:#111827;color:#FFFFFF;font-weight:600}
+        .sort-price-select{height:32px;padding:0 28px 0 10px;border-radius:6px;border:1px solid #E5E7EB;background:#FFFFFF;
+          font-size:12.5px;font-weight:500;color:#374151;cursor:pointer;outline:none}
+        .sort-price-select.active{border-color:#111827;color:#111827 !important;font-weight:600;background:#F9FAFB}
+        .sort-bar-right{display:flex;align-items:center;gap:10px;font-size:12.5px;color:#6B7280;font-variant-numeric:tabular-nums;margin-left:auto}
+        .mobile-filter-trigger{display:none;height:32px;padding:0 11px;border-radius:6px;border:1px solid #D1D5DB;background:#FFFFFF;
+          color:#111827;font-size:12.5px;font-weight:600;align-items:center;gap:6px;cursor:pointer}
+
         .active-filters-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px}
         .filter-chip{display:inline-flex;align-items:center;gap:6px;background:#FFFFFF;border:1px solid #D1D5DB;color:#111827;
           font-size:12px;font-weight:500;padding:4px 10px;border-radius:6px}
         .filter-chip button{background:none;border:none;color:#6B7280;cursor:pointer;font-size:13px;line-height:1;padding:0}
         .filter-chip button:hover{color:#111827}
-        .sort-control{display:inline-flex;align-items:center;gap:8px}
-        .sort-label{font-size:12.5px;color:#6B7280;font-weight:500}
-        .sort-select{height:36px;padding:0 30px 0 11px;border-radius:8px;border:1px solid #D1D5DB;background:#FFFFFF;
-          font-size:13px;font-weight:500;color:#111827;cursor:pointer;outline:none}
-        .sort-select:focus{border-color:#111827}
 
-        /* RETAIL PRODUCT GRID & CARDS */
-        .grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px}
-        @media (max-width: 1080px){.grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}}
-        .item-card{background:#FFFFFF;border-radius:10px;overflow:hidden;border:1px solid #E5E7EB;
-          transition:border-color .18s ease,box-shadow .18s ease;display:flex;flex-direction:column;cursor:pointer}
-        .item-card:hover{border-color:#D1D5DB;box-shadow:0 8px 20px rgba(17,24,39,0.06)}
-        .item-img-wrap{position:relative;width:100%;aspect-ratio:1 / 1;background:#F3F4F6;overflow:hidden}
-        .item-card-img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .3s ease}
-        .item-card:hover .item-card-img{transform:scale(1.025)}
+        /* RETAIL PRODUCT GRID & PROPORTIONED E-COMMERCE CARDS */
+        .grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+        @media (max-width: 1180px){.grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}}
+        .item-card{background:#FFFFFF;border-radius:8px;overflow:hidden;border:1px solid #E5E7EB;
+          transition:border-color .16s ease,box-shadow .16s ease,transform .16s ease;display:flex;flex-direction:column;cursor:pointer}
+        .item-card:hover{border-color:#9CA3AF;box-shadow:0 6px 18px rgba(17,24,39,0.07);transform:translateY(-1px)}
+        .item-card.sold-out-card{background:#FCFCFD}
+        .item-img-wrap{position:relative;width:100%;aspect-ratio:1 / 1;background:#F3F4F6;overflow:hidden;border-bottom:1px solid #F3F4F6}
+        .item-card-img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .28s ease}
+        .item-card:hover .item-card-img{transform:scale(1.03)}
         .item-image-placeholder{width:100%;height:100%;background:#F3F4F6;display:flex;align-items:center;justify-content:center;color:#9CA3AF}
 
-        .item-content{padding:13px 14px 14px;flex:1;display:flex;flex-direction:column}
-        .item-cat-text{font-size:11px;font-weight:500;color:#6B7280;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-        .item-name{font-size:14px;font-weight:600;color:#111827;line-height:1.38;margin:0 0 8px;
-          display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:38.5px}
-        .item-price-row{display:flex;align-items:baseline;gap:6px;margin-bottom:6px}
-        .item-price{font-family:'Plus Jakarta Sans','Inter',sans-serif;font-size:17px;font-weight:700;color:#111827;
+        .item-content{padding:11px 12px 12px;flex:1;display:flex;flex-direction:column}
+        .item-meta-top{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:4px}
+        .item-cat-text{font-size:11px;font-weight:500;color:#6B7280;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        .item-stock-tag{font-size:10.5px;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap;flex-shrink:0}
+        .item-name{font-size:13.5px;font-weight:500;color:#111827;line-height:1.38;margin:0 0 8px;
+          display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;height:37.5px}
+        .item-price-row{display:flex;align-items:baseline;gap:6px;margin-bottom:6px;min-height:22px}
+        .item-price{font-family:'Plus Jakarta Sans','Inter',sans-serif;font-size:16.5px;font-weight:700;color:#111827;
           font-variant-numeric:tabular-nums;letter-spacing:-0.01em}
-        .item-stats-line{display:flex;align-items:center;gap:5px;flex-wrap:wrap;font-size:12px;color:#6B7280;margin-bottom:12px;font-variant-numeric:tabular-nums}
+        .item-stats-line{display:flex;align-items:center;justify-content:space-between;gap:6px;font-size:11.5px;color:#6B7280;margin-bottom:10px;font-variant-numeric:tabular-nums}
 
-        .card-actions-row{display:flex;gap:8px;width:100%;margin-top:auto}
-        .buy-btn{height:36px;padding:0 10px;background:#111827;border:1px solid #111827;border-radius:7px;color:#FFFFFF;
+        /* PROPORTIONED E-COMMERCE CARD CTA ROW: [🛒] + [Buy Now] */
+        .card-actions-row{display:flex;gap:7px;width:100%;margin-top:auto}
+        .card-cart-icon-btn{width:34px;height:34px;border-radius:7px;border:1px solid #D1D5DB;background:#FFFFFF;color:#111827;
+          display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:background .15s,border-color .15s}
+        .card-cart-icon-btn:hover{background:#F3F4F6;border-color:#9CA3AF}
+        .buy-btn{height:34px;padding:0 12px;background:#111827;border:1px solid #111827;border-radius:7px;color:#FFFFFF;
           font-size:12.5px;font-weight:600;cursor:pointer;transition:background .15s;
           display:inline-flex;align-items:center;justify-content:center;gap:5px;flex:1;white-space:nowrap}
         .buy-btn:hover{background:#1F2937}
-        .add-cart-btn{height:36px;padding:0 10px;background:#FFFFFF;border:1px solid #D1D5DB;color:#111827;
+        .add-cart-btn{height:36px;padding:0 12px;background:#FFFFFF;border:1px solid #D1D5DB;color:#111827;
           border-radius:7px;font-size:12.5px;font-weight:600;cursor:pointer;transition:background .15s,border-color .15s;
-          display:inline-flex;align-items:center;justify-content:center;gap:5px;flex:1;white-space:nowrap}
+          display:inline-flex;align-items:center;justify-content:center;gap:6px;flex:1;white-space:nowrap}
         .add-cart-btn:hover{background:#F9FAFB;border-color:#9CA3AF}
 
-        .card-seller-row{margin-top:11px;padding-top:10px;border-top:1px solid #F3F4F6;display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0}
-        .card-seller-left{display:flex;align-items:center;gap:7px;min-width:0;flex:1}
-        .card-seller-name{font-size:12px;font-weight:500;color:#374151;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-        .card-seller-loc{display:inline-flex;align-items:center;gap:3px;font-size:11px;color:#6B7280;text-decoration:none;
+        .card-seller-row{margin-top:10px;padding-top:8px;border-top:1px solid #F3F4F6;display:flex;align-items:center;justify-content:space-between;gap:6px;min-width:0}
+        .card-seller-left{display:flex;align-items:center;gap:6px;min-width:0;flex:1}
+        .card-seller-name{font-size:11.5px;font-weight:500;color:#4B5563;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        .card-seller-loc{display:inline-flex;align-items:center;gap:2px;font-size:11px;color:#6B7280;text-decoration:none;
           white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:46%;flex-shrink:0}
         .card-seller-loc:hover{color:#111827}
 
-        .empty-state{text-align:center;padding:64px 20px;background:#FFFFFF;border:1px solid #E5E7EB;border-radius:10px}
+        /* MOBILE FILTER DRAWER */
+        .mobile-filter-backdrop{position:fixed;inset:0;background:rgba(17,24,39,0.48);z-index:200;display:flex;justify-content:flex-end}
+        .mobile-filter-sheet{width:min(320px,88vw);height:100%;background:#FFFFFF;display:flex;flex-direction:column;box-shadow:-8px 0 24px rgba(17,24,39,0.16)}
+        .mobile-filter-sheet-head{padding:14px 16px;border-bottom:1px solid #E5E7EB;display:flex;align-items:center;justify-content:space-between}
+        .mobile-filter-sheet-body{padding:16px;overflow-y:auto;flex:1}
+        .mobile-filter-sheet-foot{padding:12px 16px;border-top:1px solid #E5E7EB;display:flex;gap:8px;background:#FFFFFF}
+
+        .empty-state{text-align:center;padding:64px 20px;background:#FFFFFF;border:1px solid #E5E7EB;border-radius:8px}
         .empty-icon{margin-bottom:14px;display:flex;justify-content:center}
         .empty-text{font-size:16px;font-weight:700;color:#111827}
         .subtitle{font-size:13.5px;color:#6B7280;max-width:460px;margin:6px auto 0;line-height:1.5}
@@ -1915,7 +2299,7 @@ function MarketplaceContent() {
         @keyframes spin{to{transform:rotate(360deg)}}
         @keyframes typingBounce{0%,80%,100%{transform:scale(0.6);opacity:0.4}40%{transform:scale(1);opacity:1}}
 
-        .toast{position:fixed;top:76px;right:24px;background:#111827;color:#fff;padding:12px 18px;
+        .toast{position:fixed;top:112px;right:24px;background:#111827;color:#fff;padding:12px 18px;
           border-radius:8px;font-size:13px;font-weight:600;z-index:1000;
           box-shadow:0 10px 24px rgba(17,24,39,.16);animation:slideIn .2s ease}
         @keyframes slideIn{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}}
@@ -1970,12 +2354,15 @@ function MarketplaceContent() {
           .seller-header-bar{padding:24px 40px;flex-direction:row;align-items:center;gap:28px}
         }
 
-        @media (max-width: 960px) {
+        @media (max-width: 980px) {
+          .commerce-layout{grid-template-columns:minmax(0,1fr)}
+          .filter-sidebar{display:none}
+          .mobile-filter-trigger{display:inline-flex}
           .dept-guarantees{display:none}
-          .header-divider, .deliver-btn-desktop{display:none !important}
         }
 
         @media (max-width: 768px) {
+          .top-utility-bar{display:none}
           .header-top-inner{padding:0 12px;height:56px;gap:10px}
           .header-search-desktop{display:none !important}
           .mobile-search-row{display:flex}
@@ -1985,14 +2372,17 @@ function MarketplaceContent() {
           .account-pill{padding:0 6px;height:36px}
           .dept-bar-inner{padding:0 12px}
           .dept-tab{height:38px;padding:0 10px;font-size:12.5px}
-          .main{padding:14px 12px 40px}
+          .main{padding:12px 12px 40px}
+          .sort-bar-label{display:none}
+          .sort-pill-btn{height:30px;padding:0 9px;font-size:12px}
           .grid{grid-template-columns:repeat(2,minmax(0,1fr)) !important;gap:10px !important}
-          .item-content{padding:10px 10px 12px}
-          .item-name{font-size:13px;min-height:35px;margin-bottom:6px}
+          .item-content{padding:9px 10px 11px}
+          .item-name{font-size:13px;height:35.5px;margin-bottom:6px}
           .item-price{font-size:15px}
-          .item-stats-line{font-size:11px;margin-bottom:9px}
+          .item-stats-line{font-size:11px;margin-bottom:8px}
           .card-actions-row{gap:6px}
-          .card-actions-row .add-cart-btn, .card-actions-row .buy-btn{height:32px;font-size:11.5px;padding:0 6px}
+          .card-cart-icon-btn{width:32px;height:32px}
+          .card-actions-row .buy-btn{height:32px;font-size:11.5px;padding:0 8px}
           .card-seller-loc{display:none}
           .flash-items-slider{grid-template-columns:repeat(2,minmax(0,1fr))}
           .rating-summary{display:flex;flex-direction:column;gap:16px;padding:16px;align-items:flex-start}
@@ -2010,7 +2400,6 @@ function MarketplaceContent() {
         }
 
         @media (max-width: 380px) {
-          .card-actions-row{flex-direction:column}
           .seller-stats-grid{grid-template-columns:repeat(2,minmax(0,1fr)) !important}
         }
 
@@ -2084,40 +2473,60 @@ function MarketplaceContent() {
       `}</style>
 
       <div className="root">
-        {/* STICKY E-COMMERCE HEADER WITH INTEGRATED SEARCH & DEPARTMENT TABS */}
+        {/* TWO-TIER STICKY E-COMMERCE HEADER */}
         <header className="store-header">
+          {/* Tier 1: Retail Utility Strip */}
+          <div className="top-utility-bar">
+            <div className="top-utility-inner">
+              <div className="utility-links-left">
+                <Link href="/dashboard" className="utility-link">Seller Centre</Link>
+                <span className="utility-sep">|</span>
+                <Link href="/dashboard?tab=orders" className="utility-link">My Orders</Link>
+                <span className="utility-sep">|</span>
+                <Link href="/guides" className="utility-link">Help &amp; Guides</Link>
+              </div>
+
+              <div className="utility-right">
+                <button
+                  type="button"
+                  className="utility-loc-btn"
+                  onClick={detectBuyerLocation}
+                  disabled={detectingBuyerLoc}
+                  title="Click to update your delivery location"
+                >
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                    <circle cx="12" cy="10" r="3" />
+                  </svg>
+                  <span>{detectingBuyerLoc ? "Locating..." : `Deliver to: ${buyerLocation || "Philippines"}`}</span>
+                </button>
+                <span className="utility-sep">|</span>
+                <span style={{ fontWeight: 600, color: "#374151" }}>PHP (₱)</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Tier 2: Main Brand, Scoped Search Bar & Account Controls */}
           <div className="header-top-inner">
             <div className="brand-cluster">
-              <Link href="/shop" className="nav-logo">
-                <svg width="26" height="26" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <Link
+                href="/shop"
+                className="nav-logo"
+                onClick={() => {
+                  resetAllCatalogFilters();
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
+              >
+                <svg width="27" height="27" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                   <rect x="4" y="9" width="24" height="19" rx="4.5" fill="#111827" />
                   <path d="M11 9V7.5a5 5 0 0 1 10 0V9" stroke="#111827" strokeWidth="2.2" strokeLinecap="round" />
                   <path d="M11.5 16.5c1.2 2.2 3 3.2 4.5 3.2s3.3-1 4.5-3.2" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" />
                 </svg>
                 <span className="logo-text">Shopply</span>
               </Link>
-
-              <div className="header-divider" />
-
-              <button
-                type="button"
-                className="deliver-btn deliver-btn-desktop"
-                onClick={detectBuyerLocation}
-                disabled={detectingBuyerLoc}
-                title="Click to update your delivery location"
-              >
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#374151" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
-                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                  <circle cx="12" cy="10" r="3" />
-                </svg>
-                <span style={{ minWidth: 0 }}>
-                  <span className="deliver-label">{detectingBuyerLoc ? "Locating..." : "Deliver to"}</span>
-                  <span className="deliver-val">{buyerLocation || "Philippines"}</span>
-                </span>
-              </button>
             </div>
 
-            {/* Integrated Primary Search Bar (Desktop) */}
+            {/* Category-Scoped Retail Search Bar (Desktop) */}
             <form
               className="header-search-form header-search-desktop"
               onSubmit={(e) => {
@@ -2126,14 +2535,22 @@ function MarketplaceContent() {
                 if (el) el.scrollIntoView({ behavior: "smooth" });
               }}
             >
-              <svg width="16" height="16" fill="none" stroke="#6B7280" strokeWidth="2" viewBox="0 0 24 24" style={{ flexShrink: 0 }}>
-                <circle cx="11" cy="11" r="8" />
-                <path d="M21 21l-4.35-4.35" strokeLinecap="round" />
-              </svg>
+              <select
+                className="search-scope-select"
+                value={selectedCategory}
+                onChange={(e) => handleSelectCategory(e.target.value)}
+                aria-label="Search department"
+              >
+                {departmentTabs.map((tab) => (
+                  <option key={tab.id} value={tab.id}>
+                    {tab.id === "All" ? "All Categories" : tab.label}
+                  </option>
+                ))}
+              </select>
               <input
                 type="search"
                 className="header-search-input"
-                placeholder="Search products, categories, or sellers..."
+                placeholder="Search for products, brands, and shops..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 aria-label="Search marketplace products"
@@ -2149,7 +2566,11 @@ function MarketplaceContent() {
                 </button>
               )}
               <button type="submit" className="header-search-submit">
-                Search
+                <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
+                  <circle cx="11" cy="11" r="8" />
+                  <path d="M21 21l-4.35-4.35" strokeLinecap="round" />
+                </svg>
+                <span>Search</span>
               </button>
             </form>
 
@@ -2203,10 +2624,6 @@ function MarketplaceContent() {
             }}
           >
             <div className="header-search-form" style={{ maxWidth: "none", width: "100%", height: 38 }}>
-              <svg width="15" height="15" fill="none" stroke="#6B7280" strokeWidth="2" viewBox="0 0 24 24" style={{ flexShrink: 0 }}>
-                <circle cx="11" cy="11" r="8" />
-                <path d="M21 21l-4.35-4.35" strokeLinecap="round" />
-              </svg>
               <input
                 type="search"
                 className="header-search-input"
@@ -2220,10 +2637,16 @@ function MarketplaceContent() {
                   ✕
                 </button>
               )}
+              <button type="submit" className="header-search-submit" style={{ padding: "0 12px" }} aria-label="Search">
+                <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
+                  <circle cx="11" cy="11" r="8" />
+                  <path d="M21 21l-4.35-4.35" strokeLinecap="round" />
+                </svg>
+              </button>
             </div>
           </form>
 
-          {/* Department Sub-Navigation Strip */}
+          {/* Tier 3: Department Navigation Strip */}
           <div className="dept-bar">
             <div className="dept-bar-inner">
               <div
@@ -2255,11 +2678,11 @@ function MarketplaceContent() {
 
               <div className="dept-guarantees">
                 <span className="dept-guarantee-item">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0D6847" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+                  <svg width="13.5" height="13.5" viewBox="0 0 24 24" fill="none" stroke="#0D6847" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
                   Buyer Protection
                 </span>
                 <span className="dept-guarantee-item">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#374151" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                  <svg width="13.5" height="13.5" viewBox="0 0 24 24" fill="none" stroke="#374151" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
                   Cash on Delivery
                 </span>
               </div>
@@ -2268,537 +2691,729 @@ function MarketplaceContent() {
         </header>
 
         <main className="main" id="shop-catalog">
-          {/* REAL STORE VOUCHERS STRIP — Rendered ONLY when real active vouchers exist in Firestore */}
-          {allCoupons.length > 0 && (
-            <section aria-label="Available Store Vouchers" className="voucher-strip">
-              {allCoupons.map((voucher) => {
-                const isClaimed = copiedVoucher === voucher.code || claimedVoucher === voucher.code;
-                const discountLabel = voucher.discount_type === "percent"
-                  ? `${voucher.discount_value || voucher.discount}% OFF`
-                  : `₱${voucher.discount_value || voucher.discount} OFF`;
-                return (
-                  <div key={voucher.code} className="voucher-ticket">
-                    <div style={{ minWidth: 0 }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 2 }}>
-                        <span style={{ fontSize: 13.5, fontWeight: 700, color: "#0D6847", fontVariantNumeric: "tabular-nums" }}>
-                          {discountLabel}
-                        </span>
-                        <span style={{ fontSize: 11, fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace", color: "#374151", background: "#F3F4F6", padding: "1px 6px", borderRadius: 4 }}>
-                          {voucher.code}
-                        </span>
-                      </div>
-                      <div style={{ fontSize: 11.5, color: "#6B7280", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                        {voucher.min_spend > 0 ? `Min. spend ₱${Number(voucher.min_spend).toFixed(0)}` : (voucher.title || "Valid on marketplace orders")}
-                      </div>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => claimVoucher(voucher.code, discountLabel)}
-                      style={{
-                        height: 30,
-                        padding: "0 12px",
-                        borderRadius: 6,
-                        border: isClaimed ? "1px solid #0D6847" : "1px solid #111827",
-                        background: isClaimed ? "#ECFDF5" : "#111827",
-                        color: isClaimed ? "#0D6847" : "#FFFFFF",
-                        fontSize: 11.5,
-                        fontWeight: 600,
-                        cursor: "pointer",
-                        flexShrink: 0
-                      }}
-                    >
-                      {isClaimed ? "Claimed" : "Claim"}
-                    </button>
-                  </div>
-                );
-              })}
-            </section>
-          )}
+          {/* E-COMMERCE BREADCRUMB TRAIL */}
+          <nav aria-label="Breadcrumb" className="commerce-breadcrumb">
+            <div className="breadcrumb-trail">
+              <button type="button" className="breadcrumb-link" onClick={resetAllCatalogFilters}>
+                Marketplace
+              </button>
+              <span>/</span>
+              <span className="breadcrumb-current">
+                {selectedCategory === "All" ? "All Listings" : activeCategoryLabel}
+              </span>
+              {searchQuery.trim() !== "" && (
+                <>
+                  <span>/</span>
+                  <span className="breadcrumb-current">Search: &ldquo;{searchQuery.trim()}&rdquo;</span>
+                </>
+              )}
+            </div>
+            {!loading && (
+              <div>
+                Showing <strong style={{ color: "#111827" }}>{filteredItems.length}</strong> of {items.length} products
+              </div>
+            )}
+          </nav>
 
-          {/* REAL ADMIN-CONTROLLED FLASH DEALS — Hidden completely unless active with enrolled products */}
-          {flashConfig.is_active && items.length > 0 && (() => {
-            if (hasFlashEnded || !flashConfig.is_active || (flashConfig.items || []).length === 0) {
-              return null;
-            }
+          {/* STRUCTURED TWO-COLUMN E-COMMERCE CATALOG (LEFT FILTER SIDEBAR + RIGHT PRODUCT GRID) */}
+          <div className="commerce-layout" id="catalog-products">
+            {/* LEFT FILTER SIDEBAR (Desktop) */}
+            <aside className="filter-sidebar" aria-label="Search Filters">
+              <div className="sidebar-header">
+                <span className="sidebar-title">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+                  </svg>
+                  Search Filter
+                </span>
+                {hasAnyCatalogFilter && (
+                  <button type="button" className="sidebar-reset-inline" onClick={resetAllCatalogFilters}>
+                    Reset
+                  </button>
+                )}
+              </div>
+              {renderSidebarFilterControls(false)}
+            </aside>
 
-            const enrolledDeals = (flashConfig.items || [])
-              .map(deal => {
-                const product = items.find(p => String(p.id) === String(deal.item_id));
-                if (!product) return null;
-                if (selectedCategory !== "All" && !matchesCategoryItem(product, selectedCategory)) return null;
-                return { product, deal };
-              })
-              .filter(Boolean) as Array<{ product: ShopItem; deal: typeof flashConfig.items[0] }>;
-
-            if (enrolledDeals.length === 0) return null;
-
-            return (
-              <section id="flash-deals-anchor" className="flash-deals-banner">
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
-                    <h2 style={{ fontFamily: "'Plus Jakarta Sans', 'Inter', sans-serif", fontSize: 16, fontWeight: 700, color: "#111827", margin: 0 }}>
-                      Limited-Time Deals
-                    </h2>
-                    <div style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 12.5, color: "#4B5563", fontWeight: 600 }}>
-                      <span>Ends in</span>
-                      <span className="flash-clock-box">{String(flashCountdown.hours).padStart(2, "0")}</span>
-                      <span>:</span>
-                      <span className="flash-clock-box">{String(flashCountdown.minutes).padStart(2, "0")}</span>
-                      <span>:</span>
-                      <span className="flash-clock-box">{String(flashCountdown.seconds).padStart(2, "0")}</span>
-                    </div>
-                  </div>
-
-                  {flashCoupon && (() => {
-                    const isClaimed = copiedVoucher === flashCoupon.code || claimedVoucher === flashCoupon.code;
-                    const discountText = flashCoupon.discount_type === "percent"
-                      ? `${flashCoupon.discount || flashCoupon.discount_value}% OFF`
-                      : `₱${flashCoupon.discount_value} OFF`;
+            {/* RIGHT MAIN CATALOG AREA */}
+            <div className="catalog-main-col">
+              {/* REAL STORE VOUCHERS STRIP — Rendered ONLY when real active vouchers exist in Firestore */}
+              {allCoupons.length > 0 && (
+                <section aria-label="Available Store Vouchers" className="voucher-strip">
+                  {allCoupons.map((voucher) => {
+                    const isClaimed = copiedVoucher === voucher.code || claimedVoucher === voucher.code;
+                    const discountLabel = voucher.discount_type === "percent"
+                      ? `${voucher.discount_value || voucher.discount}% OFF`
+                      : `₱${voucher.discount_value || voucher.discount} OFF`;
                     return (
-                      <button
-                        type="button"
-                        onClick={() => claimVoucher(flashCoupon.code, discountText)}
-                        style={{
-                          fontSize: 12,
-                          fontWeight: 600,
-                          color: isClaimed ? "#0D6847" : "#111827",
-                          background: isClaimed ? "#ECFDF5" : "#F9FAFB",
-                          border: isClaimed ? "1px solid #A7F3D0" : "1px solid #D1D5DB",
-                          padding: "5px 12px",
-                          borderRadius: 6,
-                          cursor: "pointer",
-                          display: "inline-flex",
-                          alignItems: "center",
-                          gap: 6
-                        }}
-                      >
-                        <span style={{ fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace", fontWeight: 700 }}>{flashCoupon.code}</span>
-                        <span>· {isClaimed ? "Claimed" : discountText}</span>
-                      </button>
-                    );
-                  })()}
-                </div>
-
-                <div className="flash-items-slider">
-                  {enrolledDeals.map(({ product: fItem, deal }) => {
-                    const originalPrice = parseFloat(fItem.price) || 0;
-                    const flashPrice = Number(deal.flash_price);
-                    const discountPct = deal.discount_pct || (originalPrice > 0 ? Math.max(1, Math.round(((originalPrice - flashPrice) / originalPrice) * 100)) : 15);
-                    const stockRemaining = deal.stock !== undefined && deal.stock !== null ? Number(deal.stock) : calculateTotalStock(fItem);
-
-                    return (
-                      <div
-                        key={fItem.id}
-                        className="flash-card-box"
-                        onClick={() => handleViewItem(fItem)}
-                        style={{
-                          background: "#FFFFFF",
-                          borderRadius: 8,
-                          border: "1px solid #E5E7EB",
-                          padding: 10,
-                          cursor: "pointer",
-                          display: "flex",
-                          flexDirection: "column",
-                          justifyContent: "space-between",
-                          gap: 8
-                        }}
-                      >
-                        <div style={{ position: "relative", width: "100%", aspectRatio: "1/1", borderRadius: 6, overflow: "hidden", background: "#F3F4F6" }}>
-                          {fItem.image ? (
-                            <img src={getImageUrl(fItem.image)} alt={fItem.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                          ) : null}
-                          <span style={{ position: "absolute", top: 8, left: 8, background: "#DC2626", color: "#FFFFFF", fontSize: 10.5, fontWeight: 700, padding: "2px 6px", borderRadius: 4 }}>
-                            -{discountPct}%
-                          </span>
-                        </div>
-                        <div>
-                          <div style={{ fontSize: 13, fontWeight: 600, color: "#111827", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                            {fItem.name}
-                          </div>
-                          <div style={{ display: "flex", alignItems: "baseline", gap: 6, marginTop: 2 }}>
-                            <span style={{ fontSize: 15, fontWeight: 700, color: "#DC2626", fontVariantNumeric: "tabular-nums" }}>
-                              ₱{flashPrice.toFixed(2)}
+                      <div key={voucher.code} className="voucher-ticket">
+                        <div style={{ minWidth: 0 }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 2 }}>
+                            <span style={{ fontSize: 13.5, fontWeight: 700, color: "#0D6847", fontVariantNumeric: "tabular-nums" }}>
+                              {discountLabel}
                             </span>
-                            {originalPrice > flashPrice && (
-                              <span style={{ fontSize: 11.5, color: "#9CA3AF", textDecoration: "line-through", fontVariantNumeric: "tabular-nums" }}>
-                                ₱{originalPrice.toFixed(2)}
-                              </span>
-                            )}
+                            <span style={{ fontSize: 11, fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace", color: "#374151", background: "#F3F4F6", padding: "1px 6px", borderRadius: 4 }}>
+                              {voucher.code}
+                            </span>
                           </div>
-                          <div style={{ fontSize: 11, color: "#6B7280", marginTop: 3 }}>
-                            {stockRemaining > 0 ? `${stockRemaining} remaining at deal price` : "Deal stock sold out"}
+                          <div style={{ fontSize: 11.5, color: "#6B7280", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                            {voucher.min_spend > 0 ? `Min. spend ₱${Number(voucher.min_spend).toFixed(0)}` : (voucher.title || "Valid on marketplace orders")}
                           </div>
                         </div>
+                        <button
+                          type="button"
+                          onClick={() => claimVoucher(voucher.code, discountLabel)}
+                          style={{
+                            height: 30,
+                            padding: "0 12px",
+                            borderRadius: 6,
+                            border: isClaimed ? "1px solid #0D6847" : "1px solid #111827",
+                            background: isClaimed ? "#ECFDF5" : "#111827",
+                            color: isClaimed ? "#0D6847" : "#FFFFFF",
+                            fontSize: 11.5,
+                            fontWeight: 600,
+                            cursor: "pointer",
+                            flexShrink: 0
+                          }}
+                        >
+                          {isClaimed ? "Claimed" : "Claim"}
+                        </button>
                       </div>
                     );
                   })}
-                </div>
-              </section>
-            );
-          })()}
-
-          {/* CATALOG TOOLBAR — Directly Above the Fold */}
-          <div id="catalog-products" className="catalog-toolbar">
-            <div className="catalog-heading-group">
-              <h1 className="catalog-title">
-                {selectedCategory === "All" ? "Marketplace Listings" : activeCategoryLabel}
-              </h1>
-              {!loading && (
-                <span className="catalog-count">
-                  {filteredItems.length} {filteredItems.length === 1 ? "item" : "items"}
-                </span>
+                </section>
               )}
-            </div>
 
-            <div className="sort-control">
-              <label htmlFor="shop-sort-select" className="sort-label">Sort by</label>
-              <select
-                id="shop-sort-select"
-                className="sort-select"
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as any)}
-              >
-                <option value="featured">Featured</option>
-                <option value="newest">Newest Arrivals</option>
-                <option value="popular">Most Sold</option>
-                <option value="rating">Highest Rated</option>
-                <option value="price-asc">Price: Low to High</option>
-                <option value="price-desc">Price: High to Low</option>
-              </select>
-            </div>
-          </div>
+              {/* REAL ADMIN-CONTROLLED FLASH DEALS — Hidden completely unless active with enrolled products */}
+              {flashConfig.is_active && items.length > 0 && (() => {
+                if (hasFlashEnded || !flashConfig.is_active || (flashConfig.items || []).length === 0) {
+                  return null;
+                }
 
-          {/* Active Search / Category / Real Voucher Filter Chips */}
-          {(selectedCategory !== "All" || searchQuery.trim() !== "" || claimedVoucher) && (
-            <div className="active-filters-row">
-              {selectedCategory !== "All" && (
-                <span className="filter-chip">
-                  Department: <strong>{activeCategoryLabel}</strong>
-                  <button type="button" onClick={() => setSelectedCategory("All")} aria-label="Remove department filter">✕</button>
-                </span>
-              )}
-              {searchQuery.trim() !== "" && (
-                <span className="filter-chip">
-                  Search: <strong>&ldquo;{searchQuery.trim()}&rdquo;</strong>
-                  <button type="button" onClick={() => setSearchQuery("")} aria-label="Clear search query">✕</button>
-                </span>
-              )}
-              {claimedVoucher && (
-                <span className="filter-chip" style={{ borderColor: "#A7F3D0", background: "#ECFDF5", color: "#065F46" }}>
-                  Voucher active: <strong>{claimedVoucher}</strong>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      localStorage.removeItem("claimed_voucher");
-                      setClaimedVoucher(null);
-                    }}
-                    aria-label="Remove claimed voucher"
-                    style={{ color: "#065F46" }}
-                  >
-                    ✕
-                  </button>
-                </span>
-              )}
-            </div>
-          )}
+                const enrolledDeals = (flashConfig.items || [])
+                  .map(deal => {
+                    const product = items.find(p => String(p.id) === String(deal.item_id));
+                    if (!product) return null;
+                    if (selectedCategory !== "All" && !matchesCategoryItem(product, selectedCategory)) return null;
+                    return { product, deal };
+                  })
+                  .filter(Boolean) as Array<{ product: ShopItem; deal: typeof flashConfig.items[0] }>;
 
-          {/* PRODUCT CATALOG GRID */}
-          {loading ? (
-            <div className="grid">
-              {Array.from({ length: 8 }).map((_, i) => (
-                <SkeletonShopCard key={i} />
-              ))}
-            </div>
-          ) : filteredItems.length === 0 ? (
-            <div className="empty-state">
-              <div className="empty-icon">
-                <svg width="42" height="42" fill="none" stroke="#9CA3AF" strokeWidth="1.5" viewBox="0 0 24 24">
-                  <path d="M6 2L3 7v13a2 2 0 002 2h14a2 2 0 002-2V7l-3-5H6z" />
-                  <line x1="3" y1="7" x2="21" y2="7" />
-                  <path d="M16 11a4 4 0 01-8 0" />
-                </svg>
-              </div>
-              <div className="empty-text">No matching listings found</div>
-              <p className="subtitle">
-                {searchQuery.trim() || selectedCategory !== "All"
-                  ? "Try clearing your search or switching back to All Items."
-                  : "New listings from sellers will appear here once published."}
-              </p>
-              {(searchQuery.trim() !== "" || selectedCategory !== "All") && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSearchQuery("");
-                    setSelectedCategory("All");
-                  }}
-                  style={{
-                    marginTop: 16,
-                    padding: "8px 16px",
-                    borderRadius: 7,
-                    border: "1px solid #D1D5DB",
-                    background: "#FFFFFF",
-                    color: "#111827",
-                    fontSize: 13,
-                    fontWeight: 600,
-                    cursor: "pointer"
-                  }}
-                >
-                  Reset filters
-                </button>
-              )}
-            </div>
-          ) : (
-            <div className="grid">
-              {filteredItems.map((item) => {
-                const activeDeal = getActiveFlashDeal(item.id);
-                const totalStock = calculateTotalStock(item);
-                const realReviewsCount = Number(item.reviews_count || 0);
-                const realAvgRating = Number(item.reviews_avg_rating || 0);
-                const realSoldCount = Number(item.sold_count || 0);
-                const photoCount = (item.attributes?.main_images?.length || (item.image ? 1 : 0)) + (item.attributes?.variant_image_paths?.filter(Boolean).length || 0);
-
-                const isCurrentSeller = currentUser && (
-                  String(item.user?.id) === String(currentUser.id) ||
-                  (item.user?.name && currentUser.name && item.user.name.toLowerCase() === currentUser.name.toLowerCase()) ||
-                  (item.user?.name && (currentUser as any).username && item.user.name.toLowerCase() === (currentUser as any).username.toLowerCase())
-                );
-                const sellerAvatar = item.user?.avatar || (isCurrentSeller ? currentUser.avatar : null);
-                const sellerName = item.user?.name || (isCurrentSeller ? currentUser.name : "Seller");
-                const sellerLocation = item.user?.location || null;
+                if (enrolledDeals.length === 0) return null;
 
                 return (
-                  <article
-                    key={item.id}
-                    className="item-card"
-                    onClick={() => handleViewItem(item)}
-                  >
-                    <div className="item-img-wrap">
-                      {item.image ? (
-                        <img
-                          src={getImageUrl(item.image)}
-                          alt={item.name}
-                          className="item-card-img"
-                          style={totalStock <= 0 ? { opacity: 0.82 } : undefined}
-                          loading="lazy"
-                          decoding="async"
-                          onError={(e) => {
-                            e.currentTarget.onerror = null;
-                            e.currentTarget.style.display = "none";
-                            const card = e.currentTarget.closest(".item-card");
-                            const placeholder = card?.querySelector(".item-image-placeholder") as HTMLElement;
-                            if (placeholder) placeholder.style.display = "flex";
-                          }}
-                        />
-                      ) : null}
-                      <div className="item-image-placeholder" style={{ display: item.image ? "none" : "flex" }}>
-                        <svg width="38" height="38" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-                          <rect x="3" y="3" width="18" height="18" rx="2" />
-                          <circle cx="8.5" cy="8.5" r="1.5" />
-                          <polyline points="21 15 16 10 5 21" />
-                        </svg>
+                  <section id="flash-deals-anchor" className="flash-deals-banner">
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+                        <h2 style={{ fontFamily: "'Plus Jakarta Sans', 'Inter', sans-serif", fontSize: 15.5, fontWeight: 700, color: "#111827", margin: 0 }}>
+                          Flash Deals
+                        </h2>
+                        <div style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 12, color: "#4B5563", fontWeight: 600 }}>
+                          <span>Ends in</span>
+                          <span className="flash-clock-box">{String(flashCountdown.hours).padStart(2, "0")}</span>
+                          <span>:</span>
+                          <span className="flash-clock-box">{String(flashCountdown.minutes).padStart(2, "0")}</span>
+                          <span>:</span>
+                          <span className="flash-clock-box">{String(flashCountdown.seconds).padStart(2, "0")}</span>
+                        </div>
                       </div>
 
-                      {totalStock <= 0 ? (
-                        <span style={{
-                          position: "absolute",
-                          top: 8,
-                          left: 8,
-                          background: "rgba(17, 24, 39, 0.82)",
-                          color: "#FFFFFF",
-                          fontSize: 10.5,
-                          fontWeight: 600,
-                          padding: "3px 8px",
-                          borderRadius: 5,
-                          zIndex: 2
-                        }}>
-                          Sold Out
-                        </span>
-                      ) : activeDeal ? (
-                        <span style={{
-                          position: "absolute",
-                          top: 8,
-                          left: 8,
-                          background: "#DC2626",
-                          color: "#FFFFFF",
-                          fontSize: 10.5,
-                          fontWeight: 700,
-                          padding: "3px 7px",
-                          borderRadius: 5,
-                          zIndex: 2
-                        }}>
-                          -{activeDeal.discount_pct || 20}%
-                        </span>
-                      ) : null}
-
-                      {photoCount > 1 && (
-                        <span style={{
-                          position: "absolute",
-                          bottom: 8,
-                          right: 8,
-                          background: "rgba(17, 24, 39, 0.62)",
-                          color: "#FFFFFF",
-                          fontSize: 10,
-                          fontWeight: 600,
-                          padding: "2px 6px",
-                          borderRadius: 4,
-                          fontVariantNumeric: "tabular-nums",
-                          zIndex: 2
-                        }}>
-                          1/{photoCount}
-                        </span>
-                      )}
-                    </div>
-
-                    <div className="item-content">
-                      <span className="item-cat-text">{item.category || "General"}</span>
-                      <h2 className="item-name">{item.name}</h2>
-
-                      <div className="item-price-row">
-                        {(() => {
-                          const origPrice = parseFloat(item.price) || 0;
-                          if (activeDeal) {
-                            const fPrice = Number(activeDeal.flash_price);
-                            return (
-                              <>
-                                <span className="item-price" style={{ color: "#DC2626" }}>
-                                  ₱{fPrice.toFixed(2)}
-                                </span>
-                                {origPrice > fPrice && (
-                                  <span style={{ fontSize: 12, color: "#9CA3AF", textDecoration: "line-through", fontVariantNumeric: "tabular-nums" }}>
-                                    ₱{origPrice.toFixed(2)}
-                                  </span>
-                                )}
-                              </>
-                            );
-                          }
-                          return (
-                            <span className="item-price" style={totalStock <= 0 ? { color: "#6B7280" } : undefined}>
-                              {formatPriceDisplay(item)}
-                            </span>
-                          );
-                        })()}
-                      </div>
-
-                      {/* 100% True Ratings, Sales, and Inventory Row */}
-                      <div className="item-stats-line">
-                        {realReviewsCount > 0 && (
-                          <>
-                            <span style={{ display: "inline-flex", alignItems: "center", gap: 3, color: "#111827", fontWeight: 600 }}>
-                              <svg width="12" height="12" viewBox="0 0 24 24" fill="#F59E0B" aria-hidden="true">
-                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.27 5.82 22 7 14.14l-5-4.87 6.91-1.01L12 2z" />
-                              </svg>
-                              {realAvgRating.toFixed(1)}
-                              <span style={{ color: "#6B7280", fontWeight: 400 }}>({realReviewsCount})</span>
-                            </span>
-                            <span aria-hidden="true">·</span>
-                          </>
-                        )}
-                        <span>{realSoldCount} sold</span>
-                        <span aria-hidden="true">·</span>
-                        {totalStock <= 0 ? (
-                          <span style={{ color: "#DC2626", fontWeight: 600 }}>Out of stock</span>
-                        ) : totalStock <= 5 ? (
-                          <span style={{ color: "#B45309", fontWeight: 600 }}>Only {totalStock} left</span>
-                        ) : (
-                          <span>{totalStock} in stock</span>
-                        )}
-                      </div>
-
-                      {/* Action Buttons */}
-                      <div className="card-actions-row" onClick={(e) => e.stopPropagation()}>
-                        {totalStock > 0 ? (
-                          <>
-                            <button
-                              type="button"
-                              className="add-cart-btn"
-                              onClick={() => {
-                                if (isFootwearCategory(item.category) && item.attributes?.sizes && item.attributes.sizes.length > 0) {
-                                  handleViewItem(item);
-                                } else {
-                                  const dealPrice = activeDeal ? String(activeDeal.flash_price) : (item.attributes?.variant_prices?.[0] || item.price);
-                                  handleAddToCart(item, item.attributes?.colors?.[0] || "", dealPrice);
-                                }
-                              }}
-                              disabled={addingToCart === item.id}
-                            >
-                              <IconCart />
-                              <span>{addingToCart === item.id ? "Adding..." : "Add to Cart"}</span>
-                            </button>
-                            <button
-                              type="button"
-                              className="buy-btn"
-                              style={activeDeal ? { background: "#DC2626", borderColor: "#DC2626" } : undefined}
-                              onClick={() => {
-                                if (isFootwearCategory(item.category) && item.attributes?.sizes && item.attributes.sizes.length > 0) {
-                                  handleViewItem(item);
-                                } else {
-                                  const dealPrice = activeDeal ? String(activeDeal.flash_price) : (item.attributes?.variant_prices?.[0] || item.price);
-                                  setBuyModal({ item, variation: item.attributes?.colors?.[0] || "", price: dealPrice, variantIdx: 0 });
-                                }
-                              }}
-                            >
-                              {activeDeal ? "Buy Deal" : "Buy Now"}
-                            </button>
-                          </>
-                        ) : (
+                      {flashCoupon && (() => {
+                        const isClaimed = copiedVoucher === flashCoupon.code || claimedVoucher === flashCoupon.code;
+                        const discountText = flashCoupon.discount_type === "percent"
+                          ? `${flashCoupon.discount || flashCoupon.discount_value}% OFF`
+                          : `₱${flashCoupon.discount_value} OFF`;
+                        return (
                           <button
                             type="button"
-                            className="buy-btn"
-                            disabled
-                            style={{ background: "#F3F4F6", borderColor: "#E5E7EB", color: "#9CA3AF", cursor: "not-allowed" }}
+                            onClick={() => claimVoucher(flashCoupon.code, discountText)}
+                            style={{
+                              fontSize: 12,
+                              fontWeight: 600,
+                              color: isClaimed ? "#0D6847" : "#111827",
+                              background: isClaimed ? "#ECFDF5" : "#F9FAFB",
+                              border: isClaimed ? "1px solid #A7F3D0" : "1px solid #D1D5DB",
+                              padding: "5px 12px",
+                              borderRadius: 6,
+                              cursor: "pointer",
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: 6
+                            }}
                           >
-                            Out of Stock
+                            <span style={{ fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace", fontWeight: 700 }}>{flashCoupon.code}</span>
+                            <span>· {isClaimed ? "Claimed" : discountText}</span>
                           </button>
-                        )}
-                      </div>
+                        );
+                      })()}
+                    </div>
 
-                      {/* Compact Seller Strip */}
-                      <div className="card-seller-row">
-                        <div className="card-seller-left">
-                          {sellerAvatar ? (
+                    <div className="flash-items-slider">
+                      {enrolledDeals.map(({ product: fItem, deal }) => {
+                        const originalPrice = parseFloat(fItem.price) || 0;
+                        const flashPrice = Number(deal.flash_price);
+                        const discountPct = deal.discount_pct || (originalPrice > 0 ? Math.max(1, Math.round(((originalPrice - flashPrice) / originalPrice) * 100)) : 15);
+                        const stockRemaining = deal.stock !== undefined && deal.stock !== null ? Number(deal.stock) : calculateTotalStock(fItem);
+
+                        return (
+                          <div
+                            key={fItem.id}
+                            className="flash-card-box"
+                            onClick={() => handleViewItem(fItem)}
+                            style={{
+                              background: "#FFFFFF",
+                              borderRadius: 8,
+                              border: "1px solid #E5E7EB",
+                              padding: 10,
+                              cursor: "pointer",
+                              display: "flex",
+                              flexDirection: "column",
+                              justifyContent: "space-between",
+                              gap: 8
+                            }}
+                          >
+                            <div style={{ position: "relative", width: "100%", aspectRatio: "1/1", borderRadius: 6, overflow: "hidden", background: "#F3F4F6" }}>
+                              {fItem.image ? (
+                                <img src={getImageUrl(fItem.image)} alt={fItem.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                              ) : null}
+                              <span style={{ position: "absolute", top: 8, left: 8, background: "#DC2626", color: "#FFFFFF", fontSize: 10.5, fontWeight: 700, padding: "2px 6px", borderRadius: 4 }}>
+                                -{discountPct}%
+                              </span>
+                            </div>
+                            <div>
+                              <div style={{ fontSize: 13, fontWeight: 600, color: "#111827", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                                {fItem.name}
+                              </div>
+                              <div style={{ display: "flex", alignItems: "baseline", gap: 6, marginTop: 2 }}>
+                                <span style={{ fontSize: 15, fontWeight: 700, color: "#DC2626", fontVariantNumeric: "tabular-nums" }}>
+                                  ₱{flashPrice.toFixed(2)}
+                                </span>
+                                {originalPrice > flashPrice && (
+                                  <span style={{ fontSize: 11.5, color: "#9CA3AF", textDecoration: "line-through", fontVariantNumeric: "tabular-nums" }}>
+                                    ₱{originalPrice.toFixed(2)}
+                                  </span>
+                                )}
+                              </div>
+                              <div style={{ fontSize: 11, color: "#6B7280", marginTop: 3 }}>
+                                {stockRemaining > 0 ? `${stockRemaining} remaining at deal price` : "Deal stock sold out"}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </section>
+                );
+              })()}
+
+              {/* HORIZONTAL E-COMMERCE SORT BAR */}
+              <div className="commerce-sort-bar">
+                <div className="sort-bar-left">
+                  <button
+                    type="button"
+                    className="mobile-filter-trigger"
+                    onClick={() => setIsMobileFiltersOpen(true)}
+                  >
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                      <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+                    </svg>
+                    <span>Filters{activeSidebarFilterCount > 0 ? ` (${activeSidebarFilterCount})` : ""}</span>
+                  </button>
+
+                  <span className="sort-bar-label">Sort by</span>
+
+                  {[
+                    { id: "featured", label: "Recommended" },
+                    { id: "newest", label: "Latest" },
+                    { id: "popular", label: "Top Sales" },
+                    { id: "rating", label: "Top Rated" },
+                  ].map((opt) => (
+                    <button
+                      key={opt.id}
+                      type="button"
+                      className={`sort-pill-btn ${sortBy === opt.id ? "active" : ""}`}
+                      onClick={() => setSortBy(opt.id as any)}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+
+                  <select
+                    aria-label="Sort by price"
+                    className={`sort-price-select ${sortBy === "price-asc" || sortBy === "price-desc" ? "active" : ""}`}
+                    value={sortBy === "price-asc" || sortBy === "price-desc" ? sortBy : ""}
+                    onChange={(e) => {
+                      if (e.target.value) setSortBy(e.target.value as any);
+                    }}
+                  >
+                    <option value="" disabled>Price</option>
+                    <option value="price-asc">Price: Low to High</option>
+                    <option value="price-desc">Price: High to Low</option>
+                  </select>
+                </div>
+
+                {!loading && (
+                  <div className="sort-bar-right">
+                    <span>
+                      <strong style={{ color: "#0D6847" }}>{filteredInStockCount}</strong> in stock
+                      {" · "}
+                      <strong style={{ color: "#111827" }}>{filteredItems.length}</strong> {filteredItems.length === 1 ? "listing" : "listings"}
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              {/* Active Filter Chips */}
+              {(hasAnyCatalogFilter || claimedVoucher) && (
+                <div className="active-filters-row">
+                  {selectedCategory !== "All" && (
+                    <span className="filter-chip">
+                      Category: <strong>{activeCategoryLabel}</strong>
+                      <button type="button" onClick={() => setSelectedCategory("All")} aria-label="Remove category filter">✕</button>
+                    </span>
+                  )}
+                  {searchQuery.trim() !== "" && (
+                    <span className="filter-chip">
+                      Search: <strong>&ldquo;{searchQuery.trim()}&rdquo;</strong>
+                      <button type="button" onClick={() => setSearchQuery("")} aria-label="Clear search query">✕</button>
+                    </span>
+                  )}
+                  {inStockOnly && (
+                    <span className="filter-chip">
+                      <strong>In Stock Only</strong>
+                      <button type="button" onClick={() => setInStockOnly(false)} aria-label="Remove in stock filter">✕</button>
+                    </span>
+                  )}
+                  {(appliedMinPrice !== null || appliedMaxPrice !== null) && (
+                    <span className="filter-chip">
+                      Price: <strong>{appliedMinPrice !== null ? `₱${appliedMinPrice}` : "₱0"} – {appliedMaxPrice !== null ? `₱${appliedMaxPrice}` : "Any"}</strong>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setAppliedMinPrice(null);
+                          setAppliedMaxPrice(null);
+                          setMinPriceInput("");
+                          setMaxPriceInput("");
+                        }}
+                        aria-label="Remove price filter"
+                      >
+                        ✕
+                      </button>
+                    </span>
+                  )}
+                  {selectedSellerCity !== "All" && (
+                    <span className="filter-chip">
+                      Ships from: <strong>{selectedSellerCity}</strong>
+                      <button type="button" onClick={() => setSelectedSellerCity("All")} aria-label="Remove location filter">✕</button>
+                    </span>
+                  )}
+                  {minRatingFilter > 0 && (
+                    <span className="filter-chip">
+                      Rating: <strong>{minRatingFilter}★ &amp; up</strong>
+                      <button type="button" onClick={() => setMinRatingFilter(0)} aria-label="Remove rating filter">✕</button>
+                    </span>
+                  )}
+                  {claimedVoucher && (
+                    <span className="filter-chip" style={{ borderColor: "#A7F3D0", background: "#ECFDF5", color: "#065F46" }}>
+                      Voucher: <strong>{claimedVoucher}</strong>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          localStorage.removeItem("claimed_voucher");
+                          setClaimedVoucher(null);
+                        }}
+                        aria-label="Remove claimed voucher"
+                        style={{ color: "#065F46" }}
+                      >
+                        ✕
+                      </button>
+                    </span>
+                  )}
+                </div>
+              )}
+
+              {/* PRODUCT CATALOG GRID */}
+              {loading ? (
+                <div className="grid">
+                  {Array.from({ length: 8 }).map((_, i) => (
+                    <SkeletonShopCard key={i} />
+                  ))}
+                </div>
+              ) : filteredItems.length === 0 ? (
+                <div className="empty-state">
+                  <div className="empty-icon">
+                    <svg width="42" height="42" fill="none" stroke="#9CA3AF" strokeWidth="1.5" viewBox="0 0 24 24">
+                      <path d="M6 2L3 7v13a2 2 0 002 2h14a2 2 0 002-2V7l-3-5H6z" />
+                      <line x1="3" y1="7" x2="21" y2="7" />
+                      <path d="M16 11a4 4 0 01-8 0" />
+                    </svg>
+                  </div>
+                  <div className="empty-text">No matching listings found</div>
+                  <p className="subtitle">
+                    {hasAnyCatalogFilter
+                      ? "Try adjusting your price range, availability, or category filters."
+                      : "New listings from sellers will appear here once published."}
+                  </p>
+                  {hasAnyCatalogFilter && (
+                    <button
+                      type="button"
+                      onClick={resetAllCatalogFilters}
+                      style={{
+                        marginTop: 16,
+                        padding: "8px 16px",
+                        borderRadius: 7,
+                        border: "1px solid #111827",
+                        background: "#111827",
+                        color: "#FFFFFF",
+                        fontSize: 13,
+                        fontWeight: 600,
+                        cursor: "pointer"
+                      }}
+                    >
+                      Reset All Filters
+                    </button>
+                  )}
+                </div>
+              ) : (
+                <div className="grid">
+                  {filteredItems.map((item) => {
+                    const attrs = parseItemAttributes(item);
+                    const activeDeal = getActiveFlashDeal(item.id);
+                    const totalStock = calculateTotalStock(item);
+                    const effectivePrice = getEffectiveNumericPrice(item);
+                    const isBuyable = totalStock > 0 && effectivePrice > 0;
+                    const realReviewsCount = Number(item.reviews_count || 0);
+                    const realAvgRating = Number(item.reviews_avg_rating || 0);
+                    const realSoldCount = Number(item.sold_count || 0);
+                    const photoCount = (attrs?.main_images?.length || (item.image ? 1 : 0)) + (attrs?.variant_image_paths?.filter(Boolean).length || 0);
+                    const hasVideo = Boolean(attrs?.video_path);
+
+                    const isCurrentSeller = currentUser && (
+                      String(item.user?.id) === String(currentUser.id) ||
+                      (item.user?.name && currentUser.name && item.user.name.toLowerCase() === currentUser.name.toLowerCase()) ||
+                      (item.user?.name && (currentUser as any).username && item.user.name.toLowerCase() === (currentUser as any).username.toLowerCase())
+                    );
+                    const sellerAvatar = item.user?.avatar || (isCurrentSeller ? currentUser.avatar : null);
+                    const sellerName = item.user?.name || (isCurrentSeller ? currentUser.name : "Seller");
+                    const sellerLocation = item.user?.location || (item as any).location || null;
+
+                    return (
+                      <article
+                        key={item.id}
+                        className={`item-card ${totalStock <= 0 ? "sold-out-card" : ""}`}
+                        onClick={() => handleViewItem(item)}
+                      >
+                        <div className="item-img-wrap">
+                          {item.image ? (
                             <img
-                              src={getAvatarUrl(sellerAvatar)}
-                              alt=""
-                              style={{ width: 20, height: 20, borderRadius: "50%", objectFit: "cover", border: "1px solid #E5E7EB", flexShrink: 0 }}
+                              src={getImageUrl(item.image)}
+                              alt={item.name}
+                              className="item-card-img"
+                              style={totalStock <= 0 ? { opacity: 0.65, filter: "grayscale(18%)" } : undefined}
+                              loading="lazy"
+                              decoding="async"
                               onError={(e) => {
                                 e.currentTarget.onerror = null;
-                                e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(sellerName)}&background=F3F4F6&color=111827&bold=true`;
+                                e.currentTarget.style.display = "none";
+                                const card = e.currentTarget.closest(".item-card");
+                                const placeholder = card?.querySelector(".item-image-placeholder") as HTMLElement;
+                                if (placeholder) placeholder.style.display = "flex";
                               }}
                             />
-                          ) : (
-                            <span style={{ width: 20, height: 20, borderRadius: "50%", background: "#F3F4F6", border: "1px solid #E5E7EB", color: "#111827", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 10.5, fontWeight: 700, flexShrink: 0 }}>
-                              {sellerName.charAt(0).toUpperCase()}
+                          ) : null}
+                          <div className="item-image-placeholder" style={{ display: item.image ? "none" : "flex" }}>
+                            <svg width="36" height="36" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                              <rect x="3" y="3" width="18" height="18" rx="2" />
+                              <circle cx="8.5" cy="8.5" r="1.5" />
+                              <polyline points="21 15 16 10 5 21" />
+                            </svg>
+                          </div>
+
+                          {totalStock <= 0 ? (
+                            <div style={{
+                              position: "absolute",
+                              inset: 0,
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              background: "rgba(17, 24, 39, 0.22)",
+                              zIndex: 2,
+                              pointerEvents: "none"
+                            }}>
+                              <span style={{
+                                background: "rgba(17, 24, 39, 0.88)",
+                                color: "#FFFFFF",
+                                fontSize: 11,
+                                fontWeight: 700,
+                                letterSpacing: "0.05em",
+                                textTransform: "uppercase",
+                                padding: "5px 12px",
+                                borderRadius: 999
+                              }}>
+                                Sold Out
+                              </span>
+                            </div>
+                          ) : activeDeal ? (
+                            <span style={{
+                              position: "absolute",
+                              top: 8,
+                              left: 8,
+                              background: "#DC2626",
+                              color: "#FFFFFF",
+                              fontSize: 10.5,
+                              fontWeight: 700,
+                              padding: "3px 7px",
+                              borderRadius: 4,
+                              zIndex: 2
+                            }}>
+                              -{activeDeal.discount_pct || 20}%
+                            </span>
+                          ) : null}
+
+                          {hasVideo && totalStock > 0 && (
+                            <span
+                              title="Includes product video"
+                              style={{
+                                position: "absolute",
+                                bottom: 8,
+                                left: 8,
+                                width: 22,
+                                height: 22,
+                                borderRadius: "50%",
+                                background: "rgba(17, 24, 39, 0.68)",
+                                color: "#FFFFFF",
+                                display: "inline-flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                zIndex: 2
+                              }}
+                            >
+                              <svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4" /></svg>
                             </span>
                           )}
-                          <span className="card-seller-name">{sellerName}</span>
+
+                          {photoCount > 1 && (
+                            <span style={{
+                              position: "absolute",
+                              bottom: 8,
+                              right: 8,
+                              background: "rgba(17, 24, 39, 0.62)",
+                              color: "#FFFFFF",
+                              fontSize: 10,
+                              fontWeight: 600,
+                              padding: "2px 6px",
+                              borderRadius: 4,
+                              fontVariantNumeric: "tabular-nums",
+                              zIndex: 2
+                            }}>
+                              1/{photoCount}
+                            </span>
+                          )}
                         </div>
 
-                        {sellerLocation && (
-                          <a
-                            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(sellerLocation)}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="card-seller-loc"
-                            onClick={(e) => e.stopPropagation()}
-                            title={`Seller location: ${sellerLocation}`}
-                          >
-                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ flexShrink: 0 }}>
-                              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                              <circle cx="12" cy="10" r="3" />
-                            </svg>
-                            <span style={{ overflow: "hidden", textOverflow: "ellipsis" }}>
-                              {sellerLocation.split(",")[0]}
-                            </span>
-                          </a>
-                        )}
-                      </div>
-                    </div>
-                  </article>
-                );
-              })}
+                        <div className="item-content">
+                          <div className="item-meta-top">
+                            <span className="item-cat-text">{item.category || "General"}</span>
+                            {totalStock <= 0 ? (
+                              <span className="item-stock-tag" style={{ color: "#DC2626" }}>Out of stock</span>
+                            ) : totalStock <= 5 ? (
+                              <span className="item-stock-tag" style={{ color: "#B45309" }}>Only {totalStock} left</span>
+                            ) : (
+                              <span className="item-stock-tag" style={{ color: "#0D6847" }}>{totalStock} in stock</span>
+                            )}
+                          </div>
+
+                          <h2 className="item-name">{item.name}</h2>
+
+                          <div className="item-price-row">
+                            {(() => {
+                              const origPrice = parseFloat(item.price) || 0;
+                              if (activeDeal && Number(activeDeal.flash_price) > 0) {
+                                const fPrice = Number(activeDeal.flash_price);
+                                return (
+                                  <>
+                                    <span className="item-price" style={{ color: "#DC2626" }}>
+                                      ₱{fPrice.toFixed(2)}
+                                    </span>
+                                    {origPrice > fPrice && (
+                                      <span style={{ fontSize: 11.5, color: "#9CA3AF", textDecoration: "line-through", fontVariantNumeric: "tabular-nums" }}>
+                                        ₱{origPrice.toFixed(2)}
+                                      </span>
+                                    )}
+                                  </>
+                                );
+                              }
+                              const priceLabel = formatPriceDisplay(item);
+                              const isUnavailableLabel = priceLabel === "Unavailable" || priceLabel === "Price on inquiry";
+                              return (
+                                <span
+                                  className="item-price"
+                                  style={
+                                    totalStock <= 0 || isUnavailableLabel
+                                      ? { color: "#6B7280", fontSize: isUnavailableLabel ? 14 : undefined, fontWeight: isUnavailableLabel ? 600 : undefined }
+                                      : undefined
+                                  }
+                                >
+                                  {priceLabel}
+                                </span>
+                              );
+                            })()}
+                          </div>
+
+                          {/* 100% True Ratings & Sold Row */}
+                          <div className="item-stats-line">
+                            {realReviewsCount > 0 ? (
+                              <span style={{ display: "inline-flex", alignItems: "center", gap: 3, color: "#111827", fontWeight: 600 }}>
+                                <svg width="11.5" height="11.5" viewBox="0 0 24 24" fill="#F59E0B" aria-hidden="true">
+                                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.27 5.82 22 7 14.14l-5-4.87 6.91-1.01L12 2z" />
+                                </svg>
+                                {realAvgRating.toFixed(1)}
+                                <span style={{ color: "#6B7280", fontWeight: 400 }}>({realReviewsCount})</span>
+                              </span>
+                            ) : (
+                              <span style={{ color: "#9CA3AF" }}>No ratings yet</span>
+                            )}
+                            <span>{realSoldCount} sold</span>
+                          </div>
+
+                          {/* Proportioned Real E-Commerce Action Row */}
+                          <div className="card-actions-row" onClick={(e) => e.stopPropagation()}>
+                            {isBuyable ? (
+                              <>
+                                <button
+                                  type="button"
+                                  className="card-cart-icon-btn"
+                                  title="Add to Cart"
+                                  aria-label={`Add ${item.name} to cart`}
+                                  onClick={() => {
+                                    if (isFootwearCategory(item.category) && attrs?.sizes && attrs.sizes.length > 0) {
+                                      handleViewItem(item);
+                                    } else {
+                                      const dealPrice = activeDeal ? String(activeDeal.flash_price) : (attrs?.variant_prices?.[0] || String(effectivePrice));
+                                      handleAddToCart(item, attrs?.colors?.[0] || "", dealPrice);
+                                    }
+                                  }}
+                                  disabled={addingToCart === item.id}
+                                >
+                                  <IconCart />
+                                </button>
+                                <button
+                                  type="button"
+                                  className="buy-btn"
+                                  style={activeDeal ? { background: "#DC2626", borderColor: "#DC2626" } : undefined}
+                                  onClick={() => {
+                                    if (isFootwearCategory(item.category) && attrs?.sizes && attrs.sizes.length > 0) {
+                                      handleViewItem(item);
+                                    } else {
+                                      const dealPrice = activeDeal ? String(activeDeal.flash_price) : (attrs?.variant_prices?.[0] || String(effectivePrice));
+                                      setBuyModal({ item, variation: attrs?.colors?.[0] || "", price: dealPrice, variantIdx: 0 });
+                                    }
+                                  }}
+                                >
+                                  {addingToCart === item.id ? "Adding..." : activeDeal ? "Buy Deal" : "Buy Now"}
+                                </button>
+                              </>
+                            ) : totalStock > 0 ? (
+                              <button
+                                type="button"
+                                className="buy-btn"
+                                style={{ background: "#FFFFFF", borderColor: "#D1D5DB", color: "#111827" }}
+                                onClick={() => handleViewItem(item)}
+                              >
+                                View Details
+                              </button>
+                            ) : (
+                              <button
+                                type="button"
+                                className="buy-btn"
+                                disabled
+                                style={{ background: "#F3F4F6", borderColor: "#E5E7EB", color: "#9CA3AF", cursor: "not-allowed" }}
+                              >
+                                Sold Out
+                              </button>
+                            )}
+                          </div>
+
+                          {/* Seller & City Footer */}
+                          <div className="card-seller-row">
+                            <div className="card-seller-left">
+                              {sellerAvatar ? (
+                                <img
+                                  src={getAvatarUrl(sellerAvatar)}
+                                  alt=""
+                                  style={{ width: 18, height: 18, borderRadius: "50%", objectFit: "cover", border: "1px solid #E5E7EB", flexShrink: 0 }}
+                                  onError={(e) => {
+                                    e.currentTarget.onerror = null;
+                                    e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(sellerName)}&background=F3F4F6&color=111827&bold=true`;
+                                  }}
+                                />
+                              ) : (
+                                <span style={{ width: 18, height: 18, borderRadius: "50%", background: "#F3F4F6", border: "1px solid #E5E7EB", color: "#111827", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 700, flexShrink: 0 }}>
+                                  {sellerName.charAt(0).toUpperCase()}
+                                </span>
+                              )}
+                              <span className="card-seller-name">{sellerName}</span>
+                            </div>
+
+                            {sellerLocation && (
+                              <a
+                                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(sellerLocation)}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="card-seller-loc"
+                                onClick={(e) => e.stopPropagation()}
+                                title={`Seller location: ${sellerLocation}`}
+                              >
+                                <svg width="10.5" height="10.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ flexShrink: 0 }}>
+                                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                                  <circle cx="12" cy="10" r="3" />
+                                </svg>
+                                <span style={{ overflow: "hidden", textOverflow: "ellipsis" }}>
+                                  {sellerLocation.split(",")[0]}
+                                </span>
+                              </a>
+                            )}
+                          </div>
+                        </div>
+                      </article>
+                    );
+                  })}
+                </div>
+              )}
             </div>
-          )}
+          </div>
         </main>
+
+        {/* MOBILE / TABLET SLIDE-OVER FILTER DRAWER */}
+        {isMobileFiltersOpen && (
+          <div className="mobile-filter-backdrop" onClick={() => setIsMobileFiltersOpen(false)}>
+            <div className="mobile-filter-sheet" onClick={(e) => e.stopPropagation()}>
+              <div className="mobile-filter-sheet-head">
+                <span style={{ fontSize: 15, fontWeight: 700, color: "#111827" }}>Search Filters</span>
+                <button
+                  type="button"
+                  onClick={() => setIsMobileFiltersOpen(false)}
+                  style={{ width: 32, height: 32, borderRadius: 6, border: "1px solid #E5E7EB", background: "#FFFFFF", cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center" }}
+                  aria-label="Close filters"
+                >
+                  <IconClose />
+                </button>
+              </div>
+              <div className="mobile-filter-sheet-body">
+                {renderSidebarFilterControls(true)}
+              </div>
+              <div className="mobile-filter-sheet-foot">
+                <button
+                  type="button"
+                  onClick={() => setIsMobileFiltersOpen(false)}
+                  style={{ width: "100%", height: 40, borderRadius: 7, border: "none", background: "#111827", color: "#FFFFFF", fontSize: 13.5, fontWeight: 600, cursor: "pointer" }}
+                >
+                  Show {filteredItems.length} {filteredItems.length === 1 ? "Listing" : "Listings"}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* ——— STOREFRONT FOOTER ——— */}
         <footer style={{ background: "#FFFFFF", borderTop: "1px solid #E5E7EB", marginTop: "auto", padding: "40px 24px 24px", color: "#4B5563" }}>
@@ -3239,6 +3854,40 @@ function MarketplaceContent() {
 
                   <div className="modal-actions-container">
                     {(() => {
+                      const modalTotalStock = calculateTotalStock(viewItem);
+                      const modalEffectivePrice = getEffectiveNumericPrice(viewItem);
+                      if (modalTotalStock <= 0 || modalEffectivePrice <= 0) {
+                        return (
+                          <>
+                            <button
+                              type="button"
+                              className="buy-btn"
+                              disabled
+                              style={{ height: 50, flex: 1.4, background: "#F3F4F6", borderColor: "#E5E7EB", color: "#9CA3AF", cursor: "not-allowed" }}
+                            >
+                              {modalTotalStock <= 0 ? "Sold Out — Out of Stock" : "Unavailable for Direct Checkout"}
+                            </button>
+                            <button
+                              type="button"
+                              className="add-cart-btn"
+                              style={{ height: 50, flex: 1 }}
+                              onClick={() => {
+                                const token = localStorage.getItem("token");
+                                if (!token) {
+                                  setErrorMsg("Please log in to chat with sellers.");
+                                  return;
+                                }
+                                setActiveChatUser(viewItem.user);
+                                setIsActiveUserOnline(!!viewItem.user.is_online);
+                                setIsChatOpen(true);
+                              }}
+                            >
+                              <IconChat /> Message Seller
+                            </button>
+                          </>
+                        );
+                      }
+
                       const activeFlashDeal = getActiveFlashDeal(viewItem.id);
                       const isDeal = !!activeFlashDeal;
                       const dealPriceNum = isDeal ? Number(activeFlashDeal.flash_price) : null;
@@ -3683,13 +4332,18 @@ function MarketplaceContent() {
               <div className="similar-products-section">
                 <span className="variant-section-label" style={{ fontSize: '16px', marginBottom: '24px' }}>Similar Products</span>
                 {(() => {
+                  const rankAvail = (x: ShopItem) => (calculateTotalStock(x) > 0 && getEffectiveNumericPrice(x) > 0 ? 1 : 0);
                   const similarItems = items
                     .filter(item => item.id !== viewItem.id && item.category === viewItem.category)
+                    .sort((a, b) => rankAvail(b) - rankAvail(a))
                     .slice(0, 4);
 
                   const displayItems = similarItems.length > 0
                     ? similarItems
-                    : items.filter(item => item.id !== viewItem.id).slice(0, 4);
+                    : items
+                        .filter(item => item.id !== viewItem.id)
+                        .sort((a, b) => rankAvail(b) - rankAvail(a))
+                        .slice(0, 4);
 
                   if (displayItems.length === 0) {
                     return <p style={{ color: '#6B7280', fontSize: '13.5px' }}>No other listings available yet.</p>;

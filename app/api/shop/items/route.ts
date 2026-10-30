@@ -202,8 +202,41 @@ export async function GET() {
       }
     }
 
+    const parseAttributes = (raw: any) => {
+      if (!raw) return null;
+      if (typeof raw === "string") {
+        try {
+          const parsed = JSON.parse(raw);
+          return parsed && typeof parsed === "object" ? parsed : null;
+        } catch {
+          return null;
+        }
+      }
+      return typeof raw === "object" ? raw : null;
+    };
+
+    const computeItemStock = (item: any, attrs: any) => {
+      if (attrs?.size_stocks && typeof attrs.size_stocks === "object" && Object.keys(attrs.size_stocks).length > 0) {
+        return Object.values(attrs.size_stocks).reduce((acc: number, qty: any) => acc + Number(qty || 0), 0);
+      }
+      return Number(item.stock || 0);
+    };
+
+    const computeEffectivePrice = (item: any, attrs: any) => {
+      const base = parseFloat(String(item.price ?? "0")) || 0;
+      if (base > 0) return base;
+      if (Array.isArray(attrs?.variant_prices) && attrs.variant_prices.length > 0) {
+        const valid = attrs.variant_prices
+          .map((p: any) => parseFloat(String(p)))
+          .filter((p: number) => !isNaN(p) && p > 0);
+        if (valid.length > 0) return Math.min(...valid);
+      }
+      return 0;
+    };
+
     const items = publishedDocs.map((docSnap) => {
       const item = docSnap.data();
+      const normalizedAttrs = parseAttributes(item.attributes);
       const itemKey = String(item.id ?? docSnap.id);
       const itemUser = item.user || {};
       const sellerId = String(itemUser.id || item.user_id || "");
@@ -251,6 +284,7 @@ export async function GET() {
 
       return {
         ...item,
+        attributes: normalizedAttrs,
         sold_count: realSoldCount,
         reviews_count: realReviewsCount,
         reviews_avg_rating: realAvgRating,
@@ -270,6 +304,27 @@ export async function GET() {
           accepted_orders: sellerOrderStats.fulfilled,
         }
       };
+    });
+
+    // Arrange catalog in real e-commerce merchandising order:
+    // 1) In-stock & priced listings first, 2) In-stock listings next, 3) Out-of-stock listings pushed to the end
+    items.sort((a: any, b: any) => {
+      const stockA = computeItemStock(a, a.attributes);
+      const stockB = computeItemStock(b, b.attributes);
+      const priceA = computeEffectivePrice(a, a.attributes);
+      const priceB = computeEffectivePrice(b, b.attributes);
+
+      const tierA = stockA > 0 && priceA > 0 ? 2 : stockA > 0 ? 1 : 0;
+      const tierB = stockB > 0 && priceB > 0 ? 2 : stockB > 0 ? 1 : 0;
+      if (tierA !== tierB) return tierB - tierA;
+
+      const engA = Number(a.sold_count || 0) * 2 + Number(a.reviews_count || 0);
+      const engB = Number(b.sold_count || 0) * 2 + Number(b.reviews_count || 0);
+      if (engA !== engB) return engB - engA;
+
+      const timeA = new Date(a.created_at || 0).getTime() || Number(a.id || 0);
+      const timeB = new Date(b.created_at || 0).getTime() || Number(b.id || 0);
+      return timeB - timeA;
     });
 
     return NextResponse.json({ items }, { status: 200 });
