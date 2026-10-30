@@ -291,3 +291,16 @@ test('shop storefront preserves sticky header, sidebar filters, and in-stock mer
   const itemsApiSrc = fs.readFileSync('app/api/shop/items/route.ts', 'utf8');
   assert.match(itemsApiSrc, /tierB\s*-\s*tierA/, 'Items API must arrange in-stock priced items ahead of out-of-stock items');
 });
+
+test('dashboard my-account view supports deep-link tab routing and authentic e-commerce order/shop workflows', () => {
+  const dashSrc = fs.readFileSync('app/dashboard/page.tsx', 'utf8');
+  assert.match(dashSrc, /new URLSearchParams\(window\.location\.search\)\.get\("tab"\)/, 'Dashboard must read ?tab= query param for deep linking');
+  assert.match(dashSrc, /setActiveTab\(requestedTab as SidebarTab\)/, 'Dashboard must activate the tab specified in URL');
+  assert.match(dashSrc, /My Purchases/, 'Dashboard account must include My Purchases section');
+  assert.match(dashSrc, /To Ship/, 'Dashboard account must include To Ship status');
+  assert.match(dashSrc, /To Receive/, 'Dashboard account must include To Receive status');
+  assert.match(dashSrc, /Completed/, 'Dashboard account must include Completed status');
+  assert.match(dashSrc, /Cancelled/, 'Dashboard account must include Cancelled status');
+  assert.match(dashSrc, /My Shop/, 'Dashboard account must include My Shop section');
+  assert.match(dashSrc, /acct-avatar-col/, 'Dashboard account must include standard avatar upload column');
+});

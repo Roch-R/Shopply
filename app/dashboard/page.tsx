@@ -1989,7 +1989,17 @@ export default function DashboardPage() {
         grantMarketplaceAccess(token);
         setUser(freshUser);
         setProfileName(freshUser.name);
+        setProfileLocation(freshUser.location || "");
         setReady(true);
+
+        if (typeof window !== "undefined") {
+          const requestedTab = new URLSearchParams(window.location.search).get("tab");
+          const deepLinkTabs: SidebarTab[] = ["profile", "orders", "store-orders", "my-items", "add-item", "notifications", "messages", "settings"];
+          if (requestedTab && (deepLinkTabs as string[]).includes(requestedTab)) {
+            setActiveTab(requestedTab as SidebarTab);
+            if (requestedTab === "orders") setOrdersExpanded(true);
+          }
+        }
 
         if (typeof window !== "undefined" && window.location.search.includes("notice=already_authenticated")) {
           const cleanUrl = new URL(window.location.href);
@@ -5106,229 +5116,416 @@ export default function DashboardPage() {
 
           {/* CONTENT */}
           <div className="content">
-            {/* ——— PROFILE TAB ——— */}
-            {activeTab === "profile" && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-                {/* Profile Welcome Header */}
-                <div className="profile-header">
-                  <div className="profile-avatar" style={{ position: 'relative', overflow: 'hidden' }}>
-                    {user.avatar && !avatarLoadFailed ? (
-                      <img
-                        src={getAvatarUrl(user.avatar)}
-                        alt=""
-                        onError={() => setAvatarLoadFailed(true)}
-                        fetchPriority="high"
-                        decoding="async"
-                        style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 0, position: 'absolute', top: 0, left: 0 }}
-                      />
-                    ) : initials}
-                  </div>
-                  <div className="profile-info">
-                    <div style={{ marginBottom: 6 }}>
-                      <span style={{ display: 'inline-block', background: '#ECFDF5', color: '#065F46', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', padding: '4px 10px', borderRadius: 6, border: '1px solid #A7F3D0', boxShadow: 'none' }}>
-                        Merchant & Buyer Account
-                      </span>
-                    </div>
-                    <h2>{user.name}</h2>
-                    <p>{user.email || user.username}</p>
-                  </div>
-                  <div className="profile-stats">
-                    <div className="profile-stat">
-                      <span className="profile-stat-icon"><IconStorefront /></span>
-                      <span>Products: <span className="profile-stat-val">{items.length}</span></span>
-                    </div>
-                    <div className="profile-stat">
-                      <span className="profile-stat-icon"><IconFollowers /></span>
-                      <span>Followers: <span className="profile-stat-val">{user.followers_count !== undefined ? user.followers_count : 0}</span></span>
-                    </div>
-                    <div className="profile-stat">
-                      <span className="profile-stat-icon"><IconFollowing /></span>
-                      <span>Following: <span className="profile-stat-val">{user.following_count !== undefined ? user.following_count : 0}</span></span>
-                    </div>
-                    <div className="profile-stat">
-                      <span className="profile-stat-icon"><IconStar /></span>
-                      <span>Rating: <span className="profile-stat-val">{user.reviews_avg_rating !== undefined ? Number(user.reviews_avg_rating).toFixed(1) : '0.0'} ({user.reviews_count || 0})</span></span>
-                    </div>
-                  </div>
-                </div>
-                <div className="info-cards" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 20 }}>
-                  <div className="info-card">
-                    <div className="info-card-label">Profile Settings</div>
-                    <form onSubmit={handleUpdateProfile} style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 20 }}>
-                      <div style={{ textAlign: 'center' }}>
-                        <div style={{ position: 'relative', width: 100, height: 100, margin: '0 auto 16px' }}>
-                          <div className="profile-avatar" style={{ width: 100, height: 100, fontSize: 32, overflow: 'hidden', borderRadius: 0 }}>
-                            {avatarPreview ? (
-                              <img src={avatarPreview} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 0 }} />
-                            ) : user.avatar && !avatarLoadFailed ? (
-                              <img
-                                src={getAvatarUrl(user.avatar)}
-                                alt=""
-                                onError={() => setAvatarLoadFailed(true)}
-                                style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 0 }}
-                              />
-                            ) : initials}
-                          </div>
-                          <label htmlFor="avatar-upload" style={{ position: 'absolute', bottom: 0, right: 0, background: '#111827', padding: 7, borderRadius: 0, boxShadow: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid #ffffff', color: '#ffffff' }}>
-                            <IconPlus />
-                          </label>
-                          <input
-                            id="avatar-upload"
-                            type="file"
-                            hidden
-                            accept="image/*"
-                            onChange={async (e) => {
-                              const file = e.target.files?.[0];
-                              if (file) {
-                                try {
-                                  const compressed = await compressImage(file, 400);
-                                  setAvatarFile(compressed);
-                                  setAvatarPreview(URL.createObjectURL(compressed));
-                                } catch (err) {
-                                  console.error("Failed to compress avatar", err);
-                                  setAvatarFile(file);
-                                  setAvatarPreview(URL.createObjectURL(file));
-                                }
-                              }
-                            }}
-                          />
+            {/* ——— PROFILE TAB (MY ACCOUNT) ——— */}
+            {activeTab === "profile" && (() => {
+              const buyerToShip = orders.filter(o => ['pending', 'processing'].includes(o.status)).length;
+              const buyerToReceive = orders.filter(o => o.status === 'shipped').length;
+              const buyerCompleted = orders.filter(o => ['delivered', 'completed'].includes(o.status)).length;
+              const buyerCancelled = orders.filter(o => ['cancelled', 'rejected', 'returns'].includes(o.status)).length;
+              const sellerNew = sellerOrders.filter(o => o.status === 'pending').length;
+              const sellerToShip = sellerOrders.filter(o => o.status === 'processing').length;
+              const outOfStockCount = items.filter(i => calculateTotalStock(i) <= 0).length;
+              const shopRating = Number(user.reviews_avg_rating || 0);
+              const shopRatingCount = Number(user.reviews_count || 0);
+              const usernameIsEmail = (user.username || "").includes("@");
+              const maskedEmail = (() => {
+                const em = user.email || "";
+                const at = em.indexOf("@");
+                if (at <= 0) return em;
+                const name = em.slice(0, at);
+                const visible = name.length <= 2 ? name.slice(0, 1) : name.slice(0, 2);
+                return `${visible}${"*".repeat(Math.max(3, name.length - visible.length))}${em.slice(at)}`;
+              })();
+              const joinedLabel = new Date(user.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+              const goToBuyerOrders = (tab: string) => {
+                setActiveTab('orders');
+                setOrdersExpanded(true);
+                setOrderTab(tab);
+                setOrdersPage(1);
+              };
+              const goToStoreOrders = (tab: string) => {
+                setActiveTab('store-orders');
+                setStoreOrderTab(tab);
+                setStoreOrdersPage(1);
+              };
+
+              const detectProfileLocation = () => {
+                if (!navigator.geolocation) {
+                  showToast("Geolocation is not supported by your browser.", "error");
+                  return;
+                }
+                setDetectingLocation(true);
+                navigator.geolocation.getCurrentPosition(
+                  async (position) => {
+                    try {
+                      const { latitude, longitude } = position.coords;
+                      const res = await fetch(
+                        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=12&addressdetails=1`,
+                        { headers: { 'Accept-Language': 'en' } }
+                      );
+                      const data = await res.json();
+                      const addr = data.address;
+                      const city = addr?.city || addr?.town || addr?.municipality || addr?.village || addr?.county || "";
+                      const state = addr?.state || addr?.region || "";
+                      const locationStr = [city, state].filter(Boolean).join(", ");
+                      if (locationStr) {
+                        setProfileLocation(locationStr);
+                        showToast(`Location detected: ${locationStr}`, "success");
+                      } else {
+                        setProfileLocation(data.display_name?.split(",").slice(0, 2).join(",").trim() || "");
+                        showToast("Location detected!", "success");
+                      }
+                    } catch (err) {
+                      console.error("Reverse geocoding error:", err);
+                      showToast("Could not determine your location name.", "error");
+                    } finally {
+                      setDetectingLocation(false);
+                    }
+                  },
+                  (err) => {
+                    console.error("Geolocation error:", err);
+                    setDetectingLocation(false);
+                    if (err.code === 1) {
+                      showToast("Location access denied. Please allow location in your browser settings.", "error");
+                    } else {
+                      showToast("Could not get your location. Please enter it manually.", "error");
+                    }
+                  },
+                  { enableHighAccuracy: true, timeout: 10000 }
+                );
+              };
+
+              const truckIcon = <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.7" viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>;
+              const boxIcon = <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.7" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>;
+              const checkIcon = <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.7" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>;
+              const xIcon = <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.7" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>;
+              const bellIcon = <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.7" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>;
+              const tagIcon = <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.7" viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>;
+              const alertIcon = <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.7" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>;
+
+              const purchaseTiles = [
+                { id: 'processing', label: 'To Ship', count: buyerToShip, icon: boxIcon },
+                { id: 'shipped', label: 'To Receive', count: buyerToReceive, icon: truckIcon },
+                { id: 'delivered', label: 'Completed', count: buyerCompleted, icon: checkIcon },
+                { id: 'returns', label: 'Cancelled', count: buyerCancelled, icon: xIcon },
+              ];
+
+              const shopTiles = [
+                { key: 'new', label: 'New Orders', count: sellerNew, icon: bellIcon, onClick: () => goToStoreOrders('pending'), urgent: sellerNew > 0 },
+                { key: 'ship', label: 'To Ship', count: sellerToShip, icon: boxIcon, onClick: () => goToStoreOrders('processing'), urgent: sellerToShip > 0 },
+                { key: 'live', label: 'Live Listings', count: publishedCount, icon: tagIcon, onClick: () => setActiveTab('my-items'), urgent: false },
+                { key: 'oos', label: 'Out of Stock', count: outOfStockCount, icon: alertIcon, onClick: () => setActiveTab('my-items'), urgent: outOfStockCount > 0 },
+              ];
+
+              return (
+                <div className="acct-page">
+                  <style>{`
+                    .acct-page{display:flex;flex-direction:column;gap:16px;max-width:1080px}
+                    .acct-card{background:#FFFFFF;border:1px solid #E5E7EB;border-radius:8px}
+                    .acct-card-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 20px;border-bottom:1px solid #F3F4F6}
+                    .acct-card-title{font-size:15px;font-weight:700;color:#111827;letter-spacing:-0.01em}
+                    .acct-card-sub{font-size:12.5px;color:#6B7280;margin-top:2px;font-weight:400}
+                    .acct-link-btn{background:none;border:none;color:#4B5563;font-size:12.5px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:4px;padding:4px 0;text-decoration:none}
+                    .acct-link-btn:hover{color:#111827}
+
+                    .acct-summary-top{display:flex;align-items:center;gap:16px;padding:20px}
+                    .acct-avatar{width:64px;height:64px;border-radius:50%;background:#F3F4F6;border:1px solid #E5E7EB;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#111827}
+                    .acct-avatar img{width:100%;height:100%;object-fit:cover;display:block}
+                    .acct-name{font-size:19px;font-weight:700;color:#111827;letter-spacing:-0.02em;line-height:1.25}
+                    .acct-meta{display:flex;align-items:center;flex-wrap:wrap;gap:6px 12px;margin-top:4px;font-size:12.5px;color:#6B7280}
+                    .acct-meta span{display:inline-flex;align-items:center;gap:4px}
+                    .acct-summary-actions{margin-left:auto;display:flex;gap:8px;flex-shrink:0}
+                    .acct-btn{height:36px;padding:0 14px;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;text-decoration:none;transition:background .15s,border-color .15s;white-space:nowrap}
+                    .acct-btn-primary{background:#111827;color:#FFFFFF;border:1px solid #111827}
+                    .acct-btn-primary:hover{background:#1F2937}
+                    .acct-btn-outline{background:#FFFFFF;color:#111827;border:1px solid #D1D5DB}
+                    .acct-btn-outline:hover{background:#F9FAFB;border-color:#9CA3AF}
+                    .acct-stats-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:1px solid #F3F4F6}
+                    .acct-stat{padding:14px 20px;border-right:1px solid #F3F4F6}
+                    .acct-stat:last-child{border-right:none}
+                    .acct-stat-val{font-size:18px;font-weight:700;color:#111827;font-variant-numeric:tabular-nums;line-height:1.2}
+                    .acct-stat-lbl{font-size:12px;color:#6B7280;margin-top:2px}
+
+                    .acct-tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}
+                    .acct-tile{position:relative;background:none;border:none;border-right:1px solid #F3F4F6;padding:18px 10px 16px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;color:#374151;transition:background .15s}
+                    .acct-tile:last-child{border-right:none}
+                    .acct-tile:hover{background:#F9FAFB;color:#111827}
+                    .acct-tile-icon{position:relative;display:inline-flex}
+                    .acct-tile-badge{position:absolute;top:-7px;right:-12px;min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:#DC2626;color:#FFFFFF;font-size:10.5px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;border:2px solid #FFFFFF;font-variant-numeric:tabular-nums}
+                    .acct-tile-badge.muted{background:#6B7280}
+                    .acct-tile-label{font-size:12.5px;font-weight:500}
+
+                    .acct-form-wrap{display:grid;grid-template-columns:minmax(0,1fr) 220px;gap:0}
+                    .acct-form{padding:20px 24px;border-right:1px solid #F3F4F6}
+                    .acct-row{display:grid;grid-template-columns:130px minmax(0,1fr);align-items:center;gap:16px;margin-bottom:16px}
+                    .acct-row-label{font-size:13px;color:#6B7280;text-align:right}
+                    .acct-row-value{font-size:13.5px;color:#111827;font-weight:500;min-width:0;overflow-wrap:anywhere;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+                    .acct-input{width:100%;height:38px;padding:0 12px;border:1px solid #D1D5DB;border-radius:6px;background:#FFFFFF;font-size:13.5px;color:#111827;outline:none;transition:border-color .15s}
+                    .acct-input:focus{border-color:#111827}
+                    .acct-chip{font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;border:1px solid}
+                    .acct-chip-green{background:#ECFDF5;color:#065F46;border-color:#A7F3D0}
+                    .acct-chip-gray{background:#F3F4F6;color:#4B5563;border-color:#E5E7EB}
+                    .acct-avatar-col{padding:24px 20px;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center}
+                    .acct-avatar-lg{width:104px;height:104px;border-radius:50%;background:#F3F4F6;border:1px solid #E5E7EB;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:700;color:#111827}
+                    .acct-avatar-lg img{width:100%;height:100%;object-fit:cover;display:block}
+                    .acct-hint{font-size:11.5px;color:#9CA3AF;line-height:1.5}
+
+                    @media (max-width: 900px){
+                      .acct-form-wrap{grid-template-columns:1fr}
+                      .acct-form{border-right:none;border-bottom:1px solid #F3F4F6;order:2}
+                      .acct-avatar-col{order:1}
+                    }
+                    @media (max-width: 640px){
+                      .acct-summary-top{flex-wrap:wrap;padding:16px}
+                      .acct-summary-actions{margin-left:0;width:100%}
+                      .acct-summary-actions .acct-btn{flex:1}
+                      .acct-stats-row{grid-template-columns:repeat(2,minmax(0,1fr))}
+                      .acct-stat:nth-child(2){border-right:none}
+                      .acct-stat:nth-child(-n+2){border-bottom:1px solid #F3F4F6}
+                      .acct-card-head{padding:12px 16px}
+                      .acct-tile{padding:14px 4px 12px}
+                      .acct-tile-label{font-size:11.5px}
+                      .acct-form{padding:16px}
+                      .acct-row{grid-template-columns:1fr;gap:6px;margin-bottom:14px}
+                      .acct-row-label{text-align:left;font-size:12px}
+                    }
+                  `}</style>
+
+                  {/* ACCOUNT SUMMARY */}
+                  <section className="acct-card">
+                    <div className="acct-summary-top">
+                      <div className="acct-avatar">
+                        {user.avatar && !avatarLoadFailed ? (
+                          <img src={getAvatarUrl(user.avatar)} alt="" onError={() => setAvatarLoadFailed(true)} fetchPriority="high" decoding="async" />
+                        ) : initials}
+                      </div>
+                      <div style={{ minWidth: 0 }}>
+                        <div className="acct-name">{user.name}</div>
+                        <div className="acct-meta">
+                          {!usernameIsEmail && user.username && <span>@{user.username}</span>}
+                          <span>
+                            <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                            Joined {joinedLabel}
+                          </span>
+                          <span>
+                            <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                            {user.location || "No location set"}
+                          </span>
                         </div>
                       </div>
-
-                      <div className="form-group">
-                        <label className="form-label">Display Name</label>
-                        <input
-                          type="text"
-                          className="form-input"
-                          value={profileName}
-                          onChange={(e) => setProfileName(e.target.value)}
-                        />
+                      <div className="acct-summary-actions">
+                        <Link href="/shop" onClick={handleGoToShop} className="acct-btn acct-btn-outline">
+                          <IconShop /> Marketplace
+                        </Link>
+                        <button
+                          type="button"
+                          className="acct-btn acct-btn-primary"
+                          onClick={() => document.getElementById('acct-profile-form')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                        >
+                          Edit Profile
+                        </button>
                       </div>
-
-                      <div className="form-group">
-                        <label className="form-label">Location</label>
-                        <div style={{ display: 'flex', gap: 8 }}>
-                          <input
-                            type="text"
-                            className="form-input"
-                            placeholder="e.g. Cebu City, Cebu"
-                            value={profileLocation}
-                            onChange={(e) => setProfileLocation(e.target.value)}
-                            style={{ flex: 1 }}
-                          />
-                          <button
-                            type="button"
-                            disabled={detectingLocation}
-                            onClick={async () => {
-                              if (!navigator.geolocation) {
-                                showToast("Geolocation is not supported by your browser.", "error");
-                                return;
-                              }
-                              setDetectingLocation(true);
-                              navigator.geolocation.getCurrentPosition(
-                                async (position) => {
-                                  try {
-                                    const { latitude, longitude } = position.coords;
-                                    const res = await fetch(
-                                      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=12&addressdetails=1`,
-                                      { headers: { 'Accept-Language': 'en' } }
-                                    );
-                                    const data = await res.json();
-                                    const addr = data.address;
-                                    const city = addr?.city || addr?.town || addr?.municipality || addr?.village || addr?.county || "";
-                                    const state = addr?.state || addr?.region || "";
-                                    const locationStr = [city, state].filter(Boolean).join(", ");
-                                    if (locationStr) {
-                                      setProfileLocation(locationStr);
-                                      showToast(`Location detected: ${locationStr}`, "success");
-                                    } else {
-                                      setProfileLocation(data.display_name?.split(",").slice(0, 2).join(",").trim() || "");
-                                      showToast("Location detected!", "success");
-                                    }
-                                  } catch (err) {
-                                    console.error("Reverse geocoding error:", err);
-                                    showToast("Could not determine your location name.", "error");
-                                  } finally {
-                                    setDetectingLocation(false);
-                                  }
-                                },
-                                (err) => {
-                                  console.error("Geolocation error:", err);
-                                  setDetectingLocation(false);
-                                  if (err.code === 1) {
-                                    showToast("Location access denied. Please allow location in your browser settings.", "error");
-                                  } else {
-                                    showToast("Could not get your location. Please enter it manually.", "error");
-                                  }
-                                },
-                                { enableHighAccuracy: true, timeout: 10000 }
-                              );
-                            }}
-                            style={{
-                              padding: '8px 16px',
-                              borderRadius: 0,
-                              border: '1px solid #e2e8f0',
-                              background: '#F9FAFB',
-                              color: '#111827',
-                              boxShadow: 'none',
-                              fontSize: 12,
-                              fontWeight: 800,
-                              cursor: detectingLocation ? 'wait' : 'pointer',
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: 5,
-                              whiteSpace: 'nowrap',
-                              transition: 'all .15s'
-                            }}
-                          >
-                            {detectingLocation ? (
-                              <>
-                                <svg width="14" height="14" viewBox="0 0 24 24" style={{ animation: 'spin 1s linear infinite' }}><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" fill="none" strokeDasharray="31.42" strokeLinecap="round"/></svg>
-                                Detecting...
-                              </>
-                            ) : (
-                              <>
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-                                Detect
-                              </>
-                            )}
-                          </button>
+                    </div>
+                    <div className="acct-stats-row">
+                      <div className="acct-stat">
+                        <div className="acct-stat-val">{items.length}</div>
+                        <div className="acct-stat-lbl">Products{items.length > 0 ? ` · ${publishedCount} live` : ""}</div>
+                      </div>
+                      <div className="acct-stat">
+                        <div className="acct-stat-val">{user.followers_count || 0}</div>
+                        <div className="acct-stat-lbl">Followers</div>
+                      </div>
+                      <div className="acct-stat">
+                        <div className="acct-stat-val">{user.following_count || 0}</div>
+                        <div className="acct-stat-lbl">Following</div>
+                      </div>
+                      <div className="acct-stat">
+                        <div className="acct-stat-val" style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                          {shopRatingCount > 0 ? (
+                            <>
+                              <svg width="15" height="15" viewBox="0 0 24 24" fill="#F59E0B"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.27 5.82 22 7 14.14l-5-4.87 6.91-1.01L12 2z"/></svg>
+                              {shopRating.toFixed(1)}
+                            </>
+                          ) : (
+                            <span style={{ fontSize: 14, fontWeight: 500, color: '#9CA3AF' }}>No ratings yet</span>
+                          )}
                         </div>
-                        <p style={{ fontSize: 11, color: '#94a3b8', marginTop: 4 }}>This will be shown on your product listings</p>
+                        <div className="acct-stat-lbl">Shop Rating{shopRatingCount > 0 ? ` (${shopRatingCount})` : ""}</div>
                       </div>
+                    </div>
+                  </section>
 
-                      <button type="submit" className="submit-btn" disabled={updatingProfile}>
-                        {updatingProfile ? 'Saving Changes...' : 'Save Profile Changes'}
+                  {/* MY PURCHASES */}
+                  <section className="acct-card">
+                    <div className="acct-card-head">
+                      <div className="acct-card-title">My Purchases</div>
+                      <button type="button" className="acct-link-btn" onClick={() => goToBuyerOrders('all')}>
+                        View purchase history ({orders.length})
+                        <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
                       </button>
-                    </form>
-                  </div>
+                    </div>
+                    <div className="acct-tiles">
+                      {purchaseTiles.map(tile => (
+                        <button key={tile.id} type="button" className="acct-tile" onClick={() => goToBuyerOrders(tile.id)}>
+                          <span className="acct-tile-icon">
+                            {tile.icon}
+                            {tile.count > 0 && (
+                              <span className={`acct-tile-badge ${tile.id === 'delivered' || tile.id === 'returns' ? 'muted' : ''}`}>{tile.count}</span>
+                            )}
+                          </span>
+                          <span className="acct-tile-label">{tile.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </section>
 
-                  <div className="info-card">
-                    <div className="info-card-label">Account Information</div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginTop: 16 }}>
-                      <div className="info-row">
-                        <span className="info-card-label">Username</span>
-                        <div className="info-card-value">{user.username}</div>
+                  {/* MY SHOP (SELLER) */}
+                  <section className="acct-card">
+                    <div className="acct-card-head">
+                      <div>
+                        <div className="acct-card-title">My Shop</div>
+                        <div className="acct-card-sub">Orders and listings that need your attention</div>
                       </div>
-                      {user.phone && (
-                        <div className="info-row">
-                          <span className="info-card-label">Phone Number</span>
-                          <div className="info-card-value">{user.phone} <span className="badge badge-green" style={{ fontSize: 10, marginLeft: 8 }}>Verified</span></div>
-                        </div>
-                      )}
-                      <div className="info-row">
-                        <span className="info-card-label">Member Since</span>
-                        <div className="info-card-value">{new Date(user.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</div>
-                      </div>
-                      <div className="info-row">
-                        <span className="info-card-label">Account Status</span>
-                        <div className="info-card-value"><span style={{ background: '#dcfce7', color: '#16a34a', border: '1px solid #bbf7d0', borderRadius: 0, padding: '3px 12px', fontSize: 11, fontWeight: 900, textTransform: 'uppercase', display: 'inline-block' }}>Active</span></div>
+                      <button type="button" className="acct-btn acct-btn-outline" onClick={() => setActiveTab('add-item')}>
+                        <IconPlus /> Add Product
+                      </button>
+                    </div>
+                    <div className="acct-tiles">
+                      {shopTiles.map(tile => (
+                        <button key={tile.key} type="button" className="acct-tile" onClick={tile.onClick}>
+                          <span className="acct-tile-icon" style={{ color: tile.urgent ? '#111827' : undefined }}>{tile.icon}</span>
+                          <span style={{ fontSize: 18, fontWeight: 700, color: tile.urgent && tile.key !== 'live' ? '#DC2626' : '#111827', fontVariantNumeric: 'tabular-nums', lineHeight: 1 }}>{tile.count}</span>
+                          <span className="acct-tile-label">{tile.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </section>
+
+                  {/* MY PROFILE FORM */}
+                  <section className="acct-card" id="acct-profile-form" style={{ scrollMarginTop: 90 }}>
+                    <div className="acct-card-head">
+                      <div>
+                        <div className="acct-card-title">My Profile</div>
+                        <div className="acct-card-sub">Your name, photo, and location appear on your product listings.</div>
                       </div>
                     </div>
-                  </div>
+                    <form onSubmit={handleUpdateProfile} className="acct-form-wrap">
+                      <div className="acct-form">
+                        <div className="acct-row">
+                          <div className="acct-row-label">Username</div>
+                          <div className="acct-row-value">{user.username}</div>
+                        </div>
+                        <div className="acct-row">
+                          <label className="acct-row-label" htmlFor="acct-name-input">Display Name</label>
+                          <input
+                            id="acct-name-input"
+                            type="text"
+                            className="acct-input"
+                            value={profileName}
+                            onChange={(e) => setProfileName(e.target.value)}
+                            maxLength={60}
+                            required
+                          />
+                        </div>
+                        <div className="acct-row">
+                          <div className="acct-row-label">Email</div>
+                          <div className="acct-row-value">
+                            {maskedEmail || "Not added"}
+                            {user.email_verified_at ? (
+                              <span className="acct-chip acct-chip-green">Verified</span>
+                            ) : (
+                              <span className="acct-chip acct-chip-gray">Unverified</span>
+                            )}
+                          </div>
+                        </div>
+                        <div className="acct-row">
+                          <div className="acct-row-label">Phone</div>
+                          <div className="acct-row-value" style={{ color: user.phone ? '#111827' : '#9CA3AF' }}>
+                            {user.phone || "Not added"}
+                          </div>
+                        </div>
+                        <div className="acct-row">
+                          <label className="acct-row-label" htmlFor="acct-location-input">Ships From</label>
+                          <div style={{ display: 'flex', gap: 8, minWidth: 0 }}>
+                            <input
+                              id="acct-location-input"
+                              type="text"
+                              className="acct-input"
+                              placeholder="e.g. Cebu City, Cebu"
+                              value={profileLocation}
+                              onChange={(e) => setProfileLocation(e.target.value)}
+                              style={{ flex: 1, minWidth: 0 }}
+                            />
+                            <button
+                              type="button"
+                              className="acct-btn acct-btn-outline"
+                              disabled={detectingLocation}
+                              onClick={detectProfileLocation}
+                              style={{ height: 38, cursor: detectingLocation ? 'wait' : 'pointer' }}
+                            >
+                              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                              {detectingLocation ? "Detecting..." : "Detect"}
+                            </button>
+                          </div>
+                        </div>
+                        <div className="acct-row">
+                          <div className="acct-row-label">Member Since</div>
+                          <div className="acct-row-value">{memberSince}</div>
+                        </div>
+                        <div className="acct-row" style={{ marginBottom: 0 }}>
+                          <div className="acct-row-label" />
+                          <div>
+                            <button type="submit" className="acct-btn acct-btn-primary" disabled={updatingProfile} style={{ minWidth: 120, opacity: updatingProfile ? 0.7 : 1 }}>
+                              {updatingProfile ? 'Saving...' : 'Save'}
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="acct-avatar-col">
+                        <div className="acct-avatar-lg">
+                          {avatarPreview ? (
+                            <img src={avatarPreview} alt="" />
+                          ) : user.avatar && !avatarLoadFailed ? (
+                            <img src={getAvatarUrl(user.avatar)} alt="" onError={() => setAvatarLoadFailed(true)} />
+                          ) : initials}
+                        </div>
+                        <label htmlFor="avatar-upload" className="acct-btn acct-btn-outline" style={{ cursor: 'pointer' }}>
+                          Select Image
+                        </label>
+                        <input
+                          id="avatar-upload"
+                          type="file"
+                          hidden
+                          accept="image/jpeg,image/png,image/webp"
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              try {
+                                const compressed = await compressImage(file, 400);
+                                setAvatarFile(compressed);
+                                setAvatarPreview(URL.createObjectURL(compressed));
+                              } catch (err) {
+                                console.error("Failed to compress avatar", err);
+                                setAvatarFile(file);
+                                setAvatarPreview(URL.createObjectURL(file));
+                              }
+                            }
+                          }}
+                        />
+                        <div className="acct-hint">
+                          JPG, PNG or WEBP<br />Resized automatically to 400px
+                        </div>
+                        {avatarPreview && (
+                          <div className="acct-hint" style={{ color: '#B45309' }}>New photo selected — click Save to apply.</div>
+                        )}
+                      </div>
+                    </form>
+                  </section>
                 </div>
-              </div>
-            )}
+              );
+            })()}
 
             {/* ——— ORDERS TAB ——— */}
             {activeTab === "orders" && (
