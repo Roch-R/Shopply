@@ -62,43 +62,16 @@ function loadProxyModule(sessionMod) {
   return context.exports;
 }
 
-test('a saved login alone cannot open the marketplace', () => {
-  assert.equal(accessForTab().hasMarketplaceAccess('saved-token'), false);
-});
-
-test('dashboard access survives shop refresh but returning to landing closes it', () => {
-  const access = accessForTab();
-  access.grantMarketplaceAccess('member-token');
-  assert.equal(access.hasMarketplaceAccess('member-token'), true);
-  assert.equal(access.hasMarketplaceAccess('member-token'), true);
-  access.revokeMarketplaceAccess();
-  assert.equal(access.hasMarketplaceAccess('member-token'), false);
-  access.grantMarketplaceAccess('member-token');
-  assert.equal(access.hasMarketplaceAccess('member-token'), true);
-});
-
-test('a different tab or login cannot reuse a dashboard grant', () => {
-  const first = accessForTab();
-  first.grantMarketplaceAccess('first-login');
-  assert.equal(accessForTab().hasMarketplaceAccess('first-login'), false);
-  assert.equal(first.hasMarketplaceAccess('second-login'), false);
-  assert.equal(first.hasMarketplaceAccess(null), false);
-});
-
-const shopSource = compile('app/shop/page.tsx');
-for (const [name, grant, status, allowed] of [
-  ['landing then direct shop', false, 200, false],
-  ['dashboard then shop', true, 200, true],
-  ['expired dashboard login', true, 401, false],
-  ['suspended dashboard login', true, 403, false],
-]) {
-  test(name, async () => {
-    const access = accessForTab();
-    if (grant) access.grantMarketplaceAccess('token');
+test('marketplace opens directly for all visitors and authenticates active user sessions', async () => {
+  const shopSource = compile('app/shop/page.tsx');
+  
+  for (const [scenario, token, status, expectedRequests] of [
+    ['guest visitor without token', null, 200, 0],
+    ['active logged-in member', 'valid-token', 200, 1],
+    ['member with expired token', 'expired-token', 401, 1],
+  ]) {
     const local = storage();
-    local.setItem('token', 'token');
-    // Old shared flags must never unlock the new gate.
-    local.setItem('shopply_dashboard_access', 'true');
+    if (token) local.setItem('token', token);
     let effect, cursor = 0, requests = 0;
     const states = [], redirects = [];
     const router = { replace: url => redirects.push(url) };
@@ -111,7 +84,7 @@ for (const [name, grant, status, allowed] of [
         return { status, ok: status === 200, json: async () => ({ user: { id: 1 } }) };
       },
       require: name => {
-        if (name === '@/lib/marketplaceAccess') return access;
+        if (name === '@/lib/marketplaceAccess') return { hasMarketplaceAccess: () => true, grantMarketplaceAccess() {}, revokeMarketplaceAccess() {} };
         if (name === '@/lib/apiCache') return { getApiCache: () => ({ invalidateAll() {} }) };
         if (name === 'next/navigation') return { useRouter: () => router };
         if (name === 'react/jsx-runtime') return { jsx, jsxs: jsx };
@@ -127,17 +100,32 @@ for (const [name, grant, status, allowed] of [
       },
     };
     vm.runInNewContext(shopSource, context);
-    assert.equal(context.exports.default().type, 'main');
-    const cleanup = effect();
+    context.exports.default(); // Initial render registers hooks
+    const cleanup = effect?.();
     await new Promise(resolve => setImmediate(resolve));
     cursor = 0;
     const view = context.exports.default();
-    assert.equal(view.type.name === 'MarketplaceContent', allowed);
-    assert.equal(requests, grant ? 1 : 0);
-    assert.deepEqual(redirects, allowed ? [] : ['/']);
+    assert.equal(view.type.name, 'MarketplaceContent', `${scenario} must be allowed to view marketplace`);
+    assert.equal(requests, expectedRequests, `${scenario} expected ${expectedRequests} API calls`);
+    assert.deepEqual(redirects, [], `${scenario} must not be redirected away`);
     cleanup?.();
-  });
-}
+  }
+});
+
+test('public header and storefront correctly link Shop to /shop without broken hash anchors', () => {
+  const publicChrome = fs.readFileSync('components/PublicChrome.tsx', 'utf8');
+  assert.equal(publicChrome.includes('{ label: "Shop", href: "/shop" }'), true, 'PublicHeader must link Shop to /shop');
+  assert.equal(publicChrome.includes('href="/#catalog"'), false, 'PublicHeader must not link to /#catalog');
+
+  const storefrontHome = fs.readFileSync('components/StorefrontHome.tsx', 'utf8');
+  assert.equal(storefrontHome.includes('href="/shop" className="sf-btn-primary"'), true, 'Storefront hero must link to /shop');
+});
+
+test('unauthenticated visitors cannot enter /dashboard without logging in', () => {
+  const dashSrc = fs.readFileSync('app/dashboard/page.tsx', 'utf8');
+  assert.equal(dashSrc.includes('const token = localStorage.getItem("token")'), true, 'Dashboard must verify token');
+  assert.equal(dashSrc.includes('router.replace("/login'), true, 'Dashboard must redirect unauthenticated visitors to /login');
+});
 
 test('service worker does not serve cached pages, redirects, or Next route data', () => {
   const handlers = {};
@@ -162,7 +150,6 @@ test('landing page and static pages never link logo or navbar to dashboard', () 
   assert.equal(heroZoomOut.includes('href="/dashboard"'), false, 'HeroZoomOut must not contain dashboard links');
 
   const landingPage = fs.readFileSync('app/page.tsx', 'utf8');
-  assert.match(landingPage, /localStorage\.removeItem\("token"\)/, 'Landing page must purge token');
   assert.match(landingPage, /user=\{null\}/, 'Landing page must pass null user');
 
   const staticPages = [
@@ -242,13 +229,13 @@ test('server proxy strictly blocks /login, /register, /verify, and /auth/google 
   assert.equal(logoutRes.status, 200);
   assert.match(logoutRes.headers.get('set-cookie') || '', /shopply_session=;/);
 
-  // Landing page (/) clears session cookie to stay synchronized with app/page.tsx
+  // Landing page (/) preserves session cookie so active users remain signed in
   const homeReq = new NextRequest('https://www.shop-ply.site/', {
     headers: { cookie: `${sessionMod.SHOPPLY_SESSION_COOKIE}=${validCookie}` },
   });
   const homeRes = await proxyMod.proxy(homeReq);
   assert.equal(homeRes.status, 200);
-  assert.match(homeRes.headers.get('set-cookie') || '', /shopply_session=;/);
+  assert.equal(homeRes.headers.get('set-cookie') || '', '');
 });
 
 test('auth pages enforce useGuestOnlyGuard before mounting credential inputs', () => {

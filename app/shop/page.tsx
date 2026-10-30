@@ -153,25 +153,13 @@ export default function ShopPage() {
     const controller = new AbortController();
     const token = localStorage.getItem("token");
 
-    if (!hasMarketplaceAccess(token)) {
-      router.replace("/");
-      if (typeof window !== "undefined" && window.location?.replace) window.location.replace("/");
+    if (!token) {
+      // Unauthenticated visitor: allow browsing the marketplace cleanly
+      setAccess("allowed");
       return;
     }
 
-    const recheckAccess = () => {
-      const currentToken = localStorage.getItem("token");
-      if (!hasMarketplaceAccess(currentToken)) {
-        controller.abort();
-        setAccess("checking");
-        router.replace("/");
-        if (typeof window !== "undefined" && window.location?.replace) window.location.replace("/");
-      }
-    };
-    window.addEventListener("pageshow", recheckAccess);
-    window.addEventListener("storage", recheckAccess);
-
-    // The dashboard opens this tab's gate; the API independently validates login.
+    // Authenticated user: validate session with /api/me
     fetch("/api/me", {
       headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
       cache: "no-store",
@@ -180,30 +168,32 @@ export default function ShopPage() {
       .then(async response => {
         if (controller.signal.aborted) return;
         if (response.status === 401 || response.status === 403) {
-          revokeMarketplaceAccess();
+          // Token expired: clear dead token and let them continue browsing as guest
           localStorage.removeItem("token");
           localStorage.removeItem("user");
           localStorage.removeItem("shopply_user");
           getApiCache().invalidateAll();
-          router.replace("/");
-          if (typeof window !== "undefined" && window.location?.replace) window.location.replace("/");
+          setAccess("allowed");
           return;
         }
-        if (!response.ok) throw new Error("Session check failed");
+        if (!response.ok) {
+          // Network or server glitch: still allow browsing
+          setAccess("allowed");
+          return;
+        }
         const data = await response.json();
         if (controller.signal.aborted) return;
-        if (!data.user?.id) throw new Error("Missing session user");
-        localStorage.setItem("user", JSON.stringify(data.user));
+        if (data.user?.id) {
+          localStorage.setItem("user", JSON.stringify(data.user));
+        }
         setAccess("allowed");
       })
       .catch(() => {
-        if (!controller.signal.aborted) setAccess("error");
+        if (!controller.signal.aborted) setAccess("allowed");
       });
 
     return () => {
       controller.abort();
-      window.removeEventListener("pageshow", recheckAccess);
-      window.removeEventListener("storage", recheckAccess);
     };
   }, [router, attempt]);
 

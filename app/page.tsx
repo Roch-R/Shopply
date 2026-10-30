@@ -2,8 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { Skeleton } from "@/components/Skeleton";
-import { getApiCache } from "@/lib/apiCache";
-import { revokeMarketplaceAccess } from "@/lib/marketplaceAccess";
 import StorefrontHome from "@/components/StorefrontHome";
 import LogoDrawPreloader from "./about/LogoDrawPreloader";
 
@@ -12,25 +10,7 @@ export default function Home() {
   const [isPreloading, setIsPreloading] = useState(false);
 
   useEffect(() => {
-    // Visiting the landing page treats the visitor as unauthenticated.
-    // Revoke marketplace session, reset dashboard flags and purge lingering credentials.
-    revokeMarketplaceAccess();
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    localStorage.removeItem("shopply_user");
-    localStorage.removeItem("shopply_dashboard_access");
-    localStorage.removeItem("shopply_on_landing");
-    localStorage.removeItem("shopply_landing_lock");
-    sessionStorage.clear();
-    getApiCache().invalidateAll();
-    fetch("/api/logout", { method: "POST", keepalive: true }).catch(() => {});
-
     setReady(true);
-
-    window.addEventListener("pageshow", revokeMarketplaceAccess);
-    return () => {
-      window.removeEventListener("pageshow", revokeMarketplaceAccess);
-    };
   }, []);
 
   function handleStartLogin() {

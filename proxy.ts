@@ -41,23 +41,14 @@ export async function proxy(request: NextRequest) {
     (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
   );
 
-  // 1. Visiting "/" explicitly resets session state (matches app/page.tsx behavior).
-  if (pathname === "/") {
-    const res = withSecurityHeaders(NextResponse.next(), false);
-    if (request.cookies.has(SHOPPLY_SESSION_COOKIE)) {
-      clearSessionCookie(res);
-    }
-    return res;
-  }
-
-  // 2. Explicit logout/session-expiry redirect (`?logged_out=1`) clears any lingering cookie cleanly.
+  // 1. Explicit logout/session-expiry redirect (`?logged_out=1`) clears any lingering cookie cleanly.
   if (pathname === "/login" && searchParams.get("logged_out") === "1") {
     const res = withSecurityHeaders(NextResponse.next(), true);
     clearSessionCookie(res);
     return res;
   }
 
-  // 3. Block guest-only authentication routes if the user is ALREADY signed in.
+  // 2. Block guest-only authentication routes if the user is ALREADY signed in.
   const isGoogleCallbackDirectVisit =
     pathname === "/auth/google/callback" &&
     !searchParams.has("code") &&

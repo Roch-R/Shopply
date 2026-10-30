@@ -87,8 +87,8 @@ export default function CartPage() {
 
   const fetchCart = async () => {
     const token = localStorage.getItem("token");
-    if (!hasMarketplaceAccess(token)) {
-      window.location.replace("/");
+    if (!token) {
+      router.replace("/login?redirect=/cart");
       return;
     }
     try {
@@ -160,9 +160,9 @@ export default function CartPage() {
 
     const verifyAndLoadCart = async () => {
       const token = localStorage.getItem("token");
-      if (!hasMarketplaceAccess(token)) {
+      if (!token) {
         setAuthorized(false);
-        window.location.replace("/");
+        router.replace("/login?redirect=/cart");
         return;
       }
 
@@ -181,7 +181,7 @@ export default function CartPage() {
           localStorage.removeItem("shopply_dashboard_access");
           getApiCache().invalidateAll();
           setAuthorized(false);
-          window.location.replace("/");
+          router.replace("/login?redirect=/cart");
           return;
         }
 

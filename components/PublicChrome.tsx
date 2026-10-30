@@ -86,10 +86,27 @@ interface PublicHeaderProps {
 
 export function PublicHeader({ onLoginClick, activePath = "" }: PublicHeaderProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [sessionUser, setSessionUser] = useState<{ id?: number; name?: string; email?: string } | null>(null);
+
+  React.useEffect(() => {
+    try {
+      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+      if (token) {
+        setIsLoggedIn(true);
+        const stored = localStorage.getItem("user") || localStorage.getItem("shopply_user");
+        if (stored) {
+          try {
+            setSessionUser(JSON.parse(stored));
+          } catch {}
+        }
+      }
+    } catch {}
+  }, []);
 
   const navItems = [
-    { label: "Shop", href: "/#catalog" },
-    { label: "Departments", href: "/#departments" },
+    { label: "Shop", href: "/shop" },
+    { label: "Departments", href: "/shop" },
     { label: "Features", href: "/features" },
     { label: "About", href: "/about" },
     { label: "Guides", href: "/guides" },
@@ -290,7 +307,7 @@ export function PublicHeader({ onLoginClick, activePath = "" }: PublicHeaderProp
         <div className="sp-topbar-inner">
           <span>Nationwide delivery across Luzon, Visayas &amp; Mindanao · Cash on Delivery supported</span>
           <div className="sp-topbar-links">
-            <Link href="/register">Sell on Shopply</Link>
+            <Link href={isLoggedIn ? "/dashboard?tab=my-items" : "/register"}>Sell on Shopply</Link>
             <Link href="/guides">Buyer Protection</Link>
             <Link href="/contact">Help Center</Link>
           </div>
@@ -314,12 +331,25 @@ export function PublicHeader({ onLoginClick, activePath = "" }: PublicHeaderProp
           </nav>
 
           <div className="sp-actions">
-            <Link href="/login" onClick={handleLogin} className="sp-btn-login">
-              Log in
-            </Link>
-            <Link href="/register" className="sp-btn-signup">
-              Create account
-            </Link>
+            {isLoggedIn ? (
+              <>
+                <Link href="/shop" className="sp-btn-login">
+                  Shop
+                </Link>
+                <Link href="/dashboard" className="sp-btn-signup">
+                  {sessionUser?.name ? `${sessionUser.name.split(" ")[0]}'s Dashboard` : "Dashboard"}
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link href="/login" onClick={handleLogin} className="sp-btn-login">
+                  Log in
+                </Link>
+                <Link href="/register" className="sp-btn-signup">
+                  Create account
+                </Link>
+              </>
+            )}
           </div>
 
           <button
@@ -357,12 +387,25 @@ export function PublicHeader({ onLoginClick, activePath = "" }: PublicHeaderProp
             ))}
           </div>
           <div className="sp-mobile-btns">
-            <Link href="/login" onClick={handleLogin} className="sp-btn-login">
-              Log in
-            </Link>
-            <Link href="/register" onClick={() => setMobileOpen(false)} className="sp-btn-signup">
-              Create account
-            </Link>
+            {isLoggedIn ? (
+              <>
+                <Link href="/shop" onClick={() => setMobileOpen(false)} className="sp-btn-login">
+                  Shop
+                </Link>
+                <Link href="/dashboard" onClick={() => setMobileOpen(false)} className="sp-btn-signup">
+                  Dashboard
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link href="/login" onClick={handleLogin} className="sp-btn-login">
+                  Log in
+                </Link>
+                <Link href="/register" onClick={() => setMobileOpen(false)} className="sp-btn-signup">
+                  Create account
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </header>
@@ -492,11 +535,11 @@ export function PublicFooter({ onLoginClick }: { onLoginClick?: () => void }) {
             <div className="sp-footer-col">
               <h4>Shop</h4>
               <ul>
-                <li><Link href="/#catalog">New Arrivals</Link></li>
-                <li><Link href="/#departments">Electronics &amp; Audio</Link></li>
-                <li><Link href="/#departments">Footwear &amp; Apparel</Link></li>
-                <li><Link href="/#departments">Home &amp; Living</Link></li>
-                <li><Link href="/login" onClick={handleLogin}>Sign in to Shop</Link></li>
+                <li><Link href="/shop">New Arrivals</Link></li>
+                <li><Link href="/shop?category=Electronics">Electronics &amp; Audio</Link></li>
+                <li><Link href="/shop?category=Fashion">Footwear &amp; Apparel</Link></li>
+                <li><Link href="/shop?category=Home">Home &amp; Living</Link></li>
+                <li><Link href="/shop">Browse Storefront</Link></li>
               </ul>
             </div>
 

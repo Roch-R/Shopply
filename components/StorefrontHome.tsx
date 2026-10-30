@@ -1079,8 +1079,8 @@ export default function StorefrontHome({ onLoginClick }: StorefrontHomeProps) {
                   Shop electronics, footwear, apparel, and home goods with transparent peso pricing, direct seller chat, and nationwide Cash on Delivery.
                 </p>
                 <div className="sf-hero-ctas">
-                  <Link href="/login" onClick={triggerLogin} className="sf-btn-primary">
-                    <span>Sign in to start shopping</span>
+                  <Link href="/shop" className="sf-btn-primary">
+                    <span>Explore Marketplace</span>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <line x1="5" y1="12" x2="19" y2="12" />
                       <polyline points="12 5 19 12 12 19" />
@@ -1186,8 +1186,8 @@ export default function StorefrontHome({ onLoginClick }: StorefrontHomeProps) {
                 <h2>Shop by department</h2>
                 <p>Browse curated categories from independent stores and brand partners</p>
               </div>
-              <Link href="/login" onClick={triggerLogin} className="sf-link-inline">
-                <span>Sign in for full marketplace</span>
+              <Link href="/shop" className="sf-link-inline">
+                <span>Explore full marketplace</span>
                 <span aria-hidden="true">→</span>
               </Link>
             </div>
@@ -1395,8 +1395,8 @@ export default function StorefrontHome({ onLoginClick }: StorefrontHomeProps) {
                     </div>
                   </div>
                 </div>
-                <Link href="/login" onClick={triggerLogin} className="sf-btn-primary">
-                  Sign in to browse all stores
+                <Link href="/shop" className="sf-btn-primary">
+                  Explore full marketplace
                 </Link>
               </div>
 
