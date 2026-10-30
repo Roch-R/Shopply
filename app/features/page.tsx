@@ -1,108 +1,182 @@
-
 "use client";
+
 import Link from "next/link";
+import { PublicHeader, PublicFooter } from "@/components/PublicChrome";
+
+const FEATURES = [
+  {
+    title: "Clean Storefront & Product Matrix",
+    description: "Publish items with multi-size and color stock tracking, clear Philippine Peso pricing, and promotional markdowns.",
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+        <line x1="3" y1="6" x2="21" y2="6" />
+        <path d="M16 10a4 4 0 0 1-8 0" />
+      </svg>
+    ),
+  },
+  {
+    title: "Order & Fulfillment Workflow",
+    description: "Accept incoming orders, mark shipments dispatched, and track buyer receipt confirmations from one organized view.",
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <polyline points="9 11 12 14 22 4" />
+        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+      </svg>
+    ),
+  },
+  {
+    title: "Real-Time Buyer & Seller Chat",
+    description: "Answer customer questions, share product photos, and coordinate local meetup locations with built-in map pins.",
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+      </svg>
+    ),
+  },
+  {
+    title: "Time-Limited Flash Deals",
+    description: "Run scheduled markdowns on selected inventory with automatic expiration so prices revert cleanly when a sale ends.",
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="10" />
+        <polyline points="12 6 12 12 16 14" />
+      </svg>
+    ),
+  },
+  {
+    title: "Sales & Inventory Analytics",
+    description: "Review completed revenue, order volume, low-stock alerts, and verified buyer ratings without external spreadsheets.",
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <line x1="18" y1="20" x2="18" y2="10" />
+        <line x1="12" y1="20" x2="12" y2="4" />
+        <line x1="6" y1="20" x2="6" y2="14" />
+      </svg>
+    ),
+  },
+  {
+    title: "Account & Checkout Security",
+    description: "Email OTP verification, 256-bit SSL encryption, and session-scoped marketplace access keep accounts protected.",
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+        <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+      </svg>
+    ),
+  },
+];
 
 export default function FeaturesPage() {
   return (
-    <>
-      <style suppressHydrationWarning>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@700;800&display=swap');
-        *{box-sizing:border-box;margin:0;padding:0}
-        body{background:#f5f7ff;font-family:'Inter',sans-serif;}
-        .page{min-height:100vh;background:linear-gradient(160deg,#f0f4ff 0%,#faf5ff 45%,#f0f9ff 100%);position:relative;overflow-x:hidden;padding-bottom:100px}
-        .nav{position:sticky;top:0;z-index:100;padding:0 48px;height:68px;display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.75);backdrop-filter:blur(20px);border-bottom:1px solid rgba(124,58,237,.08);box-shadow:0 1px 20px rgba(0,0,0,.04)}
-        .nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
-        .nav-logo-text{font-size:17px;font-weight:700;color:#0f172a;letter-spacing:-.3px}
-        .nav-right{display:flex;align-items:center;gap:24px}
-        .nav-link{font-size:13px;font-weight:500;color:#64748b;text-decoration:none;padding:6px 12px;border-radius:8px;transition:all .2s}
-        .nav-link:hover{color:#7c3aed;background:rgba(124,58,237,.06)}
-        .container{max-width:1000px;margin:80px auto;padding:0 48px;}
-        .header-section{text-align:center;margin-bottom:60px;}
-        h1{font-family:'Playfair Display',serif;font-size:52px;font-weight:800;color:#0f172a;margin-bottom:20px;letter-spacing:-1px}
-        .subtitle{font-size:18px;color:#64748b;line-height:1.6;max-width:600px;margin:0 auto;}
-        
-        /* Premium Cards */
-        .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:24px;}
-        .card{background:#fff;border-radius:20px;padding:32px;box-shadow:0 10px 40px rgba(0,0,0,.03);border:1px solid #f1f5f9;transition:all .3s;}
-        .card:hover{transform:translateY(-5px);box-shadow:0 20px 40px rgba(124,58,237,.08);border-color:rgba(124,58,237,.2)}
-        .card-icon{width:48px;height:48px;border-radius:12px;background:rgba(124,58,237,.1);color:#7c3aed;display:flex;align-items:center;justify-content:center;margin-bottom:20px;font-size:24px;}
-        .card h3{font-size:18px;font-weight:700;color:#0f172a;margin-bottom:12px;}
-        .card p{font-size:14px;color:#64748b;line-height:1.6;}
-        @media(max-width:768px){
-          .nav{padding:0 12px; gap:8px}
-          .nav-logo-text{display:none}
-          .nav-right{gap:8px}
-          .nav-link{padding:6px 8px; font-size:12px}
-          .container{padding:0 16px; margin:40px auto}
-          h1{font-size:32px}
-          .subtitle{font-size:15px}
-        }
-      `}</style>
-      <div className="page">
-        <nav className="nav">
-          <Link href="/" className="nav-logo">
-            <svg width="32" height="32" viewBox="0 0 200 260" xmlns="http://www.w3.org/2000/svg">
-              <rect x="8" y="68" width="184" height="176" rx="24" fill="none" stroke="url(#ng)" strokeWidth="14" />
-              <path d="M56 70 Q56 18 100 18 Q144 18 144 70" fill="none" stroke="url(#ng)" strokeWidth="14" strokeLinecap="round" />
-              <circle cx="68" cy="70" r="7" fill="#7c3aed" />
-              <circle cx="132" cy="70" r="7" fill="#7c3aed" />
-              <path d="M24 192 Q36 150 70 145 Q104 140 110 170 Q116 198 150 192 Q170 187 176 162" fill="none" stroke="#FFD166" strokeWidth="13" strokeLinecap="round" strokeLinejoin="round" />
-              <path d="M161 145 L176 162 L157 175" fill="none" stroke="#FFD166" strokeWidth="13" strokeLinecap="round" strokeLinejoin="round" />
-              <defs><linearGradient id="ng" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#7c3aed" /><stop offset="100%" stopColor="#2563eb" />
-              </linearGradient></defs>
-            </svg>
-            <span className="nav-logo-text">Shopply</span>
-          </Link>
-          <div className="nav-right">
-            <Link href="/about" className="nav-link">About</Link>
-            <Link href="/shop" className="nav-link">Marketplace</Link>
-            <Link href="/login" className="nav-link">Log In</Link>
-          </div>
-        </nav>
-        
-        <div className="container">
+    <div style={{ minHeight: "100vh", background: "#FFFFFF", color: "#111827", fontFamily: "'Inter', -apple-system, sans-serif" }}>
+      <PublicHeader activePath="/features" />
 
-          <div className="header-section">
-            <span style={{color:'#7c3aed',fontWeight:700,fontSize:'13px',letterSpacing:'1px',textTransform:'uppercase',marginBottom:'16px',display:'block'}}>Why Shopply?</span>
-            <h1>Powerful Features for Modern Sellers</h1>
-            <p className="subtitle">Everything you need to launch, manage, and scale your online business in one beautiful platform.</p>
-          </div>
-          <div className="grid">
-            <div className="card">
-              <div className="card-icon">🚀</div>
-              <h3>Instant Storefront</h3>
-              <p>Launch your fully functional, beautifully designed storefront in seconds. No coding required.</p>
-            </div>
-            <div className="card">
-              <div className="card-icon">📊</div>
-              <h3>Real-time Analytics</h3>
-              <p>Track your sales, visitor traffic, and top-performing products with our beautiful dashboard.</p>
-            </div>
-            <div className="card">
-              <div className="card-icon">💳</div>
-              <h3>Secure Payments</h3>
-              <p>Accept credit cards, PayPal, and crypto securely. Payouts are blazing fast and reliable.</p>
-            </div>
-            <div className="card">
-              <div className="card-icon">📱</div>
-              <h3>Mobile Optimized</h3>
-              <p>Your shop looks perfect on any device, ensuring you never miss a sale from mobile users.</p>
-            </div>
-            <div className="card">
-              <div className="card-icon">🌍</div>
-              <h3>Global Reach</h3>
-              <p>Sell to customers anywhere in the world with automatic currency conversion and localized experiences.</p>
-            </div>
-            <div className="card">
-              <div className="card-icon">🔒</div>
-              <h3>Enterprise Security</h3>
-              <p>Your data and your customers' data is protected by bank-level encryption and security standards.</p>
-            </div>
-          </div>
-
+      <section style={{ background: "#F7F7F5", borderBottom: "1px solid #E5E7EB", padding: "64px 24px" }}>
+        <div style={{ maxWidth: "1120px", margin: "0 auto" }}>
+          <span style={{ display: "inline-block", fontSize: "12px", fontWeight: 600, letterSpacing: "0.04em", textTransform: "uppercase", color: "#0D6847", marginBottom: "12px" }}>
+            Platform Capabilities
+          </span>
+          <h1 style={{ fontFamily: "'Plus Jakarta Sans', 'Inter', sans-serif", fontSize: "clamp(32px, 4vw, 44px)", fontWeight: 700, letterSpacing: "-0.03em", lineHeight: 1.12, marginBottom: "16px", maxWidth: "680px" }}>
+            Practical tools built for everyday sellers and shoppers.
+          </h1>
+          <p style={{ fontSize: "16px", color: "#4B5563", lineHeight: 1.65, maxWidth: "620px" }}>
+            Everything you need to list products, manage variant stock, chat with customers, and fulfill nationwide orders from one clean workspace.
+          </p>
         </div>
-      </div>
-    </>
+      </section>
+
+      <main style={{ maxWidth: "1120px", margin: "0 auto", padding: "64px 24px 80px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(310px, 1fr))", gap: "20px", marginBottom: "64px" }}>
+          {FEATURES.map((f) => (
+            <div
+              key={f.title}
+              style={{
+                background: "#FFFFFF",
+                border: "1px solid #E5E7EB",
+                borderRadius: "12px",
+                padding: "28px 24px",
+              }}
+            >
+              <div
+                style={{
+                  width: "40px",
+                  height: "40px",
+                  borderRadius: "8px",
+                  background: "#F7F7F5",
+                  color: "#111827",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  marginBottom: "16px",
+                }}
+              >
+                {f.icon}
+              </div>
+              <h3 style={{ fontSize: "16.5px", fontWeight: 600, color: "#111827", marginBottom: "8px" }}>
+                {f.title}
+              </h3>
+              <p style={{ fontSize: "14px", color: "#4B5563", lineHeight: 1.6 }}>{f.description}</p>
+            </div>
+          ))}
+        </div>
+
+        <div
+          style={{
+            background: "#F7F7F5",
+            border: "1px solid #E5E7EB",
+            borderRadius: "14px",
+            padding: "36px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: "24px",
+            flexWrap: "wrap",
+          }}
+        >
+          <div>
+            <h2 style={{ fontFamily: "'Plus Jakarta Sans', 'Inter', sans-serif", fontSize: "22px", fontWeight: 700, marginBottom: "6px" }}>
+              Ready to try Shopply?
+            </h2>
+            <p style={{ fontSize: "14px", color: "#4B5563" }}>
+              Create an account for free and set up your first product listing in minutes.
+            </p>
+          </div>
+          <div style={{ display: "flex", gap: "10px" }}>
+            <Link
+              href="/register"
+              style={{
+                background: "#111827",
+                color: "#FFFFFF",
+                padding: "11px 20px",
+                borderRadius: "8px",
+                fontSize: "14px",
+                fontWeight: 600,
+                textDecoration: "none",
+              }}
+            >
+              Create free account
+            </Link>
+            <Link
+              href="/login"
+              style={{
+                background: "#FFFFFF",
+                color: "#111827",
+                border: "1px solid #D1D5DB",
+                padding: "11px 20px",
+                borderRadius: "8px",
+                fontSize: "14px",
+                fontWeight: 600,
+                textDecoration: "none",
+              }}
+            >
+              Sign in
+            </Link>
+          </div>
+        </div>
+      </main>
+
+      <PublicFooter />
+    </div>
   );
 }

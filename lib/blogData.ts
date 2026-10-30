@@ -14,7 +14,7 @@ export const blogPosts: BlogPost[] = [
     slug: 'announcing-shopply-v2',
     title: 'Announcing Shopply v2.0: A New Era for E-commerce',
     date: 'May 23, 2026',
-    img: 'linear-gradient(135deg, #7c3aed, #2563eb)',
+    img: '#111827',
     author: 'Alex Carter',
     readTime: '5 min read',
     excerpt: 'Read the full story to learn more about what this means for your business on Shopply...',

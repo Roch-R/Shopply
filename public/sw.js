@@ -8,7 +8,7 @@
  * - API calls: Network-only (handled by client-side apiCache)
  */
 
-const CACHE_VERSION = 'shopply-v59';
+const CACHE_VERSION = 'shopply-v60';
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const IMAGE_CACHE = `${CACHE_VERSION}-images`;
 const PAGE_CACHE = `${CACHE_VERSION}-pages`;
@@ -21,7 +21,6 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(PAGE_CACHE)
       .then(cache => {
-        // Precache pages — don't fail install if any page fails
         return Promise.allSettled(
           PRECACHE_URLS.map(url => 
             cache.add(url).catch(() => console.log(`[SW] Failed to precache: ${url}`))
@@ -109,10 +108,6 @@ function isImage(url) {
 
 // --- Caching Strategies ---
 
-/**
- * Cache-First: Return cached response, fallback to network.
- * Best for static assets that rarely change and have content hashes.
- */
 async function cacheFirst(request, cacheName) {
   const cached = await caches.match(request);
   if (cached) return cached;
@@ -129,15 +124,10 @@ async function cacheFirst(request, cacheName) {
   }
 }
 
-/**
- * Stale-While-Revalidate: Return cached immediately, update cache in background.
- * Best for images that need to feel fast but may update.
- */
 async function staleWhileRevalidate(request, cacheName) {
   const cache = await caches.open(cacheName);
   const cached = await cache.match(request);
 
-  // Always revalidate in background
   const networkPromise = fetch(request)
     .then(response => {
       if (response.ok) {
@@ -147,9 +137,7 @@ async function staleWhileRevalidate(request, cacheName) {
     })
     .catch(() => null);
 
-  // Return cached immediately if available, otherwise wait for network
   if (cached) {
-    // Trigger background revalidation (don't await)
     networkPromise;
     return cached;
   }
@@ -163,10 +151,6 @@ async function staleWhileRevalidate(request, cacheName) {
   });
 }
 
-/**
- * Network-First: Try network, fallback to cache.
- * Best for HTML pages that should be fresh but work offline.
- */
 async function networkFirst(request, cacheName) {
   try {
     const response = await fetch(request);
@@ -179,7 +163,6 @@ async function networkFirst(request, cacheName) {
     const cached = await caches.match(request);
     if (cached) return cached;
 
-    // Offline fallback
     if (request.mode === 'navigate') {
       return new Response(
         `<!DOCTYPE html>
@@ -191,24 +174,26 @@ async function networkFirst(request, cacheName) {
           <style>
             *{margin:0;padding:0;box-sizing:border-box}
             body{min-height:100vh;display:flex;align-items:center;justify-content:center;
-              background:linear-gradient(135deg,#f0f4ff,#faf5ff,#f0f9ff);
-              font-family:Inter,-apple-system,sans-serif;color:#0f172a}
-            .container{text-align:center;padding:40px}
-            .icon{font-size:64px;margin-bottom:24px}
-            h1{font-size:28px;font-weight:800;margin-bottom:12px;letter-spacing:-0.5px}
-            p{font-size:16px;color:#64748b;max-width:400px;line-height:1.6}
-            .retry{margin-top:24px;padding:12px 24px;background:linear-gradient(135deg,#7c3aed,#2563eb);
-              color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;
-              cursor:pointer;transition:opacity .2s}
-            .retry:hover{opacity:.85}
+              background:#F7F7F5;
+              font-family:Inter,-apple-system,sans-serif;color:#111827}
+            .container{text-align:center;padding:40px;background:#FFFFFF;border:1px solid #E5E7EB;border-radius:16px;max-width:420px;margin:20px}
+            .icon{width:48px;height:48px;margin:0 auto 20px;border-radius:12px;background:#F3F4F6;display:flex;align-items:center;justify-content:center;color:#111827}
+            h1{font-size:22px;font-weight:700;margin-bottom:10px;letter-spacing:-0.02em}
+            p{font-size:14px;color:#4B5563;max-width:340px;line-height:1.6}
+            .retry{margin-top:24px;padding:11px 22px;background:#111827;
+              color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;
+              cursor:pointer;transition:background .15s}
+            .retry:hover{background:#1F2937}
           </style>
         </head>
         <body>
           <div class="container">
-            <div class="icon">📡</div>
-            <h1>You're Offline</h1>
-            <p>It looks like you've lost your internet connection. Please check your network and try again.</p>
-            <button class="retry" onclick="location.reload()">Try Again</button>
+            <div class="icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="1" y1="1" x2="23" y2="23"></line><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"></path><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"></path><path d="M10.71 5.05A16 16 0 0 1 22.58 9"></path><path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"></path><path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path><line x1="12" y1="20" x2="12.01" y2="20"></line></svg>
+            </div>
+            <h1>No internet connection</h1>
+            <p>Check your Wi-Fi or mobile data connection and refresh the page to continue shopping on Shopply.</p>
+            <button class="retry" onclick="location.reload()">Try again</button>
           </div>
         </body>
         </html>`,
@@ -224,7 +209,6 @@ async function networkFirst(request, cacheName) {
 }
 
 // --- Cache Size Management ---
-// Limit image cache to ~100 entries to prevent storage bloat
 self.addEventListener('message', (event) => {
   if (event.data?.type === 'TRIM_CACHES') {
     trimCache(IMAGE_CACHE, 100);
@@ -235,7 +219,6 @@ async function trimCache(cacheName, maxItems) {
   const cache = await caches.open(cacheName);
   const keys = await cache.keys();
   if (keys.length > maxItems) {
-    // Delete oldest entries (FIFO)
     const deleteCount = keys.length - maxItems;
     for (let i = 0; i < deleteCount; i++) {
       await cache.delete(keys[i]);

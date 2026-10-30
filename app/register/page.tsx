@@ -1,42 +1,40 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { apiRegister } from "@/lib/api";
 import { getApiCache } from "@/lib/apiCache";
-
-/* ── Icons ─────────────────────────────────────────────────────── */
-
+import { ShopplyWordmark } from "@/components/PublicChrome";
 
 const EyeOpen = () => (
-  <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-    <circle cx="12" cy="12" r="3"/>
+  <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
+    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+    <circle cx="12" cy="12" r="3" />
   </svg>
 );
 
 const EyeOff = () => (
-  <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-    <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94"/>
-    <path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19"/>
-    <line x1="1" y1="1" x2="23" y2="23"/>
+  <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
+    <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94" />
+    <path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19" />
+    <line x1="1" y1="1" x2="23" y2="23" />
   </svg>
 );
 
 const CheckMark = () => (
   <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-    <polyline points="20 6 9 17 4 12"/>
+    <polyline points="20 6 9 17 4 12" />
   </svg>
 );
+
 const XMark = () => (
   <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+    <line x1="18" y1="6" x2="6" y2="18" />
+    <line x1="6" y1="6" x2="18" y2="18" />
   </svg>
 );
 
 const GoogleIcon = () => (
-
-  <svg width="20" height="20" viewBox="0 0 24 24">
+  <svg width="18" height="18" viewBox="0 0 24 24">
     <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.81-2.4 3.66v3.04h3.88c2.27-2.09 3.565-5.17 3.565-8.84Z"/>
     <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.04c-1.08.72-2.45 1.16-4.05 1.16-3.11 0-5.74-2.11-6.68-4.96H1.21v3.15C3.18 21.88 7.27 24 12 24Z"/>
     <path fill="#FBBC05" d="M5.32 14.25a7.16 7.16 0 0 1 0-4.5V6.6H1.21a12 12 0 0 0 0 10.8l4.11-3.15Z"/>
@@ -45,7 +43,6 @@ const GoogleIcon = () => (
 );
 
 export default function RegisterPage() {
-  const router = useRouter();
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -59,17 +56,21 @@ export default function RegisterPage() {
   const [copied, setCopied] = useState(false);
   const [origin, setOrigin] = useState("");
   const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
-  // Touched state — show inline validation only after user has interacted
-  const [touched, setTouched] = useState({ username: false, email: false, password: false, confirm: false });
+  const [touched, setTouched] = useState({
+    username: false,
+    email: false,
+    password: false,
+    confirm: false,
+  });
 
   useEffect(() => {
     setOrigin(window.location.origin);
 
-    (window as any).onRecaptchaSuccess = (token: string) => {
+    (window as unknown as Record<string, unknown>).onRecaptchaSuccess = (token: string) => {
       setRecaptchaToken(token);
       setError("");
     };
-    (window as any).onRecaptchaExpired = () => {
+    (window as unknown as Record<string, unknown>).onRecaptchaExpired = () => {
       setRecaptchaToken(null);
     };
 
@@ -83,19 +84,18 @@ export default function RegisterPage() {
     }
   }, []);
 
-  // Password rules
   const passRules = [
-    { label: "At least 8 characters",      ok: password.length >= 8 },
-    { label: "Contains a letter",           ok: /[a-zA-Z]/.test(password) },
-    { label: "Contains a number",           ok: /\d/.test(password) },
+    { label: "At least 8 characters", ok: password.length >= 8 },
+    { label: "Contains a letter", ok: /[a-zA-Z]/.test(password) },
+    { label: "Contains a number", ok: /\d/.test(password) },
   ];
-  const passScore = passRules.filter(r => r.ok).length;
+  const passScore = passRules.filter((r) => r.ok).length;
   const passwordOk = passScore === 3;
-  const confirmOk  = password === confirm && confirm.length > 0;
+  const confirmOk = password === confirm && confirm.length > 0;
   const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
 
   const strengthLabel = ["", "Weak", "Fair", "Strong"][passScore];
-  const strengthColor = ["transparent", "#ef4444", "#f59e0b", "#10b981"][passScore];
+  const strengthColor = ["transparent", "#DC2626", "#D97706", "#059669"][passScore];
   const strengthWidth = ["0%", "33%", "66%", "100%"][passScore];
 
   const handleGoogleLogin = () => {
@@ -111,16 +111,32 @@ export default function RegisterPage() {
 
   const handleSubmit = async () => {
     setError("");
-    // Mark all fields as touched so inline errors appear
     setTouched({ username: true, email: true, password: true, confirm: true });
 
-    if (username.trim().length < 3) { setError("Username must be at least 3 characters."); return; }
-    if (!email.trim()) { setError("Email is required."); return; }
-    if (!isEmailValid) { setError("Please enter a valid email address."); return; }
-    if (!passwordOk) { setError("Password must be at least 8 characters with a letter and a number."); return; }
-    if (!confirmOk) { setError("Passwords do not match."); return; }
-    if (!agreedToTerms) { setError("Please agree to the Terms of Service and Privacy Policy to continue."); return; }
-
+    if (username.trim().length < 3) {
+      setError("Username must be at least 3 characters.");
+      return;
+    }
+    if (!email.trim()) {
+      setError("Email is required.");
+      return;
+    }
+    if (!isEmailValid) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+    if (!passwordOk) {
+      setError("Password must be at least 8 characters with a letter and a number.");
+      return;
+    }
+    if (!confirmOk) {
+      setError("Passwords do not match.");
+      return;
+    }
+    if (!agreedToTerms) {
+      setError("Please agree to the Terms of Service and Privacy Policy to continue.");
+      return;
+    }
     if (!recaptchaToken) {
       setError("Please complete the reCAPTCHA verification.");
       return;
@@ -128,7 +144,13 @@ export default function RegisterPage() {
 
     setLoading(true);
     try {
-      const data = await apiRegister({ name: username.trim(), username: username.trim(), email: email.trim(), password, recaptchaToken });
+      const data = await apiRegister({
+        name: username.trim(),
+        username: username.trim(),
+        email: email.trim(),
+        password,
+        recaptchaToken,
+      });
       getApiCache().invalidateAll();
       localStorage.setItem("token", data.token!);
       localStorage.setItem("user", JSON.stringify(data.user));
@@ -136,7 +158,6 @@ export default function RegisterPage() {
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "";
       if (msg === "requires_verify") {
-        // Token & user already saved by apiRegister — go to OTP page
         window.location.href = "/verify";
         return;
       }
@@ -147,365 +168,811 @@ export default function RegisterPage() {
 
   return (
     <>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        *{box-sizing:border-box;margin:0;padding:0}
-        body{background:#f5f7ff}
-        .root{min-height:100vh;background:linear-gradient(135deg,#f0f4ff 0%,#faf5ff 50%,#f0f9ff 100%);
-          display:flex;align-items:center;justify-content:center;font-family:'Inter',sans-serif;
-          position:relative;overflow:hidden;padding:24px 0}
-        .circle{position:absolute;border-radius:50%;pointer-events:none}
-        .c1{width:400px;height:400px;background:radial-gradient(circle,rgba(59,130,246,.12) 0%,transparent 70%);top:-80px;right:-60px}
-        .c2{width:350px;height:350px;background:radial-gradient(circle,rgba(139,92,246,.1) 0%,transparent 70%);bottom:-80px;left:-60px}
-        .wrap{position:relative;z-index:10;display:flex;width:100%;max-width:960px;margin:24px;
-          border-radius:24px;overflow:hidden;
-          box-shadow:0 20px 60px rgba(0,0,0,.08),0 4px 20px rgba(0,0,0,.04)}
-        .left{flex:1;background:linear-gradient(145deg,#2563eb 0%,#4f46e5 50%,#7c3aed 100%);
-          padding:48px 44px;display:flex;flex-direction:column;justify-content:center;gap:48px;
-          position:relative;overflow:hidden}
-        .left::before{content:'';position:absolute;width:320px;height:320px;border-radius:50%;
-          background:rgba(255,255,255,.07);top:-100px;right:-100px;animation:float1 8s ease-in-out infinite alternate}
-        .left::after{content:'';position:absolute;width:220px;height:220px;border-radius:50%;
-          background:rgba(255,255,255,.05);bottom:-60px;left:-60px;animation:float2 10s ease-in-out infinite alternate}
-        @keyframes float1{from{transform:translate(0,0)}to{transform:translate(20px,20px)}}
-        @keyframes float2{from{transform:translate(0,0)}to{transform:translate(-15px,-15px)}}
-        .left-logo{display:flex;align-items:center;gap:12px}
-        .logo-svg{width:36px;height:36px;flex-shrink:0}
-        .logo-text{font-size:18px;font-weight:700;color:#fff;letter-spacing:-.3px}
-        .left-content{position:relative;z-index:1}
-        .left-tag{font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;
-          color:rgba(255,255,255,.5);margin-bottom:14px}
-        .left h2{font-size:34px;font-weight:700;color:#fff;letter-spacing:-.8px;line-height:1.15;margin-bottom:16px}
-        .left p{font-size:14px;color:rgba(255,255,255,.65);line-height:1.8;max-width:280px}
-        .dots{display:flex;gap:8px;margin-top:36px;align-items:center}
-        .dots a{display:flex;align-items:center}
-        .dot{height:8px;border-radius:4px;transition:opacity .2s,transform .2s}
-        .dot.d1{width:8px;background:rgba(255,255,255,.4);cursor:pointer}
-        .dot.d1:hover{opacity:.7;transform:scale(1.2)}
-        .dot.d2{width:28px;background:#fff;opacity:.9;cursor:default}
-        .right{width:480px;background:#fff;padding:48px 44px;display:flex;flex-direction:column;justify-content:center;overflow-y:auto}
-        .right-head{margin-bottom:26px}
-        .right-head h1{font-size:25px;font-weight:700;color:#0f172a;letter-spacing:-.4px;margin-bottom:6px}
-        .right-head p{font-size:14px;color:#94a3b8;line-height:1.5}
-        .field{margin-bottom:15px}
-        .field label{display:block;font-size:11px;font-weight:600;color:#64748b;letter-spacing:.5px;text-transform:uppercase;margin-bottom:7px}
-        .field input{width:100%;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:12px;
-          padding:12px 16px;font-size:14px;color:#0f172a;font-family:'Inter',sans-serif;
-          outline:none;transition:all .2s}
-        .field input::placeholder{color:#cbd5e1}
-        .field input:focus{border-color:#4f46e5;background:#f5f3ff;box-shadow:0 0 0 3px rgba(79,70,229,.08)}
-        .field input.valid{border-color:#10b981;background:#f0fdf4}
-        .field input.invalid{border-color:#ef4444;background:#fef2f2}
-        .field input.has-icon{padding-right:44px}
+      <style suppressHydrationWarning>{`
+        .reg-page {
+          min-height: 100vh;
+          background: #F7F7F5;
+          display: flex;
+          flex-direction: column;
+          font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+          color: #111827;
+        }
+        .reg-topbar {
+          max-width: 980px;
+          width: 100%;
+          margin: 0 auto;
+          padding: 20px 24px 0;
+        }
+        .reg-back {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          font-size: 13.5px;
+          font-weight: 500;
+          color: #4B5563;
+          text-decoration: none;
+        }
+        .reg-back:hover {
+          color: #111827;
+        }
+        .reg-main {
+          flex: 1;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 24px;
+        }
+        .reg-shell {
+          width: 100%;
+          max-width: 960px;
+          background: #FFFFFF;
+          border: 1px solid #E5E7EB;
+          border-radius: 16px;
+          overflow: hidden;
+          display: grid;
+          grid-template-columns: 1fr 500px;
+          box-shadow: 0 12px 32px rgba(17, 24, 39, 0.05);
+        }
+        .reg-aside {
+          background: #111827;
+          color: #FFFFFF;
+          padding: 48px 42px;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          gap: 32px;
+        }
+        .reg-eyebrow {
+          font-size: 11.5px;
+          font-weight: 600;
+          letter-spacing: 0.05em;
+          text-transform: uppercase;
+          color: #34D399;
+          margin-bottom: 12px;
+        }
+        .reg-aside h2 {
+          font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+          font-size: 29px;
+          font-weight: 700;
+          letter-spacing: -0.025em;
+          line-height: 1.18;
+          margin-bottom: 14px;
+        }
+        .reg-aside p {
+          font-size: 14px;
+          color: #D1D5DB;
+          line-height: 1.65;
+          max-width: 310px;
+        }
+        .reg-points {
+          list-style: none;
+          padding: 24px 0 0;
+          margin: 24px 0 0;
+          border-top: 1px solid rgba(255, 255, 255, 0.12);
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+        }
+        .reg-points li {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          font-size: 13px;
+          color: #E5E7EB;
+        }
+        .reg-point-dot {
+          width: 18px;
+          height: 18px;
+          border-radius: 50%;
+          background: rgba(16, 185, 129, 0.18);
+          color: #34D399;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+        }
+        .reg-form {
+          padding: 40px 42px;
+          background: #FFFFFF;
+        }
+        .reg-head {
+          margin-bottom: 22px;
+        }
+        .reg-head h1 {
+          font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+          font-size: 24px;
+          font-weight: 700;
+          color: #111827;
+          letter-spacing: -0.025em;
+          margin-bottom: 4px;
+        }
+        .reg-head p {
+          font-size: 13.5px;
+          color: #6B7280;
+        }
+        .field {
+          margin-bottom: 14px;
+        }
+        .field label {
+          display: block;
+          font-size: 12.5px;
+          font-weight: 600;
+          color: #374151;
+          margin-bottom: 6px;
+        }
+        .field input {
+          width: 100%;
+          height: 42px;
+          background: #FFFFFF;
+          border: 1px solid #D1D5DB;
+          border-radius: 8px;
+          padding: 0 13px;
+          font-size: 14px;
+          color: #111827;
+          font-family: inherit;
+          outline: none;
+          transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+        .field input::placeholder {
+          color: #9CA3AF;
+        }
+        .field input:focus {
+          border-color: #111827;
+          box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.08);
+        }
+        .field input.valid {
+          border-color: #059669;
+        }
+        .field input.invalid {
+          border-color: #DC2626;
+        }
+        .field input.has-icon {
+          padding-right: 40px;
+        }
         input[type="password"]::-ms-reveal,
-        input[type="password"]::-ms-clear{display:none}
-        .eye-btn{position:absolute;right:12px;top:50%;transform:translateY(-50%);
-          background:none;border:none;cursor:pointer;color:#94a3b8;padding:6px;display:flex;align-items:center}
-        .eye-btn:hover{color:#64748b}
-        .field-err{font-size:11.5px;color:#ef4444;margin-top:5px;display:flex;align-items:center;gap:4px;font-weight:500}
-        .field-ok{font-size:11.5px;color:#10b981;margin-top:5px;display:flex;align-items:center;gap:4px;font-weight:500}
-        .row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-        .strength-bar{height:3px;border-radius:2px;background:#f1f5f9;margin-top:8px;overflow:hidden}
-        .strength-fill{height:100%;border-radius:2px;transition:width .35s ease,background .35s ease}
-        .strength-label{display:flex;justify-content:space-between;align-items:center;margin-top:5px}
-        .strength-text{font-size:11px;font-weight:700}
-        .hint{font-size:11px;color:#94a3b8;margin-top:4px}
-        .rules{margin-top:10px;display:flex;flex-direction:column;gap:5px;background:#f8fafc;
-          border-radius:10px;padding:10px 12px;border:1.5px solid #f1f5f9;margin-bottom:4px}
-        .rule{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:500;transition:color .2s}
-        .rule.ok{color:#10b981}
-        .rule.fail{color:#cbd5e1}
-        .rule-dot{width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s}
-        .rule.ok .rule-dot{background:#dcfce7}
-        .rule.fail .rule-dot{background:#f1f5f9}
-        .email-note{display:flex;align-items:center;gap:6px;font-size:11.5px;color:#64748b;
-          margin-top:5px;font-weight:500;background:#f0fdf4;border-radius:8px;padding:6px 10px}
-        .terms-row{display:flex;align-items:flex-start;gap:10px;margin:12px 0 14px}
-        .terms-checkbox{width:18px;height:18px;border-radius:5px;border:1.5px solid #cbd5e1;
-          background:#f8fafc;cursor:pointer;display:flex;align-items:center;justify-content:center;
-          flex-shrink:0;margin-top:1px;transition:all .2s}
-        .terms-checkbox.checked{background:#4f46e5;border-color:#4f46e5}
-        .terms-text{font-size:12.5px;color:#64748b;line-height:1.6}
-        .terms-text a{color:#4f46e5;font-weight:600;text-decoration:none}
-        .terms-text a:hover{color:#4338ca;text-decoration:underline}
-        .err{background:#fef2f2;border:1.5px solid #fecaca;border-radius:12px;
-          padding:11px 15px;font-size:13px;color:#ef4444;margin-bottom:16px;display:flex;align-items:flex-start;gap:8px;line-height:1.5;font-weight:500}
-        .btn{width:100%;padding:14px;background:linear-gradient(135deg,#2563eb 0%,#7c3aed 100%);
-          border:none;border-radius:13px;color:#fff;font-size:15px;font-weight:600;
-          font-family:'Inter',sans-serif;cursor:pointer;transition:all .2s;margin-top:4px;
-          box-shadow:0 4px 16px rgba(79,70,229,.3);
-          display:flex;align-items:center;justify-content:center;gap:8px;height:50px;}
-        .btn:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 6px 22px rgba(79,70,229,.4)}
-        .btn:disabled{opacity:.65;cursor:not-allowed}
-        .spin{width:17px;height:17px;border:2.5px solid rgba(255,255,255,.35);
-          border-top-color:#fff;border-radius:50%;animation:sp .65s linear infinite}
-        @keyframes sp{to{transform:rotate(360deg)}}
-        .btn-google{width:100%;padding:13px;background:#fff;border:1.5px solid #e2e8f0;border-radius:100px;
-          color:#0f172a;font-size:14px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;
-          display:flex;align-items:center;justify-content:center;gap:10px;transition:all .2s;margin-top:10px;
-          box-shadow:0 1px 4px rgba(0,0,0,.06)}
-        .btn-google:hover{background:#f8fafc;border-color:#cbd5e1;transform:translateY(-1px)}
-        .divider{display:flex;align-items:center;gap:12px;margin:18px 0 0}
-        .divider span{font-size:12px;color:#cbd5e1;white-space:nowrap}
-        .div-line{flex:1;height:1px;background:#f1f5f9}
-        .foot{text-align:center;font-size:13px;color:#94a3b8;margin-top:16px}
-        .foot a{color:#4f46e5;text-decoration:none;font-weight:600}
-        .foot a:hover{color:#4338ca}
-        .recaptcha-wrap{display:flex;justify-content:center;margin:14px 0 4px}
+        input[type="password"]::-ms-clear {
+          display: none;
+        }
+        .eye-btn {
+          position: absolute;
+          right: 10px;
+          top: 50%;
+          transform: translateY(-50%);
+          background: none;
+          border: none;
+          cursor: pointer;
+          color: #6B7280;
+          padding: 5px;
+          display: flex;
+          align-items: center;
+        }
+        .field-err {
+          font-size: 11.5px;
+          color: #DC2626;
+          margin-top: 4px;
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          font-weight: 500;
+        }
+        .field-ok {
+          font-size: 11.5px;
+          color: #059669;
+          margin-top: 4px;
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          font-weight: 500;
+        }
+        .row {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 12px;
+        }
+        .strength-bar {
+          height: 3px;
+          border-radius: 2px;
+          background: #E5E7EB;
+          margin-top: 7px;
+          overflow: hidden;
+        }
+        .strength-fill {
+          height: 100%;
+          border-radius: 2px;
+          transition: width 0.25s ease, background 0.25s ease;
+        }
+        .strength-label {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-top: 4px;
+        }
+        .strength-text {
+          font-size: 11px;
+          font-weight: 600;
+        }
+        .hint {
+          font-size: 11px;
+          color: #6B7280;
+        }
+        .rules {
+          margin-top: 6px;
+          margin-bottom: 10px;
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+          background: #F9FAFB;
+          border-radius: 8px;
+          padding: 9px 12px;
+          border: 1px solid #E5E7EB;
+        }
+        .rule {
+          display: flex;
+          align-items: center;
+          gap: 7px;
+          font-size: 12px;
+          font-weight: 500;
+        }
+        .rule.ok {
+          color: #059669;
+        }
+        .rule.fail {
+          color: #6B7280;
+        }
+        .rule-dot {
+          width: 15px;
+          height: 15px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+        }
+        .rule.ok .rule-dot {
+          background: #ECFDF5;
+        }
+        .rule.fail .rule-dot {
+          background: #F3F4F6;
+        }
+        .email-note {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          font-size: 11.5px;
+          color: #4B5563;
+          margin-top: 6px;
+        }
+        .terms-row {
+          display: flex;
+          align-items: flex-start;
+          gap: 10px;
+          margin: 12px 0 14px;
+        }
+        .terms-checkbox {
+          width: 18px;
+          height: 18px;
+          border-radius: 4px;
+          border: 1.5px solid #9CA3AF;
+          background: #FFFFFF;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+          margin-top: 2px;
+          color: #FFFFFF;
+        }
+        .terms-checkbox.checked {
+          background: #111827;
+          border-color: #111827;
+        }
+        .terms-text {
+          font-size: 12.5px;
+          color: #4B5563;
+          line-height: 1.55;
+        }
+        .terms-text a {
+          color: #111827;
+          font-weight: 600;
+          text-decoration: underline;
+          text-underline-offset: 2px;
+        }
+        .err {
+          background: #FEF2F2;
+          border: 1px solid #FECACA;
+          border-radius: 8px;
+          padding: 10px 12px;
+          font-size: 13px;
+          color: #B91C1C;
+          margin-bottom: 14px;
+          line-height: 1.45;
+        }
+        .btn {
+          width: 100%;
+          height: 44px;
+          background: #111827;
+          border: 1px solid #111827;
+          border-radius: 8px;
+          color: #FFFFFF;
+          font-size: 14.5px;
+          font-weight: 600;
+          font-family: inherit;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          transition: background 0.15s ease;
+        }
+        .btn:hover:not(:disabled) {
+          background: #1F2937;
+        }
+        .btn:disabled {
+          opacity: 0.65;
+          cursor: not-allowed;
+        }
+        .spin {
+          width: 16px;
+          height: 16px;
+          border: 2px solid rgba(255, 255, 255, 0.35);
+          border-top-color: #FFFFFF;
+          border-radius: 50%;
+          animation: sp 0.65s linear infinite;
+        }
+        @keyframes sp {
+          to { transform: rotate(360deg); }
+        }
+        .btn-google {
+          width: 100%;
+          height: 44px;
+          background: #FFFFFF;
+          border: 1px solid #D1D5DB;
+          border-radius: 8px;
+          color: #111827;
+          font-size: 14px;
+          font-weight: 600;
+          font-family: inherit;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
+          margin-top: 12px;
+          transition: background 0.15s ease;
+        }
+        .btn-google:hover {
+          background: #F9FAFB;
+        }
+        .divider {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          margin: 16px 0 0;
+        }
+        .divider span {
+          font-size: 12px;
+          color: #9CA3AF;
+        }
+        .div-line {
+          flex: 1;
+          height: 1px;
+          background: #E5E7EB;
+        }
+        .foot {
+          text-align: center;
+          font-size: 13.5px;
+          color: #6B7280;
+          margin-top: 16px;
+        }
+        .foot a {
+          color: #111827;
+          font-weight: 600;
+          text-decoration: underline;
+          text-underline-offset: 3px;
+        }
+        .recaptcha-wrap {
+          display: flex;
+          justify-content: center;
+          margin: 12px 0 4px;
+        }
+        .modal-overlay {
+          position: fixed;
+          inset: 0;
+          background: rgba(17, 24, 39, 0.55);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 100;
+          padding: 24px;
+        }
+        .modal-card {
+          background: #FFFFFF;
+          width: 100%;
+          max-width: 540px;
+          border-radius: 16px;
+          border: 1px solid #E5E7EB;
+          padding: 32px;
+          max-height: 90vh;
+          overflow-y: auto;
+        }
+        .modal-head {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          margin-bottom: 16px;
+        }
+        .modal-head h3 {
+          font-size: 19px;
+          font-weight: 700;
+          color: #111827;
+        }
+        .modal-body {
+          font-size: 14px;
+          color: #4B5563;
+          line-height: 1.6;
+        }
+        .step-box {
+          background: #F9FAFB;
+          border: 1px solid #E5E7EB;
+          border-radius: 10px;
+          padding: 16px;
+          margin-bottom: 14px;
+        }
+        .step-title {
+          font-size: 14px;
+          font-weight: 600;
+          color: #111827;
+          margin-bottom: 6px;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+        .step-num {
+          width: 22px;
+          height: 22px;
+          border-radius: 6px;
+          background: #111827;
+          color: #FFFFFF;
+          font-size: 12px;
+          font-weight: 700;
+          display: grid;
+          place-items: center;
+        }
+        .code-block {
+          background: #111827;
+          color: #F9FAFB;
+          padding: 12px 14px;
+          border-radius: 8px;
+          font-family: monospace;
+          font-size: 12.5px;
+          margin: 8px 0;
+          position: relative;
+          overflow-x: auto;
+        }
+        .copy-btn {
+          position: absolute;
+          right: 10px;
+          top: 10px;
+          background: rgba(255, 255, 255, 0.15);
+          border: none;
+          color: #FFFFFF;
+          padding: 4px 10px;
+          border-radius: 6px;
+          font-size: 12px;
+          cursor: pointer;
+        }
+        .modal-foot {
+          display: flex;
+          justify-content: flex-end;
+          margin-top: 20px;
+        }
+        .btn-close {
+          background: #111827;
+          color: #FFFFFF;
+          border: none;
+          padding: 10px 20px;
+          border-radius: 8px;
+          font-size: 14px;
+          font-weight: 600;
+          cursor: pointer;
+        }
 
-        /* Modal Styles */
-        .modal-overlay{position:fixed;inset:0;background:rgba(15,23,42,.6);backdrop-filter:blur(8px);
-          display:flex;align-items:center;justify-content:center;z-index:100;padding:24px;
-          animation:fadeIn .2s ease-out}
-        .modal-card{background:#fff;width:100%;max-width:540px;border-radius:24px;padding:40px;
-          box-shadow:0 24px 64px rgba(0,0,0,.2);animation:scaleUp .2s ease-out;max-height:90vh;overflow-y:auto}
-        @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-        @keyframes scaleUp{from{opacity:0;transform:scale(0.95)}to{opacity:1;transform:scale(1)}}
-        .modal-head{display:flex;align-items:center;gap:14px;margin-bottom:24px}
-        .modal-head h3{font-size:22px;font-weight:700;color:#0f172a;letter-spacing:-.4px}
-        .modal-body{font-size:14.5px;color:#475569;line-height:1.6}
-        .modal-body p{margin-bottom:16px}
-        .step-box{background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:16px;padding:20px;margin-bottom:20px}
-        .step-title{font-size:15px;font-weight:700;color:#1e293b;margin-bottom:8px;display:flex;align-items:center;gap:8px}
-        .step-num{width:24px;height:24px;border-radius:12px;background:#7c3aed;color:#fff;font-size:13px;font-weight:700;display:grid;place-items:center}
-        .code-block{background:#0f172a;color:#f8fafc;padding:14px 18px;border-radius:12px;font-family:monospace;font-size:13px;margin:10px 0;position:relative;overflow-x:auto}
-        .copy-btn{position:absolute;right:12px;top:12px;background:rgba(255,255,255,.15);border:none;color:#fff;padding:4px 10px;border-radius:6px;font-size:12px;cursor:pointer;transition:background .2s}
-        .copy-btn:hover{background:rgba(255,255,255,.25)}
-        .modal-foot{display:flex;justify-content:flex-end;margin-top:28px}
-        .btn-close{background:#7c3aed;color:#fff;border:none;padding:12px 28px;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;transition:background .2s}
-        .btn-close:hover{background:#6d28d9}
-
-        @media(max-width:750px){
-          .wrap{flex-direction:column;max-width:440px}
-          .left{padding:28px;min-height:200px}
-          .left h2,.left p{display:none}
-          .right{width:100%;padding:32px 28px}
-          .row{grid-template-columns:1fr}
-          .modal-card{padding:28px}
+        @media (max-width: 820px) {
+          .reg-shell {
+            grid-template-columns: 1fr;
+            max-width: 480px;
+          }
+          .reg-aside {
+            padding: 28px;
+          }
+          .reg-points {
+            display: none;
+          }
+          .reg-aside h2 {
+            font-size: 22px;
+            margin-bottom: 6px;
+          }
+          .reg-form {
+            padding: 32px 24px;
+          }
+          .row {
+            grid-template-columns: 1fr;
+          }
         }
       `}</style>
-      <div className="root">
-        <div className="circle c1"/><div className="circle c2"/>
-        <div className="wrap">
-          <div className="left">
-            <div className="left-logo">
-              <svg className="logo-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 260">
-                <rect x="8" y="68" width="184" height="176" rx="24" fill="none" stroke="rgba(255,255,255,0.92)" strokeWidth="14"/>
-                <path d="M56 70 Q56 18 100 18 Q144 18 144 70" fill="none" stroke="rgba(255,255,255,0.92)" strokeWidth="14" strokeLinecap="round"/>
-                <circle cx="68" cy="70" r="7" fill="rgba(255,255,255,0.92)"/>
-                <circle cx="132" cy="70" r="7" fill="rgba(255,255,255,0.92)"/>
-                <path d="M24 192 Q36 150 70 145 Q104 140 110 170 Q116 198 150 192 Q170 187 176 162"
-                  fill="none" stroke="#FFD166" strokeWidth="13" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M161 145 L176 162 L157 175" fill="none" stroke="#FFD166" strokeWidth="13" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              <span className="logo-text">Shopply</span>
-            </div>
-            <div className="left-content">
-              <p className="left-tag">Get started for free</p>
-              <h2>Create your account.<br/>It only takes a minute.</h2>
-              <p>Join and get instant access to your dashboard and everything Shopply has to offer.</p>
-              <div className="dots">
-                <Link href="/login"><div className="dot d1"/></Link>
-                <div className="dot d2"/>
+
+      <div className="reg-page">
+        <div className="reg-topbar">
+          <Link href="/" className="reg-back">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="19" y1="12" x2="5" y2="12" />
+              <polyline points="12 19 5 12 12 5" />
+            </svg>
+            <span>Back to storefront</span>
+          </Link>
+        </div>
+
+        <div className="reg-main">
+          <div className="reg-shell">
+            <div className="reg-aside">
+              <ShopplyWordmark href="/" inverted />
+              <div>
+                <p className="reg-eyebrow">Free Account</p>
+                <h2>Shop local stores or launch your own storefront.</h2>
+                <p>
+                  One verified Shopply account lets you buy nationwide and list products for sale with zero monthly subscription fees.
+                </p>
+                <ul className="reg-points">
+                  <li>
+                    <span className="reg-point-dot">
+                      <CheckMark />
+                    </span>
+                    <span>Instant buyer &amp; seller dashboard access</span>
+                  </li>
+                  <li>
+                    <span className="reg-point-dot">
+                      <CheckMark />
+                    </span>
+                    <span>Email OTP verification keeps accounts genuine</span>
+                  </li>
+                  <li>
+                    <span className="reg-point-dot">
+                      <CheckMark />
+                    </span>
+                    <span>Nationwide COD, e-wallet &amp; meetup support</span>
+                  </li>
+                </ul>
               </div>
-            </div>
-          </div>
-
-          <div className="right">
-            <div className="right-head">
-              <h1>Create Account</h1>
-              <p>Fill in your details to get started</p>
-            </div>
-
-            {error && (
-              <div className="err">
-                <span style={{fontSize:16,flexShrink:0}}>⚠</span>
-                <span>{error}</span>
-              </div>
-            )}
-
-            {/* Username */}
-            <div className="field">
-              <label>Username</label>
-              <input
-                type="text"
-                placeholder="Choose a username"
-                value={username}
-                className={touched.username ? (username.trim().length >= 3 ? "valid" : "invalid") : ""}
-                onChange={e => { setUsername(e.target.value); setError(""); }}
-                onBlur={() => setTouched(t => ({ ...t, username: true }))}
-                autoComplete="off"
-              />
-              {touched.username && username.trim().length < 3 && username.length > 0 && (
-                <div className="field-err"><XMark/>At least 3 characters required</div>
-              )}
-              {touched.username && username.trim().length >= 3 && (
-                <div className="field-ok"><CheckMark/>Username looks good!</div>
-              )}
-            </div>
-
-            {/* Email */}
-            <div className="field">
-              <label>Email Address</label>
-              <input
-                type="email"
-                placeholder="you@gmail.com"
-                value={email}
-                className={touched.email && email.trim() ? (isEmailValid ? "valid" : "invalid") : ""}
-                onChange={e => { setEmail(e.target.value); setError(""); }}
-                onBlur={() => setTouched(t => ({ ...t, email: true }))}
-                autoComplete="email"
-              />
-              {touched.email && email.trim() && !isEmailValid && (
-                <div className="field-err"><XMark/>Please enter a valid email address</div>
-              )}
-              <div className="email-note">
-                <span>📧</span>
-                <span>A 6-digit OTP code will be sent to verify your email</span>
+              <div style={{ fontSize: "12px", color: "#9CA3AF" }}>
+                Already registered?{" "}
+                <Link href="/login" style={{ color: "#FFFFFF", fontWeight: 600 }}>
+                  Sign in here
+                </Link>
               </div>
             </div>
 
-            {/* Password + Confirm */}
-            <div className="row">
-              <div className="field">
-                <label>Password</label>
-                <div style={{position:"relative"}}>
-                  <input
-                    type={showPass ? "text" : "password"}
-                    placeholder="••••••••"
-                    value={password}
-                    className={`has-icon${touched.password && password ? (passwordOk ? " valid" : " invalid") : ""}`}
-                    onChange={e => { setPassword(e.target.value); setError(""); }}
-                    onBlur={() => setTouched(t => ({ ...t, password: true }))}
-                    autoComplete="new-password"
-                  />
-                  <button type="button" className="eye-btn" onClick={() => setShowPass(!showPass)}>
-                    {showPass ? <EyeOpen/> : <EyeOff/>}
-                  </button>
-                </div>
-                {password.length > 0 && (
-                  <>
-                    <div className="strength-bar">
-                      <div className="strength-fill" style={{ width: strengthWidth, background: strengthColor }}/>
-                    </div>
-                    <div className="strength-label">
-                      <span className="hint">Strength</span>
-                      <span className="strength-text" style={{ color: strengthColor }}>{strengthLabel}</span>
-                    </div>
-                  </>
-                )}
+            <div className="reg-form">
+              <div className="reg-head">
+                <h1>Create your account</h1>
+                <p>Complete your details below to get started</p>
               </div>
+
+              {error && <div className="err">{error}</div>}
 
               <div className="field">
-                <label>Confirm Password</label>
-                <div style={{position:"relative"}}>
-                  <input
-                    type={showConfirm ? "text" : "password"}
-                    placeholder="••••••••"
-                    value={confirm}
-                    className={`has-icon${touched.confirm && confirm ? (confirmOk ? " valid" : " invalid") : ""}`}
-                    onChange={e => { setConfirm(e.target.value); setError(""); }}
-                    onBlur={() => setTouched(t => ({ ...t, confirm: true }))}
-                    autoComplete="new-password"
-                  />
-                  <button type="button" className="eye-btn" onClick={() => setShowConfirm(!showConfirm)}>
-                    {showConfirm ? <EyeOpen/> : <EyeOff/>}
-                  </button>
-                </div>
-                {touched.confirm && confirm.length > 0 && !confirmOk && (
-                  <div className="field-err"><XMark/>Passwords don&apos;t match</div>
-                )}
-                {touched.confirm && confirmOk && (
-                  <div className="field-ok"><CheckMark/>Passwords match!</div>
-                )}
-              </div>
-            </div>
-
-            {/* Password rules checklist */}
-            {password.length > 0 && (
-              <div className="rules">
-                {passRules.map(r => (
-                  <div key={r.label} className={`rule ${r.ok ? "ok" : "fail"}`}>
-                    <div className="rule-dot">
-                      {r.ok ? <CheckMark/> : <XMark/>}
-                    </div>
-                    {r.label}
+                <label>Username</label>
+                <input
+                  type="text"
+                  placeholder="Choose a username"
+                  value={username}
+                  className={touched.username ? (username.trim().length >= 3 ? "valid" : "invalid") : ""}
+                  onChange={(e) => {
+                    setUsername(e.target.value);
+                    setError("");
+                  }}
+                  onBlur={() => setTouched((t) => ({ ...t, username: true }))}
+                  autoComplete="off"
+                />
+                {touched.username && username.trim().length < 3 && username.length > 0 && (
+                  <div className="field-err">
+                    <XMark /> At least 3 characters required
                   </div>
-                ))}
+                )}
+                {touched.username && username.trim().length >= 3 && (
+                  <div className="field-ok">
+                    <CheckMark /> Username available format
+                  </div>
+                )}
               </div>
-            )}
 
-            {/* reCAPTCHA */}
-            <div className="recaptcha-wrap">
-              <div
-                className="g-recaptcha"
-                data-sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || "6Lc0RV4tAAAAAFG8MkXdmNJ0Bs9pX8_ML7dwtcpM"}
-                data-callback="onRecaptchaSuccess"
-                data-expired-callback="onRecaptchaExpired"
-              />
-            </div>
-
-            {/* Terms of Service */}
-            <div className="terms-row">
-              <div
-                className={`terms-checkbox${agreedToTerms ? " checked" : ""}`}
-                onClick={() => setAgreedToTerms(!agreedToTerms)}
-                role="checkbox"
-                aria-checked={agreedToTerms}
-                tabIndex={0}
-                onKeyDown={e => e.key === " " && setAgreedToTerms(!agreedToTerms)}
-              >
-                {agreedToTerms && <CheckMark/>}
+              <div className="field">
+                <label>Email address</label>
+                <input
+                  type="email"
+                  placeholder="you@example.com"
+                  value={email}
+                  className={touched.email && email.trim() ? (isEmailValid ? "valid" : "invalid") : ""}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    setError("");
+                  }}
+                  onBlur={() => setTouched((t) => ({ ...t, email: true }))}
+                  autoComplete="email"
+                />
+                {touched.email && email.trim() && !isEmailValid && (
+                  <div className="field-err">
+                    <XMark /> Please enter a valid email address
+                  </div>
+                )}
+                <div className="email-note">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="2" y="4" width="20" height="16" rx="2" />
+                    <polyline points="22,6 12,13 2,6" />
+                  </svg>
+                  <span>We&apos;ll send a 6-digit verification code to this address</span>
+                </div>
               </div>
-              <p className="terms-text">
-                I agree to the <Link href="/terms">Terms of Service</Link> and <Link href="/privacy">Privacy Policy</Link>.
-                Your data is protected and never shared without consent.
+
+              <div className="row">
+                <div className="field">
+                  <label>Password</label>
+                  <div style={{ position: "relative" }}>
+                    <input
+                      type={showPass ? "text" : "password"}
+                      placeholder="Create password"
+                      value={password}
+                      className={`has-icon${touched.password && password ? (passwordOk ? " valid" : " invalid") : ""}`}
+                      onChange={(e) => {
+                        setPassword(e.target.value);
+                        setError("");
+                      }}
+                      onBlur={() => setTouched((t) => ({ ...t, password: true }))}
+                      autoComplete="new-password"
+                    />
+                    <button
+                      type="button"
+                      className="eye-btn"
+                      aria-label={showPass ? "Hide password" : "Show password"}
+                      onClick={() => setShowPass(!showPass)}
+                    >
+                      {showPass ? <EyeOpen /> : <EyeOff />}
+                    </button>
+                  </div>
+                  {password.length > 0 && (
+                    <>
+                      <div className="strength-bar">
+                        <div className="strength-fill" style={{ width: strengthWidth, background: strengthColor }} />
+                      </div>
+                      <div className="strength-label">
+                        <span className="hint">Password strength</span>
+                        <span className="strength-text" style={{ color: strengthColor }}>
+                          {strengthLabel}
+                        </span>
+                      </div>
+                    </>
+                  )}
+                </div>
+
+                <div className="field">
+                  <label>Confirm password</label>
+                  <div style={{ position: "relative" }}>
+                    <input
+                      type={showConfirm ? "text" : "password"}
+                      placeholder="Repeat password"
+                      value={confirm}
+                      className={`has-icon${touched.confirm && confirm ? (confirmOk ? " valid" : " invalid") : ""}`}
+                      onChange={(e) => {
+                        setConfirm(e.target.value);
+                        setError("");
+                      }}
+                      onBlur={() => setTouched((t) => ({ ...t, confirm: true }))}
+                      autoComplete="new-password"
+                    />
+                    <button
+                      type="button"
+                      className="eye-btn"
+                      aria-label={showConfirm ? "Hide password" : "Show password"}
+                      onClick={() => setShowConfirm(!showConfirm)}
+                    >
+                      {showConfirm ? <EyeOpen /> : <EyeOff />}
+                    </button>
+                  </div>
+                  {touched.confirm && confirm.length > 0 && !confirmOk && (
+                    <div className="field-err">
+                      <XMark /> Passwords don&apos;t match
+                    </div>
+                  )}
+                  {touched.confirm && confirmOk && (
+                    <div className="field-ok">
+                      <CheckMark /> Passwords match
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {password.length > 0 && (
+                <div className="rules">
+                  {passRules.map((r) => (
+                    <div key={r.label} className={`rule ${r.ok ? "ok" : "fail"}`}>
+                      <div className="rule-dot">{r.ok ? <CheckMark /> : <XMark />}</div>
+                      {r.label}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <div className="recaptcha-wrap">
+                <div
+                  className="g-recaptcha"
+                  data-sitekey={
+                    process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || "6Lc0RV4tAAAAAFG8MkXdmNJ0Bs9pX8_ML7dwtcpM"
+                  }
+                  data-callback="onRecaptchaSuccess"
+                  data-expired-callback="onRecaptchaExpired"
+                />
+              </div>
+
+              <div className="terms-row">
+                <div
+                  className={`terms-checkbox${agreedToTerms ? " checked" : ""}`}
+                  onClick={() => setAgreedToTerms(!agreedToTerms)}
+                  role="checkbox"
+                  aria-checked={agreedToTerms}
+                  tabIndex={0}
+                  onKeyDown={(e) => e.key === " " && setAgreedToTerms(!agreedToTerms)}
+                >
+                  {agreedToTerms && <CheckMark />}
+                </div>
+                <p className="terms-text">
+                  I agree to the <Link href="/terms">Terms of Service</Link> and{" "}
+                  <Link href="/privacy">Privacy Policy</Link>.
+                </p>
+              </div>
+
+              <button className="btn" disabled={loading} onClick={handleSubmit}>
+                {loading ? (
+                  <>
+                    <div className="spin" />
+                    <span>Creating account...</span>
+                  </>
+                ) : (
+                  "Create account"
+                )}
+              </button>
+
+              <div className="divider">
+                <div className="div-line" />
+                <span>or</span>
+                <div className="div-line" />
+              </div>
+
+              <button type="button" className="btn-google" onClick={handleGoogleLogin}>
+                <GoogleIcon />
+                <span>Continue with Google</span>
+              </button>
+
+              <p className="foot">
+                Already have an account? <Link href="/login">Sign in</Link>
               </p>
             </div>
-
-            {/* Submit */}
-            <button className="btn" disabled={loading} onClick={handleSubmit}>
-              {loading ? (
-                <>
-                  <div className="spin"/>
-                  Creating your account…
-                </>
-              ) : "Create Account →"}
-            </button>
-
-            <div className="divider"><div className="div-line"/><span>or</span><div className="div-line"/></div>
-
-            <button type="button" className="btn-google" onClick={handleGoogleLogin}>
-              <GoogleIcon/>
-              <span>Continue with Google</span>
-            </button>
-
-            <p className="foot">Already have an account? <Link href="/login">Sign in →</Link></p>
           </div>
         </div>
 
         {showGoogleModal && (
           <div className="modal-overlay" onClick={() => setShowGoogleModal(false)}>
-            <div className="modal-card" onClick={e => e.stopPropagation()}>
+            <div className="modal-card" onClick={(e) => e.stopPropagation()}>
               <div className="modal-head">
                 <GoogleIcon />
-                <h3>Configure Real Google Sign-In</h3>
+                <h3>Configure Google Sign-In</h3>
               </div>
               <div className="modal-body">
-                <p>
-                  To enable production-ready <strong>Sign in with Google</strong>, you need to provide your Google API credentials. We have removed all simulated logins so your application uses 100% real Google OAuth.
+                <p style={{ marginBottom: "14px" }}>
+                  To enable Google OAuth registration, add your Client ID and Authorized Redirect URI in Google Cloud Console.
                 </p>
                 <div className="step-box">
-                  <div className="step-title"><div className="step-num">1</div> Create Google Cloud Project</div>
-                  <p style={{marginBottom:0,fontSize:"13.5px"}}>
-                    Go to <a href="https://console.cloud.google.com" target="_blank" rel="noreferrer" style={{color:"#7c3aed",fontWeight:600}}>console.cloud.google.com</a>, create a new project, and configure the OAuth Consent Screen.
-                  </p>
-                </div>
-                <div className="step-box">
-                  <div className="step-title"><div className="step-num">2</div> Create OAuth Client ID</div>
-                  <p style={{marginBottom:"8px",fontSize:"13.5px"}}>
-                    Create an OAuth Client ID (Web application) and add the following Authorized Redirect URI exactly as shown:
-                  </p>
+                  <div className="step-title">
+                    <div className="step-num">1</div> Authorized Redirect URI
+                  </div>
                   <div className="code-block">
                     {`${origin}/auth/google/callback`}
                     <button
@@ -517,32 +984,14 @@ export default function RegisterPage() {
                         setTimeout(() => setCopied(false), 2000);
                       }}
                     >
-                      {copied ? "Copied!" : "Copy URI"}
+                      {copied ? "Copied" : "Copy URI"}
                     </button>
                   </div>
                 </div>
-                <div className="step-box">
-                  <div className="step-title"><div className="step-num">3</div> Add Credentials to Your .env Files</div>
-                  <p style={{marginBottom:"8px",fontSize:"13.5px"}}>
-                    Open your project files and add your Client ID and Client Secret:
-                  </p>
-                  <div className="code-block" style={{marginBottom:"12px"}}>
-                    <div style={{color:"#94a3b8",marginBottom:"4px"}}># Frontend (.env.local):</div>
-                    NEXT_PUBLIC_GOOGLE_CLIENT_ID=your_client_id.apps.googleusercontent.com
-                  </div>
-                  <div className="code-block">
-                    <div style={{color:"#94a3b8",marginBottom:"4px"}}># Backend (myproduct-backend/.env):</div>
-                    GOOGLE_CLIENT_ID=your_client_id.apps.googleusercontent.com<br />
-                    GOOGLE_CLIENT_SECRET=your_client_secret
-                  </div>
-                </div>
-                <p style={{marginBottom:0,fontSize:"13.5px",color:"#64748b"}}>
-                  Once added, restart your frontend and backend servers. Click the button again, and real Google Sign-In will function perfectly!
-                </p>
               </div>
               <div className="modal-foot">
                 <button type="button" className="btn-close" onClick={() => setShowGoogleModal(false)}>
-                  Got it, close
+                  Close
                 </button>
               </div>
             </div>
@@ -551,4 +1000,4 @@ export default function RegisterPage() {
       </div>
     </>
   );
-}
+}

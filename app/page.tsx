@@ -1,20 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { Skeleton } from "@/components/Skeleton";
 import { getApiCache } from "@/lib/apiCache";
 import { revokeMarketplaceAccess } from "@/lib/marketplaceAccess";
-import AboutExperience from "./about/AboutExperience";
-import AboutSections, { AboutFooter } from "./about/AboutSections";
+import StorefrontHome from "@/components/StorefrontHome";
 import LogoDrawPreloader from "./about/LogoDrawPreloader";
-import styles from "./about/page.module.css";
 
 export default function Home() {
-  const router = useRouter();
   const [ready, setReady] = useState(false);
   const [isPreloading, setIsPreloading] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
     // Visiting the landing page treats the visitor as unauthenticated.
@@ -31,14 +26,8 @@ export default function Home() {
 
     setReady(true);
 
-    const onScroll = () => {
-      setScrolled(window.scrollY > 12);
-    };
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("pageshow", revokeMarketplaceAccess);
     return () => {
-      window.removeEventListener("scroll", onScroll);
       window.removeEventListener("pageshow", revokeMarketplaceAccess);
     };
   }, []);
@@ -47,30 +36,24 @@ export default function Home() {
     setIsPreloading(true);
   }
 
-  if (!ready)
+  if (!ready) {
     return (
-      <div className={styles.loading}>
-        <Skeleton style={{ width: "100%", height: 68 }} />
-        <div>
-          <Skeleton style={{ width: "70%", height: 90, borderRadius: 18 }} />
-          <Skeleton style={{ width: "50%", height: 28, marginTop: 25, borderRadius: 10 }} />
+      <div style={{ minHeight: "100vh", background: "#FFFFFF" }}>
+        <div style={{ height: 36, background: "#111827" }} />
+        <div style={{ height: 68, borderBottom: "1px solid #E5E7EB", padding: "16px 24px" }}>
+          <Skeleton style={{ width: 140, height: 28 }} />
+        </div>
+        <div style={{ maxWidth: 1240, margin: "0 auto", padding: "56px 24px" }}>
+          <Skeleton style={{ width: "60%", height: 56, borderRadius: 10 }} />
+          <Skeleton style={{ width: "45%", height: 24, marginTop: 18, borderRadius: 8 }} />
         </div>
       </div>
     );
+  }
 
   return (
-    <div className={styles.page} id="about-top" data-scrolled={scrolled ? "true" : "false"}>
-      <a href="#story" className={styles.skip}>
-        Skip to the Shopply story
-      </a>
-      <main className={styles.main} data-curtain-main>
-        <AboutExperience
-          onLoginClick={handleStartLogin}
-          user={null}
-        />
-        <AboutSections />
-      </main>
-      <AboutFooter onLoginClick={handleStartLogin} />
+    <div>
+      <StorefrontHome user={null} onLoginClick={handleStartLogin} />
       <LogoDrawPreloader
         active={isPreloading}
         onComplete={() => {

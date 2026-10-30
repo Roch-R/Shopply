@@ -57,7 +57,7 @@ export default function MeetupMapElement({
           <div style="
             position: absolute;
             bottom: -22px;
-            background: rgba(15, 23, 42, 0.85);
+            background: rgba(17, 24, 39, 0.9);
             color: #fff;
             font-size: 10px;
             font-weight: 700;
@@ -166,7 +166,7 @@ export default function MeetupMapElement({
         lineRef.current.setLatLngs(path);
       } else {
         lineRef.current = L.polyline(path, {
-          color: "#6366f1",
+          color: "#111827",
           weight: 3,
           dashArray: "6, 8",
           opacity: 0.7,
@@ -186,7 +186,7 @@ export default function MeetupMapElement({
         meetupMarkerRef.current.setLatLng(latlng);
       } else {
         meetupMarkerRef.current = L.marker(latlng, {
-          icon: createCustomIcon("#10b981", "Suggested Meet-up", false),
+          icon: createCustomIcon("#0D6847", "Suggested Meet-up", false),
           draggable: true,
         }).addTo(map);
 

@@ -113,11 +113,11 @@ export default function RootLayout({
         {/* Preconnect to Google Fonts for faster font loading */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
-        
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet" />
+
         {/* Preconnect to API server for faster data fetches */}
         <link rel="preconnect" href="http://127.0.0.1:8000" />
-        
+
         {/* DNS prefetch for external resources */}
         <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
         <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
@@ -126,13 +126,13 @@ export default function RootLayout({
         {children}
         <Analytics />
         <SpeedInsights />
-        
+
         {/* Service Worker Registration */}
         <Script id="service-worker-registration" strategy="afterInteractive">
           {`
             // One-time automatic cache clearance to force update old cached client pages
-            if (!localStorage.getItem('shopply_force_clear_v56')) {
-              localStorage.setItem('shopply_force_clear_v56', 'true');
+            if (!localStorage.getItem('shopply_force_clear_v60')) {
+              localStorage.setItem('shopply_force_clear_v60', 'true');
               if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.getRegistrations().then(function(registrations) {
                   for (var i = 0; i < registrations.length; i++) {

@@ -181,51 +181,51 @@ export default function MeetupMap({ myId, peerId, myName, peerName, onClose }: M
     }}>
       <div style={{
         background: "#fff",
-        borderRadius: 24,
+        borderRadius: 16,
         width: "100%",
         maxWidth: 900,
         height: "80vh",
         display: "flex",
         flexDirection: "column",
-        boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.4)",
+        boxShadow: "0 24px 48px -12px rgba(17, 24, 39, 0.32)",
         overflow: "hidden",
-        border: "1px solid rgba(255,255,255,0.2)"
+        border: "1px solid #E5E7EB"
       }}>
         {/* Header */}
         <div style={{
-          padding: "20px 24px",
-          borderBottom: "1px solid #f1f5f9",
+          padding: "18px 24px",
+          borderBottom: "1px solid #E5E7EB",
           display: "flex",
           alignItems: "center",
-          justifyContent: "between",
+          justifyContent: "space-between",
           background: "#fff"
         }}>
           <div style={{ flex: 1 }}>
-            <h3 style={{ fontSize: 18, fontWeight: 700, color: "#0f172a", margin: "0 0 4px" }}>
-              📍 Live Meet-up Location Tracker
+            <h3 style={{ fontSize: 17, fontWeight: 700, color: "#111827", margin: "0 0 4px" }}>
+              Live Meet-up Location Tracker
             </h3>
-            <p style={{ fontSize: 13, color: "#64748b", margin: 0 }}>
-              Tracking locations with <span style={{ fontWeight: 600, color: "#10b981" }}>{peerName}</span>. Click on the map to suggest a meetup point!
+            <p style={{ fontSize: 13, color: "#6B7280", margin: 0 }}>
+              Tracking locations with <span style={{ fontWeight: 600, color: "#0D6847" }}>{peerName}</span>. Click on the map to suggest a meetup point.
             </p>
           </div>
           <button
             onClick={onClose}
             style={{
-              background: "#f1f5f9",
-              border: "none",
-              width: 36,
-              height: 36,
-              borderRadius: "50%",
+              background: "#F3F4F6",
+              border: "1px solid #E5E7EB",
+              width: 34,
+              height: 34,
+              borderRadius: 8,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              color: "#64748b",
-              fontWeight: 700,
+              color: "#4B5563",
+              fontWeight: 600,
               cursor: "pointer",
-              transition: "background 0.2s"
+              transition: "background 0.15s"
             }}
-            onMouseEnter={e => e.currentTarget.style.background = "#e2e8f0"}
-            onMouseLeave={e => e.currentTarget.style.background = "#f1f5f9"}
+            onMouseEnter={e => e.currentTarget.style.background = "#E5E7EB"}
+            onMouseLeave={e => e.currentTarget.style.background = "#F3F4F6"}
           >
             ✕
           </button>
@@ -244,20 +244,20 @@ export default function MeetupMap({ myId, peerId, myName, peerName, onClose }: M
             onSetMeetupPoint={handleSetMeetupPoint}
           />
 
-          {/* Left Overlay Overlay Info Card */}
+          {/* Left Overlay Info Card */}
           <div style={{
             position: "absolute",
             top: 16,
             left: 16,
             zIndex: 1000,
-            background: "rgba(15, 23, 42, 0.85)",
+            background: "rgba(17, 24, 39, 0.92)",
             backdropFilter: "blur(8px)",
             padding: 16,
-            borderRadius: 16,
+            borderRadius: 12,
             color: "#fff",
             width: 260,
-            boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.3)",
-            border: "0.5px solid rgba(255,255,255,0.15)"
+            boxShadow: "0 10px 20px rgba(0, 0, 0, 0.24)",
+            border: "1px solid rgba(255,255,255,0.12)"
           }}>
             <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 12 }}>
               <span style={{
@@ -267,29 +267,29 @@ export default function MeetupMap({ myId, peerId, myName, peerName, onClose }: M
                 background: trackingActive ? "#10b981" : "#ef4444",
                 animation: trackingActive ? "pulse-tracking 1s infinite" : "none"
               }}></span>
-              <span style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.5, color: trackingActive ? "#10b981" : "#ef4444" }}>
+              <span style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.5, color: trackingActive ? "#34d399" : "#fca5a5" }}>
                 {trackingActive ? "Live GPS Tracking Active" : "GPS Tracking Offline"}
               </span>
             </div>
 
             {errorMsg && (
               <p style={{ fontSize: 12, color: "#fca5a5", margin: "0 0 12px", lineHeight: 1.4 }}>
-                ⚠️ {errorMsg}
+                {errorMsg}
               </p>
             )}
 
             <div style={{ marginBottom: 12 }}>
-              <span style={{ fontSize: 11, color: "#94a3b8", display: "block" }}>DISTANCE TO SELLER</span>
-              <span style={{ fontSize: 24, fontWeight: 800, color: "#fff" }}>
+              <span style={{ fontSize: 11, color: "#9CA3AF", display: "block" }}>DISTANCE TO PEER</span>
+              <span style={{ fontSize: 22, fontWeight: 700, color: "#fff", fontVariantNumeric: "tabular-nums" }}>
                 {distance !== null ? `${distance} meters` : "Calculating..."}
               </span>
             </div>
 
             <div>
-              <span style={{ fontSize: 11, color: "#94a3b8", display: "block", marginBottom: 4 }}>MEET-UP SPOT</span>
+              <span style={{ fontSize: 11, color: "#9CA3AF", display: "block", marginBottom: 4 }}>MEET-UP SPOT</span>
               {meetupPoint ? (
                 <div style={{ fontSize: 12, color: "#34d399", fontWeight: 600, display: "flex", alignItems: "center", gap: 4 }}>
-                  <span>✓ Suggested point set!</span>
+                  <span>✓ Suggested point set</span>
                 </div>
               ) : (
                 <button
@@ -298,7 +298,7 @@ export default function MeetupMap({ myId, peerId, myName, peerName, onClose }: M
                   style={{
                     width: "100%",
                     padding: "8px 12px",
-                    background: "#10b981",
+                    background: "#0D6847",
                     color: "#fff",
                     border: "none",
                     borderRadius: 8,
@@ -307,8 +307,8 @@ export default function MeetupMap({ myId, peerId, myName, peerName, onClose }: M
                     cursor: "pointer",
                     transition: "all 0.2s"
                   }}
-                  onMouseEnter={e => e.currentTarget.style.background = "#059669"}
-                  onMouseLeave={e => e.currentTarget.style.background = "#10b981"}
+                  onMouseEnter={e => e.currentTarget.style.background = "#065F46"}
+                  onMouseLeave={e => e.currentTarget.style.background = "#0D6847"}
                 >
                   Suggest My Location
                 </button>

@@ -1,117 +1,154 @@
 "use client";
+
 import Link from "next/link";
-import { useParams, notFound } from "next/navigation";
+import { useParams } from "next/navigation";
 import { getBlogPostBySlug } from "../../../lib/blogData";
 import { useEffect, useState } from "react";
+import { PublicHeader, PublicFooter } from "@/components/PublicChrome";
 
 export default function BlogPostPage() {
   const params = useParams();
-  const slug = typeof params?.slug === 'string' ? params.slug : (Array.isArray(params?.slug) ? params.slug[0] : '');
-  
+  const slug =
+    typeof params?.slug === "string"
+      ? params.slug
+      : Array.isArray(params?.slug)
+      ? params.slug[0]
+      : "";
+
   const [mounted, setMounted] = useState(false);
-  useEffect(() => { setMounted(true); }, []);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const post = getBlogPostBySlug(slug);
 
   if (mounted && !post) {
-    // Basic 404 state for blog post
     return (
-      <div style={{minHeight:'100vh', display:'flex', alignItems:'center', justifyContent:'center', flexDirection:'column', background:'#f5f7ff', fontFamily:'sans-serif'}}>
-        <h1 style={{fontSize:'48px', color:'#0f172a', marginBottom:'16px'}}>404</h1>
-        <p style={{color:'#64748b', marginBottom:'24px'}}>Article not found.</p>
-        <Link href="/blog" style={{color:'#7c3aed', textDecoration:'none', fontWeight:600}}>← Back to Blog</Link>
+      <div style={{ minHeight: "100vh", background: "#FFFFFF", fontFamily: "'Inter', sans-serif" }}>
+        <PublicHeader activePath="/blog" />
+        <div style={{ maxWidth: "600px", margin: "0 auto", padding: "96px 24px", textAlign: "center" }}>
+          <h1 style={{ fontSize: "32px", fontWeight: 700, color: "#111827", marginBottom: "10px" }}>Article not found</h1>
+          <p style={{ color: "#6B7280", marginBottom: "24px", fontSize: "15px" }}>
+            The article you requested may have been moved or removed.
+          </p>
+          <Link href="/blog" style={{ color: "#111827", fontWeight: 600, textDecoration: "underline" }}>
+            ← Back to Journal
+          </Link>
+        </div>
+        <PublicFooter />
       </div>
     );
   }
 
-  if (!post) {
-    return null; // prevent hydration mismatch before 404
-  }
+  if (!post) return null;
 
   return (
-    <>
+    <div style={{ minHeight: "100vh", background: "#FFFFFF", color: "#111827", fontFamily: "'Inter', -apple-system, sans-serif" }}>
       <style suppressHydrationWarning>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@700;800&display=swap');
-        *{box-sizing:border-box;margin:0;padding:0}
-        body{background:#f8fafc;font-family:'Inter',sans-serif;}
-        .nav{position:sticky;top:0;z-index:100;padding:0 48px;height:68px;display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.75);backdrop-filter:blur(20px);border-bottom:1px solid rgba(124,58,237,.08);box-shadow:0 1px 20px rgba(0,0,0,.04)}
-        .nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
-        .nav-logo-text{font-size:17px;font-weight:700;color:#0f172a;letter-spacing:-.3px}
-        .nav-right{display:flex;align-items:center;gap:24px}
-        .nav-link{font-size:13px;font-weight:500;color:#64748b;text-decoration:none;padding:6px 12px;border-radius:8px;transition:all .2s}
-        .nav-link:hover{color:#7c3aed;background:rgba(124,58,237,.06)}
-        
-        .article-header{height:400px;display:flex;align-items:flex-end;padding-bottom:60px;position:relative;}
-        .article-header-bg{position:absolute;top:0;left:0;right:0;bottom:0;z-index:-1;}
-        .article-header-content{max-width:800px;margin:0 auto;width:100%;padding:0 32px;}
-        .back-link{display:inline-flex;align-items:center;color:rgba(255,255,255,.8);text-decoration:none;font-weight:500;font-size:14px;margin-bottom:32px;transition:color .2s;}
-        .back-link:hover{color:#fff;}
-        .article-title{font-family:'Playfair Display',serif;font-size:48px;font-weight:800;color:#fff;line-height:1.2;margin-bottom:24px;letter-spacing:-1px}
-        .article-meta{display:flex;align-items:center;gap:16px;color:rgba(255,255,255,.9);font-size:14px;}
-        .author-avatar{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;}
-        
-        .article-body{max-width:800px;margin:0 auto;padding:60px 32px 100px;background:#fff;border-radius:24px;position:relative;top:-40px;box-shadow:0 20px 40px rgba(0,0,0,.03);}
-        .article-content{font-size:18px;line-height:1.8;color:#334155;}
-        .article-content h2{font-family:'Playfair Display',serif;font-size:32px;color:#0f172a;margin:48px 0 24px;letter-spacing:-0.5px;}
-        .article-content h3{font-size:24px;color:#0f172a;margin:32px 0 16px;font-weight:700;}
-        .article-content p{margin-bottom:24px;}
-        .article-content ul{margin-bottom:24px;padding-left:24px;}
-        .article-content li{margin-bottom:12px;}
-        .article-content strong{color:#0f172a;font-weight:700;}
-        .article-content em{color:#7c3aed;font-style:normal;font-weight:600;}
-        @media(max-width:768px){
-          .nav{padding:0 12px; gap:8px}
-          .nav-logo-text{display:none}
-          .nav-right{gap:8px}
-          .nav-link{padding:6px 8px; font-size:12px}
-          .article-title{font-size:28px; margin-bottom:16px}
-          .article-body{padding:32px 16px 60px; border-radius:16px; top:-20px}
-          .article-content{font-size:16px}
-          .article-content h2{font-size:24px}
-          .article-header{height:320px; padding-bottom:40px}
+        .art-prose {
+          font-size: 16.5px;
+          line-height: 1.8;
+          color: #374151;
+        }
+        .art-prose h2 {
+          font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+          font-size: 24px;
+          font-weight: 700;
+          color: #111827;
+          margin: 40px 0 16px;
+          letter-spacing: -0.02em;
+        }
+        .art-prose h3 {
+          font-size: 19px;
+          font-weight: 700;
+          color: #111827;
+          margin: 28px 0 12px;
+        }
+        .art-prose p {
+          margin-bottom: 20px;
+        }
+        .art-prose ul {
+          margin-bottom: 20px;
+          padding-left: 24px;
+        }
+        .art-prose li {
+          margin-bottom: 10px;
+        }
+        .art-prose strong {
+          color: #111827;
+          font-weight: 600;
+        }
+        .art-prose em {
+          color: #0D6847;
+          font-style: normal;
+          font-weight: 600;
         }
       `}</style>
 
-      <nav className="nav">
-        <Link href="/" className="nav-logo">
-          <svg width="32" height="32" viewBox="0 0 200 260" xmlns="http://www.w3.org/2000/svg">
-            <rect x="8" y="68" width="184" height="176" rx="24" fill="none" stroke="url(#ng)" strokeWidth="14" />
-            <path d="M56 70 Q56 18 100 18 Q144 18 144 70" fill="none" stroke="url(#ng)" strokeWidth="14" strokeLinecap="round" />
-            <circle cx="68" cy="70" r="7" fill="#7c3aed" />
-            <circle cx="132" cy="70" r="7" fill="#7c3aed" />
-            <path d="M24 192 Q36 150 70 145 Q104 140 110 170 Q116 198 150 192 Q170 187 176 162" fill="none" stroke="#FFD166" strokeWidth="13" strokeLinecap="round" strokeLinejoin="round" />
-            <path d="M161 145 L176 162 L157 175" fill="none" stroke="#FFD166" strokeWidth="13" strokeLinecap="round" strokeLinejoin="round" />
-            <defs><linearGradient id="ng" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#7c3aed" /><stop offset="100%" stopColor="#2563eb" />
-            </linearGradient></defs>
-          </svg>
-          <span className="nav-logo-text">Shopply</span>
-        </Link>
-        <div className="nav-right">
-          <Link href="/about" className="nav-link">About</Link>
-          <Link href="/shop" className="nav-link">Marketplace</Link>
-          <Link href="/login" className="nav-link">Log In</Link>
-        </div>
-      </nav>
+      <PublicHeader activePath="/blog" />
 
-      <div className="article-header">
-        <div className="article-header-bg" style={{background: post.img}}></div>
-        <div className="article-header-content">
-          <Link href="/blog" className="back-link">← Back to Blog</Link>
-          <h1 className="article-title">{post.title}</h1>
-          <div className="article-meta">
-            <div className="author-avatar">{post.author.charAt(0)}</div>
+      <header style={{ background: "#F7F7F5", borderBottom: "1px solid #E5E7EB", padding: "52px 24px" }}>
+        <div style={{ maxWidth: "740px", margin: "0 auto" }}>
+          <Link
+            href="/blog"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "6px",
+              color: "#4B5563",
+              textDecoration: "none",
+              fontSize: "13.5px",
+              fontWeight: 500,
+              marginBottom: "24px",
+            }}
+          >
+            ← Back to Journal
+          </Link>
+          <h1
+            style={{
+              fontFamily: "'Plus Jakarta Sans', 'Inter', sans-serif",
+              fontSize: "clamp(28px, 4vw, 40px)",
+              fontWeight: 700,
+              color: "#111827",
+              lineHeight: 1.18,
+              letterSpacing: "-0.025em",
+              marginBottom: "20px",
+            }}
+          >
+            {post.title}
+          </h1>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px", fontSize: "13.5px", color: "#4B5563" }}>
+            <div
+              style={{
+                width: "36px",
+                height: "36px",
+                borderRadius: "50%",
+                background: "#111827",
+                color: "#FFFFFF",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontWeight: 700,
+                fontSize: "14px",
+              }}
+            >
+              {post.author.charAt(0)}
+            </div>
             <div>
-              <div style={{fontWeight:600}}>{post.author}</div>
-              <div style={{opacity:0.8}}>{post.date} &middot; {post.readTime}</div>
+              <div style={{ fontWeight: 600, color: "#111827" }}>{post.author}</div>
+              <div style={{ color: "#6B7280", fontSize: "12.5px" }}>
+                {post.date} · {post.readTime}
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      </header>
 
-      <div className="article-body">
-        <div className="article-content" dangerouslySetInnerHTML={{ __html: post.content }} />
-      </div>
-    </>
+      <main style={{ maxWidth: "740px", margin: "0 auto", padding: "48px 24px 88px" }}>
+        <div className="art-prose" dangerouslySetInnerHTML={{ __html: post.content }} />
+      </main>
+
+      <PublicFooter />
+    </div>
   );
 }

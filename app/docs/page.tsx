@@ -1,105 +1,162 @@
-
 "use client";
-import Link from "next/link";
+
 import { useState } from "react";
 import { docsData } from "../../lib/docsData";
+import { PublicHeader, PublicFooter } from "@/components/PublicChrome";
+
+const SECTIONS = [
+  {
+    group: "Getting Started",
+    items: [
+      { id: "introduction", label: "Introduction" },
+      { id: "creating-an-account", label: "Creating an Account" },
+      { id: "setting-up-your-store", label: "Setting up your Store" },
+    ],
+  },
+  {
+    group: "Store Management",
+    items: [
+      { id: "adding-products", label: "Adding Products" },
+      { id: "managing-orders", label: "Managing Orders" },
+      { id: "payments-and-payouts", label: "Payments & Payouts" },
+    ],
+  },
+];
 
 export default function DocsPage() {
-  const [activeSection, setActiveSection] = useState('introduction');
+  const [activeSection, setActiveSection] = useState("introduction");
   const activeDoc = docsData[activeSection];
+
   return (
-    <>
+    <div style={{ minHeight: "100vh", background: "#FFFFFF", color: "#111827", fontFamily: "'Inter', -apple-system, sans-serif" }}>
       <style suppressHydrationWarning>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@700;800&display=swap');
-        *{box-sizing:border-box;margin:0;padding:0}
-        body{background:#f5f7ff;font-family:'Inter',sans-serif;}
-        .page{min-height:100vh;background:linear-gradient(160deg,#f0f4ff 0%,#faf5ff 45%,#f0f9ff 100%);position:relative;overflow-x:hidden;padding-bottom:100px}
-        .nav{position:sticky;top:0;z-index:100;padding:0 48px;height:68px;display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.75);backdrop-filter:blur(20px);border-bottom:1px solid rgba(124,58,237,.08);box-shadow:0 1px 20px rgba(0,0,0,.04)}
-        .nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
-        .nav-logo-text{font-size:17px;font-weight:700;color:#0f172a;letter-spacing:-.3px}
-        .nav-right{display:flex;align-items:center;gap:24px}
-        .nav-link{font-size:13px;font-weight:500;color:#64748b;text-decoration:none;padding:6px 12px;border-radius:8px;transition:all .2s}
-        .nav-link:hover{color:#7c3aed;background:rgba(124,58,237,.06)}
-        .container{max-width:1000px;margin:80px auto;padding:0 48px;}
-        .header-section{text-align:center;margin-bottom:60px;}
-        h1{font-family:'Playfair Display',serif;font-size:52px;font-weight:800;color:#0f172a;margin-bottom:20px;letter-spacing:-1px}
-        .subtitle{font-size:18px;color:#64748b;line-height:1.6;max-width:600px;margin:0 auto;}
-        
-        /* Premium Cards */
-        .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:24px;}
-        .card{background:#fff;border-radius:20px;padding:32px;box-shadow:0 10px 40px rgba(0,0,0,.03);border:1px solid #f1f5f9;transition:all .3s;}
-        .card:hover{transform:translateY(-5px);box-shadow:0 20px 40px rgba(124,58,237,.08);border-color:rgba(124,58,237,.2)}
-        .card-icon{width:48px;height:48px;border-radius:12px;background:rgba(124,58,237,.1);color:#7c3aed;display:flex;align-items:center;justify-content:center;margin-bottom:20px;font-size:24px;}
-        .card h3{font-size:18px;font-weight:700;color:#0f172a;margin-bottom:12px;}
-        .card p{font-size:14px;color:#64748b;line-height:1.6;}
-        .docs-layout{display:flex;gap:48px;align-items:flex-start}
-        .docs-sidebar{width:250px;flex-shrink:0;background:#fff;padding:24px;border-radius:16px;border:1px solid #f1f5f9}
-        .docs-content{flex:1;background:#fff;padding:48px;border-radius:24px;border:1px solid #f1f5f9;box-shadow:0 10px 40px rgba(0,0,0,.03)}
-        @media(max-width:768px){
-          .nav{padding:0 12px; gap:8px}
-          .nav-logo-text{display:none}
-          .nav-right{gap:8px}
-          .nav-link{padding:6px 8px; font-size:12px}
-          .container{padding:0 16px; margin:40px auto}
-          h1{font-size:32px}
-          .subtitle{font-size:15px}
-          .docs-layout{flex-direction:column; width:100%; gap:24px}
-          .docs-sidebar{width:100%}
-          .docs-content{padding:24px; width:100%}
+        .dc-layout {
+          max-width: 1120px;
+          margin: 0 auto;
+          padding: 48px 24px 80px;
+          display: grid;
+          grid-template-columns: 240px 1fr;
+          gap: 48px;
+          align-items: start;
+        }
+        .dc-sidebar {
+          background: #F7F7F5;
+          border: 1px solid #E5E7EB;
+          border-radius: 12px;
+          padding: 18px;
+          position: sticky;
+          top: 92px;
+        }
+        .dc-group-title {
+          font-size: 11.5px;
+          font-weight: 700;
+          color: #6B7280;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+          margin-bottom: 8px;
+          padding: 0 8px;
+        }
+        .dc-btn {
+          display: block;
+          width: 100%;
+          text-align: left;
+          padding: 8px 10px;
+          border-radius: 8px;
+          border: none;
+          background: transparent;
+          font-size: 13.5px;
+          font-weight: 500;
+          color: #4B5563;
+          cursor: pointer;
+          font-family: inherit;
+          margin-bottom: 2px;
+        }
+        .dc-btn:hover {
+          background: #FFFFFF;
+          color: #111827;
+        }
+        .dc-btn.active {
+          background: #111827;
+          color: #FFFFFF;
+          font-weight: 600;
+        }
+        .dc-prose {
+          font-size: 15.5px;
+          line-height: 1.75;
+          color: #374151;
+          max-width: 720px;
+        }
+        .dc-prose h3 {
+          font-size: 18px;
+          font-weight: 700;
+          color: #111827;
+          margin: 28px 0 10px;
+        }
+        .dc-prose p {
+          margin-bottom: 16px;
+        }
+        .dc-prose ul, .dc-prose ol {
+          margin-bottom: 16px;
+          padding-left: 22px;
+        }
+        .dc-prose li {
+          margin-bottom: 8px;
+        }
+        @media (max-width: 820px) {
+          .dc-layout {
+            grid-template-columns: 1fr;
+            gap: 28px;
+          }
+          .dc-sidebar {
+            position: static;
+          }
         }
       `}</style>
-      <div className="page">
-        <nav className="nav">
-          <Link href="/" className="nav-logo">
-            <svg width="32" height="32" viewBox="0 0 200 260" xmlns="http://www.w3.org/2000/svg">
-              <rect x="8" y="68" width="184" height="176" rx="24" fill="none" stroke="url(#ng)" strokeWidth="14" />
-              <path d="M56 70 Q56 18 100 18 Q144 18 144 70" fill="none" stroke="url(#ng)" strokeWidth="14" strokeLinecap="round" />
-              <circle cx="68" cy="70" r="7" fill="#7c3aed" />
-              <circle cx="132" cy="70" r="7" fill="#7c3aed" />
-              <path d="M24 192 Q36 150 70 145 Q104 140 110 170 Q116 198 150 192 Q170 187 176 162" fill="none" stroke="#FFD166" strokeWidth="13" strokeLinecap="round" strokeLinejoin="round" />
-              <path d="M161 145 L176 162 L157 175" fill="none" stroke="#FFD166" strokeWidth="13" strokeLinecap="round" strokeLinejoin="round" />
-              <defs><linearGradient id="ng" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#7c3aed" /><stop offset="100%" stopColor="#2563eb" />
-              </linearGradient></defs>
-            </svg>
-            <span className="nav-logo-text">Shopply</span>
-          </Link>
-          <div className="nav-right">
-            <Link href="/about" className="nav-link">About</Link>
-            <Link href="/shop" className="nav-link">Marketplace</Link>
-            <Link href="/login" className="nav-link">Log In</Link>
-          </div>
-        </nav>
-        
-        <div className="container">
 
-          <div className="header-section">
-            <h1>Documentation</h1>
-            <p className="subtitle">Everything you need to set up, manage, and customize your Shopply experience.</p>
-          </div>
-          <div className="docs-layout">
-            <div className="docs-sidebar">
-              <h4 style={{fontSize:'12px',fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:'1px',marginBottom:'16px'}}>Getting Started</h4>
-              <ul style={{listStyle:'none',margin:0,padding:0,display:'flex',flexDirection:'column',gap:'12px'}}>
-                <li onClick={() => setActiveSection('introduction')} style={{color:activeSection === 'introduction' ? '#7c3aed' : '#64748b',fontWeight:activeSection === 'introduction' ? 600 : 400,fontSize:'14px',cursor:'pointer',transition:'color .2s'}}>Introduction</li>
-                <li onClick={() => setActiveSection('creating-an-account')} style={{color:activeSection === 'creating-an-account' ? '#7c3aed' : '#64748b',fontWeight:activeSection === 'creating-an-account' ? 600 : 400,fontSize:'14px',cursor:'pointer',transition:'color .2s'}}>Creating an Account</li>
-                <li onClick={() => setActiveSection('setting-up-your-store')} style={{color:activeSection === 'setting-up-your-store' ? '#7c3aed' : '#64748b',fontWeight:activeSection === 'setting-up-your-store' ? 600 : 400,fontSize:'14px',cursor:'pointer',transition:'color .2s'}}>Setting up your Store</li>
-              </ul>
-              <h4 style={{fontSize:'12px',fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:'1px',marginBottom:'16px',marginTop:'32px'}}>Store Management</h4>
-              <ul style={{listStyle:'none',margin:0,padding:0,display:'flex',flexDirection:'column',gap:'12px'}}>
-                <li onClick={() => setActiveSection('adding-products')} style={{color:activeSection === 'adding-products' ? '#7c3aed' : '#64748b',fontWeight:activeSection === 'adding-products' ? 600 : 400,fontSize:'14px',cursor:'pointer',transition:'color .2s'}}>Adding Products</li>
-                <li onClick={() => setActiveSection('managing-orders')} style={{color:activeSection === 'managing-orders' ? '#7c3aed' : '#64748b',fontWeight:activeSection === 'managing-orders' ? 600 : 400,fontSize:'14px',cursor:'pointer',transition:'color .2s'}}>Managing Orders</li>
-                <li onClick={() => setActiveSection('payments-and-payouts')} style={{color:activeSection === 'payments-and-payouts' ? '#7c3aed' : '#64748b',fontWeight:activeSection === 'payments-and-payouts' ? 600 : 400,fontSize:'14px',cursor:'pointer',transition:'color .2s'}}>Payments & Payouts</li>
-              </ul>
-            </div>
-            <div className="docs-content">
-              <h2 style={{fontSize:'32px',fontWeight:800,color:'#0f172a',marginBottom:'24px'}}>{activeDoc.title}</h2>
-              <div dangerouslySetInnerHTML={{ __html: activeDoc.content }} />
-            </div>
-          </div>
+      <PublicHeader activePath="/docs" />
 
+      <section style={{ background: "#F7F7F5", borderBottom: "1px solid #E5E7EB", padding: "52px 24px" }}>
+        <div style={{ maxWidth: "1120px", margin: "0 auto" }}>
+          <span style={{ display: "inline-block", fontSize: "12px", fontWeight: 600, letterSpacing: "0.04em", textTransform: "uppercase", color: "#0D6847", marginBottom: "8px" }}>
+            Documentation
+          </span>
+          <h1 style={{ fontFamily: "'Plus Jakarta Sans', 'Inter', sans-serif", fontSize: "clamp(28px, 3.8vw, 38px)", fontWeight: 700, letterSpacing: "-0.03em", marginBottom: "8px" }}>
+            Shopply Platform Documentation
+          </h1>
+          <p style={{ fontSize: "15px", color: "#4B5563", maxWidth: "560px" }}>
+            Reference guides for account verification, catalog configuration, and order management.
+          </p>
         </div>
+      </section>
+
+      <div className="dc-layout">
+        <aside className="dc-sidebar">
+          {SECTIONS.map((group, idx) => (
+            <div key={group.group} style={{ marginTop: idx > 0 ? "20px" : 0 }}>
+              <div className="dc-group-title">{group.group}</div>
+              {group.items.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  className={`dc-btn${activeSection === item.id ? " active" : ""}`}
+                  onClick={() => setActiveSection(item.id)}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+          ))}
+        </aside>
+
+        <main className="dc-prose">
+          <h2 style={{ fontFamily: "'Plus Jakarta Sans', 'Inter', sans-serif", fontSize: "28px", fontWeight: 700, color: "#111827", marginBottom: "20px", letterSpacing: "-0.02em" }}>
+            {activeDoc.title}
+          </h2>
+          <div dangerouslySetInnerHTML={{ __html: activeDoc.content }} />
+        </main>
       </div>
-    </>
+
+      <PublicFooter />
+    </div>
   );
 }

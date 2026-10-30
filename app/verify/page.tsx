@@ -1,12 +1,11 @@
 "use client";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { Skeleton } from "@/components/Skeleton";
 import { getApiCache } from "@/lib/apiCache";
 import { grantMarketplaceAccess } from "@/lib/marketplaceAccess";
+import { ShopplyWordmark } from "@/components/PublicChrome";
 
 export default function VerifyPage() {
-  const router = useRouter();
   const [otp, setOtp] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -17,14 +16,13 @@ export default function VerifyPage() {
   const [timeLeft, setTimeLeft] = useState<number>(300);
 
   const API = "/api";
-  const getToken = () => typeof window !== "undefined" ? localStorage.getItem("token") : null;
+  const getToken = () => (typeof window !== "undefined" ? localStorage.getItem("token") : null);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     const raw = localStorage.getItem("user");
     const storedPendingEmail = localStorage.getItem("pending_email");
 
-    // Initialize expiration timer from localStorage
     const expiresAt = localStorage.getItem("otp_expires_at");
     if (expiresAt) {
       const remaining = Math.round((parseInt(expiresAt, 10) - Date.now()) / 1000);
@@ -40,14 +38,11 @@ export default function VerifyPage() {
       setTimeLeft(300);
     }
 
-    console.log("[verify] Initial check. Token:", !!token, "Pending Email:", !!storedPendingEmail);
-
     if (!token && !storedPendingEmail) {
-      console.log("[verify] Missing credentials, redirecting to login");
       window.location.href = "/login";
       return;
     }
-    
+
     let isVerified = false;
     let userEmail = "";
 
@@ -64,7 +59,6 @@ export default function VerifyPage() {
     }
 
     if (isVerified) {
-      console.log("[verify] Email already verified, redirecting to dashboard");
       setRedirecting(true);
       window.location.href = "/dashboard";
       return;
@@ -73,7 +67,7 @@ export default function VerifyPage() {
     const targetEmail = storedPendingEmail || userEmail;
     if (targetEmail) {
       setPendingEmail(targetEmail);
-      setSuccess("Verification code sent! Please check your email inbox and enter the 6-digit OTP code below.");
+      setSuccess("Verification code sent. Enter the 6-digit code from your inbox below.");
     }
   }, []);
 
@@ -81,7 +75,7 @@ export default function VerifyPage() {
     if (timeLeft <= 0) return;
 
     const timer = setInterval(() => {
-      setTimeLeft(prev => {
+      setTimeLeft((prev) => {
         if (prev <= 1) {
           clearInterval(timer);
           setError("Your verification code has expired. Please request a new one.");
@@ -104,14 +98,22 @@ export default function VerifyPage() {
   };
 
   const handleVerify = async () => {
-    if (otp.length !== 6) { setError("Please enter the 6-digit OTP."); return; }
-    
-    setLoading(true); setError(""); setSuccess("");
+    if (otp.length !== 6) {
+      setError("Please enter the 6-digit verification code.");
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+    setSuccess("");
     try {
       const token = getToken();
       const storedPendingEmail = typeof window !== "undefined" ? localStorage.getItem("pending_email") : null;
-      
-      if (!token && !storedPendingEmail) { forceLogin(); return; }
+
+      if (!token && !storedPendingEmail) {
+        forceLogin();
+        return;
+      }
 
       let res;
       if (storedPendingEmail) {
@@ -121,7 +123,7 @@ export default function VerifyPage() {
             "Content-Type": "application/json",
             Accept: "application/json",
           },
-          body: JSON.stringify({ email: storedPendingEmail, otp: otp }),
+          body: JSON.stringify({ email: storedPendingEmail, otp }),
         });
       } else {
         res = await fetch(`${API}/verify-email`, {
@@ -131,22 +133,21 @@ export default function VerifyPage() {
             Accept: "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({ otp: otp }),
+          body: JSON.stringify({ otp }),
         });
       }
 
       const data = await res.json();
-      console.log("[verify] Backend validation response:", res.status, data);
 
       if (res.status === 401) {
-        setError("Session expired — please log in again.");
+        setError("Session expired — please sign in again.");
         setTimeout(forceLogin, 2000);
         setLoading(false);
         return;
       }
 
       if (!res.ok) {
-        setError(data.message || "Failed to complete account activation.");
+        setError(data.message || "Failed to complete account verification.");
         setLoading(false);
         return;
       }
@@ -163,21 +164,25 @@ export default function VerifyPage() {
       sessionStorage.setItem("shopply_dashboard_access", "true");
       localStorage.removeItem("shopply_landing_lock");
 
-      setSuccess("✓ Email verified successfully! Redirecting...");
+      setSuccess("Email verified. Opening your account...");
       setRedirecting(true);
       window.location.href = "/dashboard";
-
-    } catch (err: any) {
-      console.error("[verify] Verification error:", err);
-      setError(err?.message || "Invalid verification code. Please check and try again.");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "";
+      setError(message || "Invalid verification code. Please check and try again.");
       setLoading(false);
     }
   };
 
   const handleResend = async () => {
-    if (!pendingEmail) { setError("No email to resend to."); return; }
-    setResending(true); setError(""); setSuccess("");
-    
+    if (!pendingEmail) {
+      setError("No email address available to resend to.");
+      return;
+    }
+    setResending(true);
+    setError("");
+    setSuccess("");
+
     try {
       const token = getToken();
       const storedPendingEmail = typeof window !== "undefined" ? localStorage.getItem("pending_email") : null;
@@ -203,7 +208,7 @@ export default function VerifyPage() {
         });
       }
 
-      let data: any = {};
+      let data: { message?: string } = {};
       if (res) {
         data = await res.json();
       }
@@ -217,122 +222,279 @@ export default function VerifyPage() {
       const expiresAt = Date.now() + 300 * 1000;
       localStorage.setItem("otp_expires_at", expiresAt.toString());
       setTimeLeft(300);
-      setSuccess(`✓ ${data?.message || "A new verification code has been sent to your email!"}`);
-    } catch (e: any) {
-      setError(e?.message || "Resend failed.");
+      setSuccess(data?.message || "A new verification code has been sent to your email.");
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : "";
+      setError(message || "Resend failed.");
     }
     setResending(false);
   };
 
-  if (redirecting) return (
-    <div style={{ minHeight: "100vh", background: "#f5f7ff", display: "flex", alignItems: "center", justifyContent: "center", padding: "24px" }}>
-      <Skeleton style={{ width: "100%", maxWidth: 440, height: 400, borderRadius: 24 }} />
-    </div>
-  );
+  if (redirecting) {
+    return (
+      <div
+        style={{
+          minHeight: "100vh",
+          background: "#F7F7F5",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "24px",
+        }}
+      >
+        <Skeleton style={{ width: "100%", maxWidth: 440, height: 380, borderRadius: 16 }} />
+      </div>
+    );
+  }
 
   return (
     <>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-        *{box-sizing:border-box;margin:0;padding:0}
-        .root{min-height:100vh;background:linear-gradient(135deg,#f0f4ff,#faf5ff,#f0f9ff);
-          display:flex;align-items:center;justify-content:center;font-family:'Inter',sans-serif;padding:24px}
-        .card{background:#fff;border-radius:24px;padding:48px 40px;width:100%;max-width:440px;
-          box-shadow:0 20px 60px rgba(0,0,0,.08);text-align:center;animation:fadeUp .5s ease}
-        .icon-wrap{width:72px;height:72px;background:linear-gradient(135deg,#e0f2fe,#bae6fd);
-          border-radius:50%;display:flex;align-items:center;justify-content:center;
-          color:#0284c7;margin:0 auto 24px}
-        h1{font-size:26px;font-weight:700;color:#0f172a;letter-spacing:-.4px;margin-bottom:8px}
-        .sub{font-size:14px;color:#94a3b8;line-height:1.6;margin-bottom:28px}
-        .otp-input{width:100%;text-align:center;font-size:36px;font-weight:800;
-          letter-spacing:18px;padding:18px 8px;border:3px solid #7c3aed;border-radius:14px;
-          outline:none;font-family:'Inter',sans-serif;color:#0f172a;transition:all .2s;
-          background:#faf5ff;margin-bottom:20px;animation:pulseBorder 2s infinite;cursor:text}
-        .otp-input:focus{border-color:#2563eb;background:#eff6ff;box-shadow:0 0 0 4px rgba(37,99,235,.15);animation:none}
-        @keyframes pulseBorder{0%,100%{border-color:#7c3aed;box-shadow:0 0 0 0 rgba(124,58,237,.3)}50%{border-color:#2563eb;box-shadow:0 0 0 6px rgba(124,58,237,0)}}
-        .btn{width:100%;padding:14px;background:linear-gradient(135deg,#7c3aed,#2563eb);
-          border:none;border-radius:12px;color:#fff;font-size:15px;font-weight:600;
-          font-family:'Inter',sans-serif;cursor:pointer;transition:all .2s;
-          box-shadow:0 4px 14px rgba(124,58,237,.3);
-          position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;height:48px;}
-        .btn:hover:not(:disabled){transform:translateY(-1px)}
-        .btn:disabled{opacity:.7;cursor:not-allowed}
-        .resend-btn{background:none;border:none;color:#7c3aed;font-size:13px;font-weight:600;
-          cursor:pointer;font-family:'Inter',sans-serif;margin-top:16px;padding:4px 8px;border-radius:6px}
-        .resend-btn:disabled{opacity:.5;cursor:not-allowed}
-        .err{background:#fef2f2;border:1.5px solid #fecaca;border-radius:10px;
-          padding:12px 14px;font-size:13px;color:#ef4444;margin-bottom:16px;text-align:left;font-weight:500}
-        .ok{background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:10px;
-          padding:12px 14px;font-size:13px;color:#16a34a;margin-bottom:16px;text-align:left;font-weight:500}
-        .divider{display:flex;align-items:center;gap:12px;margin:20px 0}
-        .div-line{flex:1;height:1px;background:#f1f5f9}
-        .divider span{font-size:12px;color:#cbd5e1}
-        @keyframes sp{to{transform:rotate(360deg)}}
-        .spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.4);
-          border-top-color:#fff;border-radius:50%;animation:sp .6s linear infinite;
-          vertical-align:middle;margin-right:8px}
-        @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+      <style suppressHydrationWarning>{`
+        .verify-root {
+          min-height: 100vh;
+          background: #F7F7F5;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+          padding: 24px;
+          color: #111827;
+        }
+        .verify-brand {
+          margin-bottom: 24px;
+        }
+        .verify-card {
+          background: #FFFFFF;
+          border: 1px solid #E5E7EB;
+          border-radius: 16px;
+          padding: 40px 36px;
+          width: 100%;
+          max-width: 440px;
+          box-shadow: 0 12px 32px rgba(17, 24, 39, 0.05);
+          text-align: center;
+        }
+        .verify-icon {
+          width: 52px;
+          height: 52px;
+          background: #F3F4F6;
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #111827;
+          margin: 0 auto 20px;
+        }
+        .verify-card h1 {
+          font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+          font-size: 24px;
+          font-weight: 700;
+          color: #111827;
+          letter-spacing: -0.025em;
+          margin-bottom: 8px;
+        }
+        .verify-sub {
+          font-size: 14px;
+          color: #4B5563;
+          line-height: 1.6;
+          margin-bottom: 20px;
+        }
+        .verify-timer {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          padding: 5px 12px;
+          border-radius: 6px;
+          font-size: 12.5px;
+          font-weight: 600;
+          font-variant-numeric: tabular-nums;
+          margin-bottom: 20px;
+        }
+        .verify-otp {
+          width: 100%;
+          text-align: center;
+          font-size: 30px;
+          font-weight: 700;
+          letter-spacing: 14px;
+          padding: 14px 8px;
+          border: 1.5px solid #D1D5DB;
+          border-radius: 10px;
+          outline: none;
+          font-family: 'Inter', monospace;
+          font-variant-numeric: tabular-nums;
+          color: #111827;
+          background: #F9FAFB;
+          margin-bottom: 18px;
+          transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+        }
+        .verify-otp:focus {
+          border-color: #111827;
+          background: #FFFFFF;
+          box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.08);
+        }
+        .verify-btn {
+          width: 100%;
+          height: 44px;
+          background: #111827;
+          border: 1px solid #111827;
+          border-radius: 8px;
+          color: #FFFFFF;
+          font-size: 14.5px;
+          font-weight: 600;
+          font-family: inherit;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: background 0.15s ease;
+        }
+        .verify-btn:hover:not(:disabled) {
+          background: #1F2937;
+        }
+        .verify-btn:disabled {
+          opacity: 0.65;
+          cursor: not-allowed;
+        }
+        .verify-err {
+          background: #FEF2F2;
+          border: 1px solid #FECACA;
+          border-radius: 8px;
+          padding: 10px 12px;
+          font-size: 13px;
+          color: #B91C1C;
+          margin-bottom: 16px;
+          text-align: left;
+        }
+        .verify-ok {
+          background: #ECFDF5;
+          border: 1px solid #A7F3D0;
+          border-radius: 8px;
+          padding: 10px 12px;
+          font-size: 13px;
+          color: #065F46;
+          margin-bottom: 16px;
+          text-align: left;
+        }
+        .verify-footer {
+          margin-top: 20px;
+          padding-top: 18px;
+          border-top: 1px solid #E5E7EB;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          font-size: 13px;
+        }
+        .verify-link-btn {
+          background: none;
+          border: none;
+          color: #111827;
+          font-size: 13px;
+          font-weight: 600;
+          cursor: pointer;
+          font-family: inherit;
+          text-decoration: underline;
+          text-underline-offset: 3px;
+        }
+        .verify-link-btn:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+        .verify-muted-btn {
+          background: none;
+          border: none;
+          color: #6B7280;
+          font-size: 13px;
+          cursor: pointer;
+          font-family: inherit;
+        }
+        .verify-muted-btn:hover {
+          color: #111827;
+        }
       `}</style>
-      <div className="root">
-        <div className="card">
-           <div className="icon-wrap">
-            <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+
+      <div className="verify-root">
+        <div className="verify-brand">
+          <ShopplyWordmark href="/" />
+        </div>
+
+        <div className="verify-card">
+          <div className="verify-icon">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <rect x="2" y="4" width="20" height="16" rx="2" />
-              <polyline points="22,4 12,13 2,4" />
+              <polyline points="22,6 12,13 2,6" />
             </svg>
           </div>
+
           <h1>Verify your email</h1>
-          <p className="sub">
-            We sent a 6-digit verification code to your email ({pendingEmail || "loading..."}).<br/>
-            Please check your inbox (and spam folder) and enter the code below.
+          <p className="verify-sub">
+            Enter the 6-digit security code sent to{" "}
+            <strong style={{ color: "#111827" }}>{pendingEmail || "your email"}</strong>.
           </p>
 
-          <div style={{ margin: "0 auto 24px", display: "inline-flex", alignItems: "center", gap: "8px", background: timeLeft > 60 ? "#f0fdf4" : "#fef2f2", border: timeLeft > 60 ? "1px solid #bbf7d0" : "1px solid #fecaca", borderRadius: "100px", padding: "6px 16px", color: timeLeft > 60 ? "#16a34a" : "#ef4444", fontSize: "13px", fontWeight: 600 }}>
-            <span>⏳</span>
-            <span>
-              {timeLeft > 0 ? (
-                `Expires in ${Math.floor(timeLeft / 60).toString().padStart(2, "0")}:${(timeLeft % 60).toString().padStart(2, "0")}`
-              ) : (
-                "Code Expired"
-              )}
-            </span>
+          <div
+            className="verify-timer"
+            style={{
+              background: timeLeft > 60 ? "#ECFDF5" : "#FEF2F2",
+              border: timeLeft > 60 ? "1px solid #A7F3D0" : "1px solid #FECACA",
+              color: timeLeft > 60 ? "#065F46" : "#B91C1C",
+            }}
+          >
+            {timeLeft > 0
+              ? `Code expires in ${Math.floor(timeLeft / 60)
+                  .toString()
+                  .padStart(2, "0")}:${(timeLeft % 60).toString().padStart(2, "0")}`
+              : "Verification code expired"}
           </div>
 
-          {error && <div className="err">⚠ {error}</div>}
-          {success && <div className="ok">{success}</div>}
+          {error && <div className="verify-err">{error}</div>}
+          {success && <div className="verify-ok">{success}</div>}
 
-          <label style={{ display: "block", fontSize: "12px", fontWeight: 700, color: "#7c3aed", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "8px" }}>
-            👆 Click below and type the 6-digit verification code
+          <label
+            htmlFor="otp-code"
+            style={{
+              display: "block",
+              fontSize: "12px",
+              fontWeight: 600,
+              color: "#4B5563",
+              marginBottom: "8px",
+              textAlign: "left",
+            }}
+          >
+            6-digit verification code
           </label>
           <input
-            className="otp-input"
+            id="otp-code"
+            className="verify-otp"
             type="text"
             inputMode="numeric"
             maxLength={6}
-            placeholder="------"
+            placeholder="000000"
             value={otp}
             autoFocus
-            onChange={e => { setOtp(e.target.value.replace(/\D/g, "")); setError(""); setSuccess(""); }}
-            onKeyDown={e => { if (e.key === "Enter" && timeLeft > 0) handleVerify(); }}
+            onChange={(e) => {
+              setOtp(e.target.value.replace(/\D/g, ""));
+              setError("");
+              setSuccess("");
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && timeLeft > 0) handleVerify();
+            }}
             disabled={timeLeft === 0}
             style={{ opacity: timeLeft === 0 ? 0.6 : 1 }}
           />
 
-          <button className="btn" onClick={handleVerify} disabled={loading || timeLeft === 0}>
-            {loading ? (
-              <div className="animate-pulse bg-white/40 rounded" style={{ height: 16, width: 100 }}></div>
-            ) : "Verify Email →"}
+          <button className="verify-btn" onClick={handleVerify} disabled={loading || timeLeft === 0}>
+            {loading ? "Verifying..." : "Verify email"}
           </button>
 
-          <div className="divider">
-            <div className="div-line"/>
-            <span>Didn&apos;t receive it?</span>
-            <div className="div-line"/>
+          <div className="verify-footer">
+            <button type="button" className="verify-muted-btn" onClick={forceLogin}>
+              Use different account
+            </button>
+            <button type="button" className="verify-link-btn" onClick={handleResend} disabled={resending}>
+              {resending ? "Sending..." : "Resend code"}
+            </button>
           </div>
-
-          <button className="resend-btn" onClick={handleResend} disabled={resending}>
-            {resending ? "Sending…" : "Resend OTP"}
-          </button>
         </div>
       </div>
     </>

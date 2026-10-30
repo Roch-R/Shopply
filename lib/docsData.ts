@@ -9,19 +9,19 @@ export const docsData: Record<string, DocSection> = {
     id: 'introduction',
     title: 'Introduction to Shopply',
     content: `
-      <p style="font-size:16px;color:#475569;line-height:1.7;margin-bottom:24px;">
-        Welcome to Shopply! We are thrilled to have you here. Shopply is the world's most beautiful and easy-to-use e-commerce platform designed specifically for modern creators and independent businesses.
+      <p style="font-size:16px;color:#4B5563;line-height:1.75;margin-bottom:24px;">
+        Welcome to Shopply. Shopply is a straightforward commerce marketplace designed for independent merchants and everyday buyers across the Philippines.
       </p>
-      <h3 style="font-size:20px;font-weight:700;color:#0f172a;margin-bottom:16px;margin-top:32px;">Quick Start</h3>
-      <p style="font-size:16px;color:#475569;line-height:1.7;margin-bottom:24px;">
-        To get started, head over to your Dashboard. From there, you can configure your store profile, upload your very first product, and start accepting payments instantly.
+      <h3 style="font-size:20px;font-weight:700;color:#111827;margin-bottom:14px;margin-top:32px;">Quick Start</h3>
+      <p style="font-size:16px;color:#4B5563;line-height:1.75;margin-bottom:24px;">
+        Sign in to your Seller Center to configure your store profile, publish your first product with clear photos and pricing, and manage incoming orders.
       </p>
-      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:24px;display:flex;align-items:center;justify-content:space-between;">
+      <div style="background:#F7F7F5;border:1px solid #E5E7EB;border-radius:12px;padding:24px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
         <div>
-          <h4 style="font-weight:600;color:#0f172a;margin-bottom:4px;">Ready to dive in?</h4>
-          <p style="font-size:14px;color:#64748b;">Go to your dashboard and create your first product.</p>
+          <h4 style="font-weight:700;color:#111827;margin:0 0 4px;">Ready to get started?</h4>
+          <p style="font-size:14px;color:#6B7280;margin:0;">Sign in to your account to set up your storefront and list items.</p>
         </div>
-        <a href="/dashboard" style="padding:10px 20px;background:#7c3aed;color:#fff;border-radius:8px;font-weight:600;text-decoration:none;font-size:14px;">Open Dashboard</a>
+        <a href="/login" style="padding:10px 18px;background:#111827;color:#ffffff;border-radius:8px;font-weight:600;text-decoration:none;font-size:14px;white-space:nowrap;">Sign in to Seller Center</a>
       </div>
     `
   },
@@ -29,18 +29,18 @@ export const docsData: Record<string, DocSection> = {
     id: 'creating-an-account',
     title: 'Creating an Account',
     content: `
-      <p style="font-size:16px;color:#475569;line-height:1.7;margin-bottom:24px;">
-        Creating an account on Shopply takes less than two minutes. We only require the essential information to get your storefront live.
+      <p style="font-size:16px;color:#4B5563;line-height:1.75;margin-bottom:24px;">
+        Creating an account on Shopply takes less than two minutes. Every account supports both buying on the marketplace and managing your own store listings.
       </p>
-      <h3 style="font-size:20px;font-weight:700;color:#0f172a;margin-bottom:16px;margin-top:32px;">Step-by-Step Guide</h3>
-      <ul style="font-size:16px;color:#475569;line-height:1.7;margin-bottom:24px;padding-left:24px;">
-        <li style="margin-bottom:12px;">Click the <strong>Sign Up</strong> button in the top right corner of the homepage.</li>
-        <li style="margin-bottom:12px;">Enter your email address and choose a secure password.</li>
-        <li style="margin-bottom:12px;">Verify your email address by clicking the link sent to your inbox.</li>
-        <li style="margin-bottom:12px;">Complete your user profile.</li>
+      <h3 style="font-size:20px;font-weight:700;color:#111827;margin-bottom:14px;margin-top:32px;">Step-by-Step Guide</h3>
+      <ul style="font-size:16px;color:#4B5563;line-height:1.75;margin-bottom:24px;padding-left:24px;">
+        <li style="margin-bottom:10px;">Select <strong>Create Account</strong> in the top navigation bar.</li>
+        <li style="margin-bottom:10px;">Enter your full name, email address, and password, or continue with Google.</li>
+        <li style="margin-bottom:10px;">Enter the 6-digit verification code sent to your inbox.</li>
+        <li style="margin-bottom:10px;">Add your delivery address or store details from your account profile.</li>
       </ul>
-      <div style="padding:16px;background:#fffbe0;border-left:4px solid #f59e0b;color:#92400e;border-radius:0 8px 8px 0;">
-        <strong>Note:</strong> Make sure to use an email address you check frequently, as all your order notifications will be sent there!
+      <div style="padding:16px;background:#FEF3C7;border-left:3px solid #D97706;color:#92400E;border-radius:0 8px 8px 0;font-size:14px;">
+        <strong>Note:</strong> Use an active email address so order confirmations, invoices, and verification codes arrive reliably.
       </div>
     `
   },
@@ -48,18 +48,14 @@ export const docsData: Record<string, DocSection> = {
     id: 'setting-up-your-store',
     title: 'Setting up your Store',
     content: `
-      <p style="font-size:16px;color:#475569;line-height:1.7;margin-bottom:24px;">
-        Your store's identity is crucial for building trust with your customers. Follow these steps to customize your storefront.
+      <p style="font-size:16px;color:#4B5563;line-height:1.75;margin-bottom:24px;">
+        Clear store details build buyer confidence before checkout. Keep your profile accurate and up to date.
       </p>
-      <h3 style="font-size:20px;font-weight:700;color:#0f172a;margin-bottom:16px;margin-top:32px;">Store Profile Settings</h3>
-      <p style="font-size:16px;color:#475569;line-height:1.7;margin-bottom:24px;">
-        Navigate to <strong>Dashboard > Settings</strong>. Here you should configure:
-      </p>
-      <ul style="font-size:16px;color:#475569;line-height:1.7;margin-bottom:24px;padding-left:24px;">
-        <li style="margin-bottom:12px;"><strong>Store Name:</strong> Keep it memorable and aligned with your brand.</li>
-        <li style="margin-bottom:12px;"><strong>Store Logo:</strong> Upload a square image, preferably 512x512 PNG.</li>
-        <li style="margin-bottom:12px;"><strong>Description:</strong> Write a 1-2 sentence pitch of what you sell.</li>
-        <li style="margin-bottom:12px;"><strong>Social Links:</strong> Connect your Instagram or Twitter accounts.</li>
+      <h3 style="font-size:20px;font-weight:700;color:#111827;margin-bottom:14px;margin-top:32px;">Store Profile Checklist</h3>
+      <ul style="font-size:16px;color:#4B5563;line-height:1.75;margin-bottom:24px;padding-left:24px;">
+        <li style="margin-bottom:10px;"><strong>Display Name:</strong> Use your real shop or brand name so repeat buyers recognize your listings.</li>
+        <li style="margin-bottom:10px;"><strong>Dispatch Location:</strong> Add your city or municipality for accurate shipping estimates and local meetups.</li>
+        <li style="margin-bottom:10px;"><strong>Contact Details:</strong> Keep your phone number current for courier coordination.</li>
       </ul>
     `
   },
@@ -67,24 +63,21 @@ export const docsData: Record<string, DocSection> = {
     id: 'adding-products',
     title: 'Adding Products',
     content: `
-      <p style="font-size:16px;color:#475569;line-height:1.7;margin-bottom:24px;">
-        Now that your store is set up, it's time to list your items. A great product listing is the key to high conversion rates.
+      <p style="font-size:16px;color:#4B5563;line-height:1.75;margin-bottom:24px;">
+        Accurate photos, transparent PHP pricing, and complete size or color variants help buyers purchase without guesswork.
       </p>
-      <h3 style="font-size:20px;font-weight:700;color:#0f172a;margin-bottom:16px;margin-top:32px;">Creating a Listing</h3>
-      <p style="font-size:16px;color:#475569;line-height:1.7;margin-bottom:24px;">
-        Go to <strong>Dashboard > Create Product</strong>.
-      </p>
-      <ul style="font-size:16px;color:#475569;line-height:1.7;margin-bottom:24px;padding-left:24px;">
-        <li style="margin-bottom:12px;"><strong>Images:</strong> Upload high-quality, well-lit photos. We recommend at least 3 images per product.</li>
-        <li style="margin-bottom:12px;"><strong>Pricing:</strong> Set a competitive price. You can also specify an "compare at" price to show discounts.</li>
-        <li style="margin-bottom:12px;"><strong>Description:</strong> Be detailed! Highlight materials, dimensions, and use-cases.</li>
+      <h3 style="font-size:20px;font-weight:700;color:#111827;margin-bottom:14px;margin-top:32px;">Creating a Listing</h3>
+      <ul style="font-size:16px;color:#4B5563;line-height:1.75;margin-bottom:24px;padding-left:24px;">
+        <li style="margin-bottom:10px;"><strong>Photos & Video:</strong> Upload clear, well-lit product photos and optional short video clips.</li>
+        <li style="margin-bottom:10px;"><strong>Variants & Stock:</strong> Define color variants, sizes, per-variant prices, and exact stock quantities.</li>
+        <li style="margin-bottom:10px;"><strong>Specifications:</strong> List materials, dimensions, warranty coverage, and package contents clearly.</li>
       </ul>
-      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:24px;display:flex;align-items:center;justify-content:space-between;margin-top:32px;">
+      <div style="background:#F7F7F5;border:1px solid #E5E7EB;border-radius:12px;padding:24px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-top:32px;">
         <div>
-          <h4 style="font-weight:600;color:#0f172a;margin-bottom:4px;">Ready to sell?</h4>
-          <p style="font-size:14px;color:#64748b;">Create your first product listing now.</p>
+          <h4 style="font-weight:700;color:#111827;margin:0 0 4px;">Ready to list your catalog?</h4>
+          <p style="font-size:14px;color:#6B7280;margin:0;">Sign in to create and publish product listings.</p>
         </div>
-        <a href="/dashboard/create-product" style="padding:10px 20px;background:#7c3aed;color:#fff;border-radius:8px;font-weight:600;text-decoration:none;font-size:14px;">Create Product</a>
+        <a href="/register" style="padding:10px 18px;background:#111827;color:#ffffff;border-radius:8px;font-weight:600;text-decoration:none;font-size:14px;white-space:nowrap;">Create Seller Account</a>
       </div>
     `
   },
@@ -92,39 +85,36 @@ export const docsData: Record<string, DocSection> = {
     id: 'managing-orders',
     title: 'Managing Orders',
     content: `
-      <p style="font-size:16px;color:#475569;line-height:1.7;margin-bottom:24px;">
-        Congratulations on making a sale! Proper order management ensures your customers stay happy and come back.
+      <p style="font-size:16px;color:#4B5563;line-height:1.75;margin-bottom:24px;">
+        Consistent fulfillment keeps your seller rating strong and reduces return requests.
       </p>
-      <h3 style="font-size:20px;font-weight:700;color:#0f172a;margin-bottom:16px;margin-top:32px;">The Order Fulfillment Process</h3>
-      <ol style="font-size:16px;color:#475569;line-height:1.7;margin-bottom:24px;padding-left:24px;">
-        <li style="margin-bottom:12px;"><strong>Notification:</strong> You'll receive an email and dashboard alert when an order is placed.</li>
-        <li style="margin-bottom:12px;"><strong>Preparation:</strong> Pack the item securely.</li>
-        <li style="margin-bottom:12px;"><strong>Shipping:</strong> Ship the item and obtain a tracking number.</li>
-        <li style="margin-bottom:12px;"><strong>Fulfillment:</strong> Go to the order details page in your dashboard, mark it as "Shipped", and input the tracking number. This automatically emails the customer.</li>
+      <h3 style="font-size:20px;font-weight:700;color:#111827;margin-bottom:14px;margin-top:32px;">Order Fulfillment Workflow</h3>
+      <ol style="font-size:16px;color:#4B5563;line-height:1.75;margin-bottom:24px;padding-left:24px;">
+        <li style="margin-bottom:10px;"><strong>Order Alert:</strong> Review new orders under <em>Store Orders</em> as soon as they arrive.</li>
+        <li style="margin-bottom:10px;"><strong>Inspection & Packing:</strong> Verify variant/size accuracy and pack items securely.</li>
+        <li style="margin-bottom:10px;"><strong>Dispatch:</strong> Approve and mark orders shipped once handed over to the courier.</li>
+        <li style="margin-bottom:10px;"><strong>Completion:</strong> Track delivery milestones and printable receipts from your order log.</li>
       </ol>
-      <p style="font-size:16px;color:#475569;line-height:1.7;margin-bottom:24px;">
-        Always aim to ship orders within 2 business days of receiving them.
-      </p>
     `
   },
   'payments-and-payouts': {
     id: 'payments-and-payouts',
     title: 'Payments & Payouts',
     content: `
-      <p style="font-size:16px;color:#475569;line-height:1.7;margin-bottom:24px;">
-        Understanding how and when you get paid is crucial for your cash flow.
+      <p style="font-size:16px;color:#4B5563;line-height:1.75;margin-bottom:24px;">
+        Shopply supports Cash on Delivery (COD), digital wallets, and bank transfers with clear order reconciliation.
       </p>
-      <h3 style="font-size:20px;font-weight:700;color:#0f172a;margin-bottom:16px;margin-top:32px;">How Payouts Work</h3>
-      <p style="font-size:16px;color:#475569;line-height:1.7;margin-bottom:24px;">
-        Shopply securely holds the funds when a customer makes a purchase. By default, funds are released to your connected bank account on a rolling <strong>2-day schedule</strong>.
+      <h3 style="font-size:20px;font-weight:700;color:#111827;margin-bottom:14px;margin-top:32px;">How Settlement Works</h3>
+      <p style="font-size:16px;color:#4B5563;line-height:1.75;margin-bottom:24px;">
+        Order funds are protected during transit and settled once delivery is confirmed, protecting both buyers and merchants.
       </p>
-      <ul style="font-size:16px;color:#475569;line-height:1.7;margin-bottom:24px;padding-left:24px;">
-        <li style="margin-bottom:12px;"><strong>Fees:</strong> Shopply takes a flat 5% transaction fee plus standard credit card processing fees (2.9% + 30¢).</li>
-        <li style="margin-bottom:12px;"><strong>Minimum Payout:</strong> Payouts are triggered automatically once your balance exceeds $50.</li>
-        <li style="margin-bottom:12px;"><strong>Instant Payouts:</strong> Verified merchants can request instant payouts for a small 1% premium.</li>
+      <ul style="font-size:16px;color:#4B5563;line-height:1.75;margin-bottom:24px;padding-left:24px;">
+        <li style="margin-bottom:10px;"><strong>Electronic Invoices:</strong> Every order generates a clean, printable receipt with itemized totals.</li>
+        <li style="margin-bottom:10px;"><strong>Voucher Support:</strong> Storefront promo codes are calculated automatically at checkout.</li>
+        <li style="margin-bottom:10px;"><strong>7-Day Protection:</strong> Verified return claims are resolved before final payout release.</li>
       </ul>
-      <div style="padding:16px;background:#f0fdf4;border-left:4px solid #16a34a;color:#166534;border-radius:0 8px 8px 0;">
-        <strong>Tip:</strong> Ensure your banking details in the dashboard are always up to date to prevent payout delays.
+      <div style="padding:16px;background:#ECFDF5;border-left:3px solid #0D6847;color:#065F46;border-radius:0 8px 8px 0;font-size:14px;">
+        <strong>Tip:</strong> Keep your payout and contact information updated so settlements process without delay.
       </div>
     `
   }

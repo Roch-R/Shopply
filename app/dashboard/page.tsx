@@ -135,7 +135,7 @@ const getColorPreviewHex = (name: string) => {
   if (partial) {
     return `#${partial.r.toString(16).padStart(2,'0')}${partial.g.toString(16).padStart(2,'0')}${partial.b.toString(16).padStart(2,'0')}`;
   }
-  return '#7c3aed';
+  return '#6B7280';
 };
 
 const getIconColor = (name: string) => {
@@ -435,27 +435,27 @@ const generateAiProductDescription = (name: string, category: string, specs: { k
   const cleanName = name.trim() || "Quality Product";
   const specsFormatted = specs.length > 0
     ? specs.map(s => `• ${s.key}: ${s.value}`).join('\n')
-    : "• Authenticity: 100% Genuine Guaranteed\n• Build: High-Grade Premium Material\n• Condition: Brand New / Inspected";
+    : "• Authenticity: Verified Original\n• Material: Durable Everyday Grade\n• Condition: Brand New, Inspected";
 
-  return `✨ ${cleanName.toUpperCase()} — OFFICIAL RELEASE
+  return `${cleanName}
 
-Upgrade your everyday lifestyle with the premium ${cleanName}. Meticulously designed for unmatched reliability, modern elegance, and everyday comfort, this piece delivers exceptional performance you can depend on.
+Designed for dependable everyday use, ${cleanName} pairs clean construction with practical durability. Each unit is inspected prior to dispatch so it arrives ready out of the box.
 
-🌟 KEY FEATURES & HIGHLIGHTS:
-• Premium Grade Construction: Crafted with durable, verified materials built to last.
-• Superior Comfort & Utility: Engineered to seamlessly integrate with your daily routine.
-• Verified Shopply Quality: Thoroughly checked and certified prior to fast dispatch.
-• Buyer Satisfaction Protected: Covered by full storefront buyer protection and hassle-free returns.
+Key Details:
+• Built from durable, quality-checked materials for long-term reliability.
+• Practical, comfortable design suited for daily use.
+• Carefully inspected and packed before courier handoff.
+• Backed by Shopply 7-day return protection for damaged or incorrect items.
 
-📋 PRODUCT SPECIFICATIONS:
+Specifications:
 ${specsFormatted}
 
-📦 PACKAGE CONTENTS:
+In the Box:
 • 1x ${cleanName}
-• Original Protective Packaging & Authenticity Seals
+• Protective retail packaging
 
-🚚 FAST, SECURE NATIONWIDE SHIPPING:
-Packed with shock-absorbent multi-layer bubble wrap. Same-day or next-day shipping guaranteed!`;
+Shipping & Fulfillment:
+Packed securely and dispatched within 24–48 hours with nationwide parcel tracking.`;
 };
 
 const generateAiProductSummary = (existingDesc: string, name: string) => {
@@ -468,7 +468,7 @@ const generateAiProductSummary = (existingDesc: string, name: string) => {
 
     const existingBullets = lines.filter(l => l.startsWith('•') || l.startsWith('-') || l.startsWith('*'));
     if (existingBullets.length >= 2) {
-      return `📌 AI SUMMARY FOR ${cleanName.toUpperCase()}:\n${existingBullets.slice(0, 4).join('\n')}\n• Fast Nationwide Express Shipping Guaranteed`;
+      return `KEY HIGHLIGHTS — ${cleanName}:\n${existingBullets.slice(0, 4).join('\n')}\n• Tracked nationwide delivery`;
     }
 
     const sentences = existingDesc
@@ -478,17 +478,17 @@ const generateAiProductSummary = (existingDesc: string, name: string) => {
       .filter(s => s.length > 15 && s.length < 180 && !s.toLowerCase().includes("shipping"));
 
     if (sentences.length >= 2) {
-      return `📌 AI SUMMARY FOR ${cleanName.toUpperCase()}:\n` +
+      return `KEY HIGHLIGHTS — ${cleanName}:\n` +
         sentences.slice(0, 4).map(s => `• ${s.replace(/\.$/, '')}`).join('\n') +
-        `\n• 100% Authentic Quality Verified by Shopply`;
+        `\n• Inspected prior to dispatch`;
     }
   }
 
-  return `📌 QUICK SUMMARY FOR ${cleanName.toUpperCase()}:
-• Quality: 100% Authentic & Inspected for Superior Performance
-• Best For: Daily Wear / Daily Use & Lifestyle Essentials
-• Highlights: High-Durability Materials with Sleek Contemporary Styling
-• Guarantee: Verified Shopply Seller Guarantee with Fast Nationwide Express Delivery`;
+  return `KEY HIGHLIGHTS — ${cleanName}:
+• Authentic, quality-inspected condition
+• Practical construction for everyday use
+• Securely packed with nationwide parcel tracking
+• Covered by 7-day Shopply buyer protection`;
 };
 
 interface DetectedItemInfo {
@@ -1101,7 +1101,7 @@ export default function DashboardPage() {
     localStorage.setItem('shopply_smooth_mode', String(next));
     setSmoothMode(next);
     window.dispatchEvent(new Event('smooth_mode_changed'));
-    showToast(next ? "🚀 Smooth Mode enabled! Lag optimized." : "Smooth Mode disabled.", "success");
+    showToast(next ? "Smooth Mode enabled." : "Smooth Mode disabled.", "success");
   };
 
   useEffect(() => {
@@ -1889,7 +1889,7 @@ export default function DashboardPage() {
     }
     const generatedDesc = customDesc || generateAiProductDescription(title, category, specs);
     setNewItemDesc(generatedDesc);
-    showToast(`✨ AI identified photo as "${title}" & filled Product Name!`, "success");
+    showToast(`Autofilled details for "${title}".`, "success");
   };
 
   const API = "/api";
@@ -3172,7 +3172,7 @@ export default function DashboardPage() {
 
   if (!ready || !user) {
     return (
-      <div style={{ minHeight: "100vh", background: "#f5f7ff", padding: "40px" }}>
+      <div style={{ minHeight: "100vh", background: "#F8F9FA", padding: "40px" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto", display: "flex", gap: 32 }}>
           <Skeleton style={{ width: 240, height: "calc(100vh - 80px)", borderRadius: 24 }} />
           <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 24 }}>
@@ -3232,12 +3232,12 @@ export default function DashboardPage() {
       return <span style={{ background: '#dbeafe', color: '#1d4ed8', border: '1px solid #bfdbfe', padding: '3px 10px', borderRadius: 6, fontSize: 11, fontWeight: 900, letterSpacing: '0.5px', textTransform: 'uppercase', display: 'inline-flex', alignItems: 'center', boxShadow: 'none' }}>● Shipped</span>;
     }
     if (s === 'delivered' || s === 'completed') {
-      return <span style={{ background: '#f5f3ff', color: '#7c3aed', border: '1px solid #ddd6fe', padding: '3px 10px', borderRadius: 6, fontSize: 11, fontWeight: 900, letterSpacing: '0.5px', textTransform: 'uppercase', display: 'inline-flex', alignItems: 'center', boxShadow: 'none' }}>● Delivered</span>;
+      return <span style={{ background: '#ECFDF5', color: '#065F46', border: '1px solid #A7F3D0', padding: '3px 10px', borderRadius: 6, fontSize: 11, fontWeight: 700, letterSpacing: '0.4px', textTransform: 'uppercase', display: 'inline-flex', alignItems: 'center', boxShadow: 'none' }}>● Delivered</span>;
     }
     if (s === 'cancelled' || s === 'rejected') {
       return <span style={{ background: '#fee2e2', color: '#b91c1c', border: '1px solid #fecaca', padding: '3px 10px', borderRadius: 6, fontSize: 11, fontWeight: 900, letterSpacing: '0.5px', textTransform: 'uppercase', display: 'inline-flex', alignItems: 'center', boxShadow: 'none' }}>● Cancelled</span>;
     }
-    return <span style={{ background: '#f8fafc', color: '#000000', border: '1px solid #e2e8f0', padding: '3px 10px', borderRadius: 6, fontSize: 11, fontWeight: 900, letterSpacing: '0.5px', textTransform: 'uppercase', display: 'inline-flex', alignItems: 'center', boxShadow: 'none' }}>● {status}</span>;
+    return <span style={{ background: '#f8fafc', color: '#111827', border: '1px solid #e2e8f0', padding: '3px 10px', borderRadius: 6, fontSize: 11, fontWeight: 900, letterSpacing: '0.5px', textTransform: 'uppercase', display: 'inline-flex', alignItems: 'center', boxShadow: 'none' }}>● {status}</span>;
   };
 
   const formatPriceDisplay = (item: ShopItem) => {
@@ -3282,10 +3282,10 @@ export default function DashboardPage() {
                   <style suppressHydrationWarning>{`
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800;900&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background: #f8fafc; font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; color: #000000; }
+        body { background: #F8F9FA; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; color: #111827; -webkit-font-smoothing: antialiased; }
         .root {
           min-height: 100vh;
-          background: #f8fafc;
+          background: #F8F9FA;
         }
 
         /* --- FLAT NEO-BRUTALIST NAVIGATION (NO SHADOW, BOLD OUTLINE) --- */
@@ -3304,16 +3304,16 @@ export default function DashboardPage() {
           z-index: 80;
         }
         .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
-        .logo-text { font-size: 22px; font-weight: 900; color: #000000; letter-spacing: -0.5px; text-transform: uppercase; }
+        .logo-text { font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; font-size: 20px; font-weight: 800; color: #111827; letter-spacing: -0.03em; text-transform: none; }
         .nav-right { display: flex; align-items: center; gap: 14px; }
         .nav-name {
           font-size: 13px;
-          color: #7c3aed;
-          font-weight: 800;
-          background: #f5f3ff;
-          border: 1px solid #ddd6fe;
+          color: #374151;
+          font-weight: 600;
+          background: #F9FAFB;
+          border: 1px solid #E5E7EB;
           border-radius: 8px;
-          padding: 6px 14px;
+          padding: 6px 12px;
           box-shadow: none;
           display: inline-flex;
           align-items: center;
@@ -3321,7 +3321,7 @@ export default function DashboardPage() {
         .nav-link {
           font-size: 13px;
           font-weight: 700;
-          color: #000000;
+          color: #111827;
           text-decoration: none;
           padding: 7px 14px;
           border-radius: 8px;
@@ -3329,25 +3329,25 @@ export default function DashboardPage() {
           transition: all 0.15s;
         }
         .nav-link:hover {
-          color: #7c3aed;
-          background: #f5f3ff;
-          border-color: #ede9fe;
+          color: #111827;
+          background: #F9FAFB;
+          border-color: #F3F4F6;
           box-shadow: none;
         }
         .shop-link {
           font-size: 13px;
-          font-weight: 800;
+          font-weight: 600;
           color: #ffffff !important;
           text-decoration: none;
-          padding: 8px 18px;
+          padding: 8px 16px;
           border-radius: 8px;
-          background: #7c3aed;
-          border: 1px solid #6d28d9;
+          background: #111827;
+          border: 1px solid #111827;
           box-shadow: none;
           transition: background 0.15s ease;
         }
         .shop-link:hover {
-          background: #6d28d9;
+          background: #1F2937;
           box-shadow: none;
         }
         .logout-btn {
@@ -3374,7 +3374,7 @@ export default function DashboardPage() {
           width: 40px;
           height: 40px;
           border-radius: 8px;
-          color: #000000;
+          color: #111827;
           background: #ffffff;
           border: 1px solid #e2e8f0;
           box-shadow: none;
@@ -3382,7 +3382,7 @@ export default function DashboardPage() {
           text-decoration: none;
         }
         .cart-nav-icon:hover {
-          background: #f5f3ff;
+          background: #F9FAFB;
           box-shadow: none;
         }
         .cart-badge {
@@ -3467,11 +3467,11 @@ export default function DashboardPage() {
           display: flex;
           align-items: center;
           gap: 12px;
-          padding: 10px 14px;
+          padding: 9px 12px;
           border-radius: 8px !important;
           font-size: 13.5px;
-          font-weight: 800;
-          color: #000000;
+          font-weight: 600;
+          color: #374151;
           cursor: pointer;
           background: #ffffff;
           border: 1px solid transparent;
@@ -3481,9 +3481,9 @@ export default function DashboardPage() {
           box-sizing: border-box;
         }
         .sidebar-item:hover {
-          background: #f5f3ff;
-          color: #7c3aed;
-          border-color: #ede9fe;
+          background: #F3F4F6;
+          color: #111827;
+          border-color: transparent;
           border-radius: 8px !important;
           box-shadow: none !important;
         }
@@ -3491,12 +3491,12 @@ export default function DashboardPage() {
           box-shadow: none !important;
         }
         .sidebar-item.active {
-          background: #7c3aed !important;
+          background: #111827 !important;
           color: #ffffff !important;
-          border: 1px solid #7c3aed !important;
+          border: 1px solid #111827 !important;
           border-radius: 8px !important;
           box-shadow: none !important;
-          font-weight: 900;
+          font-weight: 600;
         }
         .sidebar-icon {
           display: flex;
@@ -3517,8 +3517,8 @@ export default function DashboardPage() {
         }
         .sidebar-item.active .sidebar-badge {
           background: #ffffff;
-          color: #7c3aed;
-          border-color: #ddd6fe;
+          color: #111827;
+          border-color: #E5E7EB;
         }
 
         .sidebar-sub-menu {
@@ -3547,7 +3547,7 @@ export default function DashboardPage() {
           padding: 8px 14px 8px 26px;
           font-size: 12.5px;
           font-weight: 700;
-          color: #000000;
+          color: #111827;
           border-radius: 8px !important;
           border: 1px solid transparent;
           background: none;
@@ -3564,17 +3564,17 @@ export default function DashboardPage() {
           background: #cbd5e1;
         }
         .sidebar-sub-item:hover {
-          color: #7c3aed;
-          background: #f5f3ff;
-          border-color: #ede9fe;
+          color: #111827;
+          background: #F3F4F6;
+          border-color: transparent;
           box-shadow: none;
         }
         .sidebar-sub-item.active {
           color: #ffffff;
-          background: #7c3aed;
-          border: 1px solid #7c3aed;
+          background: #111827;
+          border: 1px solid #111827;
           box-shadow: none;
-          font-weight: 900;
+          font-weight: 600;
         }
 
         .category-grid {
@@ -3605,7 +3605,7 @@ export default function DashboardPage() {
         /* --- PROFILE HEADER BANNER (FLAT BRUTALISM, PURPLE ACCENT, STRAIGHT BORDER) --- */
         .profile-header {
           background: #ffffff;
-          border-radius: 0px !important;
+          border-radius: 12px !important;
           padding: 28px 32px;
           border: 1px solid #e2e8f0;
           box-shadow: none;
@@ -3617,24 +3617,24 @@ export default function DashboardPage() {
           overflow: hidden;
         }
         .profile-avatar {
-          width: 96px;
-          height: 96px;
-          border-radius: 0px !important;
-          background: #ede9fe;
+          width: 88px;
+          height: 88px;
+          border-radius: 12px !important;
+          background: #F3F4F6;
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 36px;
-          font-weight: 900;
-          color: #7c3aed;
+          font-size: 32px;
+          font-weight: 800;
+          color: #111827;
           flex-shrink: 0;
-          border: 1px solid #ddd6fe;
+          border: 1px solid #E5E7EB;
           box-shadow: none;
         }
         .profile-info h2 {
           font-size: 26px;
           font-weight: 900;
-          color: #000000;
+          color: #111827;
           margin-bottom: 4px;
           letter-spacing: -0.5px;
         }
@@ -3646,12 +3646,12 @@ export default function DashboardPage() {
         .profile-stats {
           display: grid;
           grid-template-columns: 1fr 1fr;
-          gap: 16px 36px;
+          gap: 16px 32px;
           margin-left: auto;
-          background: #f5f3ff;
-          padding: 20px 32px;
-          border-radius: 0px !important;
-          border: 1px solid #ede9fe;
+          background: #F9FAFB;
+          padding: 18px 28px;
+          border-radius: 10px !important;
+          border: 1px solid #E5E7EB;
           box-shadow: none;
         }
         @media (max-width: 650px) { .profile-stats { grid-template-columns: 1fr; gap: 14px; } }
@@ -3661,29 +3661,30 @@ export default function DashboardPage() {
           gap: 10px;
           font-size: 14px;
           font-weight: 800;
-          color: #000000;
+          color: #111827;
         }
         .profile-stat-icon {
           display: flex;
           align-items: center;
           justify-content: center;
-          color: #7c3aed;
+          color: #111827;
           background: #ffffff;
           width: 32px; height: 32px;
-          border-radius: 0px !important;
-          border: 1px solid #ddd6fe;
+          border-radius: 8px !important;
+          border: 1px solid #E5E7EB;
           box-shadow: none;
           flex-shrink: 0;
         }
         .profile-stat-val {
           background: #ffffff;
-          border: 1px solid #e2e8f0;
+          border: 1px solid #E5E7EB;
           padding: 2px 8px;
-          border-radius: 0px !important;
+          border-radius: 6px !important;
           box-shadow: none;
-          font-weight: 900;
-          color: #000000;
+          font-weight: 700;
+          color: #111827;
           margin-left: 6px;
+          font-variant-numeric: tabular-nums;
         }
 
         /* --- TOAST --- */
@@ -3693,7 +3694,7 @@ export default function DashboardPage() {
           right: 32px;
           padding: 12px 22px;
           border-radius: 10px;
-          color: #000000;
+          color: #111827;
           font-weight: 900;
           display: inline-flex;
           align-items: center;
@@ -3715,7 +3716,7 @@ export default function DashboardPage() {
 
         .spinner {
           width: 40px; height: 40px; border-radius: 50%;
-          border: 2.5px solid #e2e8f0; border-top-color: #7c3aed;
+          border: 2.5px solid #e2e8f0; border-top-color: #111827;
           animation: spin .7s linear infinite;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
@@ -3725,19 +3726,19 @@ export default function DashboardPage() {
         .info-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
         .info-card {
           background: #ffffff;
-          border-radius: 0px !important;
+          border-radius: 12px !important;
           padding: 26px;
           border: 1px solid #e2e8f0;
           box-shadow: none;
         }
         .info-card-label {
           font-size: 11px;
-          font-weight: 900;
+          font-weight: 700;
           text-transform: uppercase;
-          color: #7c3aed;
-          background: #f5f3ff;
-          border: 1px solid #ddd6fe;
-          border-radius: 0px !important;
+          color: #4B5563;
+          background: #F3F4F6;
+          border: 1px solid #E5E7EB;
+          border-radius: 6px !important;
           padding: 3px 10px;
           display: inline-block;
           letter-spacing: 0.5px;
@@ -3747,7 +3748,7 @@ export default function DashboardPage() {
         .info-card-value {
           font-size: 15px;
           font-weight: 800;
-          color: #000000;
+          color: #111827;
           word-break: break-all;
         }
         .badge {
@@ -3772,34 +3773,34 @@ export default function DashboardPage() {
           border: 1px solid #e2e8f0;
           box-shadow: none;
         }
-        .add-form h3 { font-size: 20px; font-weight: 900; color: #000000; margin-bottom: 24px; text-transform: uppercase; }
+        .add-form h3 { font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; font-size: 20px; font-weight: 800; color: #111827; margin-bottom: 24px; text-transform: none; letter-spacing: -0.02em; }
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
         .form-group { margin-bottom: 24px; }
         .form-label {
           display: block;
-          font-size: 12.5px;
-          font-weight: 900;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-          color: #000000;
+          font-size: 13px;
+          font-weight: 600;
+          text-transform: none;
+          letter-spacing: 0;
+          color: #374151;
           margin-bottom: 8px;
         }
         .form-input, .form-textarea {
           width: 100%;
-          padding: 12px 14px;
-          border: 1px solid #cbd5e1 !important;
-          border-radius: 0px !important;
-          font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+          padding: 11px 14px;
+          border: 1px solid #D1D5DB !important;
+          border-radius: 8px !important;
+          font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
           font-size: 14px;
-          font-weight: 700;
-          color: #000000 !important;
+          font-weight: 500;
+          color: #111827 !important;
           transition: all 0.15s;
           background: #ffffff !important;
           box-shadow: none !important;
         }
         .form-input:focus, .form-textarea:focus {
           outline: none;
-          border-color: #7c3aed !important;
+          border-color: #111827 !important;
           background: #ffffff !important;
           box-shadow: none !important;
         }
@@ -3807,7 +3808,7 @@ export default function DashboardPage() {
 
         .image-upload {
           border: 1.5px dashed #cbd5e1;
-          border-radius: 0px !important;
+          border-radius: 10px !important;
           padding: 32px;
           text-align: center;
           cursor: pointer;
@@ -3816,34 +3817,34 @@ export default function DashboardPage() {
           box-shadow: none;
         }
         .image-upload:hover {
-          border-color: #7c3aed;
-          background: #f5f3ff;
+          border-color: #111827;
+          background: #F9FAFB;
           box-shadow: none;
         }
         .image-upload.has-image { padding: 12px; border-style: solid; border-color: #e2e8f0; }
-        .image-preview { width: 100%; max-height: 200px; object-fit: cover; border-radius: 0px !important; border: 1px solid #e2e8f0; }
-        .upload-icon { font-size: 32px; margin-bottom: 8px; display: block; color: #7c3aed; }
-        .upload-text { font-size: 14px; color: #000000; font-weight: 800; margin-bottom: 4px; }
+        .image-preview { width: 100%; max-height: 200px; object-fit: cover; border-radius: 8px !important; border: 1px solid #e2e8f0; }
+        .upload-icon { font-size: 32px; margin-bottom: 8px; display: block; color: #111827; }
+        .upload-text { font-size: 14px; color: #111827; font-weight: 800; margin-bottom: 4px; }
         .upload-hint { font-size: 12px; color: #64748b; font-weight: 600; }
 
         .submit-btn {
           width: 100%;
-          padding: 14px;
-          background: #7c3aed;
+          padding: 13px 18px;
+          background: #111827;
           color: #ffffff;
-          border: 1px solid #6d28d9;
-          border-radius: 0px !important;
-          font-size: 15px;
-          font-weight: 900;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
+          border: 1px solid #111827;
+          border-radius: 8px !important;
+          font-size: 14px;
+          font-weight: 600;
+          text-transform: none;
+          letter-spacing: 0;
           cursor: pointer;
           transition: all 0.15s;
-          font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+          font-family: 'Inter', sans-serif;
           box-shadow: none;
         }
         .submit-btn:hover:not(:disabled) {
-          background: #6d28d9;
+          background: #1F2937;
           box-shadow: none;
         }
         .submit-btn:disabled {
@@ -3857,26 +3858,26 @@ export default function DashboardPage() {
         .items-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
         .item-card {
           background: #ffffff;
-          border-radius: 0px !important;
+          border-radius: 12px !important;
           overflow: hidden;
           border: 1px solid #e2e8f0;
           box-shadow: none;
           transition: border-color 0.15s;
         }
         .item-card:hover {
-          border-color: #7c3aed;
+          border-color: #111827;
           box-shadow: none;
         }
         .item-card-img { width: 100%; height: 200px; object-fit: cover; display: block; border-bottom: 1px solid #f1f5f9; }
         .item-card-placeholder {
           width: 100%; height: 200px;
-          background: #f5f3ff;
+          background: #F9FAFB;
           display: flex; align-items: center; justify-content: center;
-          font-size: 40px; color: #7c3aed;
+          font-size: 40px; color: #111827;
           border-bottom: 1px solid #f1f5f9;
         }
         .item-card-body { padding: 20px; }
-        .item-card-name { font-size: 18px; font-weight: 900; color: #000000; margin-bottom: 8px; }
+        .item-card-name { font-size: 18px; font-weight: 900; color: #111827; margin-bottom: 8px; }
         .item-card-desc {
           font-size: 13px; color: #475569; margin-bottom: 16px; line-height: 1.5; font-weight: 600;
           display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
@@ -3886,9 +3887,9 @@ export default function DashboardPage() {
           padding-top: 14px; border-top: 1px solid #f1f5f9; margin-top: auto;
         }
         .item-card-price {
-          font-size: 18px; font-weight: 900; color: #16a34a;
-          background: #dcfce7; border: 1px solid #bbf7d0; padding: 2px 10px; border-radius: 6px;
-          box-shadow: none; display: inline-block;
+          font-size: 18px; font-weight: 800; color: #111827;
+          font-variant-numeric: tabular-nums;
+          display: inline-block;
         }
         .toggle-btn {
           height: 36px;
@@ -3922,26 +3923,26 @@ export default function DashboardPage() {
           text-transform: uppercase;
         }
         .pub-badge-live { background: #dcfce7; color: #16a34a; }
-        .pub-badge-draft { background: #f5f3ff; color: #7c3aed; }
+        .pub-badge-draft { background: #F3F4F6; color: #4B5563; border-color: #E5E7EB; }
 
         .empty-state {
           text-align: center;
           padding: 80px 20px;
           background: #ffffff;
-          border-radius: 0px !important;
+          border-radius: 12px !important;
           border: 1.5px dashed #cbd5e1;
           box-shadow: none;
         }
-        .empty-icon { font-size: 48px; margin-bottom: 16px; color: #000000; }
-        .empty-title { font-size: 20px; font-weight: 900; color: #000000; margin-bottom: 8px; }
+        .empty-icon { font-size: 48px; margin-bottom: 16px; color: #111827; }
+        .empty-title { font-size: 20px; font-weight: 900; color: #111827; margin-bottom: 8px; }
         .empty-desc { font-size: 14px; color: #64748b; font-weight: 600; }
 
         /* --- ORDERS & TRACKING UI (FLAT BRUTALISM) --- */
         .orders-container { display: flex; flex-direction: column; gap: 24px; flex: 1; }
         .orders-main { flex: 1; display: flex; flex-direction: column; gap: 24px; }
         .order-trust-hero {
-          background: #7c3aed !important;
-          border-radius: 0px !important;
+          background: #111827 !important;
+          border-radius: 12px !important;
           padding: 24px 28px !important;
           color: #ffffff !important;
           border: 1px solid rgba(255,255,255,0.2) !important;
@@ -3949,7 +3950,7 @@ export default function DashboardPage() {
         }
         .order-control-bar {
           background: #ffffff !important;
-          border-radius: 0px !important;
+          border-radius: 12px !important;
           padding: 16px 20px !important;
           border: 1px solid #e2e8f0 !important;
           box-shadow: none !important;
@@ -3968,8 +3969,8 @@ export default function DashboardPage() {
         }
         .store-orders-table-wrapper {
           background: #ffffff;
-          border: 1px solid #e2e8f0;
-          border-radius: 0px !important;
+          border: 1px solid #E5E7EB;
+          border-radius: 12px !important;
           overflow-x: auto;
           box-shadow: none;
           width: 100%;
@@ -3982,11 +3983,11 @@ export default function DashboardPage() {
           min-width: 680px;
         }
         .store-orders-table th {
-          background: #f5f3ff;
+          background: #F9FAFB;
           border-bottom: 1px solid #e2e8f0;
           padding: 12px 16px;
           font-weight: 900;
-          color: #000000;
+          color: #111827;
           font-size: 12px;
           text-transform: uppercase;
           letter-spacing: 0.5px;
@@ -4003,11 +4004,11 @@ export default function DashboardPage() {
           border-bottom: none;
         }
         .store-orders-table tr:hover td {
-          background: #faf5ff;
+          background: #F9FAFB;
         }
         .order-card {
           background: #ffffff;
-          border-radius: 0px !important;
+          border-radius: 12px !important;
           box-shadow: none;
           border: 1px solid #e2e8f0;
           overflow: hidden;
@@ -4018,7 +4019,7 @@ export default function DashboardPage() {
         .order-search-container {
           background: #ffffff;
           padding: 16px 24px;
-          border-radius: 0px !important;
+          border-radius: 12px !important;
           border: 1px solid #e2e8f0;
           box-shadow: none;
           display: flex;
@@ -4032,15 +4033,15 @@ export default function DashboardPage() {
           border-radius: 8px;
           font-size: 14px;
           font-weight: 700;
-          color: #000000;
+          color: #111827;
           background: #ffffff;
           box-shadow: none;
           outline: none;
           width: 320px;
           transition: all 0.15s;
         }
-        .order-search input:focus { border-color: #7c3aed; }
-        .order-search svg { position: absolute; right: 12px; color: #000000; }
+        .order-search input:focus { border-color: #111827; }
+        .order-search svg { position: absolute; right: 12px; color: #111827; }
 
         .order-guarantee-banner {
           display: flex;
@@ -4091,7 +4092,7 @@ export default function DashboardPage() {
         }
         .btn-print {
           background: #ffffff;
-          color: #000000;
+          color: #111827;
           border: 1px solid #e2e8f0;
           box-shadow: none;
           padding: 8px 14px;
@@ -4105,7 +4106,7 @@ export default function DashboardPage() {
           transition: all 0.15s;
         }
         .btn-print:hover {
-          background: #f5f3ff;
+          background: #F9FAFB;
           box-shadow: none;
         }
 
@@ -4134,15 +4135,15 @@ export default function DashboardPage() {
           padding-bottom: 16px;
           border-bottom: 1px dashed #cbd5e1;
         }
-        .receipt-logo { font-size: 24px; font-weight: 900; color: #000000; margin-bottom: 8px; text-transform: uppercase; }
-        .receipt-title { font-size: 18px; font-weight: 800; color: #000000; }
+        .receipt-logo { font-size: 24px; font-weight: 900; color: #111827; margin-bottom: 8px; text-transform: uppercase; }
+        .receipt-title { font-size: 18px; font-weight: 800; color: #111827; }
         .receipt-date { font-size: 12px; color: #64748b; margin-top: 4px; font-weight: 600; }
         .receipt-row { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 14px; font-weight: 700; }
         .receipt-label { color: #64748b; font-weight: 700; }
-        .receipt-value { font-weight: 800; color: #000000; text-align: right; }
+        .receipt-value { font-weight: 800; color: #111827; text-align: right; }
         .receipt-total {
           display: flex; justify-content: space-between; margin-top: 20px; padding-top: 16px;
-          border-top: 1px dashed #cbd5e1; font-size: 18px; font-weight: 900; color: #000000;
+          border-top: 1px dashed #cbd5e1; font-size: 18px; font-weight: 900; color: #111827;
         }
         .receipt-actions { display: flex; gap: 12px; margin-top: 30px; }
 
@@ -4215,15 +4216,15 @@ export default function DashboardPage() {
           font-weight: 600;
         }
         .chat-message-bubble.me {
-          background: #7c3aed;
+          background: #111827;
           color: #ffffff;
-          border: 1px solid #7c3aed;
+          border: 1px solid #111827;
           box-shadow: none;
           border-radius: 12px 12px 2px 12px;
         }
         .chat-message-bubble.them {
           background: #ffffff;
-          color: #000000;
+          color: #111827;
           border: 1px solid #e2e8f0;
           box-shadow: none;
           border-radius: 12px 12px 12px 2px;
@@ -4245,7 +4246,7 @@ export default function DashboardPage() {
           font-size: 14px;
           font-weight: 700;
           outline: none;
-          color: #000000;
+          color: #111827;
           font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
           resize: none;
           min-height: 44px;
@@ -4253,7 +4254,7 @@ export default function DashboardPage() {
           line-height: 1.4;
           box-shadow: none;
         }
-        .chat-input-textarea:focus { border-color: #7c3aed; }
+        .chat-input-textarea:focus { border-color: #111827; }
 
         /* --- SETTINGS & PERFORMANCE BASE STYLES --- */
         .settings-stats-grid {
@@ -4296,7 +4297,7 @@ export default function DashboardPage() {
         .settings-stat-val {
           font-size: 24px;
           font-weight: 900;
-          color: #000000;
+          color: #111827;
         }
         .settings-stat-lbl {
           font-size: 12px;
@@ -4324,7 +4325,7 @@ export default function DashboardPage() {
           align-items: center;
           justify-content: center;
           padding: 22px 16px;
-          border-radius: 0px !important;
+          border-radius: 12px !important;
           border: 1px solid #e2e8f0;
           cursor: pointer;
           transition: all 0.15s ease;
@@ -4335,7 +4336,7 @@ export default function DashboardPage() {
         .my-stat-card-icon {
           width: 48px;
           height: 48px;
-          border-radius: 0px !important;
+          border-radius: 10px !important;
           border: 1px solid #e2e8f0;
           box-shadow: none;
           display: flex;
@@ -4346,13 +4347,13 @@ export default function DashboardPage() {
         .my-stat-card-val {
           font-size: 26px;
           font-weight: 900;
-          color: #000000;
+          color: #111827;
           margin-bottom: 4px;
         }
         .my-stat-card-lbl {
           font-size: 12px;
           font-weight: 800;
-          color: #000000;
+          color: #111827;
           text-transform: uppercase;
           letter-spacing: 0.5px;
         }
@@ -4404,12 +4405,12 @@ export default function DashboardPage() {
           justify-content: space-between;
         }
         .perf-tips-box {
-          background: #f5f3ff;
+          background: #F9FAFB;
           border-radius: 16px;
           padding: 28px;
-          border: 1px solid #ddd6fe;
+          border: 1px solid #E5E7EB;
           box-shadow: none;
-          color: #000000;
+          color: #111827;
         }
         .perf-tips-grid {
           display: grid;
@@ -4422,7 +4423,7 @@ export default function DashboardPage() {
           border-radius: 10px;
           box-shadow: none;
           padding: 16px;
-          color: #000000;
+          color: #111827;
         }
 
         /* --- STORE METRICS BASE STYLES --- */
@@ -4448,7 +4449,7 @@ export default function DashboardPage() {
         .store-metric-val {
           font-size: 22px;
           font-weight: 900;
-          color: #000000;
+          color: #111827;
           margin-top: 2px;
         }
 
@@ -4898,11 +4899,11 @@ export default function DashboardPage() {
             className="menu-toggle-btn"
             onClick={toggleMobileMenu}
             style={{
-              background: '#f5f3ff',
+              background: '#F9FAFB',
               border: '1px solid #e2e8f0',
               boxShadow: 'none',
               borderRadius: 8,
-              color: '#7c3aed',
+              color: '#111827',
               cursor: 'pointer',
               padding: '6px 10px',
               display: 'none',
@@ -4917,19 +4918,16 @@ export default function DashboardPage() {
             </svg>
           </button>
           <Link href="/dashboard" className="nav-logo">
-            <svg width="30" height="30" viewBox="0 0 200 260" xmlns="http://www.w3.org/2000/svg">
-              <rect x="8" y="68" width="184" height="176" rx="24" fill="none" stroke="#7c3aed" strokeWidth="14" />
-              <path d="M56 70 Q56 18 100 18 Q144 18 144 70" fill="none" stroke="#7c3aed" strokeWidth="14" strokeLinecap="round" />
-              <circle cx="68" cy="70" r="7" fill="#7c3aed" />
-              <circle cx="132" cy="70" r="7" fill="#7c3aed" />
-              <path d="M24 192 Q36 150 70 145 Q104 140 110 170 Q116 198 150 192 Q170 187 176 162"
-                fill="none" stroke="#FFD166" strokeWidth="13" strokeLinecap="round" strokeLinejoin="round" />
-              <path d="M161 145 L176 162 L157 175" fill="none" stroke="#FFD166" strokeWidth="13" strokeLinecap="round" strokeLinejoin="round" />
+            <svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <rect x="4" y="9" width="24" height="19" rx="4.5" fill="#111827" />
+              <path d="M11 9V7.5C11 4.73858 13.2386 2.5 16 2.5C18.7614 2.5 21 4.73858 21 7.5V9" stroke="#111827" strokeWidth="2.4" strokeLinecap="round" />
+              <path d="M11.5 16.5C12.8 18.8 14.3 19.8 16 19.8C17.7 19.8 19.2 18.8 20.5 16.5" stroke="#FFFFFF" strokeWidth="2.2" strokeLinecap="round" />
+              <circle cx="23.5" cy="13.5" r="2" fill="#10B981" />
             </svg>
             <span className="logo-text">Shopply</span>
           </Link>
           <div className="nav-right">
-            <span className="nav-name">Hi, {user.name.split(" ")[0]} 👋</span>
+            <span className="nav-name">{user.name.split(" ")[0]}</span>
             <Link href="/shop" onClick={handleGoToShop} className="shop-link" style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
               <IconShop /> <span className="shop-text">Shop</span>
             </Link>
@@ -4952,7 +4950,7 @@ export default function DashboardPage() {
 
             {/* PROFILE HEADER IN SIDEBAR */}
             <div className="sidebar-profile-header">
-              <div style={{ width: 40, height: 40, borderRadius: 0, border: '1px solid #ddd6fe', boxShadow: 'none', background: '#f5f3ff', color: '#7c3aed', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: 16, flexShrink: 0, overflow: 'hidden' }}>
+              <div style={{ width: 40, height: 40, borderRadius: 8, border: '1px solid #E5E7EB', boxShadow: 'none', background: '#F3F4F6', color: '#111827', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 15, flexShrink: 0, overflow: 'hidden' }}>
                 {user?.avatar && !avatarLoadFailed ? (
                   <img
                     src={getAvatarUrl(user.avatar)}
@@ -4965,7 +4963,7 @@ export default function DashboardPage() {
                 )}
               </div>
               <div style={{ minWidth: 0, flex: 1 }}>
-                  <div style={{ fontSize: 13, fontWeight: 800, color: '#000000', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user?.name || 'User'}</div>
+                  <div style={{ fontSize: 13, fontWeight: 800, color: '#111827', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user?.name || 'User'}</div>
                   <div style={{ fontSize: 11, color: '#475569', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user?.email || user?.username || 'Shopply Member'}</div>
               </div>
               <button
@@ -4975,7 +4973,7 @@ export default function DashboardPage() {
                 title="Close Menu"
                 style={{
                   display: 'none',
-                  background: '#f5f3ff',
+                  background: '#F9FAFB',
                   border: '1px solid #e2e8f0',
                   borderRadius: 6,
                   width: 30,
@@ -4985,7 +4983,7 @@ export default function DashboardPage() {
                   cursor: 'pointer',
                   fontSize: 14,
                   fontWeight: 900,
-                  color: '#000000',
+                  color: '#111827',
                   flexShrink: 0,
                   boxShadow: 'none'
                 }}
@@ -5108,8 +5106,8 @@ export default function DashboardPage() {
                   </div>
                   <div className="profile-info">
                     <div style={{ marginBottom: 6 }}>
-                      <span style={{ display: 'inline-block', background: '#f5f3ff', color: '#7c3aed', fontSize: 11, fontWeight: 900, textTransform: 'uppercase', letterSpacing: 1, padding: '4px 12px', borderRadius: 0, border: '1px solid #ddd6fe', boxShadow: 'none' }}>
-                        WELCOME BACK
+                      <span style={{ display: 'inline-block', background: '#ECFDF5', color: '#065F46', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', padding: '4px 10px', borderRadius: 6, border: '1px solid #A7F3D0', boxShadow: 'none' }}>
+                        Merchant & Buyer Account
                       </span>
                     </div>
                     <h2>{user.name}</h2>
@@ -5118,19 +5116,19 @@ export default function DashboardPage() {
                   <div className="profile-stats">
                     <div className="profile-stat">
                       <span className="profile-stat-icon"><IconStorefront /></span>
-                      <span>Products: <span className="profile-stat-val" style={{ color: '#ef4444' }}>{items.length}</span></span>
+                      <span>Products: <span className="profile-stat-val">{items.length}</span></span>
                     </div>
                     <div className="profile-stat">
                       <span className="profile-stat-icon"><IconFollowers /></span>
-                      <span>Followers: <span className="profile-stat-val" style={{ color: '#ef4444' }}>{user.followers_count !== undefined ? user.followers_count : 0}</span></span>
+                      <span>Followers: <span className="profile-stat-val">{user.followers_count !== undefined ? user.followers_count : 0}</span></span>
                     </div>
                     <div className="profile-stat">
                       <span className="profile-stat-icon"><IconFollowing /></span>
-                      <span>Following: <span className="profile-stat-val" style={{ color: '#ef4444' }}>{user.following_count !== undefined ? user.following_count : 0}</span></span>
+                      <span>Following: <span className="profile-stat-val">{user.following_count !== undefined ? user.following_count : 0}</span></span>
                     </div>
                     <div className="profile-stat">
                       <span className="profile-stat-icon"><IconStar /></span>
-                      <span>Rating: <span className="profile-stat-val" style={{ color: '#ef4444' }}>{user.reviews_avg_rating !== undefined ? Number(user.reviews_avg_rating).toFixed(1) : '0.0'} ({user.reviews_count || 0} Rating)</span></span>
+                      <span>Rating: <span className="profile-stat-val">{user.reviews_avg_rating !== undefined ? Number(user.reviews_avg_rating).toFixed(1) : '0.0'} ({user.reviews_count || 0})</span></span>
                     </div>
                   </div>
                 </div>
@@ -5152,7 +5150,7 @@ export default function DashboardPage() {
                               />
                             ) : initials}
                           </div>
-                          <label htmlFor="avatar-upload" style={{ position: 'absolute', bottom: 0, right: 0, background: '#7c3aed', padding: 7, borderRadius: 0, boxShadow: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid #ffffff', color: '#ffffff' }}>
+                          <label htmlFor="avatar-upload" style={{ position: 'absolute', bottom: 0, right: 0, background: '#111827', padding: 7, borderRadius: 0, boxShadow: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid #ffffff', color: '#ffffff' }}>
                             <IconPlus />
                           </label>
                           <input
@@ -5251,8 +5249,8 @@ export default function DashboardPage() {
                               padding: '8px 16px',
                               borderRadius: 0,
                               border: '1px solid #e2e8f0',
-                              background: '#f5f3ff',
-                              color: '#7c3aed',
+                              background: '#F9FAFB',
+                              color: '#111827',
                               boxShadow: 'none',
                               fontSize: 12,
                               fontWeight: 800,
@@ -5318,30 +5316,30 @@ export default function DashboardPage() {
               <div className="orders-container">
                 <div className="orders-main">
                   {/* TRUST & GUARANTEE BANNER */}
-                  <div className="order-trust-hero" style={{ background: '#7c3aed', borderRadius: 12, border: '1px solid #6d28d9', padding: '24px 28px', color: '#fff', boxShadow: 'none', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
+                  <div className="order-trust-hero" style={{ background: '#111827', borderRadius: 12, border: '1px solid #111827', padding: '22px 26px', color: '#fff', boxShadow: 'none', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                      <div style={{ width: 52, height: 52, borderRadius: 16, background: 'rgba(255,255,255,0.18)', display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(8px)', flexShrink: 0 }}>
-                        <svg width="28" height="28" fill="none" stroke="#fff" strokeWidth="2.2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /><polyline points="9 12 11 14 15 10" /></svg>
+                      <div style={{ width: 48, height: 48, borderRadius: 12, background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <svg width="24" height="24" fill="none" stroke="#fff" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /><polyline points="9 12 11 14 15 10" /></svg>
                       </div>
                       <div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                          <h2 style={{ fontSize: 20, fontWeight: 800, margin: 0, color: '#fff' }}>Your Orders & Tracking</h2>
-                          <span style={{ fontSize: 11, background: '#10b981', color: '#fff', padding: '3px 10px', borderRadius: 20, fontWeight: 700, letterSpacing: '0.4px' }}>100% Shopply Protected</span>
+                          <h2 style={{ fontSize: 19, fontWeight: 700, margin: 0, color: '#fff' }}>Orders & Tracking</h2>
+                          <span style={{ fontSize: 11, background: '#0D6847', color: '#ECFDF5', padding: '3px 10px', borderRadius: 999, fontWeight: 600 }}>Buyer Protection</span>
                         </div>
-                        <p style={{ margin: '4px 0 0', fontSize: 13, color: '#e0e7ff', opacity: 0.9 }}>
-                          Track parcel delivery in real-time, view verified electronic tax invoices, and contact sellers directly.
+                        <p style={{ margin: '4px 0 0', fontSize: 13, color: '#D1D5DB' }}>
+                          Track parcel status, download official sales invoices, and message sellers directly.
                         </p>
                       </div>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-                      <div style={{ fontSize: 12, background: 'rgba(255,255,255,0.14)', padding: '6px 14px', borderRadius: 20, backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', gap: 6 }}>
-                        <span>⚡ 24h Dispatch</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                      <div style={{ fontSize: 12, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', padding: '6px 12px', borderRadius: 999, color: '#F3F4F6', fontWeight: 500 }}>
+                        24h Dispatch
                       </div>
-                      <div style={{ fontSize: 12, background: 'rgba(255,255,255,0.14)', padding: '6px 14px', borderRadius: 20, backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', gap: 6 }}>
-                        <span>🔄 7-Day Easy Returns</span>
+                      <div style={{ fontSize: 12, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', padding: '6px 12px', borderRadius: 999, color: '#F3F4F6', fontWeight: 500 }}>
+                        7-Day Returns
                       </div>
-                      <div style={{ fontSize: 12, background: 'rgba(255,255,255,0.14)', padding: '6px 14px', borderRadius: 20, backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', gap: 6 }}>
-                        <span>💵 Cash on Delivery</span>
+                      <div style={{ fontSize: 12, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', padding: '6px 12px', borderRadius: 999, color: '#F3F4F6', fontWeight: 500 }}>
+                        Cash on Delivery
                       </div>
                     </div>
                   </div>
@@ -5372,10 +5370,10 @@ export default function DashboardPage() {
                                 cursor: 'pointer',
                                 whiteSpace: 'nowrap',
                                 transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
-                                background: isActive ? '#7c3aed' : '#f1f5f9',
+                                background: isActive ? '#111827' : '#f1f5f9',
                                 color: isActive ? '#fff' : '#475569',
                                 boxShadow: 'none',
-                                border: isActive ? '1px solid #7c3aed' : '1px solid transparent',
+                                border: isActive ? '1px solid #111827' : '1px solid transparent',
                                 display: 'inline-flex',
                                 alignItems: 'center',
                                 gap: 6
@@ -5463,7 +5461,7 @@ export default function DashboardPage() {
                         </div>
                         <div className="empty-title" style={{ fontSize: 18, fontWeight: 700, color: '#0f172a', marginBottom: 6 }}>No orders placed yet</div>
                         <div className="empty-desc" style={{ color: '#64748b', fontSize: 14, marginBottom: 20 }}>Explore thousands of quality products from verified sellers on Shopply.</div>
-                        <Link href="/shop" onClick={handleGoToShop} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#7c3aed', color: '#fff', textDecoration: 'none', padding: '10px 22px', borderRadius: 12, fontWeight: 700, fontSize: 14, boxShadow: '0 4px 14px rgba(124,58,237,0.25)' }}>
+                        <Link href="/shop" onClick={handleGoToShop} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#111827', color: '#fff', textDecoration: 'none', padding: '10px 22px', borderRadius: 12, fontWeight: 700, fontSize: 14, boxShadow: '0 4px 14px rgba(17, 24, 39, 0.16)' }}>
                           <IconShop /> Browse Marketplace
                         </Link>
                       </div>
@@ -5484,7 +5482,7 @@ export default function DashboardPage() {
                         {/* Summary row */}
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 16px', background: '#f8fafc', borderRadius: '16px 16px 0 0', border: '1px solid #e2e8f0', borderBottom: 'none', fontSize: 12, color: '#64748b', fontWeight: 600 }}>
                           <span>Showing {pageOrders.length} of {filteredOrders.length} order{filteredOrders.length !== 1 ? 's' : ''}</span>
-                          <span style={{ color: '#7c3aed', fontWeight: 700 }}>Click any row to expand details ▾</span>
+                          <span style={{ color: '#111827', fontWeight: 700 }}>Click any row to expand details ▾</span>
                         </div>
 
                         {/* Order rows */}
@@ -5512,12 +5510,12 @@ export default function DashboardPage() {
                                     gap: 12,
                                     padding: '12px 16px',
                                     cursor: 'pointer',
-                                    background: isExpanded ? '#faf5ff' : '#fff',
+                                    background: isExpanded ? '#F9FAFB' : '#fff',
                                     transition: 'background 0.15s',
                                     userSelect: 'none'
                                   }}
                                   onMouseEnter={e => { if (!isExpanded) (e.currentTarget as HTMLDivElement).style.background = '#f8fafc'; }}
-                                  onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.background = isExpanded ? '#faf5ff' : '#fff'; }}
+                                  onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.background = isExpanded ? '#F9FAFB' : '#fff'; }}
                                 >
                                   {/* Thumbnail */}
                                   {order.item.image ? (
@@ -5537,7 +5535,7 @@ export default function DashboardPage() {
                                   <div style={{ flex: 1, minWidth: 0 }}>
                                     <div style={{ fontSize: 13, fontWeight: 700, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                                       {order.item.name}
-                                      {order.variation && <span style={{ fontSize: 11, color: '#7c3aed', marginLeft: 6, fontWeight: 600 }}>({order.variation})</span>}
+                                      {order.variation && <span style={{ fontSize: 11, color: '#111827', marginLeft: 6, fontWeight: 600 }}>({order.variation})</span>}
                                     </div>
                                     <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>
                                       <span style={{ fontFamily: 'monospace', fontWeight: 600, color: '#64748b' }}>#{orderCode}</span>
@@ -5552,7 +5550,7 @@ export default function DashboardPage() {
                                   {/* Status + Total */}
                                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4, flexShrink: 0, minWidth: 100 }}>
                                     {renderStatusBadge(order.status)}
-                                    <span style={{ fontSize: 15, fontWeight: 800, color: '#ee4d2d' }}>₱{orderTotal}</span>
+                                    <span style={{ fontSize: 15, fontWeight: 800, color: '#111827' }}>₱{orderTotal}</span>
                                   </div>
 
                                   {/* Chevron */}
@@ -5563,7 +5561,7 @@ export default function DashboardPage() {
 
                                 {/* ── EXPANDED PANEL ── */}
                                 {isExpanded && (
-                                  <div style={{ background: '#faf5ff', borderTop: '1px solid #ede9fe', padding: '16px 20px 20px', display: 'flex', flexDirection: 'column', gap: 14 }}>
+                                  <div style={{ background: '#F9FAFB', borderTop: '1px solid #F3F4F6', padding: '16px 20px 20px', display: 'flex', flexDirection: 'column', gap: 14 }}>
 
                                     {/* Order Progress Stepper */}
                                     {isCancelled ? (
@@ -5580,7 +5578,7 @@ export default function DashboardPage() {
                                     ) : (
                                       <div className="order-stepper-wrap" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'relative', width: '100%', maxWidth: 640, margin: '4px auto 0' }}>
                                         <div style={{ position: 'absolute', top: 14, left: 24, right: 24, height: 3, background: '#e2e8f0', zIndex: 1 }}>
-                                          <div style={{ height: '100%', background: stepIdx >= 4 ? '#10b981' : '#7c3aed', width: stepIdx === 1 ? '0%' : stepIdx === 2 ? '33%' : stepIdx === 3 ? '66%' : '100%', transition: 'width 0.4s ease' }} />
+                                          <div style={{ height: '100%', background: stepIdx >= 4 ? '#10b981' : '#111827', width: stepIdx === 1 ? '0%' : stepIdx === 2 ? '33%' : stepIdx === 3 ? '66%' : '100%', transition: 'width 0.4s ease' }} />
                                         </div>
                                         {[
                                           { step: 1, label: 'Order Placed', sub: 'Verified' },
@@ -5591,7 +5589,7 @@ export default function DashboardPage() {
                                           const isDone = stepIdx >= s.step;
                                           const isCurrent = stepIdx === s.step;
                                           const isDelivered = stepIdx === 4;
-                                          const activeColor = isDelivered ? '#10b981' : '#7c3aed';
+                                          const activeColor = isDelivered ? '#10b981' : '#111827';
                                           return (
                                             <div key={s.step} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative', zIndex: 2, textAlign: 'center' }}>
                                               <div style={{ width: 28, height: 28, borderRadius: '50%', background: isDone ? activeColor : '#fff', border: `2px solid ${isDone ? activeColor : '#cbd5e1'}`, color: isDone ? '#fff' : '#94a3b8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, boxShadow: isCurrent ? `0 0 0 4px ${isDelivered ? 'rgba(16,185,129,0.18)' : 'rgba(124,58,237,0.18)'}` : 'none', transition: 'all 0.3s' }}>
@@ -5609,15 +5607,15 @@ export default function DashboardPage() {
                                     <div style={{ background: '#fff', borderRadius: 12, padding: '10px 14px', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10, fontSize: 12 }}>
                                       <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#334155' }}>
-                                          <span style={{ color: '#7c3aed', fontWeight: 700 }}>🚚 SPX:</span>
+                                          <span style={{ color: '#111827', fontWeight: 700 }}>SPX:</span>
                                           <span style={{ fontFamily: 'monospace', fontWeight: 700, color: '#0f172a' }}>{trackingCode}</span>
-                                          <button type="button" onClick={e => { e.stopPropagation(); if (navigator.clipboard) { navigator.clipboard.writeText(trackingCode); showToast(`Copied: ${trackingCode}`, "success"); } }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#7c3aed', padding: 0, fontSize: 11, fontWeight: 700 }} title="Copy">Copy</button>
+                                          <button type="button" onClick={e => { e.stopPropagation(); if (navigator.clipboard) { navigator.clipboard.writeText(trackingCode); showToast(`Copied: ${trackingCode}`, "success"); } }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#111827', padding: 0, fontSize: 11, fontWeight: 700 }} title="Copy">Copy</button>
                                         </div>
-                                        <div style={{ color: '#64748b' }}>📍 <strong style={{ color: '#334155' }}>{orderAddress}</strong></div>
+                                        <div style={{ color: '#64748b' }}>Deliver to: <strong style={{ color: '#334155' }}>{orderAddress}</strong></div>
                                       </div>
                                       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                                         <span style={{ color: '#64748b' }}>Payment:</span>
-                                        <span style={{ background: '#ecfdf5', color: '#059669', padding: '2px 8px', borderRadius: 6, fontWeight: 700, border: '1px solid #a7f3d0' }}>💵 {paymentMethod}</span>
+                                        <span style={{ background: '#ecfdf5', color: '#059669', padding: '2px 8px', borderRadius: 6, fontWeight: 700, border: '1px solid #a7f3d0' }}>{paymentMethod}</span>
                                       </div>
                                     </div>
 
@@ -5625,27 +5623,27 @@ export default function DashboardPage() {
                                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}>
                                       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                                         <span style={{ fontSize: 12, color: '#64748b' }}>Order Total:</span>
-                                        <span style={{ fontSize: 18, fontWeight: 800, color: '#ee4d2d' }}>₱{orderTotal}</span>
+                                        <span style={{ fontSize: 18, fontWeight: 800, color: '#111827' }}>₱{orderTotal}</span>
                                         <span style={{ fontSize: 11, color: '#059669', background: '#ecfdf5', padding: '2px 8px', borderRadius: 6, fontWeight: 700 }}>Free Shipping</span>
                                       </div>
                                       <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                                         {/* Track */}
-                                        <button type="button" onClick={e => { e.stopPropagation(); setTrackingOrder(order); }} style={{ background: '#7c3aed', color: '#fff', border: '1px solid #6d28d9', padding: '7px 14px', borderRadius: 8, fontWeight: 800, fontSize: 12, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 5, boxShadow: 'none' }}>
+                                        <button type="button" onClick={e => { e.stopPropagation(); setTrackingOrder(order); }} style={{ background: '#111827', color: '#fff', border: '1px solid #1F2937', padding: '7px 14px', borderRadius: 8, fontWeight: 800, fontSize: 12, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 5, boxShadow: 'none' }}>
                                           <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M1 3h15v13H1z"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
                                           Track
                                         </button>
                                         {/* Invoice */}
-                                        <button type="button" onClick={e => { e.stopPropagation(); setReceiptOrder(order); }} style={{ background: '#ffffff', color: '#000000', border: '1px solid #e2e8f0', padding: '6px 12px', borderRadius: 8, fontWeight: 800, fontSize: 12, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 5, boxShadow: 'none' }}>
+                                        <button type="button" onClick={e => { e.stopPropagation(); setReceiptOrder(order); }} style={{ background: '#ffffff', color: '#111827', border: '1px solid #e2e8f0', padding: '6px 12px', borderRadius: 8, fontWeight: 800, fontSize: 12, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 5, boxShadow: 'none' }}>
                                           <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
                                           Invoice
                                         </button>
                                         {/* Buy Again */}
-                                        <button type="button" onClick={e => { e.stopPropagation(); handleBuyAgain(order); }} style={{ background: '#f5f3ff', color: '#7c3aed', border: '1px solid #ddd6fe', padding: '6px 12px', borderRadius: 8, fontWeight: 800, fontSize: 12, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 5, boxShadow: 'none' }}>
+                                        <button type="button" onClick={e => { e.stopPropagation(); handleBuyAgain(order); }} style={{ background: '#F9FAFB', color: '#111827', border: '1px solid #E5E7EB', padding: '6px 12px', borderRadius: 8, fontWeight: 800, fontSize: 12, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 5, boxShadow: 'none' }}>
                                           <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
                                           Buy Again
                                         </button>
                                         {/* Chat Seller */}
-                                        <button type="button" onClick={e => { e.stopPropagation(); handleContactSeller(order.seller); }} style={{ background: '#ffffff', color: '#7c3aed', border: '1px solid #e2e8f0', padding: '6px 12px', borderRadius: 8, fontWeight: 800, fontSize: 12, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 5, boxShadow: 'none' }}>
+                                        <button type="button" onClick={e => { e.stopPropagation(); handleContactSeller(order.seller); }} style={{ background: '#ffffff', color: '#111827', border: '1px solid #e2e8f0', padding: '6px 12px', borderRadius: 8, fontWeight: 800, fontSize: 12, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 5, boxShadow: 'none' }}>
                                           <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
                                           Chat
                                         </button>
@@ -5690,7 +5688,7 @@ export default function DashboardPage() {
                                 key={p}
                                 type="button"
                                 onClick={() => setOrdersPage(p)}
-                                style={{ width: 34, height: 34, borderRadius: 9, border: p === ordersPage ? 'none' : '1.5px solid #e2e8f0', background: p === ordersPage ? '#7c3aed' : '#fff', color: p === ordersPage ? '#fff' : '#475569', fontWeight: 700, fontSize: 13, cursor: 'pointer', boxShadow: p === ordersPage ? '0 4px 10px rgba(124,58,237,0.22)' : 'none' }}
+                                style={{ width: 34, height: 34, borderRadius: 9, border: p === ordersPage ? 'none' : '1.5px solid #e2e8f0', background: p === ordersPage ? '#111827' : '#fff', color: p === ordersPage ? '#fff' : '#475569', fontWeight: 700, fontSize: 13, cursor: 'pointer', boxShadow: p === ordersPage ? '0 4px 10px rgba(17, 24, 39, 0.14)' : 'none' }}
                               >{p}</button>
                             ))}
                             <button
@@ -5730,11 +5728,11 @@ export default function DashboardPage() {
                       {pendingSellerOrdersCount > 0 && (
                         <div className="order-card" style={{ border: '1px solid #e2e8f0', boxShadow: 'none', borderRadius: 14, padding: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 20 }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
-                            <div style={{ width: 56, height: 56, borderRadius: 12, border: '1px solid #ddd6fe', boxShadow: 'none', background: '#ede9fe', color: '#7c3aed', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                            <div style={{ width: 56, height: 56, borderRadius: 12, border: '1px solid #E5E7EB', boxShadow: 'none', background: '#F3F4F6', color: '#111827', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                               <IconStore />
                             </div>
                             <div>
-                              <h4 style={{ fontSize: 16, fontWeight: 900, color: '#000000', marginBottom: 4 }}>New Store Orders Pending Approval</h4>
+                              <h4 style={{ fontSize: 16, fontWeight: 900, color: '#111827', marginBottom: 4 }}>New Store Orders Pending Approval</h4>
                               <p style={{ fontSize: 14, color: '#475569', fontWeight: 600, margin: 0 }}>
                                 You have <strong>{pendingSellerOrdersCount}</strong> order{pendingSellerOrdersCount > 1 ? 's' : ''} waiting for your review. Please accept or reject to proceed with fulfillment.
                               </p>
@@ -5742,7 +5740,7 @@ export default function DashboardPage() {
                           </div>
                           <button
                             onClick={() => setActiveTab('store-orders')}
-                            style={{ background: '#7c3aed', color: '#ffffff', border: '1px solid #6d28d9', padding: '10px 20px', borderRadius: 8, fontWeight: 800, cursor: 'pointer', boxShadow: 'none', transition: 'all .15s', whiteSpace: 'nowrap' }}
+                            style={{ background: '#111827', color: '#ffffff', border: '1px solid #1F2937', padding: '10px 20px', borderRadius: 8, fontWeight: 800, cursor: 'pointer', boxShadow: 'none', transition: 'all .15s', whiteSpace: 'nowrap' }}
                           >
                             Review Orders
                           </button>
@@ -5756,7 +5754,7 @@ export default function DashboardPage() {
                               <IconBox />
                             </div>
                             <div>
-                              <h4 style={{ fontSize: 16, fontWeight: 900, color: '#000000', marginBottom: 4 }}>Order Shipped: {order.item.name}</h4>
+                              <h4 style={{ fontSize: 16, fontWeight: 900, color: '#111827', marginBottom: 4 }}>Order Shipped: {order.item.name}</h4>
                               <p style={{ fontSize: 14, color: '#475569', fontWeight: 600, margin: 0 }}>
                                 Your purchased item has been shipped by <strong>{order.seller.name}</strong>. Track your delivery status.
                               </p>
@@ -5766,7 +5764,7 @@ export default function DashboardPage() {
                             onClick={() => {
                               setActiveTab('orders');
                             }}
-                            style={{ background: '#7c3aed', color: '#ffffff', border: '1px solid #6d28d9', padding: '10px 20px', borderRadius: 8, fontWeight: 800, cursor: 'pointer', boxShadow: 'none', transition: 'all .15s', whiteSpace: 'nowrap' }}
+                            style={{ background: '#111827', color: '#ffffff', border: '1px solid #1F2937', padding: '10px 20px', borderRadius: 8, fontWeight: 800, cursor: 'pointer', boxShadow: 'none', transition: 'all .15s', whiteSpace: 'nowrap' }}
                           >
                             View Order
                           </button>
@@ -5841,7 +5839,7 @@ export default function DashboardPage() {
                                   alt="" 
                                   onError={(e) => {
                                     e.currentTarget.onerror = null;
-                                    e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(conv.user?.name || "User")}&background=ede9fe&color=7c3aed&bold=true`;
+                                    e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(conv.user?.name || "User")}&background=F3F4F6&color=111827&bold=true`;
                                   }}
                                   style={{width: 44, height: 44, borderRadius: '50%', objectFit: 'cover'}} 
                                 />
@@ -5942,7 +5940,7 @@ export default function DashboardPage() {
                                 alt="" 
                                 onError={(e) => {
                                   e.currentTarget.onerror = null;
-                                  e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(activeChatUser?.name || "User")}&background=ede9fe&color=7c3aed&bold=true`;
+                                  e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(activeChatUser?.name || "User")}&background=F3F4F6&color=111827&bold=true`;
                                 }}
                                 style={{width: 40, height: 40, borderRadius: '50%', objectFit: 'cover'}} 
                               />
@@ -5970,7 +5968,7 @@ export default function DashboardPage() {
                             <button
                               onClick={handleStartVideoCall}
                               style={{
-                                background: '#7c3aed',
+                                background: '#111827',
                                 border: 'none',
                                 width: 36,
                                 height: 36,
@@ -6056,7 +6054,7 @@ export default function DashboardPage() {
                                       <span style={{
                                         background: '#f8fafc',
                                         border: '1px solid #e2e8f0',
-                                        color: '#000000',
+                                        color: '#111827',
                                         fontSize: '11px',
                                         fontWeight: 800,
                                         padding: '4px 14px',
@@ -6082,7 +6080,7 @@ export default function DashboardPage() {
                                           alt="" 
                                           onError={(e) => {
                                             e.currentTarget.onerror = null;
-                                            e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(activeChatUser?.name || "User")}&background=ede9fe&color=7c3aed&bold=true`;
+                                            e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(activeChatUser?.name || "User")}&background=F3F4F6&color=111827&bold=true`;
                                           }}
                                           style={{width: 28, height: 28, borderRadius: '50%', objectFit: 'cover', marginBottom: 4}} 
                                         />
@@ -6135,8 +6133,8 @@ export default function DashboardPage() {
                                             return (
                                               <div style={{ padding: 12, display: 'flex', flexDirection: 'column', gap: 10, width: 220 }}>
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                                  <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#dcfce7', color: '#16a34a', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>
-                                                    📍
+                                                  <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#ECFDF5', color: '#059669', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                    <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24"><path d="M12 2a8 8 0 00-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 00-8-8z"/><circle cx="12" cy="10" r="3"/></svg>
                                                   </div>
                                                   <div style={{ display: 'flex', flexDirection: 'column' }}>
                                                     <span style={{ fontSize: 12, fontWeight: 700, color: '#1e293b' }}>Shared Location</span>
@@ -6186,7 +6184,7 @@ export default function DashboardPage() {
                                   alt="" 
                                   onError={(e) => {
                                     e.currentTarget.onerror = null;
-                                    e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(activeChatUser?.name || "User")}&background=ede9fe&color=7c3aed&bold=true`;
+                                    e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(activeChatUser?.name || "User")}&background=F3F4F6&color=111827&bold=true`;
                                   }}
                                   style={{ width: 28, height: 28, borderRadius: '50%', objectFit: 'cover', marginBottom: 4 }} 
                                 />
@@ -6195,7 +6193,7 @@ export default function DashboardPage() {
                                   {activeChatUser.name.charAt(0).toUpperCase()}
                                 </div>
                               )}
-                              <div className="chat-message-bubble them" style={{ background: '#d8b4fe', display: 'flex', alignItems: 'center', gap: 6, border: '1px solid #ddd6fe', boxShadow: 'none' }}>
+                              <div className="chat-message-bubble them" style={{ background: '#d8b4fe', display: 'flex', alignItems: 'center', gap: 6, border: '1px solid #E5E7EB', boxShadow: 'none' }}>
                                 <span style={{ width: 8, height: 8, background: '#475569', borderRadius: '50%', animation: 'typingBounce 1.4s infinite ease-in-out both', animationDelay: '-0.32s' }}></span>
                                 <span style={{ width: 8, height: 8, background: '#475569', borderRadius: '50%', animation: 'typingBounce 1.4s infinite ease-in-out both', animationDelay: '-0.16s' }}></span>
                                 <span style={{ width: 8, height: 8, background: '#475569', borderRadius: '50%', animation: 'typingBounce 1.4s infinite ease-in-out both' }}></span>
@@ -6222,7 +6220,7 @@ export default function DashboardPage() {
                                   >✕</button>
                                 </div>
                               ))}
-                              <label style={{ height: 75, width: 75, borderRadius: 8, border: '2px dashed #a855f7', background: '#f3e8ff', color: '#7c3aed', fontSize: 24, fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0, transition: 'all 0.2s' }} title="Add more photos">
+                              <label style={{ height: 75, width: 75, borderRadius: 8, border: '2px dashed #111827', background: '#F3F4F6', color: '#111827', fontSize: 24, fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0, transition: 'all 0.2s' }} title="Add more photos">
                                 +
                                 <input
                                   type="file"
@@ -6371,8 +6369,8 @@ export default function DashboardPage() {
                                 width: 44,
                                 height: 44,
                                 borderRadius: '50%',
-                                background: isEmojiPickerOpen ? '#ddd6fe' : '#e2e8f0',
-                                color: isEmojiPickerOpen ? '#6d28d9' : '#64748b',
+                                background: isEmojiPickerOpen ? '#E5E7EB' : '#e2e8f0',
+                                color: isEmojiPickerOpen ? '#1F2937' : '#64748b',
                                 border: 'none',
                                 cursor: 'pointer',
                                 transition: 'all 0.2s',
@@ -6456,7 +6454,7 @@ export default function DashboardPage() {
                               type="submit"
                               disabled={!newChatMessage.trim() && chatImageFiles.length === 0}
                               style={{
-                                background: '#7c3aed',
+                                background: '#111827',
                                 color: '#fff',
                                 border: '1px solid #e2e8f0',
                                 width: 46,
@@ -6526,12 +6524,12 @@ export default function DashboardPage() {
                   {/* TOP HEADER */}
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 16, marginBottom: 20 }}>
                     <div>
-                      <h2 style={{ fontSize: 24, color: '#000000', fontWeight: 900, letterSpacing: '-0.5px' }}>Store Orders</h2>
+                      <h2 style={{ fontSize: 24, color: '#111827', fontWeight: 900, letterSpacing: '-0.5px' }}>Store Orders</h2>
                       <p style={{ color: '#475569', fontSize: 13, fontWeight: 600, marginTop: 4 }}>Manage incoming orders, track shipments, and issue official receipts.</p>
                     </div>
                     <button
                       onClick={() => setShowScanner(true)}
-                      style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#7c3aed', color: '#fff', border: '1px solid #6d28d9', padding: '10px 18px', borderRadius: 8, fontWeight: 800, fontSize: 13, cursor: 'pointer', boxShadow: 'none' }}
+                      style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#111827', color: '#fff', border: '1px solid #1F2937', padding: '10px 18px', borderRadius: 8, fontWeight: 800, fontSize: 13, cursor: 'pointer', boxShadow: 'none' }}
                     >
                       <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4z" /><path d="M14 14h6v6h-6z" /><path d="M1 1h22v22H1z" /></svg>
                       Scan Receipt to Ship
@@ -6541,24 +6539,24 @@ export default function DashboardPage() {
                   {/* QUICK STATS METRICS */}
                   <div className="store-metrics-strip">
                     <div className="store-metric-card" style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 10, padding: '12px 16px', boxShadow: 'none' }}>
-                      <div className="store-metric-label" style={{ fontSize: 11, fontWeight: 800, color: '#7c3aed', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total Orders</div>
-                      <div className="store-metric-val" style={{ fontSize: 22, fontWeight: 900, color: '#000000', marginTop: 2 }}>{sellerOrders.length}</div>
+                      <div className="store-metric-label" style={{ fontSize: 11, fontWeight: 800, color: '#111827', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total Orders</div>
+                      <div className="store-metric-val" style={{ fontSize: 22, fontWeight: 900, color: '#111827', marginTop: 2 }}>{sellerOrders.length}</div>
                     </div>
                     <div className="store-metric-card" style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 10, padding: '12px 16px', boxShadow: 'none' }}>
                       <div className="store-metric-label" style={{ fontSize: 11, fontWeight: 800, color: '#b45309', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Pending</div>
-                      <div className="store-metric-val" style={{ fontSize: 22, fontWeight: 900, color: '#000000', marginTop: 2 }}>{sellerOrders.filter(o => o.status === 'pending').length}</div>
+                      <div className="store-metric-val" style={{ fontSize: 22, fontWeight: 900, color: '#111827', marginTop: 2 }}>{sellerOrders.filter(o => o.status === 'pending').length}</div>
                     </div>
                     <div className="store-metric-card" style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 10, padding: '12px 16px', boxShadow: 'none' }}>
                       <div className="store-metric-label" style={{ fontSize: 11, fontWeight: 800, color: '#1d4ed8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>To Ship</div>
-                      <div className="store-metric-val" style={{ fontSize: 22, fontWeight: 900, color: '#000000', marginTop: 2 }}>{sellerOrders.filter(o => ['processing', 'shipped'].includes(o.status)).length}</div>
+                      <div className="store-metric-val" style={{ fontSize: 22, fontWeight: 900, color: '#111827', marginTop: 2 }}>{sellerOrders.filter(o => ['processing', 'shipped'].includes(o.status)).length}</div>
                     </div>
                     <div className="store-metric-card" style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 10, padding: '12px 16px', boxShadow: 'none' }}>
                       <div className="store-metric-label" style={{ fontSize: 11, fontWeight: 800, color: '#15803d', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Delivered</div>
-                      <div className="store-metric-val" style={{ fontSize: 22, fontWeight: 900, color: '#000000', marginTop: 2 }}>{sellerOrders.filter(o => ['delivered', 'completed'].includes(o.status)).length}</div>
+                      <div className="store-metric-val" style={{ fontSize: 22, fontWeight: 900, color: '#111827', marginTop: 2 }}>{sellerOrders.filter(o => ['delivered', 'completed'].includes(o.status)).length}</div>
                     </div>
                     <div className="store-metric-card" style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 10, padding: '12px 16px', boxShadow: 'none' }}>
                       <div className="store-metric-label" style={{ fontSize: 11, fontWeight: 800, color: '#b91c1c', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Cancelled</div>
-                      <div className="store-metric-val" style={{ fontSize: 22, fontWeight: 900, color: '#000000', marginTop: 2 }}>{sellerOrders.filter(o => ['cancelled', 'rejected'].includes(o.status)).length}</div>
+                      <div className="store-metric-val" style={{ fontSize: 22, fontWeight: 900, color: '#111827', marginTop: 2 }}>{sellerOrders.filter(o => ['cancelled', 'rejected'].includes(o.status)).length}</div>
                     </div>
                   </div>
 
@@ -6597,8 +6595,8 @@ export default function DashboardPage() {
                             cursor: 'pointer',
                             whiteSpace: 'nowrap',
                             transition: 'all 0.15s ease',
-                            background: storeOrderTab === tab.id ? '#7c3aed' : '#ffffff',
-                            color: storeOrderTab === tab.id ? '#ffffff' : '#000000',
+                            background: storeOrderTab === tab.id ? '#111827' : '#ffffff',
+                            color: storeOrderTab === tab.id ? '#ffffff' : '#111827',
                             boxShadow: 'none'
                           }}
                         >
@@ -6624,7 +6622,7 @@ export default function DashboardPage() {
                             fontWeight: 700,
                             outline: 'none',
                             background: '#f8fafc',
-                            color: '#000000',
+                            color: '#111827',
                             boxShadow: 'none'
                           }}
                         />
@@ -6650,8 +6648,8 @@ export default function DashboardPage() {
                             padding: '7px 14px',
                             borderRadius: 8,
                             border: '1px solid #e2e8f0',
-                            background: storeOrderViewMode === 'grid' ? '#7c3aed' : '#ffffff',
-                            color: storeOrderViewMode === 'grid' ? '#ffffff' : '#000000',
+                            background: storeOrderViewMode === 'grid' ? '#111827' : '#ffffff',
+                            color: storeOrderViewMode === 'grid' ? '#ffffff' : '#111827',
                             fontWeight: 800,
                             fontSize: 12,
                             cursor: 'pointer',
@@ -6672,8 +6670,8 @@ export default function DashboardPage() {
                             padding: '7px 14px',
                             borderRadius: 8,
                             border: '1px solid #e2e8f0',
-                            background: storeOrderViewMode === 'table' ? '#7c3aed' : '#ffffff',
-                            color: storeOrderViewMode === 'table' ? '#ffffff' : '#000000',
+                            background: storeOrderViewMode === 'table' ? '#111827' : '#ffffff',
+                            color: storeOrderViewMode === 'table' ? '#ffffff' : '#111827',
                             fontWeight: 800,
                             fontSize: 12,
                             cursor: 'pointer',
@@ -6693,10 +6691,10 @@ export default function DashboardPage() {
                   {/* ORDERS DISPLAY */}
                   {filteredSellerOrders.length === 0 ? (
                     <div className="empty-state" style={{ padding: '60px 20px', textAlign: 'center', background: '#ffffff', borderRadius: 12, border: '1px solid #e2e8f0', boxShadow: 'none' }}>
-                      <div style={{ width: 60, height: 60, borderRadius: 12, border: '1px solid #ddd6fe', background: '#f5f3ff', color: '#7c3aed', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+                      <div style={{ width: 60, height: 60, borderRadius: 12, border: '1px solid #E5E7EB', background: '#F9FAFB', color: '#111827', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
                         <IconBox />
                       </div>
-                      <div className="empty-title" style={{ fontSize: 18, fontWeight: 900, color: '#000000', marginBottom: 6 }}>No orders found</div>
+                      <div className="empty-title" style={{ fontSize: 18, fontWeight: 900, color: '#111827', marginBottom: 6 }}>No orders found</div>
                       <div className="empty-desc" style={{ color: '#475569', fontSize: 13, fontWeight: 600 }}>No orders match your selected status filter or search criteria.</div>
                     </div>
                   ) : (
@@ -6726,7 +6724,7 @@ export default function DashboardPage() {
                               {/* Top Bar: Order Code, Date & Status Badge */}
                               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, flexWrap: 'nowrap' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0, overflow: 'hidden' }}>
-                                  <span style={{ fontFamily: 'monospace', fontWeight: 900, color: '#7c3aed', fontSize: 12, whiteSpace: 'nowrap' }}>
+                                  <span style={{ fontFamily: 'monospace', fontWeight: 900, color: '#111827', fontSize: 12, whiteSpace: 'nowrap' }}>
                                     #{orderCode}
                                   </span>
                                   <span style={{ fontSize: 11, color: '#64748b', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
@@ -6755,31 +6753,31 @@ export default function DashboardPage() {
                                 )}
 
                                 <div style={{ flex: 1, minWidth: 0 }}>
-                                  <div style={{ fontSize: 13, fontWeight: 800, color: '#000000', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                  <div style={{ fontSize: 13, fontWeight: 800, color: '#111827', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                                     {order.item.name}
                                   </div>
                                   <div style={{ fontSize: 11, color: '#64748b', fontWeight: 600, marginTop: 2, display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-                                    <span>Qty: <strong style={{ color: '#000000' }}>x{order.quantity}</strong></span>
+                                    <span>Qty: <strong style={{ color: '#111827' }}>x{order.quantity}</strong></span>
                                     {order.variation && (
-                                      <span style={{ fontSize: 10, color: '#7c3aed', fontWeight: 800, background: '#f5f3ff', border: '1px solid #ddd6fe', padding: '0 4px', borderRadius: 4 }}>
+                                      <span style={{ fontSize: 10, color: '#111827', fontWeight: 800, background: '#F9FAFB', border: '1px solid #E5E7EB', padding: '0 4px', borderRadius: 4 }}>
                                         {order.variation}
                                       </span>
                                     )}
                                     <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 140 }}>
-                                      • Buyer: <strong style={{ color: '#000000' }}>{order.buyer?.name || 'Customer'}</strong>
+                                      • Buyer: <strong style={{ color: '#111827' }}>{order.buyer?.name || 'Customer'}</strong>
                                     </span>
                                   </div>
                                 </div>
 
                                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6, flexShrink: 0 }}>
-                                  <div style={{ fontSize: 15, fontWeight: 900, color: '#000000', whiteSpace: 'nowrap' }}>
+                                  <div style={{ fontSize: 15, fontWeight: 900, color: '#111827', whiteSpace: 'nowrap' }}>
                                     ₱{orderTotal}
                                   </div>
                                   <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
                                     <button
                                       className="btn-print"
                                       onClick={() => setReceiptOrder(order)}
-                                      style={{ background: '#ffffff', color: '#000000', border: '1px solid #e2e8f0', padding: '4px 8px', borderRadius: 6, fontWeight: 800, fontSize: 11, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 3, boxShadow: 'none' }}
+                                      style={{ background: '#ffffff', color: '#111827', border: '1px solid #e2e8f0', padding: '4px 8px', borderRadius: 6, fontWeight: 800, fontSize: 11, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 3, boxShadow: 'none' }}
                                     >
                                       Receipt
                                     </button>
@@ -6791,7 +6789,7 @@ export default function DashboardPage() {
                                       </>
                                     )}
                                     {order.status === 'processing' && (
-                                      <button onClick={() => handleShipOrder(order.id)} style={{ background: '#7c3aed', color: '#ffffff', border: '1px solid #6d28d9', padding: '4px 10px', borderRadius: 6, fontWeight: 800, fontSize: 11, cursor: 'pointer', boxShadow: 'none' }}>Ship</button>
+                                      <button onClick={() => handleShipOrder(order.id)} style={{ background: '#111827', color: '#ffffff', border: '1px solid #1F2937', padding: '4px 10px', borderRadius: 6, fontWeight: 800, fontSize: 11, cursor: 'pointer', boxShadow: 'none' }}>Ship</button>
                                     )}
                                   </div>
                                 </div>
@@ -6822,15 +6820,15 @@ export default function DashboardPage() {
                                 return (
                                   <tr key={order.id}>
                                     <td>
-                                      <div style={{ fontFamily: 'monospace', fontWeight: 900, color: '#7c3aed', whiteSpace: 'nowrap' }}>#{orderCode}</div>
+                                      <div style={{ fontFamily: 'monospace', fontWeight: 900, color: '#111827', whiteSpace: 'nowrap' }}>#{orderCode}</div>
                                       <div style={{ fontSize: 11, color: '#64748b', fontWeight: 600, marginTop: 2, whiteSpace: 'nowrap' }}>{formatOrderDate(order.created_at)}</div>
                                     </td>
                                     <td>
                                       <div style={{ display: 'flex', alignItems: 'center', gap: 8, whiteSpace: 'nowrap' }}>
-                                        <div style={{ width: 28, height: 28, borderRadius: 6, border: '1px solid #ddd6fe', background: '#f5f3ff', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#7c3aed', fontWeight: 800, fontSize: 11 }}>
+                                        <div style={{ width: 28, height: 28, borderRadius: 6, border: '1px solid #E5E7EB', background: '#F9FAFB', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#111827', fontWeight: 800, fontSize: 11 }}>
                                           {order.buyer?.name ? order.buyer.name.charAt(0).toUpperCase() : 'U'}
                                         </div>
-                                        <span style={{ fontWeight: 800, color: '#000000' }}>{order.buyer?.name || 'Shopply Customer'}</span>
+                                        <span style={{ fontWeight: 800, color: '#111827' }}>{order.buyer?.name || 'Shopply Customer'}</span>
                                       </div>
                                     </td>
                                     <td>
@@ -6841,7 +6839,7 @@ export default function DashboardPage() {
                                           <div style={{ width: 42, height: 42, borderRadius: 6, border: '1px solid #e2e8f0', background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b' }}><IconBox /></div>
                                         )}
                                         <div>
-                                          <div style={{ fontWeight: 800, color: '#000000', maxWidth: 220, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{order.item.name}</div>
+                                          <div style={{ fontWeight: 800, color: '#111827', maxWidth: 220, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{order.item.name}</div>
                                           <div style={{ fontSize: 11, color: '#64748b', fontWeight: 600 }}>
                                             Qty: <strong>x{order.quantity}</strong> {order.variation ? `• ${order.variation}` : ''}
                                           </div>
@@ -6849,7 +6847,7 @@ export default function DashboardPage() {
                                       </div>
                                     </td>
                                     <td>
-                                      <span style={{ fontSize: 15, fontWeight: 900, color: '#000000', whiteSpace: 'nowrap' }}>₱{orderTotal}</span>
+                                      <span style={{ fontSize: 15, fontWeight: 900, color: '#111827', whiteSpace: 'nowrap' }}>₱{orderTotal}</span>
                                     </td>
                                     <td>
                                       {renderStatusBadge(order.status)}
@@ -6859,7 +6857,7 @@ export default function DashboardPage() {
                                         <button
                                           className="btn-print"
                                           onClick={() => setReceiptOrder(order)}
-                                          style={{ background: '#ffffff', color: '#000000', border: '1px solid #e2e8f0', padding: '5px 10px', borderRadius: 6, fontWeight: 800, fontSize: 11, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4, boxShadow: 'none' }}
+                                          style={{ background: '#ffffff', color: '#111827', border: '1px solid #e2e8f0', padding: '5px 10px', borderRadius: 6, fontWeight: 800, fontSize: 11, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4, boxShadow: 'none' }}
                                         >
                                           Receipt
                                         </button>
@@ -6870,7 +6868,7 @@ export default function DashboardPage() {
                                           </>
                                         )}
                                         {order.status === 'processing' && (
-                                          <button onClick={() => handleShipOrder(order.id)} style={{ background: '#7c3aed', color: '#ffffff', border: '1px solid #6d28d9', padding: '5px 12px', borderRadius: 6, fontWeight: 800, fontSize: 11, cursor: 'pointer', boxShadow: 'none' }}>Ship</button>
+                                          <button onClick={() => handleShipOrder(order.id)} style={{ background: '#111827', color: '#ffffff', border: '1px solid #1F2937', padding: '5px 12px', borderRadius: 6, fontWeight: 800, fontSize: 11, cursor: 'pointer', boxShadow: 'none' }}>Ship</button>
                                         )}
                                       </div>
                                     </td>
@@ -6899,7 +6897,7 @@ export default function DashboardPage() {
                       flexWrap: 'wrap',
                       gap: 12
                     }}>
-                      <span style={{ fontSize: 13, fontWeight: 800, color: '#000000' }}>
+                      <span style={{ fontSize: 13, fontWeight: 800, color: '#111827' }}>
                         Showing {(currentStorePage - 1) * STORE_ORDERS_PER_PAGE + 1}–{Math.min(currentStorePage * STORE_ORDERS_PER_PAGE, filteredSellerOrders.length)} of {filteredSellerOrders.length} orders
                       </span>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -6911,7 +6909,7 @@ export default function DashboardPage() {
                             borderRadius: 8,
                             border: '1px solid #e2e8f0',
                             background: currentStorePage === 1 ? '#f1f5f9' : '#ffffff',
-                            color: currentStorePage === 1 ? '#94a3b8' : '#000000',
+                            color: currentStorePage === 1 ? '#94a3b8' : '#111827',
                             fontWeight: 800,
                             fontSize: 12,
                             cursor: currentStorePage === 1 ? 'not-allowed' : 'pointer',
@@ -6929,8 +6927,8 @@ export default function DashboardPage() {
                               height: 34,
                               borderRadius: 8,
                               border: '1px solid #e2e8f0',
-                              background: currentStorePage === p ? '#7c3aed' : '#ffffff',
-                              color: currentStorePage === p ? '#ffffff' : '#000000',
+                              background: currentStorePage === p ? '#111827' : '#ffffff',
+                              color: currentStorePage === p ? '#ffffff' : '#111827',
                               fontWeight: 900,
                               fontSize: 12,
                               cursor: 'pointer',
@@ -6948,7 +6946,7 @@ export default function DashboardPage() {
                             borderRadius: 8,
                             border: '1px solid #e2e8f0',
                             background: currentStorePage === totalStorePages ? '#f1f5f9' : '#ffffff',
-                            color: currentStorePage === totalStorePages ? '#94a3b8' : '#000000',
+                            color: currentStorePage === totalStorePages ? '#94a3b8' : '#111827',
                             fontWeight: 800,
                             fontSize: 12,
                             cursor: currentStorePage === totalStorePages ? 'not-allowed' : 'pointer',
@@ -7082,8 +7080,8 @@ export default function DashboardPage() {
                           style={{
                             padding: '14px 6px',
                             borderRadius: 14,
-                            border: `2px solid ${newItemCategory === cat.val ? '#7c3aed' : '#f1f5f9'}`,
-                            background: newItemCategory === cat.val ? 'rgba(124,58,237,0.04)' : '#fff',
+                            border: `2px solid ${newItemCategory === cat.val ? '#111827' : '#f1f5f9'}`,
+                            background: newItemCategory === cat.val ? '#F9FAFB' : '#fff',
                             display: 'flex',
                             flexDirection: 'column',
                             alignItems: 'center',
@@ -7097,7 +7095,7 @@ export default function DashboardPage() {
                           <div className="category-icon-wrap" style={{
                             width: 36, height: 36, borderRadius: '50%',
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            background: newItemCategory === cat.val ? '#7c3aed' : '#f8fafc',
+                            background: newItemCategory === cat.val ? '#111827' : '#f8fafc',
                             color: newItemCategory === cat.val ? '#fff' : '#64748b',
                             transition: 'all .2s'
                           }}>
@@ -7105,14 +7103,14 @@ export default function DashboardPage() {
                           </div>
                           <span className="category-btn-label" style={{
                             fontSize: 12, fontWeight: 700,
-                            color: newItemCategory === cat.val ? '#7c3aed' : '#64748b',
+                            color: newItemCategory === cat.val ? '#111827' : '#64748b',
                             whiteSpace: 'normal',
                             wordBreak: 'break-word',
                             lineHeight: 1.2,
                             textAlign: 'center'
                           }}>{cat.label}</span>
                           {newItemCategory === cat.val && (
-                            <div className="category-check-icon" style={{ position: 'absolute', top: 8, right: 8, color: '#7c3aed' }}>
+                            <div className="category-check-icon" style={{ position: 'absolute', top: 8, right: 8, color: '#111827' }}>
                               <IconCheck />
                             </div>
                           )}
@@ -7124,7 +7122,7 @@ export default function DashboardPage() {
                   <div className="form-section-divider" style={{ borderTop: '1px solid #f1f5f9', margin: '32px 0 24px', paddingTop: 32 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 10 }}>
                       <h4 style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <div style={{ width: 4, height: 16, background: '#7c3aed', borderRadius: 4 }}></div>
+                        <div style={{ width: 4, height: 16, background: '#111827', borderRadius: 4 }}></div>
                         Essential Details
                       </h4>
                       <button
@@ -7136,7 +7134,7 @@ export default function DashboardPage() {
                           const availablePrice = newColorPrice || (colorVariants[0]?.price) || "";
 
                           if (availableImg || availableFile) {
-                            showToast("🤖 AI scanning uploaded photo...", "success");
+                            showToast("Analyzing uploaded photo...", "success");
                             setIsAiScanningImage(true);
                             const res = await detectItemFromImageSource(availableImg, availableFile, availableColor, newItemCategory);
                             setIsAiScanningImage(false);
@@ -7149,22 +7147,22 @@ export default function DashboardPage() {
                               if (!newItemDesc) {
                                 setNewItemDesc(generateAiProductDescription(newItemName, detected.category, specs));
                               }
-                              showToast(`✨ AI detected Category: ${detected.categoryLabel} & Est. Price: ₱${detected.suggestedPrice}!`, "success");
+                              showToast(`Suggested category: ${detected.categoryLabel} · Est. ₱${detected.suggestedPrice}`, "success");
                             } else {
                               showToast("Please enter a product name first or upload a photo.", "error");
                             }
                           } else {
                             const res = await detectItemFromImageSource(null, null, null, newItemCategory);
                             applyAiDetectedItem(res.title, res.category, res.suggestedPrice, undefined, res.description);
-                            showToast("💡 Auto-filled details based on Category! Upload a photo below anytime to re-detect.", "success");
+                            showToast("Autofilled template details from selected category.", "success");
                           }
                         }}
                         style={{
                           padding: '6px 14px',
                           borderRadius: 8,
                           border: '1px solid #e2e8f0',
-                          background: '#faf5ff',
-                          color: '#7c3aed',
+                          background: '#F9FAFB',
+                          color: '#111827',
                           fontSize: 12,
                           fontWeight: 800,
                           cursor: 'pointer',
@@ -7174,12 +7172,11 @@ export default function DashboardPage() {
                           transition: 'all .2s',
                           boxShadow: 'none'
                         }}
-                        onMouseOver={e => { e.currentTarget.style.background = '#7c3aed'; e.currentTarget.style.color = '#fff'; }}
-                        onMouseOut={e => { e.currentTarget.style.background = '#faf5ff'; e.currentTarget.style.color = '#7c3aed'; }}
-                        title="Automatically detect item from photo, summarize, and fill all essential details"
+                        onMouseOver={e => { e.currentTarget.style.background = '#111827'; e.currentTarget.style.color = '#fff'; }}
+                        onMouseOut={e => { e.currentTarget.style.background = '#F9FAFB'; e.currentTarget.style.color = '#111827'; }}
+                        title="Autofill product details from uploaded photo or category"
                       >
-                        <span>✨</span>
-                        <span>{isAiScanningImage ? "Scanning Photo..." : "AI Auto-Detect & Fill All"}</span>
+                        <span>{isAiScanningImage ? "Analyzing Photo..." : "Autofill Details"}</span>
                       </button>
                     </div>
                   </div>
@@ -7190,8 +7187,8 @@ export default function DashboardPage() {
                         <label className="form-label" style={{ margin: 0 }}>Product Name *</label>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                           {isAiScanningImage && (
-                            <span style={{ fontSize: 11, color: '#7c3aed', fontWeight: 600 }}>
-                              ⚡ AI Scanning Photo...
+                            <span style={{ fontSize: 11, color: '#0D6847', fontWeight: 600 }}>
+                              Analyzing photo...
                             </span>
                           )}
                           <button
@@ -7210,15 +7207,15 @@ export default function DashboardPage() {
                               } else {
                                 const res = await detectItemFromImageSource(null, null, null, newItemCategory);
                                 applyAiDetectedItem(res.title, res.category, res.suggestedPrice, undefined, res.description);
-                                showToast("💡 Auto-named from Category! Drop or upload an item photo below anytime to re-detect.", "success");
+                                showToast("Suggested title filled from category.", "success");
                               }
                             }}
                             style={{
                               padding: '3px 10px',
                               borderRadius: 8,
-                              border: '1px solid #7c3aed',
-                              background: '#faf5ff',
-                              color: '#7c3aed',
+                              border: '1px solid #111827',
+                              background: '#F9FAFB',
+                              color: '#111827',
                               fontSize: 11,
                               fontWeight: 700,
                               cursor: 'pointer',
@@ -7227,12 +7224,11 @@ export default function DashboardPage() {
                               gap: 4,
                               transition: 'all .2s'
                             }}
-                            onMouseOver={e => { e.currentTarget.style.background = '#7c3aed'; e.currentTarget.style.color = '#fff'; }}
-                            onMouseOut={e => { e.currentTarget.style.background = '#faf5ff'; e.currentTarget.style.color = '#7c3aed'; }}
-                            title="Detect what item you posted in the photos and automatically write the Product Name"
+                            onMouseOver={e => { e.currentTarget.style.background = '#111827'; e.currentTarget.style.color = '#fff'; }}
+                            onMouseOut={e => { e.currentTarget.style.background = '#F9FAFB'; e.currentTarget.style.color = '#111827'; }}
+                            title="Suggest product title from uploaded photo"
                           >
-                            <span>✨</span>
-                            <span>AI Auto-Name from Photo</span>
+                            <span>Suggest Title from Photo</span>
                           </button>
                         </div>
                       </div>
@@ -7258,7 +7254,7 @@ export default function DashboardPage() {
                           <div style={{
                             marginTop: 8,
                             padding: '9px 14px',
-                            background: '#f5f3ff',
+                            background: '#F9FAFB',
                             borderRadius: 10,
                             border: '1px solid #e2e8f0',
                             display: 'flex',
@@ -7269,12 +7265,11 @@ export default function DashboardPage() {
                             fontSize: 12,
                             boxShadow: 'none'
                           }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#5b21b6' }}>
-                              <span style={{ fontSize: 16 }}>📸</span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#111827' }}>
                               <div>
-                                <span style={{ fontWeight: 700 }}>Item Photo Posted!</span>
-                                <span style={{ fontSize: 11, color: '#6d28d9', marginLeft: 6 }}>
-                                  AI Vision Ready • Click to automatically detect item & text the Product Name:
+                                <span style={{ fontWeight: 700 }}>Photo uploaded</span>
+                                <span style={{ fontSize: 11, color: '#4B5563', marginLeft: 6 }}>
+                                  Extract product name and category from this image:
                                 </span>
                               </div>
                             </div>
@@ -7287,7 +7282,7 @@ export default function DashboardPage() {
                                 applyAiDetectedItem(res.title, res.category, res.suggestedPrice, availablePrice, res.description);
                               }}
                               style={{
-                                background: '#7c3aed',
+                                background: '#111827',
                                 color: '#ffffff',
                                 border: '1px solid #e2e8f0',
                                 borderRadius: 8,
@@ -7301,29 +7296,28 @@ export default function DashboardPage() {
                                 gap: 4
                               }}
                             >
-                              <span>✨</span>
-                              <span>Auto-Text to Product Name →</span>
+                              <span>Fill Product Name →</span>
                             </button>
                           </div>
                         );
                       })()}
 
-                      {/* QUICK AI AUTO-NAME PRESET CHIPS */}
+                      {/* QUICK TEMPLATE PRESET CHIPS */}
                       <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 5, flexWrap: 'wrap' }}>
-                        <span style={{ fontSize: 11, color: '#94a3b8', fontWeight: 600 }}>Quick AI Auto-Names:</span>
+                        <span style={{ fontSize: 11, color: '#6B7280', fontWeight: 600 }}>Quick Templates:</span>
                         {[
-                          { label: "🔧 24-pc Drill Tool Kit", title: "24-Piece Household Tool Kit with 8V Cordless Drill & Storage Bag", cat: "General", price: "1299.00" },
-                          { label: "⚡ Cordless Drill", title: "Cordless Lithium-Ion Impact Power Drill Set with Battery & Charger", cat: "General", price: "1499.00" },
-                          { label: "🧰 149-pc Pro Tool Kit", title: "149-Piece Professional Household Multi-Tool Kit with Heavy-Duty Case", cat: "General", price: "1899.00" },
-                          { label: "🔩 Socket Wrench", title: "46-Piece Metric Socket Wrench & Ratchet Mechanics Tool Kit", cat: "General", price: "799.00" },
-                          { label: "📄 Bond Paper", title: "Advance Hard Copy Multi-Purpose Bond Paper (Substance 20 / 70 GSM)", cat: "Home", price: "180.00" },
-                          { label: "🎧 Headphones", title: "Wireless Over-Ear Noise-Cancelling Headphones", cat: "General", price: "1899.00" },
-                          { label: "👟 Sneakers", title: "Lightweight Cushion Running Sneakers", cat: "Shoes", price: "2499.00" },
-                          { label: "📱 Smartphone", title: "Flagship 5G Ultra-HD Smartphone", cat: "Electronics", price: "18990.00" },
-                          { label: "👕 Cotton T-Shirt", title: "Vintage Oversized Streetwear Cotton T-Shirt", cat: "Clothes", price: "499.00" },
-                          { label: "⌚ Luxury Watch", title: "Waterproof Chronograph Sports Watch", cat: "Accessories", price: "1499.00" },
-                          { label: "💄 Beauty", title: "Hydrating Velvet Matte Lipstick", cat: "Beauty", price: "380.00" },
-                          { label: "🏠 Home Living", title: "Modern Ambient Warm Table Lamp", cat: "Home", price: "699.00" }
+                          { label: "24-pc Drill Tool Kit", title: "24-Piece Household Tool Kit with 8V Cordless Drill & Storage Bag", cat: "General", price: "1299.00" },
+                          { label: "Cordless Drill", title: "Cordless Lithium-Ion Impact Power Drill Set with Battery & Charger", cat: "General", price: "1499.00" },
+                          { label: "149-pc Pro Tool Kit", title: "149-Piece Professional Household Multi-Tool Kit with Heavy-Duty Case", cat: "General", price: "1899.00" },
+                          { label: "Socket Wrench", title: "46-Piece Metric Socket Wrench & Ratchet Mechanics Tool Kit", cat: "General", price: "799.00" },
+                          { label: "Bond Paper", title: "Advance Hard Copy Multi-Purpose Bond Paper (Substance 20 / 70 GSM)", cat: "Home", price: "180.00" },
+                          { label: "Headphones", title: "Wireless Over-Ear Noise-Cancelling Headphones", cat: "General", price: "1899.00" },
+                          { label: "Sneakers", title: "Lightweight Cushion Running Sneakers", cat: "Shoes", price: "2499.00" },
+                          { label: "Smartphone", title: "Flagship 5G Ultra-HD Smartphone", cat: "Electronics", price: "18990.00" },
+                          { label: "Cotton T-Shirt", title: "Vintage Oversized Streetwear Cotton T-Shirt", cat: "Clothes", price: "499.00" },
+                          { label: "Chronograph Watch", title: "Waterproof Chronograph Sports Watch", cat: "Accessories", price: "1499.00" },
+                          { label: "Matte Lipstick", title: "Hydrating Velvet Matte Lipstick", cat: "Beauty", price: "380.00" },
+                          { label: "Table Lamp", title: "Modern Ambient Warm Table Lamp", cat: "Home", price: "699.00" }
                         ].map(preset => (
                           <button
                             key={preset.label}
@@ -7344,7 +7338,7 @@ export default function DashboardPage() {
                               cursor: 'pointer',
                               transition: 'all .15s'
                             }}
-                            onMouseOver={e => { e.currentTarget.style.borderColor = '#7c3aed'; e.currentTarget.style.color = '#7c3aed'; e.currentTarget.style.background = '#faf5ff'; }}
+                            onMouseOver={e => { e.currentTarget.style.borderColor = '#111827'; e.currentTarget.style.color = '#111827'; e.currentTarget.style.background = '#F9FAFB'; }}
                             onMouseOut={e => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.color = '#475569'; e.currentTarget.style.background = '#f8fafc'; }}
                           >
                             {preset.label}
@@ -7361,9 +7355,9 @@ export default function DashboardPage() {
                           <div style={{
                             marginTop: 8,
                             padding: '8px 12px',
-                            background: '#f5f3ff',
+                            background: '#F9FAFB',
                             borderRadius: 12,
-                            border: '1px solid #ddd6fe',
+                            border: '1px solid #E5E7EB',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'space-between',
@@ -7371,9 +7365,8 @@ export default function DashboardPage() {
                             gap: 8,
                             fontSize: 11
                           }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#5b21b6' }}>
-                              <span>🤖</span>
-                              <span>AI Detected: <strong>{detected.categoryLabel}</strong> {isCatDifferent ? `(Current: ${newItemCategory})` : "✓"} • Est. <strong>₱{detected.suggestedPrice}</strong></span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#111827' }}>
+                              <span>Suggested match: <strong>{detected.categoryLabel}</strong> {isCatDifferent ? `(Current: ${newItemCategory})` : "✓"} · Est. <strong>₱{detected.suggestedPrice}</strong></span>
                             </div>
                             <button
                               type="button"
@@ -7383,10 +7376,10 @@ export default function DashboardPage() {
                                 if (!newItemDesc) {
                                   setNewItemDesc(generateAiProductDescription(newItemName, detected.category, specs));
                                 }
-                                showToast(`✨ AI set Category: ${detected.categoryLabel} & Price: ₱${detected.suggestedPrice}!`, "success");
+                                showToast(`Applied ${detected.categoryLabel} & ₱${detected.suggestedPrice}.`, "success");
                               }}
                               style={{
-                                background: '#7c3aed',
+                                background: '#111827',
                                 color: '#fff',
                                 border: 'none',
                                 borderRadius: 6,
@@ -7473,8 +7466,8 @@ export default function DashboardPage() {
                           padding: '8px 16px',
                           borderRadius: 8,
                           border: '1px solid #e2e8f0',
-                          background: '#f5f3ff',
-                          color: '#7c3aed',
+                          background: '#F9FAFB',
+                          color: '#111827',
                           boxShadow: 'none',
                           fontSize: 12,
                           fontWeight: 800,
@@ -7494,7 +7487,7 @@ export default function DashboardPage() {
                         ) : (
                           <>
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-                            📍 Detect Real GPS
+                            Detect GPS
                           </>
                         )}
                       </button>
@@ -7520,7 +7513,7 @@ export default function DashboardPage() {
                                 fontWeight: 700,
                                 cursor: 'pointer',
                                 background: sizeSystem === sys ? '#fff' : 'transparent',
-                                color: sizeSystem === sys ? '#7c3aed' : '#64748b',
+                                color: sizeSystem === sys ? '#111827' : '#64748b',
                                 boxShadow: sizeSystem === sys ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
                                 transition: 'all .2s'
                               }}
@@ -7548,9 +7541,9 @@ export default function DashboardPage() {
                               height: 48,
                               borderRadius: 12,
                               border: '1.5px solid',
-                              borderColor: selectedSizes.includes(size) ? '#7c3aed' : '#e2e8f0',
-                              background: selectedSizes.includes(size) ? 'rgba(124,58,237,0.05)' : '#fff',
-                              color: selectedSizes.includes(size) ? '#7c3aed' : '#64748b',
+                              borderColor: selectedSizes.includes(size) ? '#111827' : '#e2e8f0',
+                              background: selectedSizes.includes(size) ? '#F9FAFB' : '#fff',
+                              color: selectedSizes.includes(size) ? '#111827' : '#64748b',
                               cursor: 'pointer',
                               fontWeight: 700,
                               fontSize: 14,
@@ -7559,12 +7552,12 @@ export default function DashboardPage() {
                               alignItems: 'center',
                               justifyContent: 'center',
                               position: 'relative',
-                              boxShadow: selectedSizes.includes(size) ? '0 4px 12px rgba(124,58,237,0.1)' : 'none'
+                              boxShadow: selectedSizes.includes(size) ? '0 4px 12px rgba(17, 24, 39, 0.08)' : 'none'
                             }}
                           >
                             {size}
                             {selectedSizes.includes(size) && (
-                              <div style={{ position: 'absolute', top: -4, right: -4, background: '#7c3aed', color: '#fff', borderRadius: '50%', width: 16, height: 16, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              <div style={{ position: 'absolute', top: -4, right: -4, background: '#111827', color: '#fff', borderRadius: '50%', width: 16, height: 16, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                 <svg width="10" height="10" fill="none" stroke="currentColor" strokeWidth="4" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12" /></svg>
                               </div>
                             )}
@@ -7628,7 +7621,7 @@ export default function DashboardPage() {
                                 setCustomSizeInput("");
                               }
                             }}
-                            style={{ padding: '0 20px', borderRadius: 10, border: 'none', background: '#7c3aed', color: '#fff', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                            style={{ padding: '0 20px', borderRadius: 10, border: 'none', background: '#111827', color: '#fff', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                           >
                             Add
                           </button>
@@ -7649,7 +7642,7 @@ export default function DashboardPage() {
 
                   <div className="form-section-divider" style={{ borderTop: '1px solid #f1f5f9', margin: '32px 0 24px', paddingTop: 32 }}>
                     <h4 style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <div style={{ width: 4, height: 16, background: '#7c3aed', borderRadius: 4 }}></div>
+                      <div style={{ width: 4, height: 16, background: '#111827', borderRadius: 4 }}></div>
                       Inventory & Variations
                     </h4>
                   </div>
@@ -7678,7 +7671,7 @@ export default function DashboardPage() {
                           type="button"
                           disabled={selectedSizes.length > 0}
                           onClick={() => setNewItemStock(prev => (parseInt(prev || "0") + 1).toString())}
-                          style={{ width: 36, height: 36, borderRadius: 8, border: 'none', background: '#7c3aed', color: '#fff', cursor: selectedSizes.length > 0 ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 10px rgba(124,58,237,0.2)', transition: 'all .2s' }}
+                          style={{ width: 36, height: 36, borderRadius: 8, border: 'none', background: '#111827', color: '#fff', cursor: selectedSizes.length > 0 ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 10px rgba(17, 24, 39, 0.14)', transition: 'all .2s' }}
                         >
                           <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
                         </button>
@@ -7688,7 +7681,7 @@ export default function DashboardPage() {
 
                   <div className="form-section-divider" style={{ borderTop: '1px solid #f1f5f9', margin: '32px 0 24px', paddingTop: 32 }}>
                     <h4 style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <div style={{ width: 4, height: 16, background: '#7c3aed', borderRadius: 4 }}></div>
+                      <div style={{ width: 4, height: 16, background: '#111827', borderRadius: 4 }}></div>
                       Specifications & Variants
                     </h4>
                   </div>
@@ -7760,8 +7753,8 @@ export default function DashboardPage() {
                                 padding: '8px 16px',
                                 borderRadius: 8,
                                 border: '1px solid #e2e8f0',
-                                background: '#f5f3ff',
-                                color: '#7c3aed',
+                                background: '#F9FAFB',
+                                color: '#111827',
                                 fontSize: 12,
                                 fontWeight: 800,
                                 cursor: 'pointer',
@@ -7771,11 +7764,10 @@ export default function DashboardPage() {
                                 transition: 'all .2s',
                                 boxShadow: 'none'
                               }}
-                              onMouseOver={e => { e.currentTarget.style.background = '#7c3aed'; e.currentTarget.style.color = '#fff'; }}
-                              onMouseOut={e => { e.currentTarget.style.background = '#faf5ff'; e.currentTarget.style.color = '#7c3aed'; }}
+                              onMouseOver={e => { e.currentTarget.style.background = '#111827'; e.currentTarget.style.color = '#fff'; }}
+                              onMouseOut={e => { e.currentTarget.style.background = '#F9FAFB'; e.currentTarget.style.color = '#111827'; }}
                               title="Automatically add standard specifications recommended for this category"
                             >
-                              <span>✨</span>
                               <span>Autofill {currentCategoryPresets.label} Specs</span>
                             </button>
                           </div>
@@ -7783,7 +7775,7 @@ export default function DashboardPage() {
                           {/* SMART QUICK-ADD CHIPS FOR CURRENT CATEGORY */}
                           <div style={{ background: '#fff', padding: '12px 16px', borderRadius: 14, border: '1px solid #e2e8f0' }}>
                             <div style={{ fontSize: 11, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
-                              <span>⚡ Quick-Add Recommended Specs:</span>
+                              <span>Quick-Add Recommended Specs:</span>
                               <span style={{ fontSize: 10, color: '#94a3b8', textTransform: 'none' }}>(Click to fill)</span>
                             </div>
                             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
@@ -7803,9 +7795,9 @@ export default function DashboardPage() {
                                     style={{
                                       padding: '5px 12px',
                                       borderRadius: 8,
-                                      border: isSelected ? '1.5px solid #7c3aed' : '1px solid #e2e8f0',
-                                      background: isSelected ? '#faf5ff' : (alreadyAdded ? '#f1f5f9' : '#fff'),
-                                      color: isSelected ? '#7c3aed' : (alreadyAdded ? '#94a3b8' : '#334155'),
+                                      border: isSelected ? '1.5px solid #111827' : '1px solid #e2e8f0',
+                                      background: isSelected ? '#F9FAFB' : (alreadyAdded ? '#f1f5f9' : '#fff'),
+                                      color: isSelected ? '#111827' : (alreadyAdded ? '#94a3b8' : '#334155'),
                                       fontSize: 12,
                                       fontWeight: 600,
                                       cursor: 'pointer',
@@ -7892,7 +7884,7 @@ export default function DashboardPage() {
                                   height: 46,
                                   borderRadius: 8,
                                   border: '1px solid #e2e8f0',
-                                  background: '#7c3aed',
+                                  background: '#111827',
                                   color: '#fff',
                                   fontWeight: 800,
                                   fontSize: 13,
@@ -7905,8 +7897,8 @@ export default function DashboardPage() {
                                   transition: 'all .2s',
                                   whiteSpace: 'nowrap'
                                 }}
-                                onMouseOver={e => { e.currentTarget.style.background = '#6d28d9'; }}
-                                onMouseOut={e => { e.currentTarget.style.background = '#7c3aed'; }}
+                                onMouseOver={e => { e.currentTarget.style.background = '#1F2937'; }}
+                                onMouseOut={e => { e.currentTarget.style.background = '#111827'; }}
                               >
                                 <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
                                 Add Spec
@@ -7923,7 +7915,7 @@ export default function DashboardPage() {
                                     type="button"
                                     onClick={() => setNewSpecValue(opt)}
                                     style={{
-                                      background: newSpecValue === opt ? '#7c3aed' : '#f1f5f9',
+                                      background: newSpecValue === opt ? '#111827' : '#f1f5f9',
                                       color: newSpecValue === opt ? '#fff' : '#475569',
                                       border: 'none',
                                       padding: '2px 8px',
@@ -7946,7 +7938,7 @@ export default function DashboardPage() {
                             <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 4 }}>
                               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 4px' }}>
                                 <span style={{ fontSize: 12, fontWeight: 700, color: '#334155', display: 'flex', alignItems: 'center', gap: 6 }}>
-                                  <span>📋 Added Specifications ({specs.length})</span>
+                                  <span>Added Specifications ({specs.length})</span>
                                 </span>
                                 <button
                                   type="button"
@@ -7973,12 +7965,12 @@ export default function DashboardPage() {
                                       alignItems: 'center',
                                       padding: '10px 16px',
                                       borderBottom: idx === specs.length - 1 ? 'none' : '1px solid #f1f5f9',
-                                      background: editingSpecIdx === idx ? '#faf5ff' : '#fff',
+                                      background: editingSpecIdx === idx ? '#F9FAFB' : '#fff',
                                       transition: 'all .2s'
                                     }}
                                   >
                                     <div style={{ display: 'flex', gap: 12, fontSize: 13, alignItems: 'center', minWidth: 0, flex: 1 }}>
-                                      <span style={{ display: 'inline-block', width: 6, height: 6, borderRadius: '50%', background: '#7c3aed', flexShrink: 0 }}></span>
+                                      <span style={{ display: 'inline-block', width: 6, height: 6, borderRadius: '50%', background: '#111827', flexShrink: 0 }}></span>
                                       <span style={{ fontWeight: 700, color: '#334155', minWidth: 120, flexShrink: 0 }}>{s.key}:</span>
 
                                       {editingSpecIdx === idx ? (
@@ -8001,7 +7993,7 @@ export default function DashboardPage() {
                                             style={{
                                               padding: '4px 10px',
                                               borderRadius: 8,
-                                              border: '1.5px solid #7c3aed',
+                                              border: '1.5px solid #111827',
                                               fontSize: 13,
                                               width: '100%',
                                               maxWidth: 240,
@@ -8017,7 +8009,7 @@ export default function DashboardPage() {
                                                 showToast("Updated specification value!", "success");
                                               }
                                             }}
-                                            style={{ background: '#7c3aed', color: '#fff', border: 'none', padding: '4px 10px', borderRadius: 6, fontSize: 11, fontWeight: 700, cursor: 'pointer' }}
+                                            style={{ background: '#111827', color: '#fff', border: 'none', padding: '4px 10px', borderRadius: 6, fontSize: 11, fontWeight: 700, cursor: 'pointer' }}
                                           >
                                             Save
                                           </button>
@@ -8099,7 +8091,7 @@ export default function DashboardPage() {
                       background: '#f8fafc',
                       padding: 24,
                       borderRadius: 20,
-                      border: editingVariantIdx !== null ? '2px solid #7c3aed' : '1.5px solid #e2e8f0',
+                      border: editingVariantIdx !== null ? '2px solid #111827' : '1.5px solid #e2e8f0',
                       marginBottom: 28,
                       display: 'flex',
                       flexDirection: 'column',
@@ -8108,7 +8100,7 @@ export default function DashboardPage() {
                     }}>
                       {editingVariantIdx !== null && (
                         <div style={{
-                          background: '#f5f3ff',
+                          background: '#F9FAFB',
                           padding: '12px 18px',
                           display: 'flex',
                           alignItems: 'center',
@@ -8122,10 +8114,10 @@ export default function DashboardPage() {
                           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                             <span style={{ fontSize: 18 }}>✏️</span>
                             <div>
-                              <span style={{ fontSize: 13, fontWeight: 800, color: '#5b21b6' }}>
+                              <span style={{ fontSize: 13, fontWeight: 800, color: '#111827' }}>
                                 Re-editing Variant #{editingVariantIdx + 1}: &ldquo;{colorVariants[editingVariantIdx]?.color}&rdquo;
                               </span>
-                              <span style={{ fontSize: 11, color: '#7c3aed', display: 'block', marginTop: 1 }}>
+                              <span style={{ fontSize: 11, color: '#111827', display: 'block', marginTop: 1 }}>
                                 Adjust the color name, price, or photo below, then click &ldquo;Save Changes to Variant&rdquo;.
                               </span>
                             </div>
@@ -8145,7 +8137,7 @@ export default function DashboardPage() {
                               background: '#fff',
                               border: '1px solid #c4b5fd',
                               borderRadius: 8,
-                              color: '#5b21b6',
+                              color: '#111827',
                               fontSize: 12,
                               fontWeight: 700,
                               cursor: 'pointer',
@@ -8219,9 +8211,9 @@ export default function DashboardPage() {
                               <button
                                 type="button"
                                 onClick={() => setVariantZoomPhoto(newColorPreview)}
-                                style={{ background: 'none', border: 'none', color: '#7c3aed', fontSize: 11, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, padding: 0 }}
+                                style={{ background: 'none', border: 'none', color: '#111827', fontSize: 11, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, padding: 0 }}
                               >
-                                🔍 Zoom Photo
+                                Zoom Photo
                               </button>
                             )}
                           </div>
@@ -8236,7 +8228,7 @@ export default function DashboardPage() {
                                 alignItems: 'center',
                                 justifyContent: 'space-between',
                                 padding: '5px 10px 5px 6px',
-                                background: '#faf5ff',
+                                background: '#F9FAFB',
                                 boxShadow: 'none',
                                 transition: 'all .2s'
                               }}
@@ -8280,7 +8272,7 @@ export default function DashboardPage() {
                                     <button
                                       type="button"
                                       onClick={() => document.getElementById('variant-img-input')?.click()}
-                                      style={{ background: 'none', border: 'none', color: '#7c3aed', fontSize: 11, fontWeight: 600, cursor: 'pointer', padding: 0, textDecoration: 'underline' }}
+                                      style={{ background: 'none', border: 'none', color: '#111827', fontSize: 11, fontWeight: 600, cursor: 'pointer', padding: 0, textDecoration: 'underline' }}
                                     >
                                       Replace photo
                                     </button>
@@ -8332,18 +8324,18 @@ export default function DashboardPage() {
                               }}
                               style={{
                                 height: 48,
-                                border: `2px dashed ${isDraggingVariantPhoto ? '#7c3aed' : '#cbd5e1'}`,
+                                border: `2px dashed ${isDraggingVariantPhoto ? '#111827' : '#cbd5e1'}`,
                                 borderRadius: 14,
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
                                 cursor: 'pointer',
-                                background: isDraggingVariantPhoto ? '#faf5ff' : '#fff',
+                                background: isDraggingVariantPhoto ? '#F9FAFB' : '#fff',
                                 gap: 8,
-                                color: isDraggingVariantPhoto ? '#7c3aed' : '#64748b',
+                                color: isDraggingVariantPhoto ? '#111827' : '#64748b',
                                 transition: 'all .2s'
                               }}
-                              onMouseOver={e => { e.currentTarget.style.borderColor = '#7c3aed'; e.currentTarget.style.background = '#faf5ff'; e.currentTarget.style.color = '#7c3aed'; }}
+                              onMouseOver={e => { e.currentTarget.style.borderColor = '#111827'; e.currentTarget.style.background = '#F9FAFB'; e.currentTarget.style.color = '#111827'; }}
                               onMouseOut={e => { if (!isDraggingVariantPhoto) { e.currentTarget.style.borderColor = '#cbd5e1'; e.currentTarget.style.background = '#fff'; e.currentTarget.style.color = '#64748b'; } }}
                             >
                               <IconCamera />
@@ -8358,22 +8350,21 @@ export default function DashboardPage() {
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'space-between',
-                              background: '#f5f3ff',
-                              border: '1px solid #ddd6fe',
+                              background: '#F9FAFB',
+                              border: '1px solid #E5E7EB',
                               padding: '6px 12px',
                               borderRadius: 10,
                               fontSize: 11,
                               marginTop: 2
                             }}>
-                              <span style={{ color: '#5b21b6', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}>
-                                <span>🎨</span>
+                              <span style={{ color: '#111827', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}>
                                 <span>Detected color from photo: <strong>{detectedColorSuggestion}</strong></span>
                               </span>
                               <button
                                 type="button"
                                 onClick={() => setNewColorName(detectedColorSuggestion)}
                                 style={{
-                                  background: '#7c3aed',
+                                  background: '#111827',
                                   color: '#fff',
                                   border: 'none',
                                   padding: '3px 10px',
@@ -8466,7 +8457,7 @@ export default function DashboardPage() {
                             </div>
                             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4 }}>
                               <span style={{ fontSize: 14, fontWeight: 700, color: '#0f172a' }}>Shopply Spectrum Scanner</span>
-                              <span style={{ fontSize: 12, color: '#64748b' }}>Click the spectrum box to pick any custom shade from the gradient canvas. Shopply&apos;s smart AI will automatically scan and match its closest professional color name for your storefront.</span>
+                              <span style={{ fontSize: 12, color: '#64748b' }}>Click the spectrum box to pick any custom shade. Shopply automatically matches the closest standard retail color name for your listing.</span>
                             </div>
                           </div>
                         </div>
@@ -8594,7 +8585,7 @@ export default function DashboardPage() {
                             width: '100%',
                             borderRadius: 8,
                             border: '1px solid #e2e8f0',
-                            background: '#7c3aed',
+                            background: '#111827',
                             color: '#fff',
                             fontWeight: 800,
                             fontSize: 14,
@@ -8606,8 +8597,8 @@ export default function DashboardPage() {
                             boxShadow: 'none',
                             transition: 'all .2s'
                           }}
-                          onMouseOver={e => { e.currentTarget.style.background = '#6d28d9'; }}
-                          onMouseOut={e => { e.currentTarget.style.background = '#7c3aed'; }}
+                          onMouseOver={e => { e.currentTarget.style.background = '#1F2937'; }}
+                          onMouseOut={e => { e.currentTarget.style.background = '#111827'; }}
                         >
                           <IconPlus />
                           Add This Variant
@@ -8643,7 +8634,7 @@ export default function DashboardPage() {
                                 >
                                   <img src={v.preview || ''} alt={v.color} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                   <div style={{ position: 'absolute', bottom: 4, right: 4, background: 'rgba(15,23,42,0.65)', color: '#fff', padding: '2px 6px', borderRadius: 6, fontSize: 10, backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', gap: 3 }}>
-                                    <span>🔍 Zoom</span>
+                                    <span>Zoom</span>
                                   </div>
                                 </div>
 
@@ -8671,9 +8662,9 @@ export default function DashboardPage() {
                                       width: '100%',
                                       padding: '5px 0',
                                       borderRadius: 8,
-                                      border: isBeingEdited ? '1px solid #7c3aed' : '1px solid #e2e8f0',
-                                      background: isBeingEdited ? '#faf5ff' : '#f8fafc',
-                                      color: isBeingEdited ? '#7c3aed' : '#475569',
+                                      border: isBeingEdited ? '1px solid #111827' : '1px solid #e2e8f0',
+                                      background: isBeingEdited ? '#F9FAFB' : '#f8fafc',
+                                      color: isBeingEdited ? '#111827' : '#475569',
                                       fontSize: 11,
                                       fontWeight: 700,
                                       cursor: 'pointer',
@@ -8686,8 +8677,7 @@ export default function DashboardPage() {
                                     onMouseOver={e => { if (!isBeingEdited) { e.currentTarget.style.background = '#f1f5f9'; e.currentTarget.style.borderColor = '#cbd5e1'; } }}
                                     onMouseOut={e => { if (!isBeingEdited) { e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.borderColor = '#e2e8f0'; } }}
                                   >
-                                    <span>✏️</span>
-                                    <span>{isBeingEdited ? "Editing Now" : "Re-edit"}</span>
+                                    <span>{isBeingEdited ? "Editing Now" : "Edit"}</span>
                                   </button>
                                 </div>
 
@@ -8711,7 +8701,7 @@ export default function DashboardPage() {
                                     width: 26,
                                     height: 26,
                                     borderRadius: '50%',
-                                    background: isBeingEdited ? '#7c3aed' : 'rgba(255,255,255,0.95)',
+                                    background: isBeingEdited ? '#111827' : 'rgba(255,255,255,0.95)',
                                     color: isBeingEdited ? '#fff' : '#475569',
                                     border: '1px solid #e2e8f0',
                                     display: 'flex',
@@ -8721,7 +8711,7 @@ export default function DashboardPage() {
                                     boxShadow: 'none',
                                     transition: 'all .2s'
                                   }}
-                                  onMouseOver={e => { if (!isBeingEdited) { e.currentTarget.style.background = '#7c3aed'; e.currentTarget.style.color = '#fff'; } }}
+                                  onMouseOver={e => { if (!isBeingEdited) { e.currentTarget.style.background = '#111827'; e.currentTarget.style.color = '#fff'; } }}
                                   onMouseOut={e => { if (!isBeingEdited) { e.currentTarget.style.background = 'rgba(255,255,255,0.95)'; e.currentTarget.style.color = '#475569'; } }}
                                   title="Re-edit this variant"
                                 >
@@ -8758,7 +8748,7 @@ export default function DashboardPage() {
 
                   <div className="form-section-divider" style={{ borderTop: '1px solid #f1f5f9', margin: '40px 0 24px', paddingTop: 32 }}>
                     <h4 style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <div style={{ width: 4, height: 16, background: '#7c3aed', borderRadius: 4 }}></div>
+                      <div style={{ width: 4, height: 16, background: '#111827', borderRadius: 4 }}></div>
                       Product Showcase
                     </h4>
 
@@ -8796,7 +8786,7 @@ export default function DashboardPage() {
                               color: '#64748b',
                               transition: 'all .2s'
                             }}
-                            onMouseOver={e => { e.currentTarget.style.borderColor = '#7c3aed'; e.currentTarget.style.background = '#faf5ff'; e.currentTarget.style.color = '#7c3aed'; }}
+                            onMouseOver={e => { e.currentTarget.style.borderColor = '#111827'; e.currentTarget.style.background = '#F9FAFB'; e.currentTarget.style.color = '#111827'; }}
                             onMouseOut={e => { e.currentTarget.style.borderColor = '#cbd5e1'; e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.color = '#64748b'; }}
                           >
                             <IconPlus />
@@ -8848,7 +8838,7 @@ export default function DashboardPage() {
                                 color: '#64748b',
                                 transition: 'all .2s'
                               }}
-                              onMouseOver={e => { e.currentTarget.style.borderColor = '#7c3aed'; e.currentTarget.style.background = '#faf5ff'; e.currentTarget.style.color = '#7c3aed'; }}
+                              onMouseOver={e => { e.currentTarget.style.borderColor = '#111827'; e.currentTarget.style.background = '#F9FAFB'; e.currentTarget.style.color = '#111827'; }}
                               onMouseOut={e => { e.currentTarget.style.borderColor = '#cbd5e1'; e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.color = '#64748b'; }}
                             >
                               <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ marginBottom: 4 }}>
@@ -8878,16 +8868,16 @@ export default function DashboardPage() {
                           />
                         </div>
                         {videoUploadProgress !== null && (
-                          <div style={{ marginTop: 12, width: '100%', maxWidth: 360, background: '#faf5ff', border: '1.5px solid #e9d5ff', borderRadius: 12, padding: '12px 16px' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 12, fontWeight: 700, color: '#7c3aed', marginBottom: 6 }}>
-                              <span>📹 {videoUploadStatus || "Uploading video..."}</span>
-                              <span style={{ fontSize: 13, background: '#7c3aed', color: '#fff', padding: '2px 8px', borderRadius: 10 }}>{videoUploadProgress}%</span>
+                          <div style={{ marginTop: 12, width: '100%', maxWidth: 360, background: '#F9FAFB', border: '1.5px solid #E5E7EB', borderRadius: 12, padding: '12px 16px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 12, fontWeight: 700, color: '#111827', marginBottom: 6 }}>
+                              <span>{videoUploadStatus || "Uploading video..."}</span>
+                              <span style={{ fontSize: 13, background: '#111827', color: '#fff', padding: '2px 8px', borderRadius: 10 }}>{videoUploadProgress}%</span>
                             </div>
-                            <div style={{ height: 10, background: '#e9d5ff', borderRadius: 6, overflow: 'hidden', position: 'relative' }}>
+                            <div style={{ height: 10, background: '#E5E7EB', borderRadius: 6, overflow: 'hidden', position: 'relative' }}>
                               <div style={{
                                 height: '100%',
                                 width: `${videoUploadProgress}%`,
-                                background: 'linear-gradient(90deg, #7c3aed 0%, #2563eb 100%)',
+                                background: '#0D6847',
                                 borderRadius: 6,
                                 transition: 'width 0.2s ease-out',
                                 boxShadow: 'none'
@@ -8908,78 +8898,76 @@ export default function DashboardPage() {
                         </span>
                       </div>
 
-                      {/* AI Toolbar for Description */}
+                      {/* Description Template Helpers */}
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
                         <button
                           type="button"
                           onClick={() => {
                             if (!newItemName.trim()) {
-                              showToast("Please enter a Product Name first so AI knows what to write!", "error");
+                              showToast("Please enter a product name first.", "error");
                               return;
                             }
                             const generated = generateAiProductDescription(newItemName, newItemCategory, specs);
                             setNewItemDesc(generated);
-                            showToast("✨ AI generated persuasive product description with specs!", "success");
+                            showToast("Inserted structured product description template.", "success");
                           }}
                           style={{
                             padding: '5px 11px',
                             borderRadius: 8,
-                            background: '#faf5ff',
-                            color: '#7c3aed',
+                            background: '#F9FAFB',
+                            color: '#111827',
                             fontSize: 11,
-                            fontWeight: 800,
+                            fontWeight: 600,
                             cursor: 'pointer',
                             display: 'flex',
                             alignItems: 'center',
                             gap: 5,
                             transition: 'all .2s',
-                            border: '1px solid #e2e8f0',
+                            border: '1px solid #E5E7EB',
                             boxShadow: 'none'
                           }}
-                          onMouseOver={e => { e.currentTarget.style.background = '#7c3aed'; e.currentTarget.style.color = '#fff'; }}
-                          onMouseOut={e => { e.currentTarget.style.background = '#faf5ff'; e.currentTarget.style.color = '#7c3aed'; }}
-                          title="Generate a high-converting e-commerce description with specs and key highlights"
+                          onMouseOver={e => { e.currentTarget.style.background = '#111827'; e.currentTarget.style.color = '#fff'; }}
+                          onMouseOut={e => { e.currentTarget.style.background = '#F9FAFB'; e.currentTarget.style.color = '#111827'; }}
+                          title="Insert a structured retail description with specifications"
                         >
-                          <span>✨</span>
-                          <span>AI Write Description</span>
+                          <span>Insert Template</span>
                         </button>
 
                         <button
                           type="button"
                           onClick={() => {
                             if (!newItemDesc.trim() && !newItemName.trim()) {
-                              showToast("Please enter a Product Name or write some details first.", "error");
+                              showToast("Please enter a product name or write some details first.", "error");
                               return;
                             }
                             const summary = generateAiProductSummary(newItemDesc, newItemName);
-                            if (newItemDesc.trim() && !newItemDesc.includes("QUICK SUMMARY") && !newItemDesc.includes("AI SUMMARY")) {
+                            if (newItemDesc.trim() && !newItemDesc.includes("KEY HIGHLIGHTS") && !newItemDesc.includes("QUICK SUMMARY")) {
                               setNewItemDesc(`${summary}\n\n---\n\n${newItemDesc}`);
                             } else {
                               setNewItemDesc(summary);
                             }
-                            showToast("📝 AI generated executive summary bullet points!", "success");
+                            showToast("Added key highlights bullet points.", "success");
                           }}
                           style={{
                             padding: '5px 11px',
                             borderRadius: 8,
-                            background: '#f0f9ff',
-                            color: '#0284c7',
+                            background: '#ECFDF5',
+                            color: '#065F46',
                             fontSize: 11,
-                            fontWeight: 800,
+                            fontWeight: 600,
                             cursor: 'pointer',
                             display: 'flex',
                             alignItems: 'center',
                             gap: 5,
                             transition: 'all .2s',
-                            border: '1px solid #e2e8f0',
+                            border: '1px solid #A7F3D0',
                             boxShadow: 'none'
                           }}
-                          onMouseOver={e => { e.currentTarget.style.background = '#0284c7'; e.currentTarget.style.color = '#fff'; }}
-                          onMouseOut={e => { e.currentTarget.style.background = '#f0f9ff'; e.currentTarget.style.color = '#0284c7'; }}
-                          title="Summarize key features into easy-to-read highlights for buyers"
+                          onMouseOver={e => { e.currentTarget.style.background = '#0D6847'; e.currentTarget.style.color = '#fff'; }}
+                          onMouseOut={e => { e.currentTarget.style.background = '#ECFDF5'; e.currentTarget.style.color = '#065F46'; }}
+                          title="Add key highlights bullet list at the top of description"
                         >
-                          <span>📝</span>
-                          <span>AI Summarize</span>
+                          <span>Add Highlights</span>
                         </button>
 
                         {newItemDesc && (
@@ -9028,9 +9016,9 @@ export default function DashboardPage() {
                           boxShadow: 'none'
                         }}
                         onFocus={e => {
-                          e.currentTarget.style.borderColor = '#7c3aed';
+                          e.currentTarget.style.borderColor = '#111827';
                           e.currentTarget.style.background = '#fff';
-                          e.currentTarget.style.boxShadow = '0 0 0 4px rgba(124,58,237,0.08)';
+                          e.currentTarget.style.boxShadow = '0 0 0 4px rgba(17, 24, 39, 0.08)';
                         }}
                         onBlur={e => {
                           e.currentTarget.style.borderColor = '#e2e8f0';
@@ -9121,12 +9109,12 @@ export default function DashboardPage() {
           const lsKeys = typeof window !== 'undefined' ? Object.keys(localStorage).filter(k => k.startsWith('shopply_cache_')) : [];
           const lsBytes = lsKeys.reduce((sum, k) => sum + (localStorage.getItem(k)?.length || 0) * 2, 0);
           const endpoints = [
-            { label: 'My Profile', key: '/me', icon: <IconUser />, color: '#a855f7' },
+            { label: 'My Profile', key: '/me', icon: <IconUser />, color: '#111827' },
             { label: 'Shop Items', key: '/shop/items', icon: <IconShop />, color: '#2563eb' },
             { label: 'My Items', key: '/items', icon: <IconBox />, color: '#10b981' },
             { label: 'Cart', key: '/cart', icon: <IconCart />, color: '#f59e0b' },
             { label: 'My Orders', key: '/orders', icon: <IconOrders />, color: '#ef4444' },
-            { label: 'Store Orders', key: '/seller/orders', icon: <IconStore />, color: '#a855f7' },
+            { label: 'Store Orders', key: '/seller/orders', icon: <IconStore />, color: '#111827' },
             { label: 'Messages', key: '/chat/conversations', icon: <IconChat />, color: '#06b6d4' },
           ];
           return (
@@ -9134,16 +9122,16 @@ export default function DashboardPage() {
             {/* Header */}
             <div style={{ marginBottom: 32 }}>
               <div style={{ marginBottom: 8 }}>
-                <span style={{ display: 'inline-block', background: '#f5f3ff', color: '#7c3aed', fontSize: 11, fontWeight: 900, textTransform: 'uppercase', letterSpacing: 1, padding: '4px 12px', borderRadius: 6, border: '1px solid #ddd6fe', boxShadow: 'none' }}>
+                <span style={{ display: 'inline-block', background: '#F9FAFB', color: '#111827', fontSize: 11, fontWeight: 900, textTransform: 'uppercase', letterSpacing: 1, padding: '4px 12px', borderRadius: 6, border: '1px solid #E5E7EB', boxShadow: 'none' }}>
                   SYSTEM CONTROL & PERFORMANCE
                 </span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-                <div style={{ width: 48, height: 48, borderRadius: 12, background: '#ede9fe', border: '1px solid #ddd6fe', boxShadow: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, color: '#7c3aed' }}>
+                <div style={{ width: 48, height: 48, borderRadius: 12, background: '#F3F4F6', border: '1px solid #E5E7EB', boxShadow: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, color: '#111827' }}>
                   <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
                 </div>
                 <div>
-                  <h2 style={{ fontSize: 26, fontWeight: 900, color: '#000000', letterSpacing: '-0.5px', margin: 0 }}>Settings & Performance</h2>
+                  <h2 style={{ fontSize: 26, fontWeight: 900, color: '#111827', letterSpacing: '-0.5px', margin: 0 }}>Settings & Performance</h2>
                   <p style={{ color: '#475569', fontSize: 14, fontWeight: 700, margin: '3px 0 0' }}>Control caching, data freshness, and app performance</p>
                 </div>
               </div>
@@ -9152,14 +9140,14 @@ export default function DashboardPage() {
             {/* Live Stats Bar */}
             <div className="settings-stats-grid">
               {[
-                { label: 'Cached Endpoints', value: lsKeys.length, icon: <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" /></svg>, color: '#000000', bg: '#f3e8ff' },
-                { label: 'Local Storage Used', value: lsBytes > 1024 ? `${(lsBytes/1024).toFixed(1)} KB` : `${lsBytes} B`, icon: <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z" /><polyline points="17 21 17 13 7 13 7 21" /><polyline points="7 3 7 8 15 8" /></svg>, color: '#000000', bg: '#dbeafe' },
+                { label: 'Cached Endpoints', value: lsKeys.length, icon: <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" /></svg>, color: '#111827', bg: '#F3F4F6' },
+                { label: 'Local Storage Used', value: lsBytes > 1024 ? `${(lsBytes/1024).toFixed(1)} KB` : `${lsBytes} B`, icon: <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z" /><polyline points="17 21 17 13 7 13 7 21" /><polyline points="7 3 7 8 15 8" /></svg>, color: '#111827', bg: '#dbeafe' },
                 { label: 'Cache Status', value: lsKeys.length > 0 ? 'Active' : 'Empty', icon: <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M3 12a9 9 0 109-9 9.75 9.75 0 00-6.74 2.74L3 8" /><polyline points="3 3 3 8 8 8" /></svg>, color: '#0f172a', bg: lsKeys.length > 0 ? '#dcfce7' : '#f1f5f9' },
               ].map((stat, i) => (
                 <div key={i} className="settings-stat-box">
                   <div className="settings-stat-icon-box" style={{ width: 48, height: 48, borderRadius: 10, border: '1px solid #e2e8f0', boxShadow: 'none', background: stat.bg, color: stat.color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22 }}>{stat.icon}</div>
                   <div className="settings-stat-info">
-                    <div className="settings-stat-val" style={{ fontSize: 24, fontWeight: 900, color: '#000000' }}>{stat.value}</div>
+                    <div className="settings-stat-val" style={{ fontSize: 24, fontWeight: 900, color: '#111827' }}>{stat.value}</div>
                     <div className="settings-stat-lbl" style={{ fontSize: 12, color: '#475569', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{stat.label}</div>
                   </div>
                 </div>
@@ -9169,8 +9157,8 @@ export default function DashboardPage() {
             {/* My Statistics */}
             <div className="settings-section-card">
               <div style={{ marginBottom: 24 }}>
-                <h3 style={{ fontSize: 18, fontWeight: 900, color: '#000000', margin: 0, display: 'flex', alignItems: 'center' }}>
-                  <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 34, height: 34, borderRadius: 8, background: '#ede9fe', color: '#7c3aed', border: '1px solid #ddd6fe', boxShadow: 'none', marginRight: 12 }}>
+                <h3 style={{ fontSize: 18, fontWeight: 900, color: '#111827', margin: 0, display: 'flex', alignItems: 'center' }}>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 34, height: 34, borderRadius: 8, background: '#F3F4F6', color: '#111827', border: '1px solid #E5E7EB', boxShadow: 'none', marginRight: 12 }}>
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                       <line x1="18" y1="20" x2="18" y2="10" />
                       <line x1="12" y1="20" x2="12" y2="4" />
@@ -9183,25 +9171,25 @@ export default function DashboardPage() {
               </div>
               <div className="my-stats-grid">
                 {[
-                  { label: 'Published Items', value: publishedCount, icon: <IconBox />, color: '#000000', bg: '#4ade80' },
-                  { label: 'Pending Orders', value: pendingSellerOrdersCount, icon: <IconOrders />, color: '#7c3aed', bg: '#f5f3ff' },
-                  { label: 'Total Orders', value: sellerOrders.length, icon: <IconStore />, color: '#000000', bg: '#60a5fa' },
-                  { label: 'Followers', value: user.followers_count || 0, icon: <IconUser />, color: '#000000', bg: '#c084fc' }
+                  { label: 'Published Items', value: publishedCount, icon: <IconBox />, color: '#065F46', bg: '#ECFDF5' },
+                  { label: 'Pending Orders', value: pendingSellerOrdersCount, icon: <IconOrders />, color: '#92400E', bg: '#FEF3C7' },
+                  { label: 'Total Orders', value: sellerOrders.length, icon: <IconStore />, color: '#111827', bg: '#F3F4F6' },
+                  { label: 'Followers', value: user.followers_count || 0, icon: <IconUser />, color: '#374151', bg: '#F3F4F6' }
                 ].map((stat, i) => (
                   <div key={i} 
                     className="my-stat-card"
                     onClick={() => setActiveStatChart(stat.label)}
                     style={{ 
-                      background: activeStatChart === stat.label ? '#f5f3ff' : '#ffffff', 
-                      border: activeStatChart === stat.label ? '1.5px solid #7c3aed' : '1px solid #e2e8f0',
+                      background: activeStatChart === stat.label ? '#F9FAFB' : '#ffffff', 
+                      border: activeStatChart === stat.label ? '1.5px solid #111827' : '1px solid #e2e8f0',
                       boxShadow: 'none',
                       transform: 'none',
                     }}>
                     <div className="my-stat-card-icon" style={{ width: 48, height: 48, borderRadius: 10, border: '1px solid #e2e8f0', boxShadow: 'none', background: stat.bg, color: stat.color, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12 }}>
                       {stat.icon}
                     </div>
-                    <div className="my-stat-card-val" style={{ fontSize: 26, fontWeight: 900, color: '#000000', marginBottom: 4 }}>{stat.value}</div>
-                    <div className="my-stat-card-lbl" style={{ fontSize: 12, fontWeight: 800, color: '#000000', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{stat.label}</div>
+                    <div className="my-stat-card-val" style={{ fontSize: 26, fontWeight: 900, color: '#111827', marginBottom: 4 }}>{stat.value}</div>
+                    <div className="my-stat-card-lbl" style={{ fontSize: 12, fontWeight: 800, color: '#111827', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{stat.label}</div>
                   </div>
                 ))}
               </div>
@@ -9257,7 +9245,7 @@ export default function DashboardPage() {
                           <span style={{ width: 12, height: 12, background: '#60a5fa', borderRadius: 3, display: 'inline-block' }}></span> {activeStatChart === 'Total Orders' ? 'Delivered' : 'Primary'}
                         </span>
                         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 600, color: '#64748b' }}>
-                          <span style={{ width: 12, height: 12, background: '#7c3aed', borderRadius: 3, display: 'inline-block' }}></span> {activeStatChart === 'Total Orders' ? 'Active' : 'Secondary'}
+                          <span style={{ width: 12, height: 12, background: '#111827', borderRadius: 3, display: 'inline-block' }}></span> {activeStatChart === 'Total Orders' ? 'Active' : 'Secondary'}
                         </span>
                       </div>
                     </div>
@@ -9265,7 +9253,7 @@ export default function DashboardPage() {
                       {/* Y-axis labels */}
                       <div style={{ display: 'flex', flexDirection: 'column-reverse', justifyContent: 'space-between', paddingRight: 16, width: 40, boxSizing: 'border-box' }}>
                         {yLabels.map(val => (
-                          <div key={val} style={{ fontSize: 12, fontWeight: 800, color: '#000000', textAlign: 'right', transform: 'translateY(50%)' }}>{val}</div>
+                          <div key={val} style={{ fontSize: 12, fontWeight: 800, color: '#111827', textAlign: 'right', transform: 'translateY(50%)' }}>{val}</div>
                         ))}
                       </div>
                       
@@ -9287,7 +9275,7 @@ export default function DashboardPage() {
                               <div key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '16%', height: '100%', position: 'relative' }} title={`Blue: ${data.blue}, Orange: ${data.orange}`}>
                                 <div style={{ position: 'absolute', bottom: 0, width: '100%', height: `${Math.min(blueHeight + orangeHeight, 100)}%`, display: 'flex', flexDirection: 'column-reverse', transition: 'height 0.3s ease' }}>
                                   <div style={{ width: '100%', background: '#60a5fa', borderBottom: 'none', height: `${data.blue + data.orange > 0 ? (data.blue / (data.blue + data.orange)) * 100 : 0}%`, minHeight: data.blue > 0 ? '4px' : '0', transition: 'all 0.3s ease', boxShadow: 'none' }}></div>
-                                  <div style={{ width: '100%', background: '#7c3aed', borderRadius: '4px 4px 0 0', height: `${data.blue + data.orange > 0 ? (data.orange / (data.blue + data.orange)) * 100 : 0}%`, minHeight: data.orange > 0 ? '4px' : '0', transition: 'all 0.3s ease', boxShadow: 'none' }}></div>
+                                  <div style={{ width: '100%', background: '#111827', borderRadius: '4px 4px 0 0', height: `${data.blue + data.orange > 0 ? (data.orange / (data.blue + data.orange)) * 100 : 0}%`, minHeight: data.orange > 0 ? '4px' : '0', transition: 'all 0.3s ease', boxShadow: 'none' }}></div>
                                 </div>
                                 <div style={{ position: 'absolute', bottom: -28, fontSize: 12, fontWeight: 600, color: '#64748b', whiteSpace: 'nowrap' }}>{data.date}</div>
                               </div>
@@ -9305,7 +9293,7 @@ export default function DashboardPage() {
             <div className="settings-section-card">
               <div className="flex-responsive-row" style={{ marginBottom: 24, alignItems: 'center', justifyContent: 'space-between' }}>
                 <div>
-                  <h3 style={{ fontSize: 18, fontWeight: 900, color: '#000000', margin: 0, display: 'flex', alignItems: 'center' }}>
+                  <h3 style={{ fontSize: 18, fontWeight: 900, color: '#111827', margin: 0, display: 'flex', alignItems: 'center' }}>
                     <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 34, height: 34, borderRadius: 8, background: '#dbeafe', color: '#2563eb', border: '1px solid #bfdbfe', boxShadow: 'none', marginRight: 12 }}>
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                         <ellipse cx="12" cy="5" rx="9" ry="3" />
@@ -9320,7 +9308,7 @@ export default function DashboardPage() {
                 <button
                   onClick={() => {
                     getApiCache().invalidateAll();
-                    showToast('✅ All cache cleared! Refreshing data...', 'success');
+                    showToast('All cache cleared. Refreshing data...', 'success');
                     setTimeout(() => window.location.reload(), 1200);
                   }}
                   style={{ padding: '12px 22px', borderRadius: 8, border: '1px solid #dc2626', background: '#ef4444', color: '#ffffff', fontWeight: 800, fontSize: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, boxShadow: 'none', transition: 'all .15s', whiteSpace: 'nowrap' }}
@@ -9338,14 +9326,14 @@ export default function DashboardPage() {
                       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                         <div style={{ width: 38, height: 38, borderRadius: 10, border: 'none', boxShadow: 'none', background: ep.color, color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>{ep.icon}</div>
                         <div>
-                          <div style={{ fontSize: 14, fontWeight: 900, color: '#000000' }}>{ep.label}</div>
+                          <div style={{ fontSize: 14, fontWeight: 900, color: '#111827' }}>{ep.label}</div>
                           <div style={{ fontSize: 11, color: hasCache ? '#b45309' : '#64748b', fontWeight: 800 }}>{hasCache ? '● CACHED' : '○ NO CACHE'}</div>
                         </div>
                       </div>
                       <button
                         onClick={() => {
                           getApiCache().invalidate(ep.key);
-                          showToast(`🗑️ ${ep.label} cache cleared`, 'success');
+                          showToast(`${ep.label} cache cleared`, 'success');
                         }}
                         style={{ padding: '7px 14px', borderRadius: 8, border: '1px solid #e2e8f0', background: hasCache ? '#ffffff' : '#f1f5f9', color: '#0f172a', fontWeight: 700, fontSize: 12, cursor: hasCache ? 'pointer' : 'default', transition: 'all .15s', boxShadow: 'none' }}
                       >
@@ -9361,7 +9349,7 @@ export default function DashboardPage() {
             <div className="settings-section-card">
               <div className="flex-responsive-row" style={{ alignItems: 'center', justifyContent: 'space-between' }}>
                 <div>
-                  <h3 style={{ fontSize: 18, fontWeight: 900, color: '#000000', margin: 0, display: 'flex', alignItems: 'center' }}>
+                  <h3 style={{ fontSize: 18, fontWeight: 900, color: '#111827', margin: 0, display: 'flex', alignItems: 'center' }}>
                     <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 34, height: 34, borderRadius: 8, background: '#fef3c7', color: '#d97706', border: '1px solid #fde68a', boxShadow: 'none', marginRight: 12 }}>
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
@@ -9374,10 +9362,10 @@ export default function DashboardPage() {
                 <button
                   onClick={() => {
                     document.cookie = "cookie_consent=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/";
-                    showToast('✅ Cookie consent reset! Refreshing...', 'success');
+                    showToast('Cookie consent reset. Refreshing...', 'success');
                     setTimeout(() => window.location.reload(), 1200);
                   }}
-                  style={{ padding: '10px 20px', borderRadius: 8, border: '1px solid #ddd6fe', background: '#f5f3ff', color: '#7c3aed', fontWeight: 800, fontSize: 13, cursor: 'pointer', transition: 'all .15s', display: 'flex', alignItems: 'center', gap: 6, boxShadow: 'none' }}
+                  style={{ padding: '10px 20px', borderRadius: 8, border: '1px solid #E5E7EB', background: '#F9FAFB', color: '#111827', fontWeight: 800, fontSize: 13, cursor: 'pointer', transition: 'all .15s', display: 'flex', alignItems: 'center', gap: 6, boxShadow: 'none' }}
                 >
                   <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
                   Reset Cookie Consent
@@ -9390,7 +9378,7 @@ export default function DashboardPage() {
               <div className="flex-responsive-row" style={{ alignItems: 'flex-start' }}>
                 <div style={{ flex: 1 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 8 }}>
-                    <h3 style={{ fontSize: 18, fontWeight: 900, color: '#000000', margin: 0, display: 'flex', alignItems: 'center' }}>
+                    <h3 style={{ fontSize: 18, fontWeight: 900, color: '#111827', margin: 0, display: 'flex', alignItems: 'center' }}>
                       <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 34, height: 34, borderRadius: 8, background: '#dcfce7', color: '#16a34a', border: '1px solid #bbf7d0', boxShadow: 'none', marginRight: 12 }}>
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                           <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
@@ -9406,7 +9394,7 @@ export default function DashboardPage() {
                       border: '1px solid #e2e8f0',
                       boxShadow: 'none',
                       background: smoothMode ? '#dcfce7' : '#f1f5f9',
-                      color: smoothMode ? '#16a34a' : '#000000',
+                      color: smoothMode ? '#16a34a' : '#111827',
                       transition: 'all 0.2s ease'
                     }}>
                       {smoothMode ? '● SMOOTH MODE ACTIVE' : '○ STANDARD MODE'}
@@ -9423,7 +9411,7 @@ export default function DashboardPage() {
                       padding: '10px 20px',
                       borderRadius: 8,
                       border: '1px solid #e2e8f0',
-                      background: smoothMode ? '#10b981' : '#7c3aed',
+                      background: smoothMode ? '#10b981' : '#111827',
                       color: '#ffffff',
                       fontWeight: 800,
                       fontSize: 13,
@@ -9443,15 +9431,15 @@ export default function DashboardPage() {
                   <button
                     onClick={() => {
                       getApiCache().invalidateAll();
-                      showToast('🧹 Clearing cache and optimizing lag...', 'success');
+                      showToast('Clearing cache and optimizing performance...', 'success');
                       setTimeout(() => window.location.reload(), 1000);
                     }}
                     style={{
                       padding: '10px 20px',
                       borderRadius: 8,
                       border: '1px solid #e2e8f0',
-                      background: '#f5f3ff',
-                      color: '#7c3aed',
+                      background: '#F9FAFB',
+                      color: '#111827',
                       fontWeight: 800,
                       fontSize: 13,
                       cursor: 'pointer',
@@ -9476,15 +9464,15 @@ export default function DashboardPage() {
               {/* Hard Reload */}
               <div className="perf-action-card">
                 <div>
-                  <div style={{ fontSize: 24, marginBottom: 12, display: 'inline-flex', padding: 12, borderRadius: 10, border: '1px solid #ddd6fe', boxShadow: 'none', background: '#ede9fe', color: '#7c3aed' }}>
+                  <div style={{ fontSize: 24, marginBottom: 12, display: 'inline-flex', padding: 12, borderRadius: 10, border: '1px solid #E5E7EB', boxShadow: 'none', background: '#F3F4F6', color: '#111827' }}>
                     <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" /></svg>
                   </div>
-                  <h4 style={{ fontSize: 16, fontWeight: 900, color: '#000000', marginBottom: 8 }}>Force Hard Reload</h4>
+                  <h4 style={{ fontSize: 16, fontWeight: 900, color: '#111827', marginBottom: 8 }}>Force Hard Reload</h4>
                   <p style={{ fontSize: 13, color: '#475569', fontWeight: 600, lineHeight: 1.5, marginBottom: 16 }}>Bypass all browser cache and reload every asset fresh from the server. Fixes visual glitches and script errors.</p>
                 </div>
                 <button
                   onClick={() => window.location.reload()}
-                  style={{ width: '100%', padding: '12px', borderRadius: 8, border: '1px solid #ddd6fe', background: '#f5f3ff', color: '#7c3aed', fontWeight: 800, fontSize: 14, cursor: 'pointer', boxShadow: 'none', transition: 'all .15s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
+                  style={{ width: '100%', padding: '12px', borderRadius: 8, border: '1px solid #E5E7EB', background: '#F9FAFB', color: '#111827', fontWeight: 800, fontSize: 14, cursor: 'pointer', boxShadow: 'none', transition: 'all .15s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
                 >
                   <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M3 12a9 9 0 109-9 9.75 9.75 0 00-6.74 2.74L3 8" /><polyline points="3 3 3 8 8 8" /></svg>
                   Reload Page
@@ -9497,17 +9485,17 @@ export default function DashboardPage() {
                   <div style={{ fontSize: 24, marginBottom: 12, display: 'inline-flex', padding: 12, borderRadius: 10, border: '1px solid #fecaca', boxShadow: 'none', background: '#fee2e2', color: '#ef4444' }}>
                     <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M3 3l18 18M15 9l-6 6M10 14L4 20a2.82 2.82 0 01-4 0v0a2.82 2.82 0 010-4l6-6" /></svg>
                   </div>
-                  <h4 style={{ fontSize: 16, fontWeight: 900, color: '#000000', marginBottom: 8 }}>Clear All Saved Data</h4>
+                  <h4 style={{ fontSize: 16, fontWeight: 900, color: '#111827', marginBottom: 8 }}>Clear All Saved Data</h4>
                   <p style={{ fontSize: 13, color: '#475569', fontWeight: 600, lineHeight: 1.5, marginBottom: 16 }}>Removes all Shopply data stored in your browser — cache, preferences, and session hints. You stay logged in.</p>
                 </div>
                 <button
                   onClick={() => {
                     getApiCache().invalidateAll();
                     Object.keys(localStorage).filter(k => k.startsWith('shopply_') || k.startsWith('last_order')).forEach(k => localStorage.removeItem(k));
-                    showToast('🧹 All app data cleared! Refreshing...', 'success');
+                    showToast('All cached app data cleared. Refreshing...', 'success');
                     setTimeout(() => window.location.reload(), 1200);
                   }}
-                  style={{ width: '100%', padding: '12px', borderRadius: 8, border: '1px solid #6d28d9', background: '#7c3aed', color: '#ffffff', fontWeight: 800, fontSize: 14, cursor: 'pointer', boxShadow: 'none', transition: 'all .15s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
+                  style={{ width: '100%', padding: '12px', borderRadius: 8, border: '1px solid #1F2937', background: '#111827', color: '#ffffff', fontWeight: 800, fontSize: 14, cursor: 'pointer', boxShadow: 'none', transition: 'all .15s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
                 >
                   <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M3 3l18 18M15 9l-6 6M10 14L4 20a2.82 2.82 0 01-4 0v0a2.82 2.82 0 010-4l6-6" /></svg>
                   Deep Clean & Refresh
@@ -9516,9 +9504,9 @@ export default function DashboardPage() {
             </div>
 
             {/* Performance Tips */}
-            <div className="perf-tips-box" style={{ background: '#f5f3ff', borderRadius: 16, padding: 28, border: '1px solid #ddd6fe', boxShadow: 'none', color: '#000000' }}>
-              <h4 style={{ fontSize: 17, fontWeight: 900, marginBottom: 18, display: 'flex', alignItems: 'center', gap: 8, color: '#7c3aed' }}>
-                <span><svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M9 18h6M10 22h4M12 2v2m5.657-1.343l-1.414 1.414M22 12h-2m-1.343 5.657l-1.414-1.414M12 22v-2M6.343 20.657l1.414-1.414M2 12h2m1.343-5.657l1.414 1.414"/></svg></span> Performance Tips & Hacks
+            <div className="perf-tips-box" style={{ background: '#F9FAFB', borderRadius: 16, padding: 28, border: '1px solid #E5E7EB', boxShadow: 'none', color: '#111827' }}>
+              <h4 style={{ fontSize: 17, fontWeight: 900, marginBottom: 18, display: 'flex', alignItems: 'center', gap: 8, color: '#111827' }}>
+                <span><svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M9 18h6M10 22h4M12 2v2m5.657-1.343l-1.414 1.414M22 12h-2m-1.343 5.657l-1.414-1.414M12 22v-2M6.343 20.657l1.414-1.414M2 12h2m1.343-5.657l1.414 1.414"/></svg></span> Troubleshooting & Cache Guide
               </h4>
               <div className="perf-tips-grid">
                 {[
@@ -9529,8 +9517,8 @@ export default function DashboardPage() {
                 ].map((tip, i) => (
                   <div key={i} className="perf-tip-card">
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-                      <span style={{ fontSize: 18, color: '#000000' }}>{tip.icon}</span>
-                      <span style={{ fontSize: 13, fontWeight: 900, color: '#000000' }}>{tip.title}</span>
+                      <span style={{ fontSize: 18, color: '#111827' }}>{tip.icon}</span>
+                      <span style={{ fontSize: 13, fontWeight: 900, color: '#111827' }}>{tip.title}</span>
                     </div>
                     <p style={{ fontSize: 12, color: '#334155', fontWeight: 600, margin: 0, lineHeight: 1.5 }}>{tip.tip}</p>
                   </div>
@@ -9556,7 +9544,7 @@ export default function DashboardPage() {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 20px', borderBottom: '1px solid #f1f5f9', background: '#fff' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <span style={{ fontSize: 15, fontWeight: 700, color: '#0f172a' }}>Variant Photo Preview</span>
-                  <span style={{ fontSize: 11, background: '#f5f3ff', color: '#7c3aed', padding: '2px 8px', borderRadius: 6, fontWeight: 700 }}>Full Resolution</span>
+                  <span style={{ fontSize: 11, background: '#F9FAFB', color: '#111827', padding: '2px 8px', borderRadius: 6, fontWeight: 700 }}>Full Resolution</span>
                 </div>
                 <button
                   type="button"
@@ -9573,7 +9561,7 @@ export default function DashboardPage() {
               </div>
               <div style={{ padding: '12px 20px', background: '#f8fafc', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span style={{ fontSize: 12, color: '#64748b' }}>Click anywhere outside or press Close to dismiss</span>
-                <button type="button" onClick={() => setVariantZoomPhoto(null)} style={{ padding: '8px 20px', background: '#7c3aed', color: '#ffffff', border: '1px solid #6d28d9', borderRadius: 8, fontSize: 13, fontWeight: 800, cursor: 'pointer', boxShadow: 'none' }}>Close</button>
+                <button type="button" onClick={() => setVariantZoomPhoto(null)} style={{ padding: '8px 20px', background: '#111827', color: '#ffffff', border: '1px solid #1F2937', borderRadius: 8, fontSize: 13, fontWeight: 800, cursor: 'pointer', boxShadow: 'none' }}>Close</button>
               </div>
             </div>
           </div>
@@ -9584,10 +9572,10 @@ export default function DashboardPage() {
           <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.45)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200 }} onClick={() => setDeleteModal(null)}>
             <div style={{ background: '#ffffff', borderRadius: 16, padding: '36px 32px', maxWidth: 400, width: '90%', textAlign: 'center', border: '1px solid #e2e8f0', boxShadow: 'none' }} onClick={e => e.stopPropagation()}>
               <div style={{ marginBottom: 16 }}><IconWarning /></div>
-              <h3 style={{ fontSize: 18, fontWeight: 900, color: '#000000', marginBottom: 8 }}>Delete this item?</h3>
+              <h3 style={{ fontSize: 18, fontWeight: 900, color: '#111827', marginBottom: 8 }}>Delete this item?</h3>
               <p style={{ fontSize: 14, color: '#475569', marginBottom: 28, lineHeight: 1.5, fontWeight: 600 }}>This action cannot be undone. The item and its image will be permanently removed.</p>
               <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
-                <button onClick={() => setDeleteModal(null)} style={{ padding: '10px 24px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#ffffff', color: '#000000', fontWeight: 800, fontSize: 14, cursor: 'pointer', boxShadow: 'none' }}>Cancel</button>
+                <button onClick={() => setDeleteModal(null)} style={{ padding: '10px 24px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#ffffff', color: '#111827', fontWeight: 800, fontSize: 14, cursor: 'pointer', boxShadow: 'none' }}>Cancel</button>
                 <button onClick={() => handleDeleteItem(deleteModal)} style={{ padding: '10px 24px', borderRadius: 8, border: '1px solid #dc2626', background: '#ef4444', color: '#ffffff', fontWeight: 800, fontSize: 14, cursor: 'pointer', boxShadow: 'none', display: 'inline-flex', alignItems: 'center', gap: 6 }}><IconTrash /> Delete</button>
               </div>
             </div>
@@ -9599,10 +9587,10 @@ export default function DashboardPage() {
           <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.45)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200 }} onClick={() => setRejectOrderModal(null)}>
             <div style={{ background: '#ffffff', borderRadius: 16, padding: '36px 32px', maxWidth: 400, width: '90%', textAlign: 'center', border: '1px solid #e2e8f0', boxShadow: 'none' }} onClick={e => e.stopPropagation()}>
               <div style={{ marginBottom: 16 }}><IconWarning /></div>
-              <h3 style={{ fontSize: 18, fontWeight: 900, color: '#000000', marginBottom: 8 }}>Reject this order?</h3>
+              <h3 style={{ fontSize: 18, fontWeight: 900, color: '#111827', marginBottom: 8 }}>Reject this order?</h3>
               <p style={{ fontSize: 14, color: '#475569', marginBottom: 28, lineHeight: 1.5, fontWeight: 600 }}>Are you sure you want to reject this order? The buyer will be notified and this action cannot be undone.</p>
               <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
-                <button onClick={() => setRejectOrderModal(null)} style={{ padding: '10px 24px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#ffffff', color: '#000000', fontWeight: 800, fontSize: 14, cursor: 'pointer', boxShadow: 'none' }}>Cancel</button>
+                <button onClick={() => setRejectOrderModal(null)} style={{ padding: '10px 24px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#ffffff', color: '#111827', fontWeight: 800, fontSize: 14, cursor: 'pointer', boxShadow: 'none' }}>Cancel</button>
                 <button onClick={confirmRejectOrder} style={{ padding: '10px 24px', borderRadius: 8, border: '1px solid #dc2626', background: '#ef4444', color: '#ffffff', fontWeight: 800, fontSize: 14, cursor: 'pointer', boxShadow: 'none', display: 'inline-flex', alignItems: 'center', gap: 6 }}>Reject Order</button>
               </div>
             </div>
@@ -9625,8 +9613,8 @@ export default function DashboardPage() {
             const vatAmount = subtotal * 0.12;
             const isCancelledReceipt = ['cancelled', 'rejected'].includes(receiptOrder.status);
             const isDeliveredReceipt = ['delivered', 'completed'].includes(receiptOrder.status);
-            const accentColor = isCancelledReceipt ? '#ef4444' : isDeliveredReceipt ? '#10b981' : '#7c3aed';
-            const accentLight = isCancelledReceipt ? '#fef2f2' : isDeliveredReceipt ? '#ecfdf5' : '#f5f3ff';
+            const accentColor = isCancelledReceipt ? '#ef4444' : isDeliveredReceipt ? '#10b981' : '#111827';
+            const accentLight = isCancelledReceipt ? '#fef2f2' : isDeliveredReceipt ? '#ecfdf5' : '#F9FAFB';
             const statusLabel = isCancelledReceipt ? 'CANCELLED' : isDeliveredReceipt ? 'DELIVERED' : receiptOrder.status.toUpperCase();
 
             return (
@@ -9682,7 +9670,7 @@ export default function DashboardPage() {
                         <div style={{ fontSize: 13, fontWeight: 700, color: '#0f172a', marginBottom: 2 }}>{buyerName}</div>
                         <div style={{ fontSize: 11, color: '#64748b', marginBottom: 2, wordBreak: 'break-all' }}>{buyerEmail}</div>
                         <div style={{ fontSize: 11, color: '#64748b', display: 'flex', alignItems: 'flex-start', gap: 4 }}>
-                          <span>📍</span><span>{deliveryAddress}</span>
+                          <span>{deliveryAddress}</span>
                         </div>
                       </div>
                       <div style={{ background: '#f8fafc', borderRadius: 12, padding: '12px 14px', border: '1px solid #f1f5f9' }}>
@@ -9748,7 +9736,7 @@ export default function DashboardPage() {
                       </div>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: `2px solid ${accentColor}25`, paddingTop: 10, marginTop: 2 }}>
                         <span style={{ fontSize: 14, fontWeight: 800, color: '#0f172a' }}>Total {isCancelledReceipt ? 'Order Value' : 'Amount Paid'}:</span>
-                        <span style={{ fontSize: 22, fontWeight: 900, color: isCancelledReceipt ? '#ef4444' : '#ee4d2d', textDecoration: isCancelledReceipt ? 'line-through' : 'none', opacity: isCancelledReceipt ? 0.6 : 1 }}>₱{subtotal.toFixed(2)}</span>
+                        <span style={{ fontSize: 22, fontWeight: 900, color: isCancelledReceipt ? '#ef4444' : '#111827', textDecoration: isCancelledReceipt ? 'line-through' : 'none', opacity: isCancelledReceipt ? 0.6 : 1 }}>₱{subtotal.toFixed(2)}</span>
                       </div>
                       {isCancelledReceipt && (
                         <div style={{ background: '#fef2f2', border: '1px solid #fee2e2', borderRadius: 10, padding: '8px 14px', display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: '#b91c1c', fontWeight: 600 }}>
@@ -9785,7 +9773,7 @@ export default function DashboardPage() {
                     <div className="receipt-actions no-print" style={{ display: 'flex', gap: 10 }}>
                       <button
                         type="button"
-                        style={{ flex: 1, padding: '12px', background: '#7c3aed', color: '#fff', border: '1px solid #6d28d9', borderRadius: 8, cursor: 'pointer', fontWeight: 800, fontSize: 13, boxShadow: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
+                        style={{ flex: 1, padding: '12px', background: '#111827', color: '#fff', border: '1px solid #1F2937', borderRadius: 8, cursor: 'pointer', fontWeight: 800, fontSize: 13, boxShadow: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
                         onClick={() => window.print()}
                       >
                         <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
@@ -9793,7 +9781,7 @@ export default function DashboardPage() {
                       </button>
                       <button
                         type="button"
-                        style={{ padding: '12px 22px', background: '#f1f5f9', color: '#000000', border: '1px solid #e2e8f0', borderRadius: 8, cursor: 'pointer', fontWeight: 800, fontSize: 13, boxShadow: 'none' }}
+                        style={{ padding: '12px 22px', background: '#f1f5f9', color: '#111827', border: '1px solid #e2e8f0', borderRadius: 8, cursor: 'pointer', fontWeight: 800, fontSize: 13, boxShadow: 'none' }}
                         onClick={() => setReceiptOrder(null)}
                       >
                         Close
@@ -9848,7 +9836,7 @@ export default function DashboardPage() {
                   {/* MODAL HEADER */}
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #f1f5f9', paddingBottom: 16, marginBottom: 20 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                      <div style={{ width: 40, height: 40, borderRadius: 12, background: 'linear-gradient(135deg, #7c3aed, #4f46e5)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <div style={{ width: 40, height: 40, borderRadius: 12, background: '#111827', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24"><path d="M1 3h15v13H1z"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
                       </div>
                       <div>
@@ -9869,7 +9857,7 @@ export default function DashboardPage() {
                   <div style={{ background: '#f8fafc', borderRadius: 14, padding: 16, border: '1px solid #e2e8f0', marginBottom: 20, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
                     <div>
                       <div style={{ fontSize: 11, color: '#64748b', fontWeight: 600 }}>Tracking Reference</div>
-                      <div style={{ fontSize: 15, fontWeight: 800, color: '#7c3aed', fontFamily: 'monospace' }}>{trackingNum}</div>
+                      <div style={{ fontSize: 15, fontWeight: 800, color: '#111827', fontFamily: 'monospace' }}>{trackingNum}</div>
                       <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>Order ID: #{orderCode}</div>
                     </div>
                     <button
@@ -9884,9 +9872,9 @@ export default function DashboardPage() {
                       style={{
                         padding: '7px 14px',
                         borderRadius: 8,
-                        border: '1px solid #7c3aed',
-                        background: copiedTracking ? '#7c3aed' : '#f5f3ff',
-                        color: copiedTracking ? '#fff' : '#7c3aed',
+                        border: '1px solid #111827',
+                        background: copiedTracking ? '#111827' : '#F9FAFB',
+                        color: copiedTracking ? '#fff' : '#111827',
                         fontSize: 12,
                         fontWeight: 700,
                         cursor: 'pointer',
@@ -9908,8 +9896,8 @@ export default function DashboardPage() {
                     alignItems: 'center',
                     gap: 12
                   }}>
-                    <span style={{ fontSize: 24 }}>
-                      {isCancelled ? '❌' : step === 4 ? '🎉' : step === 3 ? '🚚' : step === 2 ? '📦' : '⏳'}
+                    <span style={{ width: 36, height: 36, borderRadius: 10, background: isCancelled ? '#FEE2E2' : step === 4 ? '#D1FAE5' : '#DBEAFE', color: isCancelled ? '#991B1B' : step === 4 ? '#065F46' : '#1E40AF', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 14, flexShrink: 0 }}>
+                      {isCancelled ? '✕' : step === 4 ? '✓' : `${step}/4`}
                     </span>
                     <div>
                       <div style={{ fontSize: 14, fontWeight: 800, color: isCancelled ? '#991b1b' : step === 4 ? '#065f46' : '#1e40af' }}>
@@ -9971,7 +9959,7 @@ export default function DashboardPage() {
                           width: 24,
                           height: 24,
                           borderRadius: '50%',
-                          background: cp.isCurrent ? (step === 4 ? '#10b981' : '#7c3aed') : cp.active ? (step === 4 ? '#10b981' : '#7c3aed') : '#fff',
+                          background: cp.isCurrent ? (step === 4 ? '#10b981' : '#111827') : cp.active ? (step === 4 ? '#10b981' : '#111827') : '#fff',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
@@ -10005,7 +9993,7 @@ export default function DashboardPage() {
 
                   {/* DESTINATION SUMMARY */}
                   <div style={{ background: '#f8fafc', padding: '12px 16px', borderRadius: 12, border: '1px solid #f1f5f9', marginBottom: 20, fontSize: 12, color: '#475569' }}>
-                    <div style={{ fontWeight: 700, color: '#0f172a', marginBottom: 2 }}>📍 Delivery Destination:</div>
+                    <div style={{ fontWeight: 700, color: '#0f172a', marginBottom: 2 }}>Delivery Destination</div>
                     <div>{deliveryAddress}</div>
                   </div>
 
@@ -10017,14 +10005,14 @@ export default function DashboardPage() {
                         setTrackingOrder(null);
                         handleContactSeller(trackingOrder.seller);
                       }}
-                      style={{ flex: 1, padding: '11px', background: '#fff', color: '#000000', border: '1px solid #e2e8f0', borderRadius: 8, cursor: 'pointer', fontWeight: 800, fontSize: 13 }}
+                      style={{ flex: 1, padding: '11px', background: '#fff', color: '#111827', border: '1px solid #e2e8f0', borderRadius: 8, cursor: 'pointer', fontWeight: 800, fontSize: 13 }}
                     >
-                      💬 Contact Seller
+                      Contact Seller
                     </button>
                     <button
                       type="button"
                       onClick={() => setTrackingOrder(null)}
-                      style={{ flex: 1, padding: '11px', background: '#7c3aed', color: '#fff', border: '1px solid #6d28d9', borderRadius: 8, cursor: 'pointer', fontWeight: 800, fontSize: 13, boxShadow: 'none' }}
+                      style={{ flex: 1, padding: '11px', background: '#111827', color: '#fff', border: '1px solid #1F2937', borderRadius: 8, cursor: 'pointer', fontWeight: 800, fontSize: 13, boxShadow: 'none' }}
                     >
                       Done
                     </button>
@@ -10086,7 +10074,7 @@ export default function DashboardPage() {
                   type="button"
                   onClick={() => setCancelModalOrder(null)}
                   disabled={cancellingOrder}
-                  style={{ flex: 1, padding: '11px', background: '#fff', color: '#000000', border: '1px solid #e2e8f0', borderRadius: 8, cursor: 'pointer', fontWeight: 800, fontSize: 13 }}
+                  style={{ flex: 1, padding: '11px', background: '#fff', color: '#111827', border: '1px solid #e2e8f0', borderRadius: 8, cursor: 'pointer', fontWeight: 800, fontSize: 13 }}
                 >
                   Keep Order
                 </button>
@@ -10140,7 +10128,7 @@ export default function DashboardPage() {
                 <div>
                   <div style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', lineHeight: 1.3 }}>{reviewModalOrder.item.name}</div>
                   {reviewModalOrder.variation && (
-                    <div style={{ fontSize: 11, color: '#7c3aed', fontWeight: 600 }}>Variation: {reviewModalOrder.variation}</div>
+                    <div style={{ fontSize: 11, color: '#111827', fontWeight: 600 }}>Variation: {reviewModalOrder.variation}</div>
                   )}
                 </div>
               </div>
@@ -10169,11 +10157,11 @@ export default function DashboardPage() {
                   ))}
                 </div>
                 <div style={{ fontSize: 12, fontWeight: 700, color: '#f59e0b', marginTop: 4 }}>
-                  {reviewRating === 5 && "⭐⭐⭐⭐⭐ Outstanding! Highly Recommended"}
-                  {reviewRating === 4 && "⭐⭐⭐⭐ Very Good! Happy with purchase"}
-                  {reviewRating === 3 && "⭐⭐⭐ Satisfactory / Average"}
-                  {reviewRating === 2 && "⭐⭐ Needs Improvement"}
-                  {reviewRating === 1 && "⭐ Disappointed"}
+                  {reviewRating === 5 && "5/5 — Outstanding, highly recommended"}
+                  {reviewRating === 4 && "4/5 — Very good, happy with purchase"}
+                  {reviewRating === 3 && "3/5 — Satisfactory"}
+                  {reviewRating === 2 && "2/5 — Needs improvement"}
+                  {reviewRating === 1 && "1/5 — Disappointed"}
                 </div>
               </div>
 
@@ -10197,7 +10185,7 @@ export default function DashboardPage() {
                   type="button"
                   onClick={() => setReviewModalOrder(null)}
                   disabled={submittingReview}
-                  style={{ flex: 1, padding: '11px', background: '#fff', color: '#000000', border: '1px solid #e2e8f0', borderRadius: 8, cursor: 'pointer', fontWeight: 800, fontSize: 13 }}
+                  style={{ flex: 1, padding: '11px', background: '#fff', color: '#111827', border: '1px solid #e2e8f0', borderRadius: 8, cursor: 'pointer', fontWeight: 800, fontSize: 13 }}
                 >
                   Cancel
                 </button>
@@ -10205,7 +10193,7 @@ export default function DashboardPage() {
                   type="button"
                   onClick={handleSubmitReview}
                   disabled={submittingReview}
-                  style={{ flex: 1, padding: '11px', background: '#f59e0b', color: '#000000', border: '1px solid #d97706', borderRadius: 8, cursor: submittingReview ? 'wait' : 'pointer', fontWeight: 800, fontSize: 13, boxShadow: 'none' }}
+                  style={{ flex: 1, padding: '11px', background: '#f59e0b', color: '#111827', border: '1px solid #d97706', borderRadius: 8, cursor: submittingReview ? 'wait' : 'pointer', fontWeight: 800, fontSize: 13, boxShadow: 'none' }}
                 >
                   {submittingReview ? 'Submitting...' : 'Post Review'}
                 </button>
@@ -10361,7 +10349,7 @@ export default function DashboardPage() {
                       position: 'absolute',
                       inset: -20,
                       borderRadius: '50%',
-                      border: '2px solid #7c3aed',
+                      border: '2px solid #111827',
                       animation: 'pulse 1.8s infinite'
                     }}
                   />
@@ -10371,12 +10359,12 @@ export default function DashboardPage() {
                       alt="" 
                       onError={(e) => {
                         e.currentTarget.onerror = null;
-                        e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(activeCall.user?.name || "User")}&background=7c3aed&color=ffffff&bold=true`;
+                        e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(activeCall.user?.name || "User")}&background=111827&color=ffffff&bold=true`;
                       }}
                       style={{ width: 120, height: 120, borderRadius: '50%', objectFit: 'cover', border: '4px solid #fff', position: 'relative', zIndex: 10 }}
                     />
                   ) : (
-                    <div style={{ width: 120, height: 120, borderRadius: '50%', background: '#7c3aed', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 44, border: '4px solid #fff', position: 'relative', zIndex: 10 }}>
+                    <div style={{ width: 120, height: 120, borderRadius: '50%', background: '#111827', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 44, border: '4px solid #fff', position: 'relative', zIndex: 10 }}>
                       {activeCall.user.name.charAt(0).toUpperCase()}
                     </div>
                   )}
@@ -10429,20 +10417,20 @@ export default function DashboardPage() {
                     />
                   ) : (
                     // Video loading placeholder
-                    <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #1e1b4b, #0f172a)', gap: 20 }}>
-                      <div className="pulse-ring" style={{ position: 'absolute', width: 160, height: 160, borderRadius: '50%', border: '2px solid rgba(124, 58, 237, 0.4)', animation: 'pulse 2s infinite' }} />
+                    <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#0F172A', gap: 20 }}>
+                      <div className="pulse-ring" style={{ position: 'absolute', width: 160, height: 160, borderRadius: '50%', border: '2px solid rgba(16, 185, 129, 0.45)', animation: 'pulse 2s infinite' }} />
                       {activeCall.user.avatar ? (
                         <img 
                           src={getAvatarUrl(activeCall.user.avatar)} 
                           alt="" 
                           onError={(e) => {
                             e.currentTarget.onerror = null;
-                            e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(activeCall.user?.name || "User")}&background=7c3aed&color=ffffff&bold=true`;
+                            e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(activeCall.user?.name || "User")}&background=111827&color=ffffff&bold=true`;
                           }}
                           style={{ width: 120, height: 120, borderRadius: '50%', objectFit: 'cover', border: '4px solid rgba(255,255,255,0.1)', position: 'relative', zIndex: 10 }}
                         />
                       ) : (
-                        <div style={{ width: 120, height: 120, borderRadius: '50%', background: '#7c3aed', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 44, border: '4px solid rgba(255,255,255,0.1)', position: 'relative', zIndex: 10 }}>
+                        <div style={{ width: 120, height: 120, borderRadius: '50%', background: '#111827', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 44, border: '4px solid rgba(255,255,255,0.1)', position: 'relative', zIndex: 10 }}>
                           {activeCall.user.name.charAt(0).toUpperCase()}
                         </div>
                       )}
@@ -10482,7 +10470,7 @@ export default function DashboardPage() {
                     />
                   ) : (
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, color: '#64748b', fontSize: 11 }}>
-                      👤 <span style={{ fontSize: 10 }}>Camera Off</span>
+                      <span style={{ fontSize: 11, fontWeight: 600 }}>Camera Off</span>
                     </div>
                   )}
                   {/* Label overlay */}
@@ -10805,7 +10793,7 @@ export default function DashboardPage() {
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{
-                    background: '#7c3aed',
+                    background: '#111827',
                     color: '#fff',
                     textDecoration: 'none',
                     borderRadius: 20,

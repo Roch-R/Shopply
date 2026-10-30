@@ -115,43 +115,43 @@ const isFootwearCategory = (cat?: string | null) => {
 
 const BANNERS = [
   {
-    badge: "🔥 MEGA PAYDAY 9.21 SALE | LIVE NOW",
-    badgeBg: "#ef4444",
-    title: "UP TO 70% OFF + ₱0 MIN SPEND FREE SHIPPING",
-    subtitle: "Mega price cuts on premium tech, trending streetwear, and lifestyle favorites from verified Philippine sellers.",
+    badge: "SEASONAL ESSENTIALS",
+    badgeBg: "#0D6847",
+    title: "Everyday Tech, Apparel & Home Favorites",
+    subtitle: "Direct pricing from verified Philippine merchants with transparent inventory and nationwide Cash on Delivery.",
     voucher: "CODE: SHOPPLY70",
     voucherCode: "SHOPPLY70",
-    shipping: "FREE SHIPPING VOUCHER",
-    gradient: "linear-gradient(135deg, #7c3aed 0%, #6366f1 50%, #d946ef 100%)",
-    primaryBtn: "Shop Mega Deals →",
-    secondaryBtn: "⚡ Flash Drops",
-    tag: "70% OFF"
+    shipping: "FREE SHIPPING ELIGIBLE",
+    gradient: "linear-gradient(135deg, #111827 0%, #1F2937 100%)",
+    primaryBtn: "Browse Collection",
+    secondaryBtn: "Daily Markdowns",
+    tag: "UP TO 70% OFF"
   },
   {
-    badge: "💎 SHOPPLY OFFICIAL MALL",
-    badgeBg: "#10b981",
-    title: "100% AUTHENTIC BRANDS & DIRECT WHOLESALE",
-    subtitle: "Shop guaranteed authentic items with 7-day hassle-free returns, official store warranty, and verified buyer reviews.",
+    badge: "VERIFIED MERCHANTS",
+    badgeBg: "#111827",
+    title: "Authentic Local Brands & Direct Storefronts",
+    subtitle: "Shop verified catalogs backed by 7-day return protection, direct seller chat, and verified customer reviews.",
     voucher: "CODE: MALLAUTHENTIC",
     voucherCode: "MALLAUTHENTIC",
-    shipping: "7-DAY FREE RETURNS",
-    gradient: "linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #4338ca 100%)",
-    primaryBtn: "Explore Official Mall →",
-    secondaryBtn: "🛡️ Buyer Protection",
-    tag: "100% AUTHENTIC"
+    shipping: "7-DAY RETURN PROTECTION",
+    gradient: "linear-gradient(135deg, #064E3B 0%, #0D6847 100%)",
+    primaryBtn: "Explore Verified Stores",
+    secondaryBtn: "Buyer Guarantee",
+    tag: "VERIFIED STORES"
   },
   {
-    badge: "⚡ 24/7 FLASH DEALS & CRAZY DROPS",
-    badgeBg: "#f59e0b",
-    title: "LIMITED STOCK FLASH DEALS STARTING AT ₱49",
-    subtitle: "Lowest price guarantee refreshed every 4 hours! Grab tech accessories, footwear, and apparel before timer expires.",
+    badge: "LIMITED-TIME MARKDOWNS",
+    badgeBg: "#B45309",
+    title: "Daily Store Markdowns Starting at ₱49",
+    subtitle: "Updated daily across electronics, footwear, and everyday essentials with fast local dispatch.",
     voucher: "CODE: FLASHDROP49",
     voucherCode: "FLASHDROP49",
     shipping: "CASH ON DELIVERY",
-    gradient: "linear-gradient(135deg, #dc2626 0%, #ea580c 50%, #f59e0b 100%)",
-    primaryBtn: "Grab Flash Deals ⚡",
-    secondaryBtn: "⏰ View Schedule",
-    tag: "FLASH SALE"
+    gradient: "linear-gradient(135deg, #1E293B 0%, #334155 100%)",
+    primaryBtn: "Shop Markdowns",
+    secondaryBtn: "View All Items",
+    tag: "LIMITED STOCK"
   }
 ];
 
@@ -167,17 +167,45 @@ const TRENDING_KEYWORDS = [
 ];
 
 const CURATED_CATEGORIES = [
-  { id: "All", label: "All Items", icon: "⚡", color: "#7c3aed" },
-  { id: "Electronics", label: "Electronics", icon: "📱", color: "#2563eb" },
-  { id: "Footwear", label: "Shoes & Footwear", icon: "👟", color: "#f97316" },
-  { id: "Fashion", label: "Fashion & Apparel", icon: "👗", color: "#ec4899" },
-  { id: "Beauty", label: "Health & Beauty", icon: "💄", color: "#e11d48" },
-  { id: "Home", label: "Home & Living", icon: "🏡", color: "#10b981" },
-  { id: "Accessories", label: "Watches & Bags", icon: "⌚", color: "#8b5cf6" },
-  { id: "Sports", label: "Sports & Fitness", icon: "⚽", color: "#06b6d4" },
-  { id: "Groceries", label: "Groceries & Food", icon: "🛒", color: "#84cc16" },
-  { id: "Gaming", label: "Gaming & Hobbies", icon: "🎮", color: "#6366f1" }
+  { id: "All", label: "All Items" },
+  { id: "Electronics", label: "Electronics" },
+  { id: "Footwear", label: "Footwear" },
+  { id: "Fashion", label: "Apparel" },
+  { id: "Beauty", label: "Personal Care" },
+  { id: "Home", label: "Home & Living" },
+  { id: "Accessories", label: "Bags & Watches" },
+  { id: "Sports", label: "Sports" },
+  { id: "Groceries", label: "Pantry" },
+  { id: "Gaming", label: "Gaming" }
 ];
+
+const renderCategorySvg = (id: string) => {
+  const props = { width: 18, height: 18, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.8, strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
+  switch (id) {
+    case "All":
+      return <svg {...props}><rect x="3" y="3" width="7" height="7" rx="1.5" /><rect x="14" y="3" width="7" height="7" rx="1.5" /><rect x="3" y="14" width="7" height="7" rx="1.5" /><rect x="14" y="14" width="7" height="7" rx="1.5" /></svg>;
+    case "Electronics":
+      return <svg {...props}><rect x="5" y="2" width="14" height="20" rx="2.5" /><line x1="12" y1="18" x2="12.01" y2="18" /></svg>;
+    case "Footwear":
+      return <svg {...props}><path d="M3 16l2-6 5 2 5-4 6 5v3a2 2 0 01-2 2H5a2 2 0 01-2-2z" /></svg>;
+    case "Fashion":
+      return <svg {...props}><path d="M20.38 3.46L16 2a4 4 0 01-8 0L3.62 3.46a2 2 0 00-1.34 2.23l.58 3.47a1 1 0 00.99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 002-2V10h2.15a1 1 0 00.99-.84l.58-3.47a2 2 0 00-1.34-2.23z" /></svg>;
+    case "Beauty":
+      return <svg {...props}><path d="M9 3h6v4H9zM7 7h10v14H7z" /><line x1="12" y1="11" x2="12" y2="17" /></svg>;
+    case "Home":
+      return <svg {...props}><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>;
+    case "Accessories":
+      return <svg {...props}><circle cx="12" cy="12" r="6" /><polyline points="12 9 12 12 14 14" /><path d="M9 2h6M9 22h6" /></svg>;
+    case "Sports":
+      return <svg {...props}><circle cx="12" cy="12" r="9" /><path d="M4.6 4.6c4 4 4 10.8 0 14.8M19.4 4.6c-4 4-4 10.8 0 14.8" /></svg>;
+    case "Groceries":
+      return <svg {...props}><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" /><line x1="3" y1="6" x2="21" y2="6" /><path d="M16 10a4 4 0 01-8 0" /></svg>;
+    case "Gaming":
+      return <svg {...props}><rect x="2" y="6" width="20" height="12" rx="4" /><path d="M6 12h4M8 10v4M15 11h.01M18 13h.01" /></svg>;
+    default:
+      return <svg {...props}><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z" /><line x1="7" y1="7" x2="7.01" y2="7" /></svg>;
+  }
+};
 
 export default function ShopPage() {
   const router = useRouter();
@@ -245,17 +273,17 @@ export default function ShopPage() {
   if (access === "allowed") return <MarketplaceContent />;
 
   return (
-    <main style={{ minHeight: "100vh", background: "#f5f7ff", display: "grid", placeItems: "center", padding: 24 }}>
-      <div role="status" aria-live="polite" style={{ textAlign: "center", color: "#334155" }}>
+    <main style={{ minHeight: "100vh", background: "#F7F7F5", display: "grid", placeItems: "center", padding: 24 }}>
+      <div role="status" aria-live="polite" style={{ textAlign: "center", color: "#374151" }}>
         {access === "error" ? (
           <>
             <p>We couldn’t connect to your account. Please try again.</p>
-            <button type="button" onClick={() => { setAccess("checking"); setAttempt(value => value + 1); }} style={{ marginTop: 16, padding: "12px 24px", border: 0, borderRadius: 12, background: "#7c3aed", color: "white", cursor: "pointer" }}>
+            <button type="button" onClick={() => { setAccess("checking"); setAttempt(value => value + 1); }} style={{ marginTop: 16, padding: "11px 22px", border: 0, borderRadius: 8, background: "#111827", color: "#FFFFFF", fontWeight: 600, cursor: "pointer" }}>
               Try again
             </button>
           </>
         ) : (
-          <div style={{ width: 36, height: 36, border: "3px solid #e2e8f0", borderTopColor: "#7c3aed", borderRadius: "50%", animation: "spin .7s linear infinite", margin: "0 auto" }} />
+          <div style={{ width: 32, height: 32, border: "2.5px solid #E5E7EB", borderTopColor: "#111827", borderRadius: "50%", animation: "spin .7s linear infinite", margin: "0 auto" }} />
         )}
       </div>
     </main>
@@ -299,7 +327,7 @@ function MarketplaceContent() {
   }>({
     is_active: true,
     end_time: new Date(Date.now() + 4 * 3600 * 1000).toISOString(),
-    badge_text: "🔥 Up to 50% OFF Limited Time",
+    badge_text: "Up to 50% OFF Limited Time",
     coupon_code: "FLASHDROP49",
     discount_type: "fixed",
     discount_value: 49,
@@ -323,7 +351,7 @@ function MarketplaceContent() {
           setFlashConfig({
             is_active: data.is_active !== false && !isExpired,
             end_time: data.end_time || new Date(Date.now() + 4 * 3600 * 1000).toISOString(),
-            badge_text: data.badge_text || "🔥 Up to 50% OFF Limited Time",
+            badge_text: data.badge_text || "Up to 50% OFF Limited Time",
             coupon_code: data.coupon_code || undefined,
             discount_type: data.discount_type || undefined,
             discount_value: data.discount_value !== undefined ? Number(data.discount_value) : undefined,
@@ -346,7 +374,7 @@ function MarketplaceContent() {
               setFlashConfig({
                 is_active: d.data.is_active !== false && !isExpired,
                 end_time: d.data.end_time || new Date(Date.now() + 4 * 3600 * 1000).toISOString(),
-                badge_text: d.data.badge_text || "🔥 Up to 50% OFF Limited Time",
+                badge_text: d.data.badge_text || "Up to 50% OFF Limited Time",
                 coupon_code: d.data.coupon_code || undefined,
                 discount_type: d.data.discount_type || undefined,
                 discount_value: d.data.discount_value !== undefined ? Number(d.data.discount_value) : undefined,
@@ -406,7 +434,7 @@ function MarketplaceContent() {
     setTimeout(() => setCopiedVoucher(null), 3500);
 
     const desc = discountDesc ? ` (${discountDesc})` : "";
-    setSuccessMsg(`🎉 Voucher "${cleanCode}" claimed & active!${desc} Will be auto-applied at checkout.`);
+    setSuccessMsg(`Voucher "${cleanCode}" claimed${desc}. Auto-applied at checkout.`);
     setTimeout(() => setSuccessMsg(null), 4000);
   };
 
@@ -453,7 +481,7 @@ function MarketplaceContent() {
               code: (data.code || docSnap.id).toUpperCase(),
               title: data.title || "Welcome Voucher",
               description: data.description || "Enjoy discount on your marketplace checkout!",
-              badge: data.badge || "🎁 PROMO PACK",
+              badge: data.badge || "PROMO VOUCHER",
               discount_type: data.discount_type || "fixed",
               discount_value: Number(data.discount_value ?? data.discount ?? 100),
               discount: Number(data.discount ?? data.discount_value ?? 10),
@@ -492,7 +520,7 @@ function MarketplaceContent() {
         code: linkedCode,
         title: "Flash Deals Linked Voucher",
         description: `Enjoy ${isPercent ? `${val}% OFF` : `₱${val} OFF`} on your Flash Deals purchase!`,
-        badge: "⚡ FLASH DEALS",
+        badge: "FLASH OFFER",
         discount_type: flashConfig.discount_type || "percent",
         discount_value: val,
         discount: val,
@@ -1747,80 +1775,78 @@ function MarketplaceContent() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         html, body{max-width:100%;overflow-x:hidden}
         *{box-sizing:border-box;margin:0;padding:0}
-        body{background:#f5f7ff;font-family:'Inter',sans-serif}
-        input, textarea { color: #0f172a !important; font-family: 'Inter', sans-serif; }
-        .root{min-height:100vh;background:linear-gradient(135deg,#f0f4ff 0%,#faf5ff 50%,#f0f9ff 100%)}
-        .nav{background:#fff;border-bottom:1px solid #e2e8f0;padding:0 32px;height:64px;
+        body{background:#F8F9FA;color:#111827;font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;-webkit-font-smoothing:antialiased}
+        input, textarea { color: #111827 !important; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+        .root{min-height:100vh;background:#F8F9FA}
+        .nav{background:#FFFFFF;border-bottom:1px solid #E5E7EB;padding:0 32px;height:68px;
           display:flex;align-items:center;justify-content:space-between;
-          box-shadow:0 1px 8px rgba(0,0,0,.04);position:sticky;top:0;z-index:50}
+          position:sticky;top:0;z-index:50}
         .nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
-        .logo-text{font-size:17px;font-weight:700;color:#0f172a;letter-spacing:-.3px}
-        .nav-right{display:flex;align-items:center;gap:16px}
-        .nav-link{font-size:13px;font-weight:500;color:#64748b;text-decoration:none;
-          padding:6px 12px;border-radius:8px;transition:all .2s}
-        .nav-link:hover{color:#7c3aed;background:rgba(124,58,237,.06)}
-        .login-btn{padding:8px 16px;background:linear-gradient(135deg,#7c3aed,#2563eb);
-          border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:600;
-          font-family:'Inter',sans-serif;cursor:pointer;transition:all .2s;text-decoration:none}
-        .login-btn:hover{opacity:.85;transform:translateY(-1px)}
+        .logo-text{font-family:'Plus Jakarta Sans','Inter',sans-serif;font-size:18px;font-weight:800;color:#111827;letter-spacing:-0.03em}
+        .nav-right{display:flex;align-items:center;gap:12px}
+        .nav-link{font-size:13.5px;font-weight:500;color:#4B5563;text-decoration:none;
+          padding:6px 12px;border-radius:8px;transition:all .15s}
+        .nav-link:hover{color:#111827;background:#F3F4F6}
+        .login-btn{padding:8px 16px;background:#111827;
+          border:1px solid #111827;border-radius:8px;color:#fff;font-size:13.5px;font-weight:600;
+          cursor:pointer;transition:background .15s;text-decoration:none}
+        .login-btn:hover{background:#1F2937}
         
-        .main{max-width:1200px;margin:0 auto;padding:40px 24px}
-        .header{text-align:center;margin-bottom:48px}
-        .title{font-size:46px;font-weight:800;color:#0f172a;letter-spacing:-1px;margin-bottom:16px}
-        .subtitle{font-size:16px;color:#64748b;max-width:600px;margin:0 auto;line-height:1.6}
+        .main{max-width:1240px;margin:0 auto;padding:28px 24px 48px}
+        .header{text-align:center;margin-bottom:40px}
+        .title{font-family:'Plus Jakarta Sans','Inter',sans-serif;font-size:40px;font-weight:800;color:#111827;letter-spacing:-0.03em;margin-bottom:12px}
+        .subtitle{font-size:15px;color:#6B7280;max-width:600px;margin:0 auto;line-height:1.6}
         
-        .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:24px}
-        .item-card{background:#fff;border-radius:18px;overflow:hidden;
-          box-shadow:0 4px 20px rgba(0,0,0,.04);border:1px solid #f1f5f9;transition:all .3s ease;
+        .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:20px}
+        .item-card{background:#FFFFFF;border-radius:12px;overflow:hidden;
+          box-shadow:0 1px 2px rgba(17,24,39,.03);border:1px solid #E5E7EB;transition:border-color .2s ease, box-shadow .2s ease, transform .2s ease;
           display:flex;flex-direction:column;justify-content:space-between}
-        .item-card:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(124,58,237,.12);border-color:rgba(124,58,237,.2)}
-        .item-card-img{width:100%;height:220px;object-fit:cover;display:block}
-        .item-image-placeholder{height:220px;background:linear-gradient(135deg,#f8fafc,#e2e8f0);
-          display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:48px}
-        .item-content{padding:18px;flex-grow:1;display:flex;flex-direction:column;justify-content:space-between}
-        .item-name{font-size:15px;font-weight:700;color:#0f172a;margin-bottom:6px;line-height:1.3}
+        .item-card:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(17,24,39,.06);border-color:#D1D5DB}
+        .item-card-img{width:100%;height:220px;object-fit:cover;display:block;background:#F3F4F6}
+        .item-image-placeholder{height:220px;background:#F3F4F6;
+          display:flex;align-items:center;justify-content:center;color:#9CA3AF;font-size:40px}
+        .item-content{padding:16px;flex-grow:1;display:flex;flex-direction:column;justify-content:space-between}
+        .item-name{font-size:14.5px;font-weight:600;color:#111827;margin-bottom:6px;line-height:1.35}
         .item-desc{display:none}
         .item-footer{display:flex;align-items:center;justify-content:space-between;
-          padding-top:12px;border-top:1px solid #f1f5f9}
-        .item-price{font-size:18px;font-weight:800;color:#ee4d2d}
+          padding-top:12px;border-top:1px solid #F3F4F6}
+        .item-price{font-family:'Plus Jakarta Sans','Inter',sans-serif;font-size:17px;font-weight:800;color:#111827;font-variant-numeric:tabular-nums;letter-spacing:-0.01em}
         .item-seller{display:none}
         
-        .buy-btn{padding:8px 10px;background:linear-gradient(135deg,#7c3aed,#4f46e5);
-          border:none;border-radius:8px;color:#fff;font-size:12px;font-weight:600;
-          font-family:'Inter',sans-serif;cursor:pointer;transition:all .2s;
-          display:inline-flex;align-items:center;justify-content:center;gap:4px;
-          box-shadow:0 3px 12px rgba(124,58,237,.3);flex:1}
-        .buy-btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(124,58,237,.4)}
+        .buy-btn{padding:8px 10px;background:#111827;
+          border:1px solid #111827;border-radius:8px;color:#fff;font-size:12.5px;font-weight:600;
+          cursor:pointer;transition:background .15s;
+          display:inline-flex;align-items:center;justify-content:center;gap:5px;flex:1}
+        .buy-btn:hover{background:#1F2937}
         
-        .add-cart-btn{padding:8px 10px;background:#fff;border:1.5px solid #7c3aed;
-          color:#7c3aed;border-radius:8px;font-size:12px;font-weight:600;
-          font-family:'Inter',sans-serif;cursor:pointer;transition:all .2s;
-          display:inline-flex;align-items:center;justify-content:center;gap:4px;flex:1}
-        .add-cart-btn:hover{background:#f5f3ff;transform:translateY(-1px)}
+        .add-cart-btn{padding:8px 10px;background:#FFFFFF;border:1px solid #D1D5DB;
+          color:#111827;border-radius:8px;font-size:12.5px;font-weight:600;
+          cursor:pointer;transition:background .15s, border-color .15s;
+          display:inline-flex;align-items:center;justify-content:center;gap:5px;flex:1}
+        .add-cart-btn:hover{background:#F3F4F6;border-color:#9CA3AF}
           
         .cart-nav-icon{position:relative;display:flex;align-items:center;justify-content:center;
-          width:40px;height:40px;border-radius:50%;color:#64748b;transition:all .2s;text-decoration:none}
-        .cart-nav-icon:hover{background:#f1f5f9;color:#7c3aed}
-        .cart-badge{position:absolute;top:2px;right:0;background:#ef4444;color:#fff;
-          font-size:10px;font-weight:700;width:18px;height:18px;border-radius:50%;
-          display:flex;align-items:center;justify-content:center;border:2px solid #fff}
+          width:40px;height:40px;border-radius:8px;color:#374151;border:1px solid #E5E7EB;background:#FFFFFF;transition:all .15s;text-decoration:none}
+        .cart-nav-icon:hover{background:#F3F4F6;color:#111827;border-color:#D1D5DB}
+        .cart-badge{position:absolute;top:-5px;right:-5px;background:#0D6847;color:#fff;
+          font-size:10px;font-weight:700;min-width:18px;height:18px;padding:0 4px;border-radius:999px;
+          display:flex;align-items:center;justify-content:center;border:2px solid #fff;font-variant-numeric:tabular-nums}
           
-        .empty-state{text-align:center;padding:80px 0}
+        .empty-state{text-align:center;padding:80px 20px;background:#FFFFFF;border:1px solid #E5E7EB;border-radius:12px}
         .empty-icon{font-size:48px;margin-bottom:16px;display:flex;justify-content:center}
-        .empty-text{font-size:18px;font-weight:600;color:#0f172a}
+        .empty-text{font-size:18px;font-weight:700;color:#111827}
         
         .loading-container{min-height:60vh;display:flex;align-items:center;justify-content:center}
-        .spinner{width:40px;height:40px;border-radius:50%;border:3px solid #e2e8f0;
-          border-top-color:#7c3aed;animation:spin .7s linear infinite}
+        .spinner{width:36px;height:36px;border-radius:50%;border:2.5px solid #E5E7EB;
+          border-top-color:#111827;animation:spin .7s linear infinite}
         @keyframes spin{to{transform:rotate(360deg)}}
         @keyframes typingBounce{0%,80%,100%{transform:scale(0.6);opacity:0.4}40%{transform:scale(1);opacity:1}}
 
-        .toast{position:fixed;top:80px;right:24px;background:#10b981;color:#fff;padding:14px 24px;
-          border-radius:12px;font-size:14px;font-weight:600;z-index:1000;
-          box-shadow:0 8px 24px rgba(16,185,129,.3);animation:slideIn .3s ease}
+        .toast{position:fixed;top:80px;right:24px;background:#111827;color:#fff;padding:12px 20px;
+          border-radius:10px;font-size:13.5px;font-weight:600;z-index:1000;
+          box-shadow:0 10px 24px rgba(17,24,39,.16);animation:slideIn .2s ease}
         @keyframes slideIn{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}}
 
         .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(8px);
@@ -1835,7 +1861,7 @@ function MarketplaceContent() {
         
         .detail-img-side{display:flex;flex-direction:column;gap:16px;min-width:0}
         .detail-image-expand{display:block;width:100%;height:100%;padding:0;border:0;background:transparent;cursor:zoom-in}
-        .detail-image-expand:focus-visible{outline:3px solid #7c3aed;outline-offset:-4px}
+        .detail-image-expand:focus-visible{outline:2px solid #111827;outline-offset:-4px}
         .detail-image-hint{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);padding:8px 12px;
           border-radius:24px;background:rgba(255,255,255,.94);color:#475569;font-size:12px;font-weight:600;white-space:nowrap;
           box-shadow:0 2px 10px #0f172a15;pointer-events:none}
@@ -1844,12 +1870,12 @@ function MarketplaceContent() {
         .variant-thumbs::-webkit-scrollbar{display:none}
         .v-thumb{width:56px;height:56px;border-radius:12px;object-fit:cover;cursor:pointer;
           border:2px solid transparent;transition:all .2s;flex-shrink:0;background:#f8fafc}
-        .v-thumb.active{border-color:#7c3aed;transform:scale(1.05);box-shadow:0 4px 12px rgba(124,58,237,.2)}
+        .v-thumb.active{border-color:#111827;box-shadow:0 2px 8px rgba(17,24,39,.12)}
         
         .detail-info-side{display:flex;flex-direction:column;gap:16px;min-width:0}
-        .detail-category{font-size:11px;font-weight:700;color:#7c3aed;text-transform:uppercase;letter-spacing:1.5px}
+        .detail-category{font-size:11px;font-weight:700;color:#0D6847;text-transform:uppercase;letter-spacing:0.08em}
         .detail-name{font-size:22px;font-weight:800;color:#0f172a;letter-spacing:-1px;line-height:1.1}
-        .detail-price{font-size:22px;font-weight:800;color:#10b981}
+        .detail-price{font-family:'Plus Jakarta Sans','Inter',sans-serif;font-size:24px;font-weight:800;color:#111827;font-variant-numeric:tabular-nums}
         .detail-desc{font-size:15px;color:#64748b;line-height:1.7}
         .modal-actions-container{display:flex;flex-direction:column;gap:12px;margin-top:12px}
         .modal-close-btn{position:fixed;top:12px;right:12px;width:36px;height:36px;
@@ -1889,7 +1915,7 @@ function MarketplaceContent() {
           .about-text{display:none !important}
           .login-text-span{display:none !important}
           .login-icon-span{display:inline-flex !important;color:#fff}
-          .login-btn{width:36px !important;height:36px !important;padding:0 !important;border-radius:50% !important;min-width:36px !important;background:linear-gradient(135deg,#7c3aed,#2563eb) !important;display:inline-flex !important;align-items:center !important;justify-content:center !important}
+          .login-btn{width:36px !important;height:36px !important;padding:0 !important;border-radius:8px !important;min-width:36px !important;background:#111827 !important;display:inline-flex !important;align-items:center !important;justify-content:center !important}
           .cart-nav-icon{width:36px !important;height:36px !important;margin-right:0 !important;display:inline-flex !important;align-items:center !important;justify-content:center !important}
           
           .buy-btn, .add-cart-btn{width:100% !important;height:48px !important}
@@ -1987,10 +2013,10 @@ function MarketplaceContent() {
         .size-btn{padding:6px 12px;border:1px solid #e2e8f0;border-radius:4px;background:#fff;
           color:#0f172a;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;
           display:flex;align-items:center;gap:8px;min-width:fit-content;position:relative;overflow:hidden}
-        .size-btn:hover{border-color:#7c3aed;color:#7c3aed}
-        .size-btn.active{border-color:#7c3aed;color:#7c3aed;background:#fff}
+        .size-btn:hover{border-color:#111827;color:#111827}
+        .size-btn.active{border-color:#111827;color:#111827;background:#F9FAFB;font-weight:700}
         .size-btn.active::after{content:'';position:absolute;bottom:0;right:0;width:14px;height:14px;
-          background:#7c3aed;clip-path:polygon(100% 0, 100% 100%, 0% 100%);display:flex;align-items:flex-end;justify-content:flex-end}
+          background:#111827;clip-path:polygon(100% 0, 100% 100%, 0% 100%);display:flex;align-items:flex-end;justify-content:flex-end}
         .variant-btn-img{width:24px;height:24px;object-fit:cover;border-radius:2px;border:1px solid #f1f5f9}
         
         .spec-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;background:#f8fafc;padding:24px;border-radius:20px;border:1px solid #f1f5f9}
@@ -2005,7 +2031,7 @@ function MarketplaceContent() {
         .description-header-divider {
           width: 64px;
           height: 4px;
-          background: linear-gradient(135deg, #7c3aed, #4f46e5);
+          background: #111827;
           border-radius: 2px;
           margin-top: 4px;
         }
@@ -2108,14 +2134,14 @@ function MarketplaceContent() {
         .reviews-scroll-container::-webkit-scrollbar-thumb:hover{background:#94a3b8}
         .rating-header-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
         .rating-summary{display:flex;align-items:center;gap:28px;background:#f8fafc;padding:20px 24px;border-radius:18px;border:1px solid #e2e8f0;margin-bottom:24px;flex-wrap:wrap}
-        .big-rating{font-size:38px;font-weight:800;color:#7c3aed;line-height:1}
+        .big-rating{font-size:38px;font-weight:800;color:#111827;line-height:1;font-variant-numeric:tabular-nums}
         .rating-stars-col{display:flex;flex-direction:column;gap:4px}
         .stars{display:flex;gap:3px;color:#f59e0b}
         
         .review-filters{display:flex;gap:8px;flex-wrap:wrap}
         .rev-filter{padding:7px 14px;border-radius:20px;border:1px solid #e2e8f0;font-size:12px;font-weight:600;color:#64748b;cursor:pointer;background:#fff;transition:all .2s ease}
         .rev-filter:hover{border-color:#cbd5e1;color:#0f172a}
-        .rev-filter.active{background:#7c3aed;color:#fff;border-color:#7c3aed;box-shadow:0 2px 8px rgba(124,58,237,0.2)}
+        .rev-filter.active{background:#111827;color:#fff;border-color:#111827}
         
         .review-card{padding:16px 0;border-bottom:1px solid #e2e8f0}
         .review-card:last-child{border-bottom:none}
@@ -2143,13 +2169,13 @@ function MarketplaceContent() {
         .seller-left-side{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
         .seller-avatar-wrapper{position:relative}
         .seller-main-avatar{width:64px;height:64px;border-radius:50%;object-fit:cover;background:#f1f5f9;border:2px solid #e2e8f0;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#64748b}
-        .seller-mall-badge{position:absolute;bottom:-4px;left:50%;transform:translateX(-50%);background:#7c3aed;color:#fff;font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;border:1.5px solid #fff;white-space:nowrap;box-shadow:0 2px 4px rgba(0,0,0,.1)}
+        .seller-mall-badge{position:absolute;bottom:-4px;left:50%;transform:translateX(-50%);background:#0D6847;color:#fff;font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;border:1.5px solid #fff;white-space:nowrap;box-shadow:0 2px 4px rgba(0,0,0,.1)}
         .seller-info-col{display:flex;flex-direction:column;gap:3px}
         .seller-title-name{font-size:16px;font-weight:700;color:#0f172a;display:flex;align-items:center;gap:6px;margin:0}
         .seller-active-status{font-size:12px;color:#64748b;margin-bottom:6px}
         .seller-actions-row{display:flex;gap:8px;flex-wrap:wrap}
-        .seller-btn-chat{padding:7px 14px;background:#f3e8ff;border:1px solid #7c3aed;color:#7c3aed;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .2s}
-        .seller-btn-chat:hover{background:#e9d5ff;transform:translateY(-1px)}
+        .seller-btn-chat{padding:7px 14px;background:#111827;border:1px solid #111827;color:#FFFFFF;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;transition:background .15s}
+        .seller-btn-chat:hover{background:#1F2937}
         .seller-btn-shop{padding:7px 14px;background:#fff;border:1px solid #cbd5e1;color:#475569;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .2s}
         .seller-stats-grid{display:grid;grid-template-columns:repeat(3, minmax(0, 1fr));gap:8px;flex-grow:1;max-width:520px}
         @media (max-width: 650px) {
@@ -2174,7 +2200,7 @@ function MarketplaceContent() {
           border-color:#cbd5e1;
         }
         .seller-stat-label{font-size:10px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:0.3px}
-        .seller-stat-val{font-size:13px;font-weight:700;color:#7c3aed}
+        .seller-stat-val{font-size:13px;font-weight:700;color:#111827;font-variant-numeric:tabular-nums}
         .seller-stat-val.dark{color:#0f172a}
 
         /* E-COMMERCE STOREFRONT UPGRADE STYLES */
@@ -2336,7 +2362,7 @@ function MarketplaceContent() {
           border-radius: 24px;
           padding: 18px 22px;
           border: 1.5px solid #e2e8f0;
-          box-shadow: 0 8px 28px rgba(124,58,237,0.04);
+          box-shadow: 0 1px 2px rgba(17,24,39,0.03);
           display: flex;
           flex-direction: column;
           gap: 14px;
@@ -2389,11 +2415,9 @@ function MarketplaceContent() {
           transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .cat-scroll-arrow:hover {
-          background: #7c3aed;
+          background: #111827;
           color: #fff;
-          border-color: #7c3aed;
-          transform: translateY(-50%) scale(1.1);
-          box-shadow: 0 6px 18px rgba(124,58,237,0.3);
+          border-color: #111827;
         }
         @media (max-width: 768px) {
           .cat-scroll-arrow {
@@ -2408,37 +2432,33 @@ function MarketplaceContent() {
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          min-width: 90px;
-          padding: 14px 10px 12px;
-          background: #fff;
-          border: 1.5px solid #e2e8f0;
-          border-radius: 18px;
+          min-width: 96px;
+          padding: 12px 12px 10px;
+          background: #FFFFFF;
+          border: 1px solid #E5E7EB;
+          border-radius: 12px;
           cursor: pointer;
-          transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-          box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+          transition: all 0.15s ease;
           text-align: center;
           flex-shrink: 0;
           gap: 6px;
         }
         .category-tile-btn:hover {
-          transform: translateY(-3px);
-          border-color: #7c3aed;
-          box-shadow: 0 8px 20px rgba(124,58,237,0.12);
+          border-color: #9CA3AF;
+          background: #F9FAFB;
         }
         .category-tile-btn.active {
-          background: linear-gradient(135deg, #7c3aed, #6366f1);
-          border-color: #7c3aed;
-          color: #fff;
-          transform: translateY(-2px);
-          box-shadow: 0 8px 24px rgba(124,58,237,0.25);
+          background: #111827;
+          border-color: #111827;
+          color: #FFFFFF;
         }
 
         /* FLASH DEALS SECTION */
         .flash-deals-banner {
-          background: linear-gradient(135deg, #fff5f5 0%, #fff 50%, #fef2f2 100%);
-          border-radius: 24px;
+          background: #FFFFFF;
+          border-radius: 14px;
           padding: 22px;
-          border: 1.5px solid #fecaca;
+          border: 1px solid #E5E7EB;
           margin-bottom: 28px;
           display: flex;
           flex-direction: column;
@@ -2446,13 +2466,13 @@ function MarketplaceContent() {
           scroll-margin-top: 100px;
         }
         .flash-clock-box {
-          background: #1e1b4b;
-          color: #fff;
-          font-weight: 800;
-          font-size: 14px;
+          background: #111827;
+          color: #FFFFFF;
+          font-weight: 700;
+          font-size: 13px;
           padding: 4px 8px;
           border-radius: 6px;
-          letter-spacing: 0.5px;
+          font-variant-numeric: tabular-nums;
           display: inline-block;
           min-width: 30px;
           text-align: center;
@@ -2485,14 +2505,11 @@ function MarketplaceContent() {
       <div className="root">
         <nav className="nav">
           <Link href="/shop" className="nav-logo">
-            <svg width="30" height="30" viewBox="0 0 200 260" xmlns="http://www.w3.org/2000/svg">
-              <rect x="8" y="68" width="184" height="176" rx="24" fill="none" stroke="#7c3aed" strokeWidth="14"/>
-              <path d="M56 70 Q56 18 100 18 Q144 18 144 70" fill="none" stroke="#7c3aed" strokeWidth="14" strokeLinecap="round"/>
-              <circle cx="68" cy="70" r="7" fill="#7c3aed"/>
-              <circle cx="132" cy="70" r="7" fill="#7c3aed"/>
-              <path d="M24 192 Q36 150 70 145 Q104 140 110 170 Q116 198 150 192 Q170 187 176 162"
-                fill="none" stroke="#FFD166" strokeWidth="13" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M161 145 L176 162 L157 175" fill="none" stroke="#FFD166" strokeWidth="13" strokeLinecap="round" strokeLinejoin="round"/>
+            <svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <rect x="4" y="9" width="24" height="19" rx="4.5" fill="#111827" />
+              <path d="M11 9V7.5a5 5 0 0 1 10 0V9" stroke="#111827" strokeWidth="2.2" strokeLinecap="round" />
+              <path d="M11.5 16.5c1.2 2.2 3 3.2 4.5 3.2s3.3-1 4.5-3.2" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" />
+              <circle cx="23" cy="13" r="2" fill="#10B981" />
             </svg>
             <span className="logo-text">Shopply</span>
           </Link>
@@ -2526,9 +2543,7 @@ function MarketplaceContent() {
                   position: 'relative'
                 }}
               >
-                {/* Background lighting blobs */}
-                <div style={{ position: 'absolute', top: '-30%', right: '-15%', width: 280, height: 280, borderRadius: '50%', background: 'rgba(255,255,255,0.18)', filter: 'blur(50px)', pointerEvents: 'none' }} />
-                <div style={{ position: 'absolute', bottom: '-30%', left: '-10%', width: 260, height: 260, borderRadius: '50%', background: 'rgba(0,0,0,0.2)', filter: 'blur(40px)', pointerEvents: 'none' }} />
+                {/* Subtle clean border highlight */}
 
                 {/* Left Arrow */}
                 <button
@@ -2635,33 +2650,32 @@ function MarketplaceContent() {
                         transition: 'all 0.2s'
                       }}
                     >
-                      <span>🎟️ {(copiedVoucher === BANNERS[currentBannerIdx].voucherCode || claimedVoucher === BANNERS[currentBannerIdx].voucherCode) ? 'CLAIMED! ✓' : BANNERS[currentBannerIdx].voucher}</span>
+                      <span>{(copiedVoucher === BANNERS[currentBannerIdx].voucherCode || claimedVoucher === BANNERS[currentBannerIdx].voucherCode) ? 'CLAIMED ✓' : BANNERS[currentBannerIdx].voucher}</span>
                       <span style={{
                         fontSize: 10,
-                        color: (copiedVoucher === BANNERS[currentBannerIdx].voucherCode || claimedVoucher === BANNERS[currentBannerIdx].voucherCode) ? '#16a34a' : '#7c3aed',
-                        background: (copiedVoucher === BANNERS[currentBannerIdx].voucherCode || claimedVoucher === BANNERS[currentBannerIdx].voucherCode) ? '#dcfce7' : '#f3e8ff',
+                        color: (copiedVoucher === BANNERS[currentBannerIdx].voucherCode || claimedVoucher === BANNERS[currentBannerIdx].voucherCode) ? '#065F46' : '#111827',
+                        background: (copiedVoucher === BANNERS[currentBannerIdx].voucherCode || claimedVoucher === BANNERS[currentBannerIdx].voucherCode) ? '#D1FAE5' : '#E5E7EB',
                         padding: '2px 8px',
                         borderRadius: 6,
-                        fontWeight: 800
+                        fontWeight: 700
                       }}>
                         {(copiedVoucher === BANNERS[currentBannerIdx].voucherCode || claimedVoucher === BANNERS[currentBannerIdx].voucherCode) ? 'ACTIVE' : 'CLAIM'}
                       </span>
                     </button>
 
                     <div style={{
-                      background: 'rgba(255,255,255,0.18)',
-                      backdropFilter: 'blur(6px)',
+                      background: 'rgba(255,255,255,0.12)',
                       color: '#fff',
                       fontSize: 12,
-                      fontWeight: 700,
+                      fontWeight: 600,
                       padding: '6px 12px',
-                      borderRadius: 10,
-                      border: '1px solid rgba(255,255,255,0.25)',
+                      borderRadius: 8,
+                      border: '1px solid rgba(255,255,255,0.2)',
                       display: 'inline-flex',
                       alignItems: 'center',
                       gap: 6
                     }}>
-                      <span>🚚 {BANNERS[currentBannerIdx].shipping}</span>
+                      <span>{BANNERS[currentBannerIdx].shipping}</span>
                     </div>
                   </div>
                 </div>
@@ -2738,25 +2752,25 @@ function MarketplaceContent() {
               <div className="side-promos-container">
                 {/* Promo Card 1: Dynamic Voucher from Firestore or Empty State */}
                 {activeVoucher ? (
-                  <div className="side-promo-card" style={{ background: 'linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%)', border: '1.5px solid #fecdd3' }}>
+                  <div className="side-promo-card" style={{ background: '#FFFFFF', border: '1px solid #E5E7EB' }}>
                     <div>
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                        <span style={{ fontSize: 11, fontWeight: 800, background: '#ef4444', color: '#fff', padding: '3px 9px', borderRadius: 12, letterSpacing: '0.3px' }}>
-                          {activeVoucher.badge || "🎁 PROMO PACK"}
+                        <span style={{ fontSize: 10.5, fontWeight: 700, background: '#F3F4F6', color: '#111827', padding: '3px 8px', borderRadius: 6, letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+                          {activeVoucher.badge || "PROMO VOUCHER"}
                         </span>
-                        <span style={{ fontSize: 12, fontWeight: 700, color: '#e11d48' }}>
+                        <span style={{ fontSize: 12, fontWeight: 700, color: '#0D6847', fontVariantNumeric: 'tabular-nums' }}>
                           {activeVoucher.discount_type === 'percent' ? `${activeVoucher.discount_value || activeVoucher.discount}% OFF` : `₱${activeVoucher.discount_value || 100} OFF`}
                         </span>
                       </div>
-                      <div style={{ fontSize: 15, fontWeight: 800, color: '#9f1239', lineHeight: 1.25 }}>
-                        {activeVoucher.title || "Welcome Voucher"}
+                      <div style={{ fontSize: 15, fontWeight: 700, color: '#111827', lineHeight: 1.25 }}>
+                        {activeVoucher.title || "Store Voucher"}
                       </div>
-                      <p style={{ fontSize: 12, color: '#881337', margin: '4px 0 0', opacity: 0.85 }}>
-                        {activeVoucher.description || "Enjoy discount on your first marketplace checkout!"}
+                      <p style={{ fontSize: 12.5, color: '#6B7280', margin: '4px 0 0', lineHeight: 1.45 }}>
+                        {activeVoucher.description || "Apply at checkout for instant savings on eligible items."}
                       </p>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 12, paddingTop: 10, borderTop: '1px dashed #fecdd3' }}>
-                      <span style={{ fontSize: 11, fontWeight: 700, color: '#475569', background: '#fff', padding: '4px 8px', borderRadius: 6, border: '1px solid #fda4af', fontFamily: 'monospace' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 12, paddingTop: 10, borderTop: '1px solid #F3F4F6' }}>
+                      <span style={{ fontSize: 11.5, fontWeight: 700, color: '#111827', background: '#F9FAFB', padding: '4px 8px', borderRadius: 6, border: '1px solid #E5E7EB', fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace' }}>
                         {activeVoucher.code}
                       </span>
                       <button
@@ -2768,63 +2782,62 @@ function MarketplaceContent() {
                           claimVoucher(activeVoucher.code, disc);
                         }}
                         style={{
-                          background: (copiedVoucher === activeVoucher.code || claimedVoucher === activeVoucher.code) ? '#16a34a' : '#e11d48',
+                          background: (copiedVoucher === activeVoucher.code || claimedVoucher === activeVoucher.code) ? '#0D6847' : '#111827',
                           color: '#fff',
                           border: 'none',
-                          borderRadius: 8,
-                          padding: '5px 12px',
-                          fontSize: 11,
-                          fontWeight: 700,
-                          cursor: 'pointer',
-                          transition: 'all 0.2s'
+                          borderRadius: 6,
+                          padding: '6px 12px',
+                          fontSize: 11.5,
+                          fontWeight: 600,
+                          cursor: 'pointer'
                         }}
                       >
-                        {(copiedVoucher === activeVoucher.code || claimedVoucher === activeVoucher.code) ? "Claimed! ✓" : "Claim Code"}
+                        {(copiedVoucher === activeVoucher.code || claimedVoucher === activeVoucher.code) ? "Claimed ✓" : "Claim Code"}
                       </button>
                     </div>
                   </div>
                 ) : (
-                  <div className="side-promo-card" style={{ background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)', border: '1.5px dashed #cbd5e1' }}>
+                  <div className="side-promo-card" style={{ background: '#FFFFFF', border: '1px solid #E5E7EB' }}>
                     <div>
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                        <span style={{ fontSize: 11, fontWeight: 700, background: '#64748b', color: '#fff', padding: '3px 9px', borderRadius: 12, letterSpacing: '0.3px' }}>
-                          🏷️ VOUCHERS
+                        <span style={{ fontSize: 10.5, fontWeight: 700, background: '#F3F4F6', color: '#374151', padding: '3px 8px', borderRadius: 6, letterSpacing: '0.04em' }}>
+                          VOUCHERS
                         </span>
-                        <span style={{ fontSize: 11, fontWeight: 600, color: '#64748b' }}>Check Back Soon</span>
+                        <span style={{ fontSize: 11, fontWeight: 600, color: '#6B7280' }}>Updated Daily</span>
                       </div>
-                      <div style={{ fontSize: 14, fontWeight: 700, color: '#334155', lineHeight: 1.25 }}>
+                      <div style={{ fontSize: 14.5, fontWeight: 700, color: '#111827', lineHeight: 1.25 }}>
                         No Active Promo Vouchers
                       </div>
-                      <p style={{ fontSize: 11.5, color: '#64748b', margin: '4px 0 0', opacity: 0.85 }}>
-                        Stay tuned! New promo discount vouchers will appear here when released by admin.
+                      <p style={{ fontSize: 12, color: '#6B7280', margin: '4px 0 0', lineHeight: 1.45 }}>
+                        New store and platform discount codes appear here automatically when released.
                       </p>
                     </div>
                   </div>
                 )}
 
                 {/* Promo Card 2: Shopply Express Guarantee */}
-                <div className="side-promo-card" style={{ background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)', border: '1.5px solid #bbf7d0' }}>
+                <div className="side-promo-card" style={{ background: '#F7F7F5', border: '1px solid #E5E7EB' }}>
                   <div>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                      <span style={{ fontSize: 11, fontWeight: 800, background: '#10b981', color: '#fff', padding: '3px 9px', borderRadius: 12, letterSpacing: '0.3px' }}>
-                        ⚡ SPX EXPRESS
+                      <span style={{ fontSize: 10.5, fontWeight: 700, background: '#ECFDF5', color: '#065F46', border: '1px solid #A7F3D0', padding: '2px 8px', borderRadius: 6, letterSpacing: '0.04em' }}>
+                        NATIONWIDE COURIER
                       </span>
-                      <span style={{ fontSize: 12, fontWeight: 700, color: '#059669' }}>Fast Local</span>
+                      <span style={{ fontSize: 12, fontWeight: 600, color: '#0D6847' }}>24–48h Dispatch</span>
                     </div>
-                    <div style={{ fontSize: 15, fontWeight: 800, color: '#065f46', lineHeight: 1.25 }}>
-                      24-48h Fast Dispatch
+                    <div style={{ fontSize: 15, fontWeight: 700, color: '#111827', lineHeight: 1.25 }}>
+                      Tracked Doorstep Delivery
                     </div>
-                    <p style={{ fontSize: 12, color: '#047857', margin: '4px 0 0', opacity: 0.85 }}>
-                      Real-time live courier tracking with Shopply SPX rider.
+                    <p style={{ fontSize: 12.5, color: '#4B5563', margin: '4px 0 0', lineHeight: 1.45 }}>
+                      Live parcel status updates and Cash on Delivery across the Philippines.
                     </p>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 12, paddingTop: 10, borderTop: '1px dashed #bbf7d0' }}>
-                    <span style={{ fontSize: 11, fontWeight: 600, color: '#065f46' }}>COD Available</span>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 12, paddingTop: 10, borderTop: '1px solid #E5E7EB' }}>
+                    <span style={{ fontSize: 11.5, fontWeight: 600, color: '#374151' }}>COD Supported</span>
                     <Link
                       href="/dashboard?tab=orders"
-                      style={{ background: '#059669', color: '#fff', border: 'none', borderRadius: 8, padding: '5px 12px', fontSize: 11, fontWeight: 700, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 4 }}
+                      style={{ background: '#FFFFFF', color: '#111827', border: '1px solid #D1D5DB', borderRadius: 6, padding: '5px 12px', fontSize: 11.5, fontWeight: 600, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 4 }}
                     >
-                      <span>Track 📦</span>
+                      <span>Track Orders →</span>
                     </Link>
                   </div>
                 </div>
@@ -2836,52 +2849,52 @@ function MarketplaceContent() {
           <section style={{ marginBottom: 24 }}>
             <div className="trust-props-bar">
               <div className="trust-prop-item">
-                <div style={{ width: 40, height: 40, borderRadius: 12, background: '#f0fdf4', color: '#16a34a', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, flexShrink: 0 }}>
-                  🚚
+                <div style={{ width: 38, height: 38, borderRadius: 10, background: '#F3F4F6', color: '#111827', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="3" width="15" height="13" /><polygon points="16 8 20 8 23 11 23 16 16 16 16 8" /><circle cx="5.5" cy="18.5" r="2.5" /><circle cx="18.5" cy="18.5" r="2.5" /></svg>
                 </div>
                 <div style={{ minWidth: 0 }}>
-                  <div style={{ fontSize: 13, fontWeight: 800, color: '#0f172a' }}>Free Shipping</div>
-                  <div style={{ fontSize: 11, color: '#64748b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>₱0 Min. spend vouchers</div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: '#111827' }}>Nationwide Shipping</div>
+                  <div style={{ fontSize: 11.5, color: '#6B7280', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Eligible shipping vouchers</div>
                 </div>
               </div>
 
               <div className="trust-prop-item">
-                <div style={{ width: 40, height: 40, borderRadius: 12, background: '#faf5ff', color: '#7c3aed', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, flexShrink: 0 }}>
-                  🛡️
+                <div style={{ width: 38, height: 38, borderRadius: 10, background: '#ECFDF5', color: '#0D6847', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /><polyline points="9 12 11 14 15 10" /></svg>
                 </div>
                 <div style={{ minWidth: 0 }}>
-                  <div style={{ fontSize: 13, fontWeight: 800, color: '#0f172a' }}>Buyer Protection</div>
-                  <div style={{ fontSize: 11, color: '#64748b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>100% Money-back guarantee</div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: '#111827' }}>Buyer Protection</div>
+                  <div style={{ fontSize: 11.5, color: '#6B7280', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Verified merchant checkout</div>
                 </div>
               </div>
 
               <div className="trust-prop-item">
-                <div style={{ width: 40, height: 40, borderRadius: 12, background: '#fefce8', color: '#ca8a04', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, flexShrink: 0 }}>
-                  💵
+                <div style={{ width: 38, height: 38, borderRadius: 10, background: '#F3F4F6', color: '#111827', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="6" width="20" height="12" rx="2" /><circle cx="12" cy="12" r="2" /><path d="M6 12h.01M18 12h.01" /></svg>
                 </div>
                 <div style={{ minWidth: 0 }}>
-                  <div style={{ fontSize: 13, fontWeight: 800, color: '#0f172a' }}>Cash on Delivery</div>
-                  <div style={{ fontSize: 11, color: '#64748b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Inspect parcel before paying</div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: '#111827' }}>Cash on Delivery</div>
+                  <div style={{ fontSize: 11.5, color: '#6B7280', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Pay upon doorstep arrival</div>
                 </div>
               </div>
 
               <div className="trust-prop-item">
-                <div style={{ width: 40, height: 40, borderRadius: 12, background: '#eff6ff', color: '#2563eb', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, flexShrink: 0 }}>
-                  ⚡
+                <div style={{ width: 38, height: 38, borderRadius: 10, background: '#F3F4F6', color: '#111827', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
                 </div>
                 <div style={{ minWidth: 0 }}>
-                  <div style={{ fontSize: 13, fontWeight: 800, color: '#0f172a' }}>24h Dispatch</div>
-                  <div style={{ fontSize: 11, color: '#64748b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Shopply Express SPX</div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: '#111827' }}>24–48h Dispatch</div>
+                  <div style={{ fontSize: 11.5, color: '#6B7280', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Fast local fulfillment</div>
                 </div>
               </div>
 
               <div className="trust-prop-item">
-                <div style={{ width: 40, height: 40, borderRadius: 12, background: '#fdf2f8', color: '#db2777', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, flexShrink: 0 }}>
-                  🔄
+                <div style={{ width: 38, height: 38, borderRadius: 10, background: '#F3F4F6', color: '#111827', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polyline points="1 4 1 10 7 10" /><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" /></svg>
                 </div>
                 <div style={{ minWidth: 0 }}>
-                  <div style={{ fontSize: 13, fontWeight: 800, color: '#0f172a' }}>7-Day Returns</div>
-                  <div style={{ fontSize: 11, color: '#64748b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Hassle-free refund policy</div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: '#111827' }}>7-Day Returns</div>
+                  <div style={{ fontSize: 11.5, color: '#6B7280', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Straightforward return policy</div>
                 </div>
               </div>
             </div>
@@ -2903,11 +2916,11 @@ function MarketplaceContent() {
                   fontSize: 13,
                   color: '#334155'
                 }}>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontWeight: 700, color: '#7c3aed' }}>
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="#ef4444"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontWeight: 600, color: '#4B5563' }}>
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#111827" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
                     Deliver to:
                   </span>
-                  <span style={{ fontWeight: 700, color: '#0f172a' }}>
+                  <span style={{ fontWeight: 700, color: '#111827' }}>
                     {buyerLocation || (detectingBuyerLoc ? "Detecting location..." : "Philippines")}
                   </span>
                   <button 
@@ -2915,15 +2928,14 @@ function MarketplaceContent() {
                     onClick={detectBuyerLocation}
                     disabled={detectingBuyerLoc}
                     style={{
-                      background: '#f3e8ff',
-                      border: '1px solid #d8b4fe',
-                      color: '#7c3aed',
-                      fontWeight: 700,
+                      background: '#FFFFFF',
+                      border: '1px solid #D1D5DB',
+                      color: '#111827',
+                      fontWeight: 600,
                       fontSize: 11,
-                      borderRadius: 12,
+                      borderRadius: 6,
                       padding: '2px 8px',
                       cursor: detectingBuyerLoc ? 'wait' : 'pointer',
-                      transition: 'all 0.2s',
                       display: 'flex',
                       alignItems: 'center',
                       gap: 3
@@ -2995,16 +3007,15 @@ function MarketplaceContent() {
                       if (el) el.scrollIntoView({ behavior: 'smooth' });
                     }}
                     style={{
-                      background: 'linear-gradient(135deg, #7c3aed, #4f46e5)',
+                      background: '#111827',
                       color: '#fff',
                       border: 'none',
                       padding: '8px 20px',
-                      borderRadius: 20,
-                      fontWeight: 700,
+                      borderRadius: 18,
+                      fontWeight: 600,
                       fontSize: 13,
                       cursor: 'pointer',
                       flexShrink: 0,
-                      boxShadow: '0 2px 8px rgba(124,58,237,0.3)',
                       display: 'inline-flex',
                       alignItems: 'center',
                       gap: 6
@@ -3015,10 +3026,10 @@ function MarketplaceContent() {
                 </div>
               </div>
 
-              {/* Trending Searches Row */}
+              {/* Popular Searches Row */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', paddingTop: 6 }}>
-                <span style={{ fontSize: 12, fontWeight: 700, color: '#7c3aed', display: 'flex', alignItems: 'center', gap: 4 }}>
-                  <span>🔥 Trending:</span>
+                <span style={{ fontSize: 12, fontWeight: 600, color: '#6B7280' }}>
+                  Popular:
                 </span>
                 {TRENDING_KEYWORDS.map(tag => (
                   <button
@@ -3031,14 +3042,14 @@ function MarketplaceContent() {
                     }}
                     style={{
                       padding: '4px 12px',
-                      borderRadius: 16,
+                      borderRadius: 999,
                       fontSize: 12,
-                      fontWeight: 600,
-                      background: searchQuery === tag ? '#f3e8ff' : '#f1f5f9',
-                      color: searchQuery === tag ? '#7c3aed' : '#475569',
-                      border: searchQuery === tag ? '1px solid #d8b4fe' : '1px solid transparent',
+                      fontWeight: 500,
+                      background: searchQuery === tag ? '#111827' : '#F3F4F6',
+                      color: searchQuery === tag ? '#FFFFFF' : '#374151',
+                      border: searchQuery === tag ? '1px solid #111827' : '1px solid #E5E7EB',
                       cursor: 'pointer',
-                      transition: 'all 0.2s'
+                      transition: 'all 0.15s'
                     }}
                   >
                     {tag}
@@ -3048,19 +3059,19 @@ function MarketplaceContent() {
             </div>
           </section>
 
-          {/* 4. CURATED VISUAL CATEGORY GRID (Shopee / Lazada Category Bar) */}
+          {/* 4. CURATED VISUAL CATEGORY GRID */}
           <section style={{ marginBottom: 28 }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-              <h2 style={{ fontSize: 18, fontWeight: 800, color: '#0f172a', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ color: '#7c3aed' }}>📂</span> Categories
+              <h2 style={{ fontFamily: "'Plus Jakarta Sans', 'Inter', sans-serif", fontSize: 18, fontWeight: 700, color: '#111827', margin: 0, letterSpacing: '-0.02em' }}>
+                Shop by Department
               </h2>
               {selectedCategory !== "All" && (
                 <button
                   type="button"
                   onClick={() => setSelectedCategory("All")}
-                  style={{ fontSize: 12, fontWeight: 700, color: '#7c3aed', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                  style={{ fontSize: 12.5, fontWeight: 600, color: '#111827', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
                 >
-                  View All Items →
+                  View all departments →
                 </button>
               )}
             </div>
@@ -3126,29 +3137,29 @@ function MarketplaceContent() {
                       }}
                     >
                       <div style={{
-                        width: 44,
-                        height: 44,
-                        borderRadius: 14,
-                        background: isActive ? 'rgba(255,255,255,0.22)' : `${cat.color}15`,
-                        color: isActive ? '#fff' : cat.color,
+                        width: 38,
+                        height: 38,
+                        borderRadius: 10,
+                        background: isActive ? 'rgba(255,255,255,0.14)' : '#F3F4F6',
+                        color: isActive ? '#FFFFFF' : '#111827',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        fontSize: 22,
-                        transition: 'all 0.2s'
+                        transition: 'all 0.15s'
                       }}>
-                        {cat.icon}
+                        {renderCategorySvg(cat.id)}
                       </div>
-                      <span style={{ fontSize: 12, fontWeight: 700, color: isActive ? '#fff' : '#0f172a', whiteSpace: 'nowrap' }}>
+                      <span style={{ fontSize: 12, fontWeight: 600, color: isActive ? '#FFFFFF' : '#111827', whiteSpace: 'nowrap' }}>
                         {cat.label}
                       </span>
                       <span style={{
-                        fontSize: 10,
-                        fontWeight: 700,
-                        padding: '1px 6px',
-                        borderRadius: 8,
-                        background: isActive ? 'rgba(255,255,255,0.25)' : '#f1f5f9',
-                        color: isActive ? '#fff' : '#64748b'
+                        fontSize: 10.5,
+                        fontWeight: 600,
+                        padding: '1px 7px',
+                        borderRadius: 999,
+                        background: isActive ? 'rgba(255,255,255,0.18)' : '#F3F4F6',
+                        color: isActive ? '#FFFFFF' : '#6B7280',
+                        fontVariantNumeric: 'tabular-nums'
                       }}>
                         {count}
                       </span>
@@ -3175,17 +3186,16 @@ function MarketplaceContent() {
                       }}
                     >
                       <div style={{
-                        width: 44,
-                        height: 44,
-                        borderRadius: 14,
-                        background: isActive ? 'rgba(255,255,255,0.22)' : '#f3e8ff',
-                        color: isActive ? '#fff' : '#7c3aed',
+                        width: 38,
+                        height: 38,
+                        borderRadius: 10,
+                        background: isActive ? 'rgba(255,255,255,0.14)' : '#F3F4F6',
+                        color: isActive ? '#FFFFFF' : '#111827',
                         display: 'flex',
                         alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: 22
+                        justifyContent: 'center'
                       }}>
-                        🏷️
+                        {renderCategorySvg(sCat)}
                       </div>
                       <span style={{ fontSize: 12, fontWeight: 700, color: isActive ? '#fff' : '#0f172a', whiteSpace: 'nowrap' }}>
                         {sCat}
@@ -3233,9 +3243,9 @@ function MarketplaceContent() {
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 14 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <span style={{ fontSize: 22, color: '#f97316' }}>⚡</span>
-                      <h2 style={{ fontSize: 20, fontWeight: 900, color: '#dc2626', margin: 0, letterSpacing: '-0.3px' }}>
-                        FLASH DEALS
+                      <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#DC2626', display: 'inline-block' }} />
+                      <h2 style={{ fontFamily: "'Plus Jakarta Sans', 'Inter', sans-serif", fontSize: 18, fontWeight: 800, color: '#111827', margin: 0, letterSpacing: '-0.02em' }}>
+                        Limited-Time Markdowns
                       </h2>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: '#475569', fontWeight: 700 }}>
@@ -3284,7 +3294,7 @@ function MarketplaceContent() {
                           }}
                           title="Click to claim voucher and auto-apply at checkout"
                         >
-                          <span>🏷️ {flashCoupon.code}</span>
+                          <span>{flashCoupon.code}</span>
                           <span style={{ fontSize: 11, fontWeight: 700, color: isClaimed ? '#16a34a' : '#ef4444' }}>
                             {isClaimed ? 'Claimed & Applied! ✓' : discountText}
                           </span>
@@ -3292,7 +3302,7 @@ function MarketplaceContent() {
                       );
                     })()}
                     <span style={{ fontSize: 12, fontWeight: 700, color: '#ef4444', background: '#fee2e2', padding: '6px 14px', borderRadius: 20 }}>
-                      {flashCoupon ? (flashCoupon.badge || `🔥 FLASH SALE ${flashCoupon.discount_type === 'percent' ? `${flashCoupon.discount_value}% OFF` : `₱${flashCoupon.discount_value} OFF`}`) : (flashConfig.badge_text || "🔥 Up to 50% OFF Limited Time")}
+                      {flashCoupon ? (flashCoupon.badge || `FLASH OFFER ${flashCoupon.discount_type === 'percent' ? `${flashCoupon.discount_value}% OFF` : `₱${flashCoupon.discount_value} OFF`}`) : (flashConfig.badge_text || "Up to 50% OFF Limited Time")}
                     </span>
                   </div>
                 </div>
@@ -3349,7 +3359,7 @@ function MarketplaceContent() {
                             padding: '2px 7px',
                             borderRadius: 6
                           }}>
-                            🔥 -{discountPct}%
+                            -{discountPct}%
                           </span>
                         </div>
 
@@ -3372,7 +3382,7 @@ function MarketplaceContent() {
                         {/* Stock Claimed Progress Bar */}
                         <div>
                           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, fontWeight: 700, color: '#ef4444', marginBottom: 4 }}>
-                            <span>⚡ {claimedPct}% CLAIMED</span>
+                            <span>{claimedPct}% claimed</span>
                             <span style={{ color: '#64748b' }}>{stockRemaining > 0 ? `${stockRemaining} left` : 'Out'}</span>
                           </div>
                           <div style={{ height: 6, background: '#fee2e2', borderRadius: 4, overflow: 'hidden' }}>
@@ -3417,7 +3427,7 @@ function MarketplaceContent() {
                             transition: 'all 0.2s ease'
                           }}
                         >
-                          ⚡ Buy Now (₱{flashPrice.toFixed(2)})
+                          Buy Now (₱{flashPrice.toFixed(2)})
                         </button>
                       </div>
                     );
@@ -3439,18 +3449,19 @@ function MarketplaceContent() {
                     display: 'inline-flex',
                     alignItems: 'center',
                     gap: 6,
-                    background: '#ede9fe',
-                    color: '#7c3aed',
+                    background: '#F3F4F6',
+                    border: '1px solid #E5E7EB',
+                    color: '#111827',
                     padding: '3px 10px',
-                    borderRadius: 16,
+                    borderRadius: 999,
                     fontSize: 12,
-                    fontWeight: 700
+                    fontWeight: 600
                   }}>
-                    Active: {selectedCategory}
+                    {selectedCategory}
                     <button
                       type="button"
                       onClick={() => setSelectedCategory("All")}
-                      style={{ background: 'none', border: 'none', color: '#7c3aed', cursor: 'pointer', padding: 0, fontWeight: 800, fontSize: 13 }}
+                      style={{ background: 'none', border: 'none', color: '#4B5563', cursor: 'pointer', padding: 0, fontWeight: 700, fontSize: 12 }}
                       title="Clear category filter"
                     >
                       ✕
@@ -3458,20 +3469,20 @@ function MarketplaceContent() {
                   </span>
                 )}
               </div>
-              <p style={{ fontSize: 13, color: '#64748b', margin: '4px 0 0' }}>
-                Showing <strong>{filteredItems.length}</strong> verified items from local sellers
+              <p style={{ fontSize: 13, color: '#6B7280', margin: '4px 0 0' }}>
+                Showing <strong>{filteredItems.length}</strong> verified listings
               </p>
             </div>
 
             {/* Sorting Controls */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-              <span style={{ fontSize: 12, fontWeight: 600, color: '#64748b' }}>Sort by:</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+              <span style={{ fontSize: 12, fontWeight: 600, color: '#6B7280', marginRight: 2 }}>Sort:</span>
               {[
-                { id: 'featured', label: '✨ Featured' },
-                { id: 'popular', label: '🔥 Popular' },
-                { id: 'rating', label: '⭐ Top Rated' },
-                { id: 'price-asc', label: '₱ Price: Low to High' },
-                { id: 'price-desc', label: '₱ Price: High to Low' }
+                { id: 'featured', label: 'Featured' },
+                { id: 'popular', label: 'Best Selling' },
+                { id: 'rating', label: 'Top Rated' },
+                { id: 'price-asc', label: 'Price: Low to High' },
+                { id: 'price-desc', label: 'Price: High to Low' }
               ].map(s => (
                 <button
                   key={s.id}
@@ -3479,15 +3490,14 @@ function MarketplaceContent() {
                   onClick={() => setSortBy(s.id as any)}
                   style={{
                     padding: '6px 12px',
-                    borderRadius: 10,
+                    borderRadius: 8,
                     fontSize: 12,
                     fontWeight: 600,
                     cursor: 'pointer',
-                    transition: 'all 0.2s',
-                    background: sortBy === s.id ? '#7c3aed' : '#fff',
-                    color: sortBy === s.id ? '#fff' : '#475569',
-                    border: sortBy === s.id ? '1px solid #7c3aed' : '1px solid #e2e8f0',
-                    boxShadow: sortBy === s.id ? '0 2px 8px rgba(124,58,237,0.2)' : 'none'
+                    transition: 'all 0.15s',
+                    background: sortBy === s.id ? '#111827' : '#FFFFFF',
+                    color: sortBy === s.id ? '#FFFFFF' : '#374151',
+                    border: sortBy === s.id ? '1px solid #111827' : '1px solid #E5E7EB'
                   }}
                 >
                   {s.label}
@@ -3501,7 +3511,7 @@ function MarketplaceContent() {
               <span>Found <strong>{filteredItems.length}</strong> items matching &ldquo;{searchQuery}&rdquo;</span>
               <button 
                 onClick={() => setSearchQuery("")} 
-                style={{ background: 'transparent', border: 'none', color: '#7c3aed', fontWeight: 600, cursor: 'pointer', fontSize: '13px', padding: 0 }}
+                style={{ background: 'transparent', border: 'none', color: '#111827', fontWeight: 600, cursor: 'pointer', fontSize: '13px', padding: 0 }}
               >
                 Clear search
               </button>
@@ -3549,57 +3559,37 @@ function MarketplaceContent() {
                       <svg width="48" height="48" fill="none" stroke="#cbd5e1" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
                     </div>
 
-                    {/* E-Commerce Floating Badges */}
+                    {/* Clean Retail Badges */}
                     <span style={{
                       position: 'absolute',
-                      top: 8,
-                      left: 8,
-                      background: 'linear-gradient(135deg, #10b981, #059669)',
-                      color: '#fff',
-                      fontSize: 10,
-                      fontWeight: 800,
-                      padding: '3px 7px',
+                      top: 10,
+                      left: 10,
+                      background: 'rgba(255,255,255,0.94)',
+                      color: '#111827',
+                      border: '1px solid rgba(17,24,39,0.08)',
+                      fontSize: 10.5,
+                      fontWeight: 700,
+                      padding: '3px 8px',
                       borderRadius: 6,
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 4,
-                      boxShadow: '0 2px 6px rgba(0,0,0,0.18)',
                       zIndex: 2
                     }}>
-                      🚚 FREE SHIP
+                      COD Ready
                     </span>
 
-                    {activeDeal ? (
+                    {activeDeal && (
                       <span style={{
                         position: 'absolute',
-                        top: 8,
-                        right: 8,
-                        background: 'linear-gradient(135deg, #ef4444, #dc2626)',
+                        top: 10,
+                        right: 10,
+                        background: '#DC2626',
                         color: '#fff',
-                        fontSize: 10,
-                        fontWeight: 900,
-                        padding: '3px 7px',
+                        fontSize: 10.5,
+                        fontWeight: 700,
+                        padding: '3px 8px',
                         borderRadius: 6,
-                        zIndex: 2,
-                        boxShadow: '0 2px 6px rgba(220, 38, 38, 0.35)'
+                        zIndex: 2
                       }}>
-                        ⚡ -{activeDeal.discount_pct || 40}% OFF
-                      </span>
-                    ) : (
-                      <span style={{
-                        position: 'absolute',
-                        top: 8,
-                        right: 8,
-                        background: 'rgba(239, 68, 68, 0.95)',
-                        color: '#fff',
-                        fontSize: 10,
-                        fontWeight: 800,
-                        padding: '3px 7px',
-                        borderRadius: 6,
-                        zIndex: 2,
-                        boxShadow: '0 2px 6px rgba(0,0,0,0.18)'
-                      }}>
-                        -30%
+                        -{activeDeal.discount_pct || 40}%
                       </span>
                     )}
                   </div>
@@ -3607,7 +3597,7 @@ function MarketplaceContent() {
                   <div className="item-content">
                     <div className="item-meta-row" style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:6}}>
                       <div style={{ flex: 1, minWidth: 0, marginRight: 6 }}>
-                        <span style={{ fontSize: 10, fontWeight: 700, color: '#7c3aed', background: '#f3e8ff', padding: '2px 6px', borderRadius: 4, display: 'inline-block', marginBottom: 3 }}>
+                        <span style={{ fontSize: 10.5, fontWeight: 600, color: '#4B5563', background: '#F3F4F6', padding: '2px 7px', borderRadius: 4, display: 'inline-block', marginBottom: 4 }}>
                           {item.category || "General"}
                         </span>
                         <h3 className="item-name" style={{ margin: 0 }}>{item.name}</h3>
@@ -3620,7 +3610,7 @@ function MarketplaceContent() {
                     
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8, flexWrap: 'wrap' }}>
                       <span style={{ fontSize: 10, background: '#f0fdf4', color: '#16a34a', padding: '2px 6px', borderRadius: 4, fontWeight: 700, border: '1px solid #bbf7d0' }}>
-                        💵 COD
+                        COD
                       </span>
                       <span style={{ fontSize: 11, color: '#64748b' }}>
                         • {item.sold_count ? `${item.sold_count} sold` : `${(item.reviews_count || 0) * 4 + 18} sold`}
@@ -3682,7 +3672,7 @@ function MarketplaceContent() {
                                 setBuyModal({item, variation: item.attributes?.colors?.[0] || "", price: dealPrice, variantIdx: 0});
                               }
                             }}>
-                              {activeDeal ? '⚡ Buy Deal' : 'Buy Now'}
+                              {activeDeal ? 'Buy Deal' : 'Buy Now'}
                             </button>
                           </>
                         ) : (
@@ -3710,11 +3700,11 @@ function MarketplaceContent() {
                             style={{objectFit: 'cover', width: '28px', height: '28px', flexShrink: 0, borderRadius: '50%', border: '1px solid #e2e8f0'}} 
                             onError={(e) => {
                               e.currentTarget.onerror = null;
-                              e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(sellerName)}&background=ede9fe&color=7c3aed&bold=true`;
+                              e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(sellerName)}&background=F3F4F6&color=111827&bold=true`;
                             }}
                           />
                         ) : (
-                          <div className="seller-avatar" style={{width: '28px', height: '28px', flexShrink: 0, borderRadius: '50%', background: '#ede9fe', color: '#7c3aed', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 13}}>
+                          <div className="seller-avatar" style={{width: '28px', height: '28px', flexShrink: 0, borderRadius: '50%', background: '#F3F4F6', color: '#111827', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 13}}>
                             {sellerName.charAt(0).toUpperCase()}
                           </div>
                         );
@@ -3730,7 +3720,7 @@ function MarketplaceContent() {
                             rel="noopener noreferrer"
                             onClick={(e) => e.stopPropagation()}
                             style={{display: 'flex', alignItems: 'center', gap: 3, fontSize: '11px', fontWeight: 600, color: '#475569', textDecoration: 'none', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', transition: 'color .2s'}}
-                            onMouseEnter={(e) => (e.currentTarget.style.color = '#7c3aed')}
+                            onMouseEnter={(e) => (e.currentTarget.style.color = '#111827')}
                             onMouseLeave={(e) => (e.currentTarget.style.color = '#475569')}
                             title="View real seller location on Google Maps"
                           >
@@ -3790,10 +3780,10 @@ function MarketplaceContent() {
                 Payment & Logistics
               </h4>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 16 }}>
-                <span style={{ fontSize: 11, fontWeight: 700, padding: '4px 8px', borderRadius: 6, background: '#f1f5f9', color: '#334155' }}>💵 Cash on Delivery</span>
+                <span style={{ fontSize: 11, fontWeight: 700, padding: '4px 8px', borderRadius: 6, background: '#f1f5f9', color: '#334155' }}>Cash on Delivery</span>
                 <span style={{ fontSize: 11, fontWeight: 700, padding: '4px 8px', borderRadius: 6, background: '#f1f5f9', color: '#0284c7' }}>GCash</span>
                 <span style={{ fontSize: 11, fontWeight: 700, padding: '4px 8px', borderRadius: 6, background: '#f1f5f9', color: '#16a34a' }}>Maya</span>
-                <span style={{ fontSize: 11, fontWeight: 700, padding: '4px 8px', borderRadius: 6, background: '#f1f5f9', color: '#7c3aed' }}>🚚 SPX Express</span>
+                <span style={{ fontSize: 11, fontWeight: 700, padding: '4px 8px', borderRadius: 6, background: '#f1f5f9', color: '#111827' }}>SPX Express</span>
               </div>
               <p style={{ fontSize: 12, color: '#94a3b8', lineHeight: 1.5, margin: 0 }}>
                 100% Authentic Products • Secure Philippine Peso (₱) Checkout
@@ -3809,7 +3799,7 @@ function MarketplaceContent() {
                 {/* Official SiteLock Trust Seal */}
                 <SiteLockSeal size="md" showText={true} />
                 <div style={{ fontSize: 11, color: '#64748b', lineHeight: 1.4, borderTop: '1px solid #f1f5f9', paddingTop: 8 }}>
-                  🛡️ <strong>100% Shopply Protected:</strong> Real-time malware scanning, encrypted transactions, and official BIR electronic invoicing.
+                  <strong>100% Shopply Protected:</strong> Real-time malware scanning, encrypted transactions, and official BIR electronic invoicing.
                 </div>
               </div>
             </div>
@@ -3822,7 +3812,7 @@ function MarketplaceContent() {
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
               <span style={{ color: '#10b981', fontWeight: 600 }}>● All Systems Operational</span>
-              <span>Country: 🇵🇭 Philippines</span>
+              <span>Region: Philippines (PHP ₱)</span>
             </div>
           </div>
         </footer>
@@ -4029,7 +4019,7 @@ function MarketplaceContent() {
                     <h2 className="detail-name">{viewItem.name}</h2>
                     <div style={{display:'flex',alignItems:'center',gap:12,marginTop:12,flexWrap:'wrap',rowGap:6}}>
                       <div style={{display:'flex',alignItems:'center',gap:4}}>
-                        <span style={{fontSize:16,fontWeight:800,color:'#7c3aed',textDecoration:'underline'}}>
+                        <span style={{fontSize:16,fontWeight:800,color:'#111827',textDecoration:'underline'}}>
                           {reviews.length > 0 
                             ? (reviews.reduce((acc, r) => acc + Number(r.rating), 0) / reviews.length).toFixed(1) 
                             : "0.0"}
@@ -4084,7 +4074,7 @@ function MarketplaceContent() {
                         </div>
 
                         <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, fontWeight: 800, color: '#991b1b', background: '#fff', padding: '5px 12px', borderRadius: 8, border: '1.5px solid #fecdd3', boxShadow: '0 2px 4px rgba(0,0,0,0.04)' }}>
-                          <span>⏱️ Ends in:</span>
+                          <span>Ends in:</span>
                           <span style={{ fontFamily: 'monospace', fontWeight: 900, fontSize: 13, color: '#dc2626' }}>
                             {String(flashCountdown.hours).padStart(2, '0')}:{String(flashCountdown.minutes).padStart(2, '0')}:{String(flashCountdown.seconds).padStart(2, '0')}
                           </span>
@@ -4118,7 +4108,7 @@ function MarketplaceContent() {
                               padding: '3px 8px',
                               borderRadius: 6
                             }}>
-                              🔥 -{flashDiscountPct}% OFF
+                              -{flashDiscountPct}% OFF
                             </span>
                           </>
                         );
@@ -4137,7 +4127,7 @@ function MarketplaceContent() {
                     return (
                       <div style={{ margin: '8px 0 16px', maxWidth: 360 }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, fontWeight: 800, color: '#dc2626', marginBottom: 5 }}>
-                          <span>⚡ {claimedPct}% CLAIMED</span>
+                          <span>{claimedPct}% claimed</span>
                           <span style={{ color: '#64748b', fontWeight: 600 }}>{remainingStock > 0 ? `${remainingStock} left in deal quota` : 'Deal quota reached'}</span>
                         </div>
                         <div style={{ height: 7, background: '#fee2e2', borderRadius: 6, overflow: 'hidden' }}>
@@ -4230,7 +4220,7 @@ function MarketplaceContent() {
                           <button className="buy-btn" style={{
                             height: 52,
                             flex: 1.5,
-                            background: isDeal ? 'linear-gradient(135deg, #ef4444, #dc2626)' : 'linear-gradient(135deg, #7c3aed, #4f46e5)',
+                            background: isDeal ? 'linear-gradient(135deg, #ef4444, #dc2626)' : '#111827',
                             boxShadow: isDeal ? '0 4px 14px rgba(220, 38, 38, 0.35)' : undefined
                           }} onClick={() => {
                             if (viewItem.attributes?.colors && viewItem.attributes.colors.length > 0 && selectedVariant === null) {
@@ -4248,7 +4238,7 @@ function MarketplaceContent() {
                             const priceStr = isDeal ? String(dealPriceNum) : (viewItem.attributes?.variant_prices?.[varIdx] || viewItem.price);
                             setBuyModal({item: viewItem, variation: variationStr, price: priceStr, variantIdx: varIdx});
                           }}>
-                            {isDeal ? `⚡ Buy Now (₱${dealPriceNum!.toFixed(2)})` : 'Buy Now'}
+                            {isDeal ? `Buy Now (₱${dealPriceNum!.toFixed(2)})` : 'Buy Now'}
                           </button>
                         </>
                       );
@@ -4337,11 +4327,11 @@ function MarketplaceContent() {
                           alt="" 
                           onError={(e) => {
                             e.currentTarget.onerror = null;
-                            e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(sellerName)}&background=ede9fe&color=7c3aed&bold=true`;
+                            e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(sellerName)}&background=F3F4F6&color=111827&bold=true`;
                           }} 
                         />
                       ) : (
-                        <div className="seller-main-avatar" style={{background: '#ede9fe', color: '#7c3aed', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 18}}>
+                        <div className="seller-main-avatar" style={{background: '#F3F4F6', color: '#111827', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 18}}>
                           {sellerName.charAt(0).toUpperCase()}
                         </div>
                       );
@@ -4359,7 +4349,7 @@ function MarketplaceContent() {
                         target="_blank"
                         rel="noopener noreferrer"
                         style={{display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 12, fontWeight: 600, color: '#475569', textDecoration: 'none', marginBottom: 6, transition: 'color .2s'}}
-                        onMouseEnter={(e) => (e.currentTarget.style.color = '#7c3aed')}
+                        onMouseEnter={(e) => (e.currentTarget.style.color = '#111827')}
                         onMouseLeave={(e) => (e.currentTarget.style.color = '#475569')}
                         title="View real seller location on Google Maps"
                       >
@@ -4455,9 +4445,9 @@ function MarketplaceContent() {
                       style={{
                         padding: '8px 16px',
                         borderRadius: 10,
-                        border: '1px solid #7c3aed',
-                        background: '#f5f3ff',
-                        color: '#7c3aed',
+                        border: '1px solid #111827',
+                        background: '#F9FAFB',
+                        color: '#111827',
                         fontSize: 13,
                         fontWeight: 700,
                         cursor: 'pointer',
@@ -4514,7 +4504,7 @@ function MarketplaceContent() {
 
                 {/* WRITE A REVIEW FORM */}
                 {isWritingReview && (
-                  <div style={{ background: '#fff', borderRadius: 16, padding: 20, marginBottom: 24, border: '1.5px solid #7c3aed', boxShadow: '0 8px 24px rgba(124,58,237,0.08)' }}>
+                  <div style={{ background: '#fff', borderRadius: 16, padding: 20, marginBottom: 24, border: '1.5px solid #111827', boxShadow: '0 8px 24px rgba(17, 24, 39, 0.12)' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                       <h4 style={{ fontSize: 15, fontWeight: 700, color: '#0f172a', margin: 0 }}>Share Your Experience</h4>
                       <button 
@@ -4588,7 +4578,7 @@ function MarketplaceContent() {
                         <button 
                           type="submit" 
                           disabled={submittingReview}
-                          style={{ padding: '8px 24px', borderRadius: 8, border: 'none', background: 'linear-gradient(135deg, #7c3aed, #6d28d9)', color: '#fff', fontWeight: 700, fontSize: 13, cursor: 'pointer', boxShadow: '0 2px 8px rgba(124,58,237,0.25)', opacity: submittingReview ? 0.7 : 1 }}
+                          style={{ padding: '8px 24px', borderRadius: 8, border: 'none', background: '#111827', color: '#fff', fontWeight: 700, fontSize: 13, cursor: 'pointer', boxShadow: '0 2px 8px rgba(17, 24, 39, 0.12)', opacity: submittingReview ? 0.7 : 1 }}
                         >
                           {submittingReview ? "Submitting..." : "Submit Review"}
                         </button>
@@ -4802,7 +4792,7 @@ function MarketplaceContent() {
                           fontSize: 12,
                           fontWeight: 800
                         }}>
-                          <span>⚡ Flash Deal Applied (-{deal.discount_pct || 40}% OFF)</span>
+                          <span>Markdown Applied (-{deal.discount_pct || 40}% OFF)</span>
                         </div>
                       )}
                       {claimedVoucher && (
@@ -4816,7 +4806,7 @@ function MarketplaceContent() {
                           padding: '6px 12px'
                         }}>
                           <span style={{ fontSize: 12, fontWeight: 700, color: '#15803d' }}>
-                            🎟️ Voucher: <b>{claimedVoucher}</b> {voucherDesc && `(${voucherDesc})`}
+                            Voucher: <b>{claimedVoucher}</b> {voucherDesc && `(${voucherDesc})`}
                           </span>
                           <span style={{ fontSize: 11, fontWeight: 800, color: '#16a34a', background: '#dcfce7', padding: '2px 8px', borderRadius: 12 }}>
                             {voucherDiscountEst > 0 ? `-₱${voucherDiscountEst.toFixed(2)}` : 'Applied! ✓'}
@@ -4847,7 +4837,7 @@ function MarketplaceContent() {
                         padding:'12px',
                         borderRadius:10,
                         border:'none',
-                        background: deal ? 'linear-gradient(135deg,#ef4444,#dc2626)' : 'linear-gradient(135deg,#7c3aed,#4f46e5)',
+                        background: deal ? 'linear-gradient(135deg,#ef4444,#dc2626)' : '#111827',
                         color:'#fff',
                         fontWeight:700,
                         fontSize:14,
@@ -4981,7 +4971,7 @@ function MarketplaceContent() {
                             alt="" 
                             onError={(e) => {
                               e.currentTarget.onerror = null;
-                              e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(conv.user?.name || "User")}&background=ede9fe&color=7c3aed&bold=true`;
+                              e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(conv.user?.name || "User")}&background=F3F4F6&color=111827&bold=true`;
                             }}
                             style={{width: 44, height: 44, borderRadius: '50%', objectFit: 'cover'}} 
                           />
@@ -5091,7 +5081,7 @@ function MarketplaceContent() {
                           alt="" 
                           onError={(e) => {
                             e.currentTarget.onerror = null;
-                            e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(activeChatUser?.name || "User")}&background=ede9fe&color=7c3aed&bold=true`;
+                            e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(activeChatUser?.name || "User")}&background=F3F4F6&color=111827&bold=true`;
                           }}
                           style={{width: isMobile ? 32 : 40, height: isMobile ? 32 : 40, borderRadius: '50%', objectFit: 'cover'}} 
                         />
@@ -5132,7 +5122,7 @@ function MarketplaceContent() {
                       </>
                     ) : chatMessages.length === 0 ? (
                       <div style={{textAlign: 'center', margin: 'auto 0', color: '#94a3b8', fontSize: 14}}>
-                        <div style={{fontSize: 32, marginBottom: 8}}>👋</div>
+                        <div style={{width: 44, height: 44, borderRadius: '50%', background: '#F3F4F6', color: '#6B7280', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px'}}><IconChat /></div>
                         Say hello to {activeChatUser.name}!
                       </div>
                     ) : (
@@ -5184,7 +5174,7 @@ function MarketplaceContent() {
                                     alt="" 
                                     onError={(e) => {
                                       e.currentTarget.onerror = null;
-                                      e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(activeChatUser?.name || "User")}&background=ede9fe&color=7c3aed&bold=true`;
+                                      e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(activeChatUser?.name || "User")}&background=F3F4F6&color=111827&bold=true`;
                                     }}
                                     style={{width: 28, height: 28, borderRadius: '50%', objectFit: 'cover', marginBottom: 4}} 
                                   />
@@ -5207,13 +5197,13 @@ function MarketplaceContent() {
                                   wordBreak: 'break-word',
                                   whiteSpace: 'pre-wrap'
                                 } : {
-                                  background: isMe ? 'linear-gradient(135deg, #7c3aed, #6d28d9)' : '#f1f5f9',
+                                  background: isMe ? '#111827' : '#f1f5f9',
                                   color: isMe ? '#fff' : '#0f172a',
                                   borderRadius: isMe ? '20px 20px 4px 20px' : '20px 20px 20px 4px',
                                   padding: isMobile ? '8px 12px' : '12px 18px',
                                   fontSize: isMobile ? 13 : 14,
                                   lineHeight: 1.5,
-                                  boxShadow: isMe ? '0 4px 12px rgba(124, 58, 237, 0.2)' : 'none',
+                                  boxShadow: isMe ? '0 4px 12px rgba(17, 24, 39, 0.12)' : 'none',
                                   wordBreak: 'break-word',
                                   whiteSpace: 'pre-wrap'
                                 }}>
@@ -5309,7 +5299,7 @@ function MarketplaceContent() {
                             alt="" 
                             onError={(e) => {
                               e.currentTarget.onerror = null;
-                              e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(activeChatUser?.name || "User")}&background=ede9fe&color=7c3aed&bold=true`;
+                              e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(activeChatUser?.name || "User")}&background=F3F4F6&color=111827&bold=true`;
                             }}
                             style={{ width: 28, height: 28, borderRadius: '50%', objectFit: 'cover', marginBottom: 4 }} 
                           />
@@ -5318,7 +5308,7 @@ function MarketplaceContent() {
                             {activeChatUser.name.charAt(0).toUpperCase()}
                           </div>
                         )}
-                        <div style={{ background: '#d8b4fe', padding: '12px 18px', borderRadius: '20px 20px 20px 4px', display: 'flex', alignItems: 'center', gap: 6, boxShadow: '0 4px 12px rgba(216, 180, 254, 0.2)' }}>
+                        <div style={{ background: '#E5E7EB', padding: '12px 18px', borderRadius: '20px 20px 20px 4px', display: 'flex', alignItems: 'center', gap: 6, boxShadow: '0 4px 12px rgba(17, 24, 39, 0.06)' }}>
                           <span style={{ width: 8, height: 8, background: '#475569', borderRadius: '50%', animation: 'typingBounce 1.4s infinite ease-in-out both', animationDelay: '-0.32s' }}></span>
                           <span style={{ width: 8, height: 8, background: '#475569', borderRadius: '50%', animation: 'typingBounce 1.4s infinite ease-in-out both', animationDelay: '-0.16s' }}></span>
                           <span style={{ width: 8, height: 8, background: '#475569', borderRadius: '50%', animation: 'typingBounce 1.4s infinite ease-in-out both' }}></span>
@@ -5345,7 +5335,7 @@ function MarketplaceContent() {
                             >✕</button>
                           </div>
                         ))}
-                        <label style={{ height: 75, width: 75, borderRadius: 8, border: '2px dashed #a855f7', background: '#f3e8ff', color: '#7c3aed', fontSize: 24, fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0, transition: 'all 0.2s' }} title="Add more photos">
+                        <label style={{ height: 75, width: 75, borderRadius: 8, border: '2px dashed #9CA3AF', background: '#F3F4F6', color: '#111827', fontSize: 24, fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0, transition: 'all 0.2s' }} title="Add more photos">
                           +
                           <input
                             type="file"
@@ -5493,8 +5483,8 @@ function MarketplaceContent() {
                           width: isMobile ? 32 : 44,
                           height: isMobile ? 32 : 44,
                           borderRadius: '50%',
-                          background: isEmojiPickerOpen ? '#ddd6fe' : '#e2e8f0',
-                          color: isEmojiPickerOpen ? '#6d28d9' : '#64748b',
+                          background: isEmojiPickerOpen ? '#E5E7EB' : '#e2e8f0',
+                          color: isEmojiPickerOpen ? '#111827' : '#64748b',
                           border: 'none',
                           cursor: 'pointer',
                           transition: 'all 0.2s',
@@ -5591,7 +5581,7 @@ function MarketplaceContent() {
                         type="submit"
                         disabled={!newChatMessage.trim() && chatImageFiles.length === 0}
                         style={{
-                          background: 'linear-gradient(135deg, #7c3aed, #6d28d9)',
+                          background: '#111827',
                           color: '#fff',
                           border: 'none',
                           width: isMobile ? 36 : 46,
@@ -5602,7 +5592,7 @@ function MarketplaceContent() {
                           justifyContent: 'center',
                           cursor: (!newChatMessage.trim() && chatImageFiles.length === 0) ? 'not-allowed' : 'pointer',
                           opacity: (!newChatMessage.trim() && chatImageFiles.length === 0) ? 0.6 : 1,
-                          boxShadow: '0 4px 12px rgba(124, 58, 237, 0.3)',
+                          boxShadow: '0 4px 12px rgba(17, 24, 39, 0.12)',
                           transition: 'all 0.2s',
                           flexShrink: 0
                         }}
@@ -5785,7 +5775,7 @@ function MarketplaceContent() {
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{
-                    background: '#7c3aed',
+                    background: '#111827',
                     color: '#fff',
                     textDecoration: 'none',
                     borderRadius: 20,
