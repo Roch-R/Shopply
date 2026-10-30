@@ -1945,9 +1945,9 @@ export default function DashboardPage() {
 
     if (!token || !stored) {
       if (typeof window !== "undefined" && window.location?.replace) {
-        window.location.replace("/login");
+        window.location.replace("/login?logged_out=1");
       }
-      router.replace("/login");
+      router.replace("/login?logged_out=1");
       return;
     }
 
@@ -1956,9 +1956,9 @@ export default function DashboardPage() {
       const curStored = localStorage.getItem("user") || localStorage.getItem("shopply_user");
       if (!curToken || !curStored) {
         if (typeof window !== "undefined" && window.location?.replace) {
-          window.location.replace("/login");
+          window.location.replace("/login?logged_out=1");
         }
-        router.replace("/login");
+        router.replace("/login?logged_out=1");
       }
     };
     window.addEventListener("pageshow", handleRecheck);
@@ -1990,6 +1990,18 @@ export default function DashboardPage() {
         setUser(freshUser);
         setProfileName(freshUser.name);
         setReady(true);
+
+        if (typeof window !== "undefined" && window.location.search.includes("notice=already_authenticated")) {
+          const cleanUrl = new URL(window.location.href);
+          cleanUrl.searchParams.delete("notice");
+          const nextUrl = cleanUrl.pathname + (cleanUrl.search ? cleanUrl.search : "") + cleanUrl.hash;
+          window.history.replaceState({}, "", nextUrl);
+          setToast({
+            message: "You are already signed in. Log out first to switch accounts.",
+            type: "success",
+          });
+          setTimeout(() => setToast(null), 4000);
+        }
       })
       .catch(() => {
         if (!cancelled) {
@@ -1998,9 +2010,9 @@ export default function DashboardPage() {
           localStorage.removeItem("shopply_user");
           revokeMarketplaceAccess();
           if (typeof window !== "undefined" && window.location?.replace) {
-            window.location.replace("/login");
+            window.location.replace("/login?logged_out=1");
           }
-          router.replace("/login");
+          router.replace("/login?logged_out=1");
         }
       });
 
@@ -2603,7 +2615,11 @@ export default function DashboardPage() {
   const handleBuyAgain = async (order: Order) => {
     const token = localStorage.getItem("token");
     if (!token) {
-      router.push("/login");
+      if (typeof window !== "undefined" && window.location?.replace) {
+        window.location.replace("/login?logged_out=1");
+        return;
+      }
+      router.replace("/login?logged_out=1");
       return;
     }
     grantMarketplaceAccess(token);
@@ -2694,26 +2710,29 @@ export default function DashboardPage() {
   const handleLogout = async () => {
     revokeMarketplaceAccess();
     const token = localStorage.getItem("token");
-    if (token) {
-      try {
-        await fetch(`${API}/logout`, {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            Accept: "application/json",
-          },
-        });
-      } catch (err) {
-        console.error("Logout request failed:", err);
-      }
+    try {
+      await fetch(`${API}/logout`, {
+        method: "POST",
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          Accept: "application/json",
+        },
+      });
+    } catch (err) {
+      console.error("Logout request failed:", err);
     }
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    localStorage.removeItem("shopply_user");
     localStorage.removeItem("shopply_dashboard_access");
     sessionStorage.removeItem("shopply_dashboard_access");
     localStorage.setItem("shopply_on_landing", "true");
     getApiCache().invalidateAll();
-    router.push("/login");
+    if (typeof window !== "undefined" && window.location?.replace) {
+      window.location.replace("/login?logged_out=1");
+      return;
+    }
+    router.replace("/login?logged_out=1");
   };
 
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {

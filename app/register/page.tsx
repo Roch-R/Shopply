@@ -3,6 +3,8 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { apiRegister } from "@/lib/api";
 import { getApiCache } from "@/lib/apiCache";
+import { grantMarketplaceAccess } from "@/lib/marketplaceAccess";
+import { useGuestOnlyGuard } from "@/lib/useGuestOnlyGuard";
 import { ShopplyWordmark } from "@/components/PublicChrome";
 
 const EyeOpen = () => (
@@ -43,6 +45,7 @@ const GoogleIcon = () => (
 );
 
 export default function RegisterPage() {
+  const { checking } = useGuestOnlyGuard();
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -64,25 +67,55 @@ export default function RegisterPage() {
   });
 
   useEffect(() => {
+    if (checking) return;
     setOrigin(window.location.origin);
 
-    (window as unknown as Record<string, unknown>).onRecaptchaSuccess = (token: string) => {
+    const win = window as unknown as Record<string, any>;
+    win.onRecaptchaSuccess = (token: string) => {
       setRecaptchaToken(token);
       setError("");
     };
-    (window as unknown as Record<string, unknown>).onRecaptchaExpired = () => {
+    win.onRecaptchaExpired = () => {
       setRecaptchaToken(null);
     };
 
-    if (!document.getElementById("google-recaptcha-script")) {
+    const existingScript = document.getElementById("google-recaptcha-script");
+    if (!existingScript) {
       const script = document.createElement("script");
       script.id = "google-recaptcha-script";
       script.src = "https://www.google.com/recaptcha/api.js";
       script.async = true;
       script.defer = true;
       document.body.appendChild(script);
+    } else if (win.grecaptcha && typeof win.grecaptcha.render === "function") {
+      const el = document.querySelector(".g-recaptcha") as HTMLElement | null;
+      if (el && el.childElementCount === 0) {
+        try {
+          win.grecaptcha.render(el, {
+            sitekey: process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || "6Lc0RV4tAAAAAFG8MkXdmNJ0Bs9pX8_ML7dwtcpM",
+            callback: win.onRecaptchaSuccess,
+            "expired-callback": win.onRecaptchaExpired,
+          });
+        } catch {}
+      }
     }
-  }, []);
+  }, [checking]);
+
+  const redirectIfAlreadySignedIn = (): boolean => {
+    const existingToken = localStorage.getItem("token");
+    const rawUser = localStorage.getItem("user") || localStorage.getItem("shopply_user");
+    if (existingToken && rawUser) {
+      try {
+        const parsed = JSON.parse(rawUser);
+        if (parsed?.id && parsed?.email_verified_at) {
+          grantMarketplaceAccess(existingToken);
+          window.location.replace("/dashboard?notice=already_authenticated");
+          return true;
+        }
+      } catch {}
+    }
+    return false;
+  };
 
   const passRules = [
     { label: "At least 8 characters", ok: password.length >= 8 },
@@ -99,6 +132,7 @@ export default function RegisterPage() {
   const strengthWidth = ["0%", "33%", "66%", "100%"][passScore];
 
   const handleGoogleLogin = () => {
+    if (redirectIfAlreadySignedIn()) return;
     const clientId = "10342567270-6b7rfni3mbil5anjo1fk1u9c9eo4mp6l.apps.googleusercontent.com" as string;
     if (!clientId || clientId === "your_google_client_id_here") {
       setShowGoogleModal(true);
@@ -110,6 +144,7 @@ export default function RegisterPage() {
   };
 
   const handleSubmit = async () => {
+    if (redirectIfAlreadySignedIn()) return;
     setError("");
     setTouched({ username: true, email: true, password: true, confirm: true });
 
@@ -152,19 +187,70 @@ export default function RegisterPage() {
         recaptchaToken,
       });
       getApiCache().invalidateAll();
-      localStorage.setItem("token", data.token!);
-      localStorage.setItem("user", JSON.stringify(data.user));
-      window.location.href = "/dashboard";
+      if (data.token) {
+        localStorage.setItem("token", data.token);
+        grantMarketplaceAccess(data.token);
+      }
+      if (data.user) {
+        localStorage.setItem("user", JSON.stringify(data.user));
+      }
+      localStorage.removeItem("shopply_on_landing");
+      sessionStorage.removeItem("shopply_on_landing");
+      localStorage.setItem("shopply_dashboard_access", "true");
+      sessionStorage.setItem("shopply_dashboard_access", "true");
+      localStorage.removeItem("shopply_landing_lock");
+      window.location.replace("/dashboard");
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "";
       if (msg === "requires_verify") {
-        window.location.href = "/verify";
+        window.location.replace("/verify");
         return;
       }
       setError(msg || "Registration failed. Please try again.");
       setLoading(false);
     }
   };
+
+  if (checking) {
+    return (
+      <main
+        style={{
+          minHeight: "100vh",
+          background: "#F7F7F5",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "24px",
+          fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: "12px",
+            color: "#4B5563",
+            fontSize: "13.5px",
+            fontWeight: 500,
+          }}
+        >
+          <div
+            style={{
+              width: 28,
+              height: 28,
+              border: "2.5px solid #E5E7EB",
+              borderTopColor: "#111827",
+              borderRadius: "50%",
+              animation: "shopplyRegGateSpin 0.7s linear infinite",
+            }}
+          />
+          <style suppressHydrationWarning>{`@keyframes shopplyRegGateSpin { to { transform: rotate(360deg); } }`}</style>
+          <span>Checking session security...</span>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <>

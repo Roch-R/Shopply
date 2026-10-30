@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/firebase";
 import { collection, query, where, getDocs, doc, setDoc } from "firebase/firestore";
 import { generateToken, formatUser, hashPassword } from "@/lib/db";
+import { signSessionCookie, applySessionCookie, clearSessionCookie } from "@/lib/sessionCookie";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -35,9 +36,10 @@ export async function POST(req: Request) {
 
     if (code) {
       if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
-        return NextResponse.json({ 
-          message: "Google OAuth credentials are not configured on the backend." 
-        }, { status: 500 });
+        return NextResponse.json(
+          { message: "Google OAuth credentials are not configured on the backend." },
+          { status: 500 }
+        );
       }
 
       // Determine redirect URI - prefer the one sent by the client to match exactly
@@ -55,16 +57,17 @@ export async function POST(req: Request) {
           client_secret: GOOGLE_CLIENT_SECRET,
           redirect_uri: finalRedirectUri,
           grant_type: "authorization_code",
-          code
-        })
+          code,
+        }),
       });
 
       if (!tokenRes.ok) {
         const errDetails = await tokenRes.text();
         console.error("[google-callback] Token exchange error:", errDetails);
-        return NextResponse.json({ 
-          message: `Failed to exchange Google authorization code. Details: ${errDetails}` 
-        }, { status: 400 });
+        return NextResponse.json(
+          { message: `Failed to exchange Google authorization code. Details: ${errDetails}` },
+          { status: 400 }
+        );
       }
 
       const tokenData = await tokenRes.json();
@@ -86,7 +89,7 @@ export async function POST(req: Request) {
       if (!email && accessToken) {
         const endpoints = [
           "https://www.googleapis.com/oauth2/v3/userinfo",
-          "https://openidconnect.googleapis.com/v1/userinfo"
+          "https://openidconnect.googleapis.com/v1/userinfo",
         ];
 
         for (const ep of endpoints) {
@@ -95,8 +98,8 @@ export async function POST(req: Request) {
               headers: {
                 Authorization: `Bearer ${accessToken}`,
                 "User-Agent": "Shopply/1.0",
-                Accept: "application/json"
-              }
+                Accept: "application/json",
+              },
             });
 
             if (userRes.ok) {
@@ -117,19 +120,19 @@ export async function POST(req: Request) {
           }
         }
       }
-
-    } else if (simulated_email) {
+    } else if (simulated_email && process.env.NODE_ENV !== "production") {
       email = simulated_email;
       name = simulated_name || "Google User";
       avatar = simulated_avatar || null;
     } else {
-      return NextResponse.json({ message: "No authorization code or simulated user provided." }, { status: 400 });
+      return NextResponse.json({ message: "No authorization code provided." }, { status: 400 });
     }
 
     if (!email) {
-      return NextResponse.json({ 
-        message: "Failed to fetch user info from Google. Please try signing in again." 
-      }, { status: 400 });
+      return NextResponse.json(
+        { message: "Failed to fetch user info from Google. Please try signing in again." },
+        { status: 400 }
+      );
     }
 
     // Check if user exists in Firestore by email or username
@@ -147,10 +150,23 @@ export async function POST(req: Request) {
       user = userDoc.data();
       userId = user.id || Number(userDoc.id);
 
+      // Block suspended accounts from bypassing suspension via Google Sign-In
+      if (user.is_blocked === true) {
+        return clearSessionCookie(
+          NextResponse.json(
+            {
+              message: "Your account has been suspended by the administrator.",
+              is_blocked: true,
+            },
+            { status: 403 }
+          )
+        );
+      }
+
       // Update fields if missing
-      const updates: any = { 
+      const updates: any = {
         updated_at: new Date().toISOString(),
-        email: email
+        email: email,
       };
       let hasUpdates = false;
 
@@ -176,7 +192,7 @@ export async function POST(req: Request) {
       // Create new Google User
       userId = Date.now();
       const userDocRef = doc(db, "users", String(userId));
-      
+
       const randomPassword = Math.random().toString(36).substring(2, 15);
       user = {
         id: userId,
@@ -188,21 +204,26 @@ export async function POST(req: Request) {
         phone: null,
         email_verified_at: new Date().toISOString(),
         created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       };
 
       await setDoc(userDocRef, user);
     }
 
-    // Generate JWT token
+    // Generate JWT token & HttpOnly session cookie
     const token = generateToken({ userId });
+    const signedSession = await signSessionCookie(userId);
 
-    return NextResponse.json({
-      message: "Google login successful.",
-      token,
-      user: formatUser(user)
-    }, { status: 200 });
-
+    const res = NextResponse.json(
+      {
+        message: "Google login successful.",
+        token,
+        user: formatUser(user),
+      },
+      { status: 200 }
+    );
+    res.headers.set("Cache-Control", "private, no-store, no-cache, must-revalidate");
+    return applySessionCookie(res, signedSession);
   } catch (err: any) {
     console.error("[google-callback] API error:", err);
     return NextResponse.json({ message: err?.message || "Internal server error." }, { status: 500 });

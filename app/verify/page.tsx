@@ -2,10 +2,12 @@
 import { useState, useEffect } from "react";
 import { Skeleton } from "@/components/Skeleton";
 import { getApiCache } from "@/lib/apiCache";
-import { grantMarketplaceAccess } from "@/lib/marketplaceAccess";
+import { grantMarketplaceAccess, revokeMarketplaceAccess } from "@/lib/marketplaceAccess";
+import { useGuestOnlyGuard } from "@/lib/useGuestOnlyGuard";
 import { ShopplyWordmark } from "@/components/PublicChrome";
 
 export default function VerifyPage() {
+  const { checking } = useGuestOnlyGuard({ allowUnverified: true });
   const [otp, setOtp] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -19,27 +21,15 @@ export default function VerifyPage() {
   const getToken = () => (typeof window !== "undefined" ? localStorage.getItem("token") : null);
 
   useEffect(() => {
+    if (checking) return;
+
     const token = localStorage.getItem("token");
     const raw = localStorage.getItem("user");
     const storedPendingEmail = localStorage.getItem("pending_email");
 
-    const expiresAt = localStorage.getItem("otp_expires_at");
-    if (expiresAt) {
-      const remaining = Math.round((parseInt(expiresAt, 10) - Date.now()) / 1000);
-      if (remaining > 0) {
-        setTimeLeft(remaining);
-      } else {
-        setTimeLeft(0);
-        setError("Your verification code has expired. Please request a new one.");
-      }
-    } else {
-      const fallbackExpires = Date.now() + 300 * 1000;
-      localStorage.setItem("otp_expires_at", fallbackExpires.toString());
-      setTimeLeft(300);
-    }
-
     if (!token && !storedPendingEmail) {
-      window.location.href = "/login";
+      setRedirecting(true);
+      window.location.replace("/login?logged_out=1");
       return;
     }
 
@@ -60,8 +50,24 @@ export default function VerifyPage() {
 
     if (isVerified) {
       setRedirecting(true);
-      window.location.href = "/dashboard";
+      if (token) grantMarketplaceAccess(token);
+      window.location.replace("/dashboard?notice=already_authenticated");
       return;
+    }
+
+    const expiresAt = localStorage.getItem("otp_expires_at");
+    if (expiresAt) {
+      const remaining = Math.round((parseInt(expiresAt, 10) - Date.now()) / 1000);
+      if (remaining > 0) {
+        setTimeLeft(remaining);
+      } else {
+        setTimeLeft(0);
+        setError("Your verification code has expired. Please request a new one.");
+      }
+    } else {
+      const fallbackExpires = Date.now() + 300 * 1000;
+      localStorage.setItem("otp_expires_at", fallbackExpires.toString());
+      setTimeLeft(300);
     }
 
     const targetEmail = storedPendingEmail || userEmail;
@@ -69,10 +75,10 @@ export default function VerifyPage() {
       setPendingEmail(targetEmail);
       setSuccess("Verification code sent. Enter the 6-digit code from your inbox below.");
     }
-  }, []);
+  }, [checking]);
 
   useEffect(() => {
-    if (timeLeft <= 0) return;
+    if (checking || timeLeft <= 0) return;
 
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
@@ -86,15 +92,18 @@ export default function VerifyPage() {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [timeLeft]);
+  }, [checking, timeLeft]);
 
   const forceLogin = () => {
+    revokeMarketplaceAccess();
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    localStorage.removeItem("shopply_user");
     localStorage.removeItem("pending_email");
     localStorage.removeItem("otp_expires_at");
     getApiCache().invalidateAll();
-    window.location.href = "/login";
+    fetch("/api/logout", { method: "POST", keepalive: true }).catch(() => {});
+    window.location.replace("/login?logged_out=1");
   };
 
   const handleVerify = async () => {
@@ -152,12 +161,15 @@ export default function VerifyPage() {
         return;
       }
 
-      if (data.token) {
-        localStorage.setItem("token", data.token);
-        grantMarketplaceAccess(data.token);
+      getApiCache().invalidateAll();
+      const finalToken = data.token || token;
+      if (finalToken) {
+        localStorage.setItem("token", finalToken);
+        grantMarketplaceAccess(finalToken);
       }
       if (data.user) localStorage.setItem("user", JSON.stringify(data.user));
       localStorage.removeItem("pending_email");
+      localStorage.removeItem("otp_expires_at");
       localStorage.removeItem("shopply_on_landing");
       sessionStorage.removeItem("shopply_on_landing");
       localStorage.setItem("shopply_dashboard_access", "true");
@@ -166,7 +178,7 @@ export default function VerifyPage() {
 
       setSuccess("Email verified. Opening your account...");
       setRedirecting(true);
-      window.location.href = "/dashboard";
+      window.location.replace("/dashboard");
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "";
       setError(message || "Invalid verification code. Please check and try again.");
@@ -230,7 +242,7 @@ export default function VerifyPage() {
     setResending(false);
   };
 
-  if (redirecting) {
+  if (checking || redirecting) {
     return (
       <div
         style={{

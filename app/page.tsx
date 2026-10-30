@@ -23,6 +23,7 @@ export default function Home() {
     localStorage.removeItem("shopply_landing_lock");
     sessionStorage.clear();
     getApiCache().invalidateAll();
+    fetch("/api/logout", { method: "POST", keepalive: true }).catch(() => {});
 
     setReady(true);
 

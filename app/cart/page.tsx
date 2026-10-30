@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { getApiCache } from "@/lib/apiCache";
-import { hasMarketplaceAccess } from "@/lib/marketplaceAccess";
+import { hasMarketplaceAccess, revokeMarketplaceAccess } from "@/lib/marketplaceAccess";
 import { SkeletonCartItem } from "@/components/Skeleton";
 import { db } from "@/lib/firebase";
 import { doc, getDoc, getDocs, collection } from "firebase/firestore";
@@ -32,6 +32,7 @@ interface CartItem {
 
 export default function CartPage() {
   const router = useRouter();
+  const [authorized, setAuthorized] = useState(false);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedItems, setSelectedItems] = useState<number[]>([]);
@@ -107,7 +108,7 @@ export default function CartPage() {
   };
 
   useEffect(() => {
-    fetchCart();
+    let cancelled = false;
 
     const loadCoupons = async () => {
       try {
@@ -126,6 +127,7 @@ export default function CartPage() {
             });
           }
         });
+        if (cancelled) return;
         setAvailableCoupons(list);
 
         const savedVoucher = typeof window !== "undefined" ? localStorage.getItem("claimed_voucher") : null;
@@ -138,7 +140,68 @@ export default function CartPage() {
         console.error("Error loading coupons in cart:", e);
       }
     };
-    loadCoupons();
+
+    const verifyAndLoadCart = async () => {
+      const token = localStorage.getItem("token");
+      if (!hasMarketplaceAccess(token)) {
+        setAuthorized(false);
+        window.location.replace("/");
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API}/me`, {
+          cache: "no-store",
+          headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
+        });
+        if (cancelled) return;
+
+        if (res.status === 401 || res.status === 403) {
+          revokeMarketplaceAccess();
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          localStorage.removeItem("shopply_user");
+          localStorage.removeItem("shopply_dashboard_access");
+          getApiCache().invalidateAll();
+          setAuthorized(false);
+          window.location.replace("/");
+          return;
+        }
+
+        if (!res.ok) {
+          setAuthorized(false);
+          window.location.replace("/");
+          return;
+        }
+
+        setAuthorized(true);
+        fetchCart();
+        loadCoupons();
+      } catch {
+        if (!cancelled) {
+          setAuthorized(false);
+          window.location.replace("/");
+        }
+      }
+    };
+
+    verifyAndLoadCart();
+
+    const handlePageCheck = () => {
+      const curToken = localStorage.getItem("token");
+      if (!hasMarketplaceAccess(curToken)) {
+        setAuthorized(false);
+        window.location.replace("/");
+      }
+    };
+    window.addEventListener("pageshow", handlePageCheck);
+    window.addEventListener("storage", handlePageCheck);
+
+    return () => {
+      cancelled = true;
+      window.removeEventListener("pageshow", handlePageCheck);
+      window.removeEventListener("storage", handlePageCheck);
+    };
   }, []);
 
   const showToast = (message: string, type: "success" | "error" = "success") => {
@@ -365,6 +428,10 @@ export default function CartPage() {
       setCheckingOut(false);
     }
   };
+
+  if (!authorized) {
+    return <main style={{ minHeight: "100vh", background: "#F8F9FA" }} />;
+  }
 
   return (
     <>

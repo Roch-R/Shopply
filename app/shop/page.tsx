@@ -5850,9 +5850,15 @@ function MarketplaceContent() {
               <button
                 type="button"
                 onClick={() => {
+                  revokeMarketplaceAccess();
                   localStorage.removeItem('token');
+                  localStorage.removeItem('user');
                   localStorage.removeItem('shopply_user');
-                  window.location.href = '/login';
+                  localStorage.removeItem('shopply_dashboard_access');
+                  sessionStorage.removeItem('shopply_dashboard_access');
+                  getApiCache().invalidateAll();
+                  fetch('/api/logout', { method: 'POST', keepalive: true }).catch(() => {});
+                  window.location.replace('/login?logged_out=1');
                 }}
                 style={{
                   width: '100%',

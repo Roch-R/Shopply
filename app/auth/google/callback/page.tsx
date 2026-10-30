@@ -29,6 +29,18 @@ function GoogleCallbackContent() {
     }
 
     if (!code && !simulated_email) {
+      const existingToken = localStorage.getItem("token");
+      const rawUser = localStorage.getItem("user") || localStorage.getItem("shopply_user");
+      if (existingToken && rawUser) {
+        try {
+          const parsed = JSON.parse(rawUser);
+          if (parsed?.id && parsed?.email_verified_at) {
+            grantMarketplaceAccess(existingToken);
+            window.location.replace("/dashboard?notice=already_authenticated");
+            return;
+          }
+        } catch {}
+      }
       setError("No authorization code or account provided.");
       return;
     }
@@ -54,7 +66,7 @@ function GoogleCallbackContent() {
         localStorage.setItem("shopply_dashboard_access", "true");
         sessionStorage.setItem("shopply_dashboard_access", "true");
         localStorage.removeItem("shopply_landing_lock");
-        router.replace("/dashboard");
+        window.location.replace("/dashboard");
       } catch (err: unknown) {
         setError(err instanceof Error ? err.message : "Authentication failed.");
       }

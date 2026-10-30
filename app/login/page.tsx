@@ -4,6 +4,7 @@ import Link from "next/link";
 import { apiLogin } from "@/lib/api";
 import { getApiCache } from "@/lib/apiCache";
 import { grantMarketplaceAccess } from "@/lib/marketplaceAccess";
+import { useGuestOnlyGuard } from "@/lib/useGuestOnlyGuard";
 import LogoDrawPreloader from "@/components/LogoDrawPreloader";
 import { ShopplyWordmark } from "@/components/PublicChrome";
 
@@ -32,6 +33,7 @@ const GoogleIcon = () => (
 );
 
 export default function LoginPage() {
+  const { checking } = useGuestOnlyGuard();
   const [form, setForm] = useState({ username: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -44,12 +46,29 @@ export default function LoginPage() {
     setOrigin(window.location.origin);
   }, []);
 
+  const redirectIfAlreadySignedIn = (): boolean => {
+    const existingToken = localStorage.getItem("token");
+    const rawUser = localStorage.getItem("user") || localStorage.getItem("shopply_user");
+    if (existingToken && rawUser) {
+      try {
+        const parsed = JSON.parse(rawUser);
+        if (parsed?.id && parsed?.email_verified_at) {
+          grantMarketplaceAccess(existingToken);
+          window.location.replace("/dashboard?notice=already_authenticated");
+          return true;
+        }
+      } catch {}
+    }
+    return false;
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
     setError("");
   };
 
   const handleGoogleLogin = () => {
+    if (redirectIfAlreadySignedIn()) return;
     const clientId = "10342567270-6b7rfni3mbil5anjo1fk1u9c9eo4mp6l.apps.googleusercontent.com" as string;
     if (!clientId || clientId === "your_google_client_id_here") {
       setShowGoogleModal(true);
@@ -62,6 +81,7 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (redirectIfAlreadySignedIn()) return;
     if (!form.username || !form.password) {
       setError("Please fill in all fields.");
       return;
@@ -79,17 +99,58 @@ export default function LoginPage() {
       localStorage.setItem("shopply_dashboard_access", "true");
       sessionStorage.setItem("shopply_dashboard_access", "true");
       localStorage.removeItem("shopply_landing_lock");
-      window.location.href = "/dashboard";
+      window.location.replace("/dashboard");
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "";
       if (msg === "requires_verify") {
-        window.location.href = "/verify";
+        window.location.replace("/verify");
         return;
       }
       setError(msg || "Login failed. Check your credentials.");
       setLoading(false);
     }
   };
+
+  if (checking) {
+    return (
+      <main
+        style={{
+          minHeight: "100vh",
+          background: "#F7F7F5",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "24px",
+          fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: "12px",
+            color: "#4B5563",
+            fontSize: "13.5px",
+            fontWeight: 500,
+          }}
+        >
+          <div
+            style={{
+              width: 28,
+              height: 28,
+              border: "2.5px solid #E5E7EB",
+              borderTopColor: "#111827",
+              borderRadius: "50%",
+              animation: "shopplyAuthGateSpin 0.7s linear infinite",
+            }}
+          />
+          <style suppressHydrationWarning>{`@keyframes shopplyAuthGateSpin { to { transform: rotate(360deg); } }`}</style>
+          <span>Checking session security...</span>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <>

@@ -2,7 +2,9 @@ const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const vm = require('node:vm');
+const crypto = require('node:crypto');
 const ts = require('typescript');
+const { NextRequest, NextResponse } = require('next/server');
 
 function compile(path) {
   return ts.transpileModule(fs.readFileSync(path, 'utf8'), {
@@ -16,12 +18,47 @@ function storage() {
     getItem: key => values.get(key) ?? null,
     setItem: (key, value) => values.set(key, value),
     removeItem: key => values.delete(key),
+    clear: () => values.clear(),
   };
 }
 
 function accessForTab() {
   const context = { exports: {}, sessionStorage: storage() };
   vm.runInNewContext(compile('lib/marketplaceAccess.ts'), context);
+  return context.exports;
+}
+
+function loadSessionCookieModule(nowOverride) {
+  const fakeDate = Object.create(Date);
+  if (typeof nowOverride === 'number') {
+    fakeDate.now = () => nowOverride;
+  } else {
+    fakeDate.now = () => Date.now();
+  }
+  const context = {
+    exports: {},
+    crypto: crypto.webcrypto,
+    TextEncoder,
+    TextDecoder,
+    Buffer,
+    Date: fakeDate,
+    process: { env: { JWT_SECRET: 'unit-test-shopply-secret', NODE_ENV: 'production' } },
+  };
+  vm.runInNewContext(compile('lib/sessionCookie.ts'), context);
+  return context.exports;
+}
+
+function loadProxyModule(sessionMod) {
+  const context = {
+    exports: {},
+    URL,
+    require: name => {
+      if (name === 'next/server') return { NextRequest, NextResponse };
+      if (name === '@/lib/sessionCookie') return sessionMod;
+      return {};
+    },
+  };
+  vm.runInNewContext(compile('proxy.ts'), context);
   return context.exports;
 }
 
@@ -143,3 +180,81 @@ test('landing page and static pages never link logo or navbar to dashboard', () 
   }
 });
 
+test('signed session cookie verifies valid tokens and rejects tampering or expiry', async () => {
+  const now = 1_800_000_000_000;
+  const sessionMod = loadSessionCookieModule(now);
+  const signed = await sessionMod.signSessionCookie(42);
+  const verified = await sessionMod.verifySessionCookie(signed);
+  assert.equal(verified?.uid, '42');
+  assert.equal(verified?.verified, true);
+
+  // Tamper payload
+  const parts = signed.split('.');
+  const forgedPayload = Buffer.from(JSON.stringify({ uid: '1', verified: true, iat: 1, exp: 9999999999 })).toString('base64url');
+  assert.equal(await sessionMod.verifySessionCookie(`${parts[0]}.${forgedPayload}.${parts[2]}`), null);
+
+  // Tamper signature
+  assert.equal(await sessionMod.verifySessionCookie(`${parts[0]}.${parts[1]}.invalidsig`), null);
+
+  // Expired cookie (8 days later)
+  const futureMod = loadSessionCookieModule(now + 8 * 24 * 60 * 60 * 1000);
+  assert.equal(await futureMod.verifySessionCookie(signed), null);
+});
+
+test('server proxy strictly blocks /login, /register, /verify, and /auth/google when already authenticated', async () => {
+  const sessionMod = loadSessionCookieModule();
+  const proxyMod = loadProxyModule(sessionMod);
+  const validCookie = await sessionMod.signSessionCookie(99);
+
+  for (const blockedPath of [
+    '/login',
+    '/register',
+    '/verify',
+    '/auth/google/chooser',
+    '/auth/google/callback',
+  ]) {
+    const req = new NextRequest(`https://www.shop-ply.site${blockedPath}`, {
+      headers: { cookie: `${sessionMod.SHOPPLY_SESSION_COOKIE}=${validCookie}` },
+    });
+    const res = await proxyMod.proxy(req);
+    assert.equal(res.status, 307, `${blockedPath} must redirect with 307 when logged in`);
+    assert.equal(
+      res.headers.get('location'),
+      'https://www.shop-ply.site/dashboard?notice=already_authenticated',
+      `${blockedPath} must redirect to /dashboard?notice=already_authenticated`
+    );
+    assert.match(res.headers.get('cache-control') || '', /no-store/);
+  }
+
+  // Logged-out visitor can access /login and /register normally
+  for (const guestPath of ['/login', '/register']) {
+    const guestReq = new NextRequest(`https://www.shop-ply.site${guestPath}`);
+    const guestRes = await proxyMod.proxy(guestReq);
+    assert.equal(guestRes.status, 200, `${guestPath} must allow unauthenticated guests`);
+    assert.match(guestRes.headers.get('cache-control') || '', /no-store/);
+  }
+
+  // Explicit logout redirect (/login?logged_out=1) clears stale session cookie instead of looping
+  const logoutReq = new NextRequest('https://www.shop-ply.site/login?logged_out=1', {
+    headers: { cookie: `${sessionMod.SHOPPLY_SESSION_COOKIE}=${validCookie}` },
+  });
+  const logoutRes = await proxyMod.proxy(logoutReq);
+  assert.equal(logoutRes.status, 200);
+  assert.match(logoutRes.headers.get('set-cookie') || '', /shopply_session=;/);
+
+  // Landing page (/) clears session cookie to stay synchronized with app/page.tsx
+  const homeReq = new NextRequest('https://www.shop-ply.site/', {
+    headers: { cookie: `${sessionMod.SHOPPLY_SESSION_COOKIE}=${validCookie}` },
+  });
+  const homeRes = await proxyMod.proxy(homeReq);
+  assert.equal(homeRes.status, 200);
+  assert.match(homeRes.headers.get('set-cookie') || '', /shopply_session=;/);
+});
+
+test('auth pages enforce useGuestOnlyGuard before mounting credential inputs', () => {
+  for (const authFile of ['app/login/page.tsx', 'app/register/page.tsx', 'app/verify/page.tsx']) {
+    const src = fs.readFileSync(authFile, 'utf8');
+    assert.match(src, /useGuestOnlyGuard/, `${authFile} must call useGuestOnlyGuard`);
+    assert.match(src, /if \(checking/, `${authFile} must gate form rendering while checking session`);
+  }
+});

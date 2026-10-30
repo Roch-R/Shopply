@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/firebase";
-import { collection, query, where, getDocs, doc, setDoc } from "firebase/firestore";
+import { collection, query, where, getDocs } from "firebase/firestore";
 import { comparePassword, generateToken, formatUser } from "@/lib/db";
+import { signSessionCookie, applySessionCookie, clearSessionCookie } from "@/lib/sessionCookie";
 
 export async function POST(req: Request) {
   try {
@@ -30,30 +31,45 @@ export async function POST(req: Request) {
 
     // Check if user is blocked by admin
     if (user.is_blocked === true) {
-      return NextResponse.json({
-        message: "Your account has been suspended by the administrator.",
-        is_blocked: true
-      }, { status: 403 });
+      const blockedRes = NextResponse.json(
+        {
+          message: "Your account has been suspended by the administrator.",
+          is_blocked: true,
+        },
+        { status: 403 }
+      );
+      return clearSessionCookie(blockedRes);
     }
 
     // Generate token
     const token = generateToken({ userId: user.id });
+
     // Check if email is verified
     if (!user.email_verified_at) {
-      return NextResponse.json({
-        message: "Please verify your account first.",
-        requires_verify: true,
+      const unverifiedRes = NextResponse.json(
+        {
+          message: "Please verify your account first.",
+          requires_verify: true,
+          token,
+          user: formatUser(user),
+          pending_email: user.email,
+        },
+        { status: 403 }
+      );
+      return clearSessionCookie(unverifiedRes);
+    }
+
+    const signedSession = await signSessionCookie(user.id);
+    const res = NextResponse.json(
+      {
+        message: "Login successful.",
         token,
         user: formatUser(user),
-        pending_email: user.email
-      }, { status: 403 });
-    }
-    return NextResponse.json({
-      message: "Login successful.",
-      token,
-      user: formatUser(user)
-    }, { status: 200 });
-
+      },
+      { status: 200 }
+    );
+    res.headers.set("Cache-Control", "private, no-store, no-cache, must-revalidate");
+    return applySessionCookie(res, signedSession);
   } catch (err: any) {
     console.error("[login] API error:", err);
     return NextResponse.json({ message: err?.message || "Internal server error." }, { status: 500 });

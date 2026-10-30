@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/firebase";
 import { doc, getDoc, setDoc, deleteDoc } from "firebase/firestore";
 import { generateToken, formatUser } from "@/lib/db";
+import { signSessionCookie, applySessionCookie } from "@/lib/sessionCookie";
 
 export async function POST(req: Request) {
   try {
@@ -39,7 +40,7 @@ export async function POST(req: Request) {
     // OTP is correct - Create user in Firestore
     const userId = Date.now();
     const userDocRef = doc(db, "users", String(userId));
-    
+
     const newUser = {
       id: userId,
       name: pending.name,
@@ -57,15 +58,20 @@ export async function POST(req: Request) {
     // Delete pending registration
     await deleteDoc(pendingDocRef);
 
-    // Generate JWT token
+    // Generate JWT token & HttpOnly session cookie
     const token = generateToken({ userId: newUser.id });
+    const signedSession = await signSessionCookie(newUser.id);
 
-    return NextResponse.json({
-      message: "Email verified successfully!",
-      token,
-      user: formatUser(newUser)
-    }, { status: 200 });
-
+    const res = NextResponse.json(
+      {
+        message: "Email verified successfully!",
+        token,
+        user: formatUser(newUser),
+      },
+      { status: 200 }
+    );
+    res.headers.set("Cache-Control", "private, no-store, no-cache, must-revalidate");
+    return applySessionCookie(res, signedSession);
   } catch (err: any) {
     console.error("[verify-registration] API error:", err);
     return NextResponse.json({ message: err?.message || "Internal server error." }, { status: 500 });
