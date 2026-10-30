@@ -113,99 +113,18 @@ const isFootwearCategory = (cat?: string | null) => {
   return c === "footwear" || c === "shoes" || c === "shoe";
 };
 
-const BANNERS = [
-  {
-    badge: "SEASONAL ESSENTIALS",
-    badgeBg: "#0D6847",
-    title: "Everyday Tech, Apparel & Home Favorites",
-    subtitle: "Direct pricing from verified Philippine merchants with transparent inventory and nationwide Cash on Delivery.",
-    voucher: "CODE: SHOPPLY70",
-    voucherCode: "SHOPPLY70",
-    shipping: "FREE SHIPPING ELIGIBLE",
-    gradient: "linear-gradient(135deg, #111827 0%, #1F2937 100%)",
-    primaryBtn: "Browse Collection",
-    secondaryBtn: "Daily Markdowns",
-    tag: "UP TO 70% OFF"
-  },
-  {
-    badge: "VERIFIED MERCHANTS",
-    badgeBg: "#111827",
-    title: "Authentic Local Brands & Direct Storefronts",
-    subtitle: "Shop verified catalogs backed by 7-day return protection, direct seller chat, and verified customer reviews.",
-    voucher: "CODE: MALLAUTHENTIC",
-    voucherCode: "MALLAUTHENTIC",
-    shipping: "7-DAY RETURN PROTECTION",
-    gradient: "linear-gradient(135deg, #064E3B 0%, #0D6847 100%)",
-    primaryBtn: "Explore Verified Stores",
-    secondaryBtn: "Buyer Guarantee",
-    tag: "VERIFIED STORES"
-  },
-  {
-    badge: "LIMITED-TIME MARKDOWNS",
-    badgeBg: "#B45309",
-    title: "Daily Store Markdowns Starting at ₱49",
-    subtitle: "Updated daily across electronics, footwear, and everyday essentials with fast local dispatch.",
-    voucher: "CODE: FLASHDROP49",
-    voucherCode: "FLASHDROP49",
-    shipping: "CASH ON DELIVERY",
-    gradient: "linear-gradient(135deg, #1E293B 0%, #334155 100%)",
-    primaryBtn: "Shop Markdowns",
-    secondaryBtn: "View All Items",
-    tag: "LIMITED STOCK"
-  }
-];
-
-const TRENDING_KEYWORDS = [
-  "Wireless Earbuds",
-  "Sneakers",
-  "Smart Watch",
-  "Oversized Tee",
-  "Phone Case",
-  "Perfume",
-  "Backpack",
-  "Hoodie"
-];
-
 const CURATED_CATEGORIES = [
   { id: "All", label: "All Items" },
   { id: "Electronics", label: "Electronics" },
-  { id: "Footwear", label: "Footwear" },
   { id: "Fashion", label: "Apparel" },
+  { id: "Footwear", label: "Footwear" },
   { id: "Beauty", label: "Personal Care" },
   { id: "Home", label: "Home & Living" },
   { id: "Accessories", label: "Bags & Watches" },
   { id: "Sports", label: "Sports" },
-  { id: "Groceries", label: "Pantry" },
+  { id: "Groceries", label: "Groceries" },
   { id: "Gaming", label: "Gaming" }
 ];
-
-const renderCategorySvg = (id: string) => {
-  const props = { width: 18, height: 18, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.8, strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
-  switch (id) {
-    case "All":
-      return <svg {...props}><rect x="3" y="3" width="7" height="7" rx="1.5" /><rect x="14" y="3" width="7" height="7" rx="1.5" /><rect x="3" y="14" width="7" height="7" rx="1.5" /><rect x="14" y="14" width="7" height="7" rx="1.5" /></svg>;
-    case "Electronics":
-      return <svg {...props}><rect x="5" y="2" width="14" height="20" rx="2.5" /><line x1="12" y1="18" x2="12.01" y2="18" /></svg>;
-    case "Footwear":
-      return <svg {...props}><path d="M3 16l2-6 5 2 5-4 6 5v3a2 2 0 01-2 2H5a2 2 0 01-2-2z" /></svg>;
-    case "Fashion":
-      return <svg {...props}><path d="M20.38 3.46L16 2a4 4 0 01-8 0L3.62 3.46a2 2 0 00-1.34 2.23l.58 3.47a1 1 0 00.99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 002-2V10h2.15a1 1 0 00.99-.84l.58-3.47a2 2 0 00-1.34-2.23z" /></svg>;
-    case "Beauty":
-      return <svg {...props}><path d="M9 3h6v4H9zM7 7h10v14H7z" /><line x1="12" y1="11" x2="12" y2="17" /></svg>;
-    case "Home":
-      return <svg {...props}><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>;
-    case "Accessories":
-      return <svg {...props}><circle cx="12" cy="12" r="6" /><polyline points="12 9 12 12 14 14" /><path d="M9 2h6M9 22h6" /></svg>;
-    case "Sports":
-      return <svg {...props}><circle cx="12" cy="12" r="9" /><path d="M4.6 4.6c4 4 4 10.8 0 14.8M19.4 4.6c-4 4-4 10.8 0 14.8" /></svg>;
-    case "Groceries":
-      return <svg {...props}><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" /><line x1="3" y1="6" x2="21" y2="6" /><path d="M16 10a4 4 0 01-8 0" /></svg>;
-    case "Gaming":
-      return <svg {...props}><rect x="2" y="6" width="20" height="12" rx="4" /><path d="M6 12h4M8 10v4M15 11h.01M18 13h.01" /></svg>;
-    default:
-      return <svg {...props}><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z" /><line x1="7" y1="7" x2="7.01" y2="7" /></svg>;
-  }
-};
 
 export default function ShopPage() {
   const router = useRouter();
@@ -307,8 +226,6 @@ function MarketplaceContent() {
   const [activeImageIdx, setActiveImageIdx] = useState<number>(0);
   const [followedSellers, setFollowedSellers] = useState<Record<number, boolean>>({});
   const [searchQuery, setSearchQuery] = useState("");
-  const [currentBannerIdx, setCurrentBannerIdx] = useState(0);
-  const [isBannerHovered, setIsBannerHovered] = useState(false);
   const [flashCountdown, setFlashCountdown] = useState({ hours: 0, minutes: 0, seconds: 0 });
   const [flashConfig, setFlashConfig] = useState<{
     is_active: boolean;
@@ -325,12 +242,12 @@ function MarketplaceContent() {
       stock: number;
     }>;
   }>({
-    is_active: true,
-    end_time: new Date(Date.now() + 4 * 3600 * 1000).toISOString(),
-    badge_text: "Up to 50% OFF Limited Time",
-    coupon_code: "FLASHDROP49",
-    discount_type: "fixed",
-    discount_value: 49,
+    is_active: false,
+    end_time: "",
+    badge_text: "Limited-Time Deals",
+    coupon_code: undefined,
+    discount_type: undefined,
+    discount_value: undefined,
     items: []
   });
 
@@ -389,10 +306,11 @@ function MarketplaceContent() {
       console.warn("Flash deals init error:", e);
     }
   }, []);
-  const [sortBy, setSortBy] = useState<"featured" | "price-asc" | "price-desc" | "rating" | "popular">("featured");
+  const [sortBy, setSortBy] = useState<"featured" | "newest" | "price-asc" | "price-desc" | "rating" | "popular">("featured");
   const [copiedVoucher, setCopiedVoucher] = useState<string | null>(null);
   const [claimedVoucher, setClaimedVoucher] = useState<string | null>(null);
   const [allCoupons, setAllCoupons] = useState<any[]>([]);
+  const [couponsLoaded, setCouponsLoaded] = useState(false);
 
   // Load claimed voucher from localStorage on mount
   useEffect(() => {
@@ -493,8 +411,10 @@ function MarketplaceContent() {
           }
         });
         setAllCoupons(list);
+        setCouponsLoaded(true);
       }, (err) => {
         console.warn("Error fetching coupons from Firestore:", err);
+        setCouponsLoaded(true);
       });
       return () => unsubscribe();
     } catch (e) {
@@ -541,10 +461,23 @@ function MarketplaceContent() {
 
     setFlashCoupon(match);
 
-    // General voucher for promo banner (prefer non-flash coupon, or first)
+    // General voucher for promo strip (prefer non-flash coupon, or first)
     const genVoucher = allCoupons.find(c => !match || c.code !== match.code) || allCoupons[0];
     setActiveVoucher(genVoucher || null);
   }, [allCoupons, flashConfig.coupon_code, flashConfig.discount_type, flashConfig.discount_value, flashConfig.is_active]);
+
+  // Ensure claimedVoucher in localStorage corresponds to an active Firestore voucher
+  useEffect(() => {
+    if (!couponsLoaded || !claimedVoucher) return;
+    const existsInCoupons = allCoupons.some(c => c.code === claimedVoucher);
+    const existsInFlash = Boolean(flashCoupon && flashCoupon.code === claimedVoucher);
+    if (!existsInCoupons && !existsInFlash) {
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("claimed_voucher");
+      }
+      setClaimedVoucher(null);
+    }
+  }, [couponsLoaded, claimedVoucher, allCoupons, flashCoupon]);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [activeChatUser, setActiveChatUser] = useState<{ id: number; name: string; avatar?: string | null } | null>(null);
   const [isActiveUserOnline, setIsActiveUserOnline] = useState(false);
@@ -690,17 +623,12 @@ function MarketplaceContent() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Banner Carousel Auto-play (every 5 seconds, paused on hover)
-  useEffect(() => {
-    if (isBannerHovered) return;
-    const timer = setInterval(() => {
-      setCurrentBannerIdx(prev => (prev + 1) % BANNERS.length);
-    }, 5000);
-    return () => clearInterval(timer);
-  }, [isBannerHovered]);
-
   // Flash Deals Countdown Timer based on real end_time
   useEffect(() => {
+    if (!flashConfig.end_time) {
+      setFlashCountdown({ hours: 0, minutes: 0, seconds: 0 });
+      return;
+    }
     const updateCountdown = () => {
       const targetTime = new Date(flashConfig.end_time).getTime();
       const now = Date.now();
@@ -726,7 +654,7 @@ function MarketplaceContent() {
   }, [flashConfig.end_time, flashConfig.items]);
 
   // Flash Deals active status & item resolver
-  const hasFlashEnded = (flashCountdown.hours === 0 && flashCountdown.minutes === 0 && flashCountdown.seconds === 0) || (new Date(flashConfig.end_time).getTime() <= Date.now());
+  const hasFlashEnded = !flashConfig.end_time || (flashCountdown.hours === 0 && flashCountdown.minutes === 0 && flashCountdown.seconds === 0) || (new Date(flashConfig.end_time).getTime() <= Date.now());
   const isFlashSaleActive = Boolean(flashConfig.is_active && !hasFlashEnded && (flashConfig.items || []).length > 0);
 
   const getActiveFlashDeal = (itemId?: string | number | null) => {
@@ -1424,7 +1352,7 @@ function MarketplaceContent() {
         setLoading(false);
       });
 
-    // Fetch Cart Count if logged in (cached)
+    // Fetch Cart Count & Unread Conversations if logged in (cached)
     const token = localStorage.getItem("token");
     if (token) {
       cache.fetch(`${API}/cart`, {
@@ -1436,6 +1364,16 @@ function MarketplaceContent() {
         }
       })
       .catch(console.error);
+
+      cache.fetch(`${API}/chat/conversations`, {
+        headers: { Authorization: `Bearer ${token}`, Accept: "application/json" }
+      })
+      .then((data: any) => {
+        if (Array.isArray(data?.conversations)) {
+          setChatConversations(data.conversations);
+        }
+      })
+      .catch(() => {});
     }
   }, [API]);
 
@@ -1444,7 +1382,8 @@ function MarketplaceContent() {
       const cache = getApiCache();
       cache.fetch(`${API}/items/${viewItem.id}/reviews`, {})
         .then((data: any) => {
-          if (data.reviews) setReviews(data.reviews);
+          const loaded = Array.isArray(data) ? data : (Array.isArray(data?.reviews) ? data.reviews : []);
+          setReviews(loaded);
         })
         .catch(console.error);
     }
@@ -1552,7 +1491,14 @@ function MarketplaceContent() {
         const data = await res.json();
         getApiCache().invalidate(`/items/${viewItem.id}/reviews`);
         getApiCache().invalidate('/shop/items');
-        setReviews([data.review, ...reviews]);
+        const nextReviews = [data.review, ...reviews];
+        setReviews(nextReviews);
+        const nextCount = typeof data.reviews_count === "number" ? data.reviews_count : nextReviews.length;
+        const nextAvg = typeof data.reviews_avg_rating === "number"
+          ? data.reviews_avg_rating
+          : Number((nextReviews.reduce((acc, r) => acc + Number(r.rating || 0), 0) / Math.max(1, nextReviews.length)).toFixed(1));
+        setItems(prev => prev.map(it => it.id === viewItem.id ? { ...it, reviews_count: nextCount, reviews_avg_rating: nextAvg } : it));
+        setViewItem(prev => prev && prev.id === viewItem.id ? { ...prev, reviews_count: nextCount, reviews_avg_rating: nextAvg } : prev);
         localStorage.setItem('shopply_item_update', Date.now().toString());
         setRevComment("");
         setRevImages([]);
@@ -1601,6 +1547,7 @@ function MarketplaceContent() {
           quantity: 1,
           price: buyModal.price,
           variation: buyModal.variation,
+          shipping_address: buyerLocation ? `${buyerLocation}, Philippines` : undefined,
           coupon_code: savedCoupon || undefined
         }),
       });
@@ -1609,7 +1556,7 @@ function MarketplaceContent() {
       if (res.ok) {
         const updateItemStock = (item: ShopItem) => {
           if (item.id !== buyModal.item.id) return item;
-          const newItem = { ...item, stock: item.stock - 1 };
+          const newItem = { ...item, stock: Math.max(0, item.stock - 1), sold_count: Number(item.sold_count || 0) + 1 };
           if (buyModal.variation && newItem.attributes?.size_stocks && newItem.attributes?.sizes) {
             let matchedSize = null;
             for (const s of newItem.attributes.sizes) {
@@ -1746,1487 +1693,634 @@ function MarketplaceContent() {
 
   const handleSelectCategory = (catId: string) => {
     setSelectedCategory(catId);
-    const el = document.getElementById("catalog-products");
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
   };
+
+  const getEffectiveNumericPrice = (item: ShopItem) => {
+    const deal = getActiveFlashDeal(item.id);
+    if (deal) return Number(deal.flash_price) || 0;
+    const base = parseFloat(item.price) || 0;
+    if (base > 0) return base;
+    if (item.attributes?.variant_prices && item.attributes.variant_prices.length > 0) {
+      const valid = item.attributes.variant_prices.map(p => parseFloat(p)).filter(p => !isNaN(p) && p > 0);
+      if (valid.length > 0) return Math.min(...valid);
+    }
+    return base;
+  };
+
+  // Build real department tabs strictly from categories present in the catalog so there are zero empty "0" dummy tabs
+  const departmentTabs = (() => {
+    const tabs: Array<{ id: string; label: string; count: number }> = [
+      { id: "All", label: "All Items", count: items.length }
+    ];
+    for (const cat of CURATED_CATEGORIES) {
+      if (cat.id === "All") continue;
+      const count = items.filter(i => matchesCategoryItem(i, cat.id)).length;
+      if (count > 0) {
+        tabs.push({ id: cat.id, label: cat.label, count });
+      }
+    }
+    // Include any custom seller categories (e.g. "General") not already covered by curated department matchers
+    const customSellerCats = Array.from(new Set(items.map(i => (i.category || "").trim()).filter(Boolean)));
+    for (const sCat of customSellerCats) {
+      const coveredByCurated = CURATED_CATEGORIES.some(
+        c => c.id !== "All" && matchesCategoryItem({ category: sCat } as ShopItem, c.id)
+      );
+      if (coveredByCurated) continue;
+      const count = items.filter(i => (i.category || "").trim().toLowerCase() === sCat.toLowerCase()).length;
+      if (count > 0) {
+        tabs.push({ id: sCat, label: sCat, count });
+      }
+    }
+    return tabs;
+  })();
+
+  const totalUnreadChats = chatConversations.reduce((sum, conv) => sum + Number(conv?.unread_count || 0), 0);
 
   const filteredItems = items
     .filter(i => {
       const matchesCategory = matchesCategoryItem(i, selectedCategory);
       const q = searchQuery.trim().toLowerCase();
-      const matchesSearch = !q || 
-        i.name.toLowerCase().includes(q) || 
-        (i.description || "").toLowerCase().includes(q) || 
-        (i.category || "").toLowerCase().includes(q) || 
-        (i.user?.name || "").toLowerCase().includes(q) || 
+      const matchesSearch = !q ||
+        i.name.toLowerCase().includes(q) ||
+        (i.description || "").toLowerCase().includes(q) ||
+        (i.category || "").toLowerCase().includes(q) ||
+        (i.user?.name || "").toLowerCase().includes(q) ||
         (i.user?.location || "").toLowerCase().includes(q);
       return matchesCategory && matchesSearch;
     })
     .sort((a, b) => {
-      if (sortBy === 'price-asc') return parseFloat(a.price) - parseFloat(b.price);
-      if (sortBy === 'price-desc') return parseFloat(b.price) - parseFloat(a.price);
-      if (sortBy === 'rating') return Number(b.reviews_avg_rating || 0) - Number(a.reviews_avg_rating || 0);
-      if (sortBy === 'popular') return Number(b.sold_count || b.reviews_count || 0) - Number(a.sold_count || a.reviews_count || 0);
-      return 0; // featured default
+      if (sortBy === "newest") {
+        return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
+      }
+      if (sortBy === "price-asc") return getEffectiveNumericPrice(a) - getEffectiveNumericPrice(b);
+      if (sortBy === "price-desc") return getEffectiveNumericPrice(b) - getEffectiveNumericPrice(a);
+      if (sortBy === "rating") {
+        const diff = Number(b.reviews_avg_rating || 0) - Number(a.reviews_avg_rating || 0);
+        return diff !== 0 ? diff : Number(b.reviews_count || 0) - Number(a.reviews_count || 0);
+      }
+      if (sortBy === "popular") {
+        const diff = Number(b.sold_count || 0) - Number(a.sold_count || 0);
+        return diff !== 0 ? diff : Number(b.reviews_count || 0) - Number(a.reviews_count || 0);
+      }
+      return 0;
     });
+
+  const activeCategoryLabel = departmentTabs.find(t => t.id.toLowerCase() === selectedCategory.toLowerCase())?.label || selectedCategory;
 
   return (
     <>
       <style>{`
         html, body{max-width:100%;overflow-x:hidden}
         *{box-sizing:border-box;margin:0;padding:0}
-        body{background:#F8F9FA;color:#111827;font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;-webkit-font-smoothing:antialiased}
-        input, textarea { color: #111827 !important; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
-        .root{min-height:100vh;background:#F8F9FA}
-        .nav{background:#FFFFFF;border-bottom:1px solid #E5E7EB;padding:0 32px;height:68px;
-          display:flex;align-items:center;justify-content:space-between;
-          position:sticky;top:0;z-index:50}
-        .nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
-        .logo-text{font-family:'Plus Jakarta Sans','Inter',sans-serif;font-size:18px;font-weight:800;color:#111827;letter-spacing:-0.03em}
-        .nav-right{display:flex;align-items:center;gap:12px}
-        .nav-link{font-size:13.5px;font-weight:500;color:#4B5563;text-decoration:none;
-          padding:6px 12px;border-radius:8px;transition:all .15s}
-        .nav-link:hover{color:#111827;background:#F3F4F6}
-        .login-btn{padding:8px 16px;background:#111827;
-          border:1px solid #111827;border-radius:8px;color:#fff;font-size:13.5px;font-weight:600;
-          cursor:pointer;transition:background .15s;text-decoration:none}
-        .login-btn:hover{background:#1F2937}
-        
-        .main{max-width:1240px;margin:0 auto;padding:28px 24px 48px}
-        .header{text-align:center;margin-bottom:40px}
-        .title{font-family:'Plus Jakarta Sans','Inter',sans-serif;font-size:40px;font-weight:800;color:#111827;letter-spacing:-0.03em;margin-bottom:12px}
-        .subtitle{font-size:15px;color:#6B7280;max-width:600px;margin:0 auto;line-height:1.6}
-        
-        .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:20px}
-        .item-card{background:#FFFFFF;border-radius:12px;overflow:hidden;
-          box-shadow:0 1px 2px rgba(17,24,39,.03);border:1px solid #E5E7EB;transition:border-color .2s ease, box-shadow .2s ease, transform .2s ease;
-          display:flex;flex-direction:column;justify-content:space-between}
-        .item-card:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(17,24,39,.06);border-color:#D1D5DB}
-        .item-card-img{width:100%;height:220px;object-fit:cover;display:block;background:#F3F4F6}
-        .item-image-placeholder{height:220px;background:#F3F4F6;
-          display:flex;align-items:center;justify-content:center;color:#9CA3AF;font-size:40px}
-        .item-content{padding:16px;flex-grow:1;display:flex;flex-direction:column;justify-content:space-between}
-        .item-name{font-size:14.5px;font-weight:600;color:#111827;margin-bottom:6px;line-height:1.35}
-        .item-desc{display:none}
-        .item-footer{display:flex;align-items:center;justify-content:space-between;
-          padding-top:12px;border-top:1px solid #F3F4F6}
-        .item-price{font-family:'Plus Jakarta Sans','Inter',sans-serif;font-size:17px;font-weight:800;color:#111827;font-variant-numeric:tabular-nums;letter-spacing:-0.01em}
-        .item-seller{display:none}
-        
-        .buy-btn{padding:8px 10px;background:#111827;
-          border:1px solid #111827;border-radius:8px;color:#fff;font-size:12.5px;font-weight:600;
-          cursor:pointer;transition:background .15s;
-          display:inline-flex;align-items:center;justify-content:center;gap:5px;flex:1}
-        .buy-btn:hover{background:#1F2937}
-        
-        .add-cart-btn{padding:8px 10px;background:#FFFFFF;border:1px solid #D1D5DB;
-          color:#111827;border-radius:8px;font-size:12.5px;font-weight:600;
-          cursor:pointer;transition:background .15s, border-color .15s;
-          display:inline-flex;align-items:center;justify-content:center;gap:5px;flex:1}
-        .add-cart-btn:hover{background:#F3F4F6;border-color:#9CA3AF}
-          
-        .cart-nav-icon{position:relative;display:flex;align-items:center;justify-content:center;
-          width:40px;height:40px;border-radius:8px;color:#374151;border:1px solid #E5E7EB;background:#FFFFFF;transition:all .15s;text-decoration:none}
-        .cart-nav-icon:hover{background:#F3F4F6;color:#111827;border-color:#D1D5DB}
-        .cart-badge{position:absolute;top:-5px;right:-5px;background:#0D6847;color:#fff;
+        body{background:#F7F7F6;color:#111827;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+        input, textarea, select { color: #111827 !important; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+        .root{min-height:100vh;background:#F7F7F6;display:flex;flex-direction:column}
+
+        /* AUTHENTIC STOREFRONT HEADER */
+        .store-header{background:#FFFFFF;border-bottom:1px solid #E5E7EB;position:sticky;top:0;z-index:50}
+        .header-top-inner{max-width:1280px;margin:0 auto;padding:0 24px;height:64px;display:flex;align-items:center;gap:16px}
+        .brand-cluster{display:flex;align-items:center;gap:14px;flex-shrink:0}
+        .nav-logo{display:inline-flex;align-items:center;gap:9px;text-decoration:none}
+        .logo-text{font-family:'Plus Jakarta Sans','Inter',sans-serif;font-size:19px;font-weight:800;color:#111827;letter-spacing:-0.03em}
+        .header-divider{width:1px;height:20px;background:#E5E7EB;flex-shrink:0}
+        .deliver-btn{display:inline-flex;align-items:center;gap:6px;background:transparent;border:1px solid transparent;
+          padding:5px 8px;border-radius:6px;cursor:pointer;transition:background .15s,border-color .15s;text-align:left;max-width:210px}
+        .deliver-btn:hover{background:#F9FAFB;border-color:#E5E7EB}
+        .deliver-label{font-size:10.5px;color:#6B7280;line-height:1.1;display:block}
+        .deliver-val{font-size:12px;font-weight:600;color:#111827;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;max-width:165px}
+
+        /* HEADER INTEGRATED SEARCH */
+        .header-search-form{flex:1;max-width:580px;margin:0 auto;display:flex;align-items:center;height:40px;
+          background:#F3F4F6;border:1px solid #E5E7EB;border-radius:8px;padding:0 4px 0 12px;gap:8px;transition:background .15s,border-color .15s,box-shadow .15s}
+        .header-search-form:focus-within{background:#FFFFFF;border-color:#111827;box-shadow:0 0 0 3px rgba(17,24,39,0.06)}
+        .header-search-input{flex:1;min-width:0;border:none;outline:none;background:transparent;font-size:13.5px;color:#111827}
+        .header-search-input::placeholder{color:#6B7280}
+        .header-search-clear{width:20px;height:20px;border-radius:50%;border:none;background:#E5E7EB;color:#4B5563;
+          font-size:11px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
+        .header-search-clear:hover{background:#D1D5DB;color:#111827}
+        .header-search-submit{height:32px;padding:0 14px;border-radius:6px;border:none;background:#111827;color:#FFFFFF;
+          font-size:12.5px;font-weight:600;cursor:pointer;flex-shrink:0;transition:background .15s}
+        .header-search-submit:hover{background:#1F2937}
+
+        /* HEADER ACTIONS */
+        .nav-right{display:flex;align-items:center;gap:8px;margin-left:auto;flex-shrink:0}
+        .header-util-btn{position:relative;height:38px;padding:0 12px;border-radius:8px;border:1px solid #E5E7EB;background:#FFFFFF;
+          color:#374151;font-size:13px;font-weight:500;display:inline-flex;align-items:center;justify-content:center;gap:7px;
+          cursor:pointer;text-decoration:none;transition:background .15s,border-color .15s,color .15s}
+        .header-util-btn:hover{background:#F9FAFB;border-color:#D1D5DB;color:#111827}
+        .header-badge{position:absolute;top:-5px;right:-5px;background:#0D6847;color:#FFFFFF;
           font-size:10px;font-weight:700;min-width:18px;height:18px;padding:0 4px;border-radius:999px;
-          display:flex;align-items:center;justify-content:center;border:2px solid #fff;font-variant-numeric:tabular-nums}
-          
-        .empty-state{text-align:center;padding:80px 20px;background:#FFFFFF;border:1px solid #E5E7EB;border-radius:12px}
-        .empty-icon{font-size:48px;margin-bottom:16px;display:flex;justify-content:center}
-        .empty-text{font-size:18px;font-weight:700;color:#111827}
-        
+          display:flex;align-items:center;justify-content:center;border:2px solid #FFFFFF;font-variant-numeric:tabular-nums}
+        .account-pill{height:38px;padding:0 12px 0 8px;border-radius:8px;border:1px solid #D1D5DB;background:#FFFFFF;
+          color:#111827;font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:8px;text-decoration:none;
+          transition:background .15s,border-color .15s}
+        .account-pill:hover{background:#F9FAFB;border-color:#9CA3AF}
+        .account-avatar{width:24px;height:24px;border-radius:50%;object-fit:cover;background:#F3F4F6;border:1px solid #E5E7EB;
+          display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#111827;flex-shrink:0}
+
+        /* MOBILE SEARCH ROW */
+        .mobile-search-row{display:none;padding:0 12px 10px;gap:8px;align-items:center}
+
+        /* CLEAN DEPARTMENT NAVIGATION BAR */
+        .dept-bar{border-top:1px solid #F3F4F6;background:#FFFFFF}
+        .dept-bar-inner{max-width:1280px;margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+        .dept-tabs{display:flex;align-items:center;gap:4px;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none}
+        .dept-tabs::-webkit-scrollbar{display:none}
+        .dept-tab{height:42px;padding:0 12px;background:transparent;border:none;border-bottom:2px solid transparent;
+          font-size:13px;font-weight:500;color:#4B5563;cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:6px;
+          transition:color .15s,border-color .15s}
+        .dept-tab:hover{color:#111827}
+        .dept-tab.active{color:#111827;font-weight:600;border-bottom-color:#111827}
+        .dept-count{font-size:11px;color:#6B7280;font-variant-numeric:tabular-nums}
+        .dept-tab.active .dept-count{color:#111827;font-weight:600}
+        .dept-guarantees{display:flex;align-items:center;gap:16px;font-size:12px;color:#6B7280;flex-shrink:0}
+        .dept-guarantee-item{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+
+        /* MAIN CATALOG LAYOUT */
+        .main{max-width:1280px;width:100%;margin:0 auto;padding:20px 24px 56px;flex:1}
+
+        /* CONDITIONAL REAL VOUCHER STRIP */
+        .voucher-strip{display:flex;align-items:stretch;gap:12px;overflow-x:auto;padding-bottom:4px;margin-bottom:20px;scrollbar-width:none}
+        .voucher-strip::-webkit-scrollbar{display:none}
+        .voucher-ticket{display:flex;align-items:center;justify-content:space-between;gap:16px;background:#FFFFFF;
+          border:1px solid #E5E7EB;border-left:3px solid #0D6847;border-radius:8px;padding:10px 14px;min-width:270px;flex-shrink:0}
+
+        /* FLASH DEALS SHELF */
+        .flash-deals-banner{background:#FFFFFF;border-radius:10px;padding:18px 20px;border:1px solid #E5E7EB;margin-bottom:22px;
+          display:flex;flex-direction:column;gap:16px;scroll-margin-top:120px}
+        .flash-clock-box{background:#111827;color:#FFFFFF;font-weight:700;font-size:12px;padding:3px 7px;border-radius:5px;
+          font-variant-numeric:tabular-nums;display:inline-block;min-width:26px;text-align:center}
+        .flash-items-slider{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+
+        /* CATALOG TOOLBAR */
+        .catalog-toolbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px}
+        .catalog-heading-group{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+        .catalog-title{font-family:'Plus Jakarta Sans','Inter',sans-serif;font-size:19px;font-weight:700;color:#111827;letter-spacing:-0.02em}
+        .catalog-count{font-size:13px;color:#6B7280;font-variant-numeric:tabular-nums}
+        .active-filters-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+        .filter-chip{display:inline-flex;align-items:center;gap:6px;background:#FFFFFF;border:1px solid #D1D5DB;color:#111827;
+          font-size:12px;font-weight:500;padding:4px 10px;border-radius:6px}
+        .filter-chip button{background:none;border:none;color:#6B7280;cursor:pointer;font-size:13px;line-height:1;padding:0}
+        .filter-chip button:hover{color:#111827}
+        .sort-control{display:inline-flex;align-items:center;gap:8px}
+        .sort-label{font-size:12.5px;color:#6B7280;font-weight:500}
+        .sort-select{height:36px;padding:0 30px 0 11px;border-radius:8px;border:1px solid #D1D5DB;background:#FFFFFF;
+          font-size:13px;font-weight:500;color:#111827;cursor:pointer;outline:none}
+        .sort-select:focus{border-color:#111827}
+
+        /* RETAIL PRODUCT GRID & CARDS */
+        .grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px}
+        @media (max-width: 1080px){.grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}}
+        .item-card{background:#FFFFFF;border-radius:10px;overflow:hidden;border:1px solid #E5E7EB;
+          transition:border-color .18s ease,box-shadow .18s ease;display:flex;flex-direction:column;cursor:pointer}
+        .item-card:hover{border-color:#D1D5DB;box-shadow:0 8px 20px rgba(17,24,39,0.06)}
+        .item-img-wrap{position:relative;width:100%;aspect-ratio:1 / 1;background:#F3F4F6;overflow:hidden}
+        .item-card-img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .3s ease}
+        .item-card:hover .item-card-img{transform:scale(1.025)}
+        .item-image-placeholder{width:100%;height:100%;background:#F3F4F6;display:flex;align-items:center;justify-content:center;color:#9CA3AF}
+
+        .item-content{padding:13px 14px 14px;flex:1;display:flex;flex-direction:column}
+        .item-cat-text{font-size:11px;font-weight:500;color:#6B7280;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        .item-name{font-size:14px;font-weight:600;color:#111827;line-height:1.38;margin:0 0 8px;
+          display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:38.5px}
+        .item-price-row{display:flex;align-items:baseline;gap:6px;margin-bottom:6px}
+        .item-price{font-family:'Plus Jakarta Sans','Inter',sans-serif;font-size:17px;font-weight:700;color:#111827;
+          font-variant-numeric:tabular-nums;letter-spacing:-0.01em}
+        .item-stats-line{display:flex;align-items:center;gap:5px;flex-wrap:wrap;font-size:12px;color:#6B7280;margin-bottom:12px;font-variant-numeric:tabular-nums}
+
+        .card-actions-row{display:flex;gap:8px;width:100%;margin-top:auto}
+        .buy-btn{height:36px;padding:0 10px;background:#111827;border:1px solid #111827;border-radius:7px;color:#FFFFFF;
+          font-size:12.5px;font-weight:600;cursor:pointer;transition:background .15s;
+          display:inline-flex;align-items:center;justify-content:center;gap:5px;flex:1;white-space:nowrap}
+        .buy-btn:hover{background:#1F2937}
+        .add-cart-btn{height:36px;padding:0 10px;background:#FFFFFF;border:1px solid #D1D5DB;color:#111827;
+          border-radius:7px;font-size:12.5px;font-weight:600;cursor:pointer;transition:background .15s,border-color .15s;
+          display:inline-flex;align-items:center;justify-content:center;gap:5px;flex:1;white-space:nowrap}
+        .add-cart-btn:hover{background:#F9FAFB;border-color:#9CA3AF}
+
+        .card-seller-row{margin-top:11px;padding-top:10px;border-top:1px solid #F3F4F6;display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0}
+        .card-seller-left{display:flex;align-items:center;gap:7px;min-width:0;flex:1}
+        .card-seller-name{font-size:12px;font-weight:500;color:#374151;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        .card-seller-loc{display:inline-flex;align-items:center;gap:3px;font-size:11px;color:#6B7280;text-decoration:none;
+          white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:46%;flex-shrink:0}
+        .card-seller-loc:hover{color:#111827}
+
+        .empty-state{text-align:center;padding:64px 20px;background:#FFFFFF;border:1px solid #E5E7EB;border-radius:10px}
+        .empty-icon{margin-bottom:14px;display:flex;justify-content:center}
+        .empty-text{font-size:16px;font-weight:700;color:#111827}
+        .subtitle{font-size:13.5px;color:#6B7280;max-width:460px;margin:6px auto 0;line-height:1.5}
+
         .loading-container{min-height:60vh;display:flex;align-items:center;justify-content:center}
-        .spinner{width:36px;height:36px;border-radius:50%;border:2.5px solid #E5E7EB;
-          border-top-color:#111827;animation:spin .7s linear infinite}
+        .spinner{width:36px;height:36px;border-radius:50%;border:2.5px solid #E5E7EB;border-top-color:#111827;animation:spin .7s linear infinite}
         @keyframes spin{to{transform:rotate(360deg)}}
         @keyframes typingBounce{0%,80%,100%{transform:scale(0.6);opacity:0.4}40%{transform:scale(1);opacity:1}}
 
-        .toast{position:fixed;top:80px;right:24px;background:#111827;color:#fff;padding:12px 20px;
-          border-radius:10px;font-size:13.5px;font-weight:600;z-index:1000;
+        .toast{position:fixed;top:76px;right:24px;background:#111827;color:#fff;padding:12px 18px;
+          border-radius:8px;font-size:13px;font-weight:600;z-index:1000;
           box-shadow:0 10px 24px rgba(17,24,39,.16);animation:slideIn .2s ease}
         @keyframes slideIn{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}}
 
-        .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(8px);
+        .modal-overlay{position:fixed;inset:0;background:rgba(17,24,39,.55);backdrop-filter:blur(4px);
           display:flex;align-items:center;justify-content:center;z-index:500;padding:0}
         .detail-modal{position:relative;background:#fff;border-radius:0;max-width:100%;width:100%;max-height:100vh;height:100%;
-          overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column;box-shadow:none;animation:scaleUp .3s ease}
+          overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column;box-shadow:none;animation:scaleUp .22s ease}
         .detail-modal > div{flex-shrink:0}
-        @keyframes scaleUp{from{opacity:0;transform:scale(0.95)}to{opacity:1;transform:scale(1)}}
+        @keyframes scaleUp{from{opacity:0;transform:scale(0.97)}to{opacity:1;transform:scale(1)}}
         @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-        
-        .detail-content{display:grid;grid-template-columns:minmax(0,1fr);gap:20px;padding:12px}
-        
-        .detail-img-side{display:flex;flex-direction:column;gap:16px;min-width:0}
+
+        .detail-content{display:grid;grid-template-columns:minmax(0,1fr);gap:20px;padding:16px}
+        .detail-img-side{display:flex;flex-direction:column;gap:14px;min-width:0}
         .detail-image-expand{display:block;width:100%;height:100%;padding:0;border:0;background:transparent;cursor:zoom-in}
         .detail-image-expand:focus-visible{outline:2px solid #111827;outline-offset:-4px}
-        .detail-image-hint{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);padding:8px 12px;
-          border-radius:24px;background:rgba(255,255,255,.94);color:#475569;font-size:12px;font-weight:600;white-space:nowrap;
-          box-shadow:0 2px 10px #0f172a15;pointer-events:none}
-        .main-detail-img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:20px;background:#f8fafc;border:1px solid #f1f5f9}
-        .variant-thumbs{display:flex;gap:12px;overflow-x:auto;padding:4px;scrollbar-width:none;-ms-overflow-style:none}
+        .detail-image-hint{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);padding:6px 12px;
+          border-radius:6px;background:rgba(255,255,255,.94);color:#374151;font-size:12px;font-weight:600;white-space:nowrap;
+          border:1px solid #E5E7EB;pointer-events:none}
+        .main-detail-img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:12px;background:#F3F4F6;border:1px solid #E5E7EB}
+        .variant-thumbs{display:flex;gap:10px;overflow-x:auto;padding:2px;scrollbar-width:none;-ms-overflow-style:none}
         .variant-thumbs::-webkit-scrollbar{display:none}
-        .v-thumb{width:56px;height:56px;border-radius:12px;object-fit:cover;cursor:pointer;
-          border:2px solid transparent;transition:all .2s;flex-shrink:0;background:#f8fafc}
-        .v-thumb.active{border-color:#111827;box-shadow:0 2px 8px rgba(17,24,39,.12)}
-        
+        .v-thumb{width:56px;height:56px;border-radius:8px;object-fit:cover;cursor:pointer;
+          border:2px solid transparent;transition:border-color .15s;flex-shrink:0;background:#F3F4F6}
+        .v-thumb.active{border-color:#111827}
+
         .detail-info-side{display:flex;flex-direction:column;gap:16px;min-width:0}
-        .detail-category{font-size:11px;font-weight:700;color:#0D6847;text-transform:uppercase;letter-spacing:0.08em}
-        .detail-name{font-size:22px;font-weight:800;color:#0f172a;letter-spacing:-1px;line-height:1.1}
-        .detail-price{font-family:'Plus Jakarta Sans','Inter',sans-serif;font-size:24px;font-weight:800;color:#111827;font-variant-numeric:tabular-nums}
-        .detail-desc{font-size:15px;color:#64748b;line-height:1.7}
-        .modal-actions-container{display:flex;flex-direction:column;gap:12px;margin-top:12px}
+        .detail-category{font-size:11px;font-weight:600;color:#6B7280;text-transform:uppercase;letter-spacing:0.06em}
+        .detail-name{font-size:22px;font-weight:700;color:#111827;letter-spacing:-0.02em;line-height:1.2;margin-top:4px}
+        .detail-price{font-family:'Plus Jakarta Sans','Inter',sans-serif;font-size:24px;font-weight:700;color:#111827;font-variant-numeric:tabular-nums}
+        .detail-desc{font-size:14.5px;color:#4B5563;line-height:1.65}
+        .modal-actions-container{display:flex;flex-direction:column;gap:10px;margin-top:8px}
         .modal-close-btn{position:fixed;top:12px;right:12px;width:36px;height:36px;
-          border-radius:50%;background:rgba(255,255,255,0.92);backdrop-filter:blur(12px);
+          border-radius:50%;background:rgba(255,255,255,0.95);
           display:flex;align-items:center;justify-content:center;cursor:pointer;
-          border:1px solid #e2e8f0;color:#0f172a;z-index:9999;transition:all .25s ease;
+          border:1px solid #E5E7EB;color:#111827;z-index:9999;transition:background .15s,border-color .15s;
           box-shadow:0 2px 8px rgba(0,0,0,.06)}
-        .modal-close-btn:hover{background:#fff;transform:scale(1.1);box-shadow:0 6px 16px rgba(0,0,0,.12);
-          color:#ef4444;border-color:#fecaca}
+        .modal-close-btn:hover{background:#F3F4F6;border-color:#D1D5DB}
 
         @media (min-width: 769px) {
-          .modal-overlay{padding:20px}
-          .detail-modal{border-radius:24px;max-width:1100px;max-height:90vh;height:auto;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25)}
-          .detail-content{grid-template-columns:minmax(0, 1fr) minmax(0, 1fr);gap:48px;padding:48px}
-          .v-thumb{width:70px;height:70px}
-          .detail-info-side{gap:28px}
-          .detail-category{font-size:12px}
-          .detail-name{font-size:36px}
-          .detail-price{font-size:32px}
-          .modal-close-btn{position:absolute;top:16px;right:16px;width:40px;height:40px;z-index:110}
-          .modal-actions-container{flex-direction:row;gap:16px}
-          .description-section{padding:48px}
-          .description-card-body{border-radius:20px;padding:28px;margin-bottom:32px}
-          .rating-section{padding:48px}
-          .seller-header-bar{padding:32px 48px;flex-direction:row;align-items:center;gap:32px}
+          .modal-overlay{padding:24px}
+          .detail-modal{border-radius:14px;max-width:1060px;max-height:90vh;height:auto;box-shadow:0 24px 48px rgba(17,24,39,0.22);border:1px solid #E5E7EB}
+          .detail-content{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:40px;padding:36px 40px}
+          .v-thumb{width:64px;height:64px}
+          .detail-info-side{gap:20px}
+          .detail-name{font-size:28px}
+          .detail-price{font-size:28px}
+          .modal-close-btn{position:absolute;top:16px;right:16px;width:38px;height:38px;z-index:110}
+          .modal-actions-container{flex-direction:row;gap:12px}
+          .description-section{padding:32px 40px}
+          .rating-section{padding:32px 40px}
+          .seller-header-bar{padding:24px 40px;flex-direction:row;align-items:center;gap:28px}
         }
-        
+
+        @media (max-width: 960px) {
+          .dept-guarantees{display:none}
+          .header-divider, .deliver-btn-desktop{display:none !important}
+        }
 
         @media (max-width: 768px) {
-          .rating-summary{display:flex;flex-direction:column;gap:20px;padding:20px;align-items:center;text-align:center}
-          .review-filters{justify-content:center;margin-bottom:0}
-          
-          .nav{padding:0 12px !important;height:60px !important}
-          .nav-right{gap:8px !important}
-          .nav-logo{display:flex !important;align-items:center !important;gap:8px !important}
-          .logo-text{display:inline-block !important;font-size:16px !important;font-weight:700 !important;color:#0f172a !important}
-          .about-text{display:none !important}
-          .login-text-span{display:none !important}
-          .login-icon-span{display:inline-flex !important;color:#fff}
-          .login-btn{width:36px !important;height:36px !important;padding:0 !important;border-radius:8px !important;min-width:36px !important;background:#111827 !important;display:inline-flex !important;align-items:center !important;justify-content:center !important}
-          .cart-nav-icon{width:36px !important;height:36px !important;margin-right:0 !important;display:inline-flex !important;align-items:center !important;justify-content:center !important}
-          
-          .buy-btn, .add-cart-btn{width:100% !important;height:48px !important}
-          .spec-grid{grid-template-columns:1fr;padding:16px}
-          .description-section{padding:24px 16px}
-          .seller-header-bar{padding:16px;gap:20px}
-          .seller-stats-grid{grid-template-columns:repeat(2, minmax(0, 1fr)) !important;gap:8px !important;width:100%}
-          .seller-left-side{width:100%}
-          .title{font-size:28px}
-          .main{padding:24px 16px}
+          .header-top-inner{padding:0 12px;height:56px;gap:10px}
+          .header-search-desktop{display:none !important}
+          .mobile-search-row{display:flex}
+          .util-label{display:none}
+          .header-util-btn{width:36px;height:36px;padding:0}
+          .account-name-text{display:none}
+          .account-pill{padding:0 6px;height:36px}
+          .dept-bar-inner{padding:0 12px}
+          .dept-tab{height:38px;padding:0 10px;font-size:12.5px}
+          .main{padding:14px 12px 40px}
+          .grid{grid-template-columns:repeat(2,minmax(0,1fr)) !important;gap:10px !important}
+          .item-content{padding:10px 10px 12px}
+          .item-name{font-size:13px;min-height:35px;margin-bottom:6px}
+          .item-price{font-size:15px}
+          .item-stats-line{font-size:11px;margin-bottom:9px}
+          .card-actions-row{gap:6px}
+          .card-actions-row .add-cart-btn, .card-actions-row .buy-btn{height:32px;font-size:11.5px;padding:0 6px}
+          .card-seller-loc{display:none}
+          .flash-items-slider{grid-template-columns:repeat(2,minmax(0,1fr))}
+          .rating-summary{display:flex;flex-direction:column;gap:16px;padding:16px;align-items:flex-start}
+          .spec-grid{grid-template-columns:1fr;padding:14px}
+          .seller-header-bar{padding:16px;gap:16px}
+          .seller-stats-grid{grid-template-columns:repeat(3,minmax(0,1fr)) !important;gap:8px !important;width:100%}
           .similar-products-section{padding:24px 16px !important}
-          .similar-products-grid{grid-template-columns:repeat(2, 1fr) !important;gap:16px !important}
-          
-          .grid{grid-template-columns:repeat(2, 1fr) !important;gap:12px !important}
-          .item-card-img{height:150px !important}
-          .item-image-placeholder{height:150px !important}
-          .item-content{padding:12px !important}
-          .item-name{font-size:14px !important;margin-bottom:4px !important}
-          .item-desc{display:none !important}
-          .item-seller{display:none !important}
-          .item-price{font-size:15px !important}
-          .item-footer{padding-top:8px !important}
-          .item-footer > div{flex-direction:column !important;gap:6px !important}
-          .item-footer .add-cart-btn, .item-footer .buy-btn{width:100% !important;padding:6px 8px !important;font-size:11px !important;height:32px !important}
-          
-          .modal-actions-container {
-            position: fixed !important;
-            bottom: 0 !important;
-            left: 0 !important;
-            right: 0 !important;
-            background: #fff !important;
-            padding: 12px 16px !important;
-            border-top: 1px solid #e2e8f0 !important;
-            margin-top: 0 !important;
-            z-index: 1000 !important;
-            flex-direction: row !important;
-            gap: 12px !important;
-            box-shadow: 0 -8px 24px rgba(0,0,0,0.06) !important;
-          }
-          .modal-actions-container .buy-btn, .modal-actions-container .add-cart-btn {
-            height: 46px !important;
-            font-size: 13px !important;
-            margin: 0 !important;
-            flex: 1 !important;
-          }
-          .detail-modal {
-            padding-bottom: 80px !important;
-          }
-          .back-to-top {
-            bottom: 90px !important;
-          }
+          .similar-products-grid{grid-template-columns:repeat(2,minmax(0,1fr)) !important;gap:12px !important}
+          .modal-actions-container{position:fixed !important;bottom:0 !important;left:0 !important;right:0 !important;
+            background:#fff !important;padding:10px 14px !important;border-top:1px solid #E5E7EB !important;margin-top:0 !important;
+            z-index:1000 !important;flex-direction:row !important;gap:10px !important;box-shadow:0 -4px 16px rgba(0,0,0,0.06) !important}
+          .modal-actions-container .buy-btn, .modal-actions-container .add-cart-btn{height:44px !important;font-size:13px !important;flex:1 !important}
+          .detail-modal{padding-bottom:76px !important}
+          .back-to-top{bottom:84px !important;right:16px !important;width:42px !important;height:42px !important}
         }
-        @media (max-width: 500px) {
-          .item-meta-row{flex-direction:column !important;align-items:flex-start !important;gap:6px !important}
-          .item-stock-row{flex-direction:column !important;align-items:flex-start !important;gap:4px !important}
-          .v-thumb{width:56px !important;height:56px !important}
-          .title{font-size:24px !important}
-          .grid{grid-template-columns:repeat(2, 1fr) !important;gap:10px !important}
-          .main{padding:16px 12px !important}
-          .item-card-img{height:130px !important}
-          .item-image-placeholder{height:130px !important}
-          .item-name{font-size:13px !important}
+
+        @media (max-width: 380px) {
+          .card-actions-row{flex-direction:column}
+          .seller-stats-grid{grid-template-columns:repeat(2,minmax(0,1fr)) !important}
         }
-        @media (max-width: 400px) {
-          .grid{grid-template-columns:repeat(2, 1fr) !important;gap:8px !important}
-          .main{padding:12px 10px !important}
-          .item-card-img{height:110px !important}
-          .item-image-placeholder{height:110px !important}
-          .item-content{padding:8px !important}
-          .item-name{font-size:12px !important}
-          .item-price{font-size:13px !important}
-          .title{font-size:22px !important}
-          .subtitle{font-size:14px !important}
-          .detail-name{font-size:18px !important}
-          .detail-price{font-size:18px !important}
-          .detail-content{padding:10px !important;gap:14px !important}
-          .main-detail-img{max-height:220px !important;aspect-ratio:unset !important}
-          .size-btn{padding:5px 8px !important;font-size:11px !important}
-        }
-        @media (max-width: 320px) {
-          .grid{grid-template-columns:1fr !important}
-          .main{padding:10px 8px !important}
-          .item-card-img{height:160px !important}
-          .item-image-placeholder{height:160px !important}
-          .item-name{font-size:14px !important}
-          .title{font-size:20px !important}
-          .nav{padding:0 6px !important}
-          .main-detail-img{max-height:180px !important;aspect-ratio:unset !important}
-        }
-        
-        .similar-products-section{border-top:1px solid #f1f5f9;padding:48px;background:#fff}
-        .similar-products-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:24px;justify-content:start}
-        .variant-section-label{font-size:13px;font-weight:700;color:#0f172a;margin-bottom:12px;display:block}
-        .size-grid{display:flex;gap:10px;flex-wrap:wrap}
-        .size-btn{padding:6px 12px;border:1px solid #e2e8f0;border-radius:4px;background:#fff;
-          color:#0f172a;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;
-          display:flex;align-items:center;gap:8px;min-width:fit-content;position:relative;overflow:hidden}
-        .size-btn:hover{border-color:#111827;color:#111827}
-        .size-btn.active{border-color:#111827;color:#111827;background:#F9FAFB;font-weight:700}
-        .size-btn.active::after{content:'';position:absolute;bottom:0;right:0;width:14px;height:14px;
-          background:#111827;clip-path:polygon(100% 0, 100% 100%, 0% 100%);display:flex;align-items:flex-end;justify-content:flex-end}
-        .variant-btn-img{width:24px;height:24px;object-fit:cover;border-radius:2px;border:1px solid #f1f5f9}
-        
-        .spec-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;background:#f8fafc;padding:24px;border-radius:20px;border:1px solid #f1f5f9}
-        .spec-item{display:flex;flex-direction:column;gap:4px}
-        .spec-label{font-size:11px;color:#94a3b8;font-weight:700;text-transform:uppercase}
-        .spec-val{font-size:14px;color:#334155;font-weight:600}
-        
-        .description-section{border-top:1px solid #f1f5f9;padding:24px 16px;background:#fff}
-        .description-header {
-          margin-bottom: 24px;
-        }
-        .description-header-divider {
-          width: 64px;
-          height: 4px;
-          background: #111827;
-          border-radius: 2px;
-          margin-top: 4px;
-        }
-        .description-card-body {
-          background: #f8fafc;
-          border-radius: 16px;
-          padding: 16px;
-          border: 1px solid #f1f5f9;
-          box-shadow: 0 4px 20px rgba(0,0,0,0.01);
-          margin-bottom: 24px;
-        }
-        .detail-desc-premium {
-          white-space: pre-wrap;
-          color: #334155;
-          font-size: 15px;
-          line-height: 1.8;
-          margin: 0;
-          font-family: 'Inter', sans-serif;
-        }
-        .description-images-gallery {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-          gap: 16px;
-          width: 100%;
-        }
-        .desc-image-card {
-          position: relative;
-          border-radius: 16px;
-          overflow: hidden;
-          border: 1px solid #e2e8f0;
-          box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);
-          background: #f8fafc;
-          aspect-ratio: 16/10;
-          cursor: pointer;
-          transition: all 0.25s ease;
-        }
-        .desc-image-card:hover {
-          transform: translateY(-3px);
-          box-shadow: 0 12px 24px -4px rgba(15, 23, 42, 0.08);
-          border-color: #cbd5e1;
-        }
-        .desc-image-badge {
-          position: absolute;
-          top: 10px;
-          left: 10px;
-          background: rgba(15, 23, 42, 0.75);
-          backdrop-filter: blur(6px);
-          color: #fff;
-          font-size: 10px;
-          font-weight: 700;
-          padding: 4px 10px;
-          border-radius: 20px;
-          letter-spacing: 0.05em;
-          text-transform: uppercase;
-          z-index: 2;
-          border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        .desc-gallery-img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          display: block;
-          transition: transform 0.3s ease;
-        }
-        .desc-image-card:hover .desc-gallery-img {
-          transform: scale(1.03);
-        }
-        .desc-zoom-overlay {
-          position: absolute;
-          inset: 0;
-          background: rgba(15, 23, 42, 0.35);
-          backdrop-filter: blur(2px);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          opacity: 0;
-          transition: opacity 0.2s ease;
-          z-index: 3;
-          color: #fff;
-          font-size: 12px;
-          font-weight: 700;
-          gap: 6px;
-        }
-        .desc-image-card:hover .desc-zoom-overlay {
-          opacity: 1;
-        }
-        .rating-section{border-top:1px solid #f1f5f9;padding:24px 16px;background:#fff}
-        .reviews-scroll-container{
-          max-height:420px;
-          overflow-y:auto;
-          padding: 16px 20px;
-          background: #f8fafc;
-          border-radius: 16px;
-          border: 1px solid #e2e8f0;
-          box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
-        }
-        .reviews-scroll-container::-webkit-scrollbar{width:6px}
-        .reviews-scroll-container::-webkit-scrollbar-track{background:transparent}
-        .reviews-scroll-container::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:3px;transition:background .2s}
-        .reviews-scroll-container::-webkit-scrollbar-thumb:hover{background:#94a3b8}
-        .rating-header-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
-        .rating-summary{display:flex;align-items:center;gap:28px;background:#f8fafc;padding:20px 24px;border-radius:18px;border:1px solid #e2e8f0;margin-bottom:24px;flex-wrap:wrap}
-        .big-rating{font-size:38px;font-weight:800;color:#111827;line-height:1;font-variant-numeric:tabular-nums}
-        .rating-stars-col{display:flex;flex-direction:column;gap:4px}
-        .stars{display:flex;gap:3px;color:#f59e0b}
-        
-        .review-filters{display:flex;gap:8px;flex-wrap:wrap}
-        .rev-filter{padding:7px 14px;border-radius:20px;border:1px solid #e2e8f0;font-size:12px;font-weight:600;color:#64748b;cursor:pointer;background:#fff;transition:all .2s ease}
-        .rev-filter:hover{border-color:#cbd5e1;color:#0f172a}
+
+        .similar-products-section{border-top:1px solid #E5E7EB;padding:32px 40px;background:#fff}
+        .similar-products-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+        .variant-section-label{font-size:12.5px;font-weight:600;color:#111827;margin-bottom:8px;display:block}
+        .size-grid{display:flex;gap:8px;flex-wrap:wrap}
+        .size-btn{padding:6px 12px;border:1px solid #D1D5DB;border-radius:6px;background:#fff;
+          color:#111827;font-size:13px;font-weight:500;cursor:pointer;transition:border-color .15s,background .15s;
+          display:flex;align-items:center;gap:8px;min-width:fit-content}
+        .size-btn:hover{border-color:#111827}
+        .size-btn.active{border-color:#111827;color:#111827;background:#F3F4F6;font-weight:600;box-shadow:inset 0 0 0 1px #111827}
+        .variant-btn-img{width:22px;height:22px;object-fit:cover;border-radius:4px;border:1px solid #E5E7EB}
+
+        .spec-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;background:#F9FAFB;padding:18px;border-radius:10px;border:1px solid #E5E7EB}
+        .spec-item{display:flex;flex-direction:column;gap:2px}
+        .spec-label{font-size:11px;color:#6B7280;font-weight:600;text-transform:uppercase;letter-spacing:0.04em}
+        .spec-val{font-size:13.5px;color:#111827;font-weight:600}
+
+        .description-section{border-top:1px solid #E5E7EB;padding:24px 16px;background:#fff}
+        .description-images-gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;width:100%}
+        .desc-image-card{position:relative;border-radius:10px;overflow:hidden;border:1px solid #E5E7EB;background:#F3F4F6;aspect-ratio:16/10;cursor:pointer}
+        .desc-image-badge{position:absolute;top:8px;left:8px;background:rgba(17,24,39,0.75);color:#fff;font-size:10px;font-weight:600;padding:3px 8px;border-radius:4px;z-index:2}
+        .desc-gallery-img{width:100%;height:100%;object-fit:cover;display:block}
+        .desc-zoom-overlay{position:absolute;inset:0;background:rgba(17,24,39,0.3);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .15s;z-index:3;color:#fff;font-size:12px;font-weight:600;gap:6px}
+        .desc-image-card:hover .desc-zoom-overlay{opacity:1}
+
+        .rating-section{border-top:1px solid #E5E7EB;padding:24px 16px;background:#fff}
+        .reviews-scroll-container{max-height:420px;overflow-y:auto;padding:16px 18px;background:#F9FAFB;border-radius:10px;border:1px solid #E5E7EB}
+        .rating-summary{display:flex;align-items:center;justify-content:space-between;gap:20px;background:#F9FAFB;padding:16px 20px;border-radius:10px;border:1px solid #E5E7EB;margin-bottom:20px;flex-wrap:wrap}
+        .big-rating{font-size:32px;font-weight:700;color:#111827;line-height:1;font-variant-numeric:tabular-nums}
+        .stars{display:flex;gap:2px;color:#F59E0B}
+        .review-filters{display:flex;gap:6px;flex-wrap:wrap}
+        .rev-filter{padding:6px 12px;border-radius:6px;border:1px solid #D1D5DB;font-size:12px;font-weight:500;color:#4B5563;cursor:pointer;background:#fff;transition:all .15s}
+        .rev-filter:hover{border-color:#9CA3AF;color:#111827}
         .rev-filter.active{background:#111827;color:#fff;border-color:#111827}
-        
-        .review-card{padding:16px 0;border-bottom:1px solid #e2e8f0}
+
+        .review-card{padding:14px 0;border-bottom:1px solid #E5E7EB}
         .review-card:last-child{border-bottom:none}
         .review-user{display:flex;align-items:center;gap:10px;margin-bottom:6px}
-        .u-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#e2e8f0,#cbd5e1);
-          display:flex;align-items:center;justify-content:center;font-weight:700;color:#64748b;font-size:12px}
+        .u-avatar{width:32px;height:32px;border-radius:50%;background:#E5E7EB;display:flex;align-items:center;justify-content:center;font-weight:700;color:#374151;font-size:12px}
         .u-info{display:flex;flex-direction:column;gap:2px}
-        .u-name{font-size:13px;font-weight:700;color:#0f172a}
-        .r-date{font-size:11px;color:#94a3b8}
-        .r-text{font-size:14px;color:#334155;line-height:1.6;margin:6px 0}
-        .r-variation{font-size:11px;color:#94a3b8;margin-bottom:8px;display:block}
-        .r-images{display:flex;gap:8px;flex-wrap:wrap}
-        .r-img{width:70px;height:70px;border-radius:8px;object-fit:cover;cursor:pointer;border:1px solid #e2e8f0}
-        
-        .back-to-top{position:fixed;bottom:32px;right:32px;width:50px;height:50px;
-          border-radius:50%;background:#0f172a;color:#fff;display:flex;align-items:center;
-          justify-content:center;cursor:pointer;border:none;box-shadow:0 8px 24px rgba(0,0,0,.15);
-          transition:all .3s ease;z-index:1000;opacity:0;visibility:hidden;transform:translateY(20px)}
+        .u-name{font-size:13px;font-weight:600;color:#111827}
+        .r-date{font-size:11.5px;color:#6B7280}
+        .r-text{font-size:13.5px;color:#374151;line-height:1.55;margin:6px 0}
+        .r-images{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+        .r-img{width:64px;height:64px;border-radius:6px;object-fit:cover;cursor:pointer;border:1px solid #E5E7EB}
+
+        .back-to-top{position:fixed;bottom:28px;right:28px;width:44px;height:44px;border-radius:50%;background:#111827;color:#fff;
+          display:flex;align-items:center;justify-content:center;cursor:pointer;border:1px solid rgba(255,255,255,0.1);
+          box-shadow:0 6px 18px rgba(17,24,39,.18);transition:all .2s ease;z-index:1000;opacity:0;visibility:hidden;transform:translateY(12px)}
         .back-to-top.visible{opacity:1;visibility:visible;transform:translateY(0)}
-        .back-to-top:hover{transform:translateY(-4px);background:#1e293b;box-shadow:0 12px 30px rgba(0,0,0,.2)}
- 
+        .back-to-top:hover{background:#1F2937}
 
-        .seller-header-bar{background:#f8fafc;border-top:1px solid #f1f5f9;border-bottom:1px solid #f1f5f9;padding:20px 24px;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap}
-        @media (max-width: 950px) { .seller-header-bar{padding:20px 16px;flex-direction:column;align-items:flex-start} }
-        .seller-left-side{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+        .seller-header-bar{background:#F9FAFB;border-top:1px solid #E5E7EB;border-bottom:1px solid #E5E7EB;padding:20px 24px;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap}
+        @media (max-width: 950px) { .seller-header-bar{padding:18px 16px;flex-direction:column;align-items:flex-start} }
+        .seller-left-side{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
         .seller-avatar-wrapper{position:relative}
-        .seller-main-avatar{width:64px;height:64px;border-radius:50%;object-fit:cover;background:#f1f5f9;border:2px solid #e2e8f0;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#64748b}
-        .seller-mall-badge{position:absolute;bottom:-4px;left:50%;transform:translateX(-50%);background:#0D6847;color:#fff;font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;border:1.5px solid #fff;white-space:nowrap;box-shadow:0 2px 4px rgba(0,0,0,.1)}
+        .seller-main-avatar{width:56px;height:56px;border-radius:50%;object-fit:cover;background:#F3F4F6;border:1px solid #E5E7EB;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;color:#374151}
         .seller-info-col{display:flex;flex-direction:column;gap:3px}
-        .seller-title-name{font-size:16px;font-weight:700;color:#0f172a;display:flex;align-items:center;gap:6px;margin:0}
-        .seller-active-status{font-size:12px;color:#64748b;margin-bottom:6px}
+        .seller-title-name{font-size:15.5px;font-weight:700;color:#111827;display:flex;align-items:center;gap:6px;margin:0}
+        .seller-active-status{font-size:12px;color:#6B7280;margin-bottom:4px}
         .seller-actions-row{display:flex;gap:8px;flex-wrap:wrap}
-        .seller-btn-chat{padding:7px 14px;background:#111827;border:1px solid #111827;color:#FFFFFF;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;transition:background .15s}
+        .seller-btn-chat{padding:6px 13px;background:#111827;border:1px solid #111827;color:#FFFFFF;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;transition:background .15s}
         .seller-btn-chat:hover{background:#1F2937}
-        .seller-btn-shop{padding:7px 14px;background:#fff;border:1px solid #cbd5e1;color:#475569;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .2s}
-        .seller-stats-grid{display:grid;grid-template-columns:repeat(3, minmax(0, 1fr));gap:8px;flex-grow:1;max-width:520px}
-        @media (max-width: 650px) {
-          .seller-stats-grid{grid-template-columns:repeat(2, minmax(0, 1fr));gap:8px}
-        }
-        .seller-stat-box{
-          display:flex;
-          flex-direction:column;
-          align-items:center;
-          justify-content:center;
-          text-align:center;
-          padding:8px 6px;
-          background:#fff;
-          border:1px solid #e2e8f0;
-          border-radius:10px;
-          gap:2px;
-          transition:all .2s;
-          box-shadow: 0 1px 2px rgba(0,0,0,0.02);
-        }
-        .seller-stat-box:hover{
-          background:#f8fafc;
-          border-color:#cbd5e1;
-        }
-        .seller-stat-label{font-size:10px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:0.3px}
-        .seller-stat-val{font-size:13px;font-weight:700;color:#111827;font-variant-numeric:tabular-nums}
-        .seller-stat-val.dark{color:#0f172a}
-
-        /* E-COMMERCE STOREFRONT UPGRADE STYLES */
-        .ecommerce-hero-section {
-          margin-bottom: 24px;
-          display: flex;
-          flex-direction: column;
-          gap: 16px;
-        }
-        .hero-banner-grid {
-          display: grid;
-          grid-template-columns: 1fr;
-          gap: 16px;
-        }
-        @media (min-width: 960px) {
-          .hero-banner-grid {
-            grid-template-columns: 2.2fr 1fr;
-            gap: 18px;
-          }
-        }
-        .main-carousel-card {
-          position: relative;
-          border-radius: 24px;
-          overflow: hidden;
-          min-height: 310px;
-          display: flex;
-          flex-direction: column;
-          justify-content: space-between;
-          padding: 36px 64px 24px;
-          box-shadow: 0 16px 36px rgba(0,0,0,0.12);
-          transition: all 0.3s ease;
-        }
-        @media (max-width: 640px) {
-          .main-carousel-card {
-            padding: 24px 20px 20px;
-            min-height: 280px;
-          }
-        }
-        .carousel-arrow {
-          position: absolute;
-          top: 50%;
-          transform: translateY(-50%);
-          width: 38px;
-          height: 38px;
-          border-radius: 50%;
-          background: rgba(255, 255, 255, 0.25);
-          backdrop-filter: blur(8px);
-          border: 1px solid rgba(255,255,255,0.4);
-          color: #fff;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          cursor: pointer;
-          font-size: 20px;
-          font-weight: 700;
-          transition: all 0.2s;
-          z-index: 10;
-        }
-        .carousel-arrow:hover {
-          background: rgba(255, 255, 255, 0.45);
-          transform: translateY(-50%) scale(1.08);
-        }
-        .carousel-arrow.prev { left: 12px; }
-        .carousel-arrow.next { right: 12px; }
-        
-        .carousel-dots {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 8px;
-        }
-        .carousel-dot {
-          height: 8px;
-          border-radius: 4px;
-          transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-          cursor: pointer;
-          border: none;
-          background: rgba(255, 255, 255, 0.4);
-          width: 8px;
-        }
-        .carousel-dot.active {
-          width: 26px;
-          background: #fff;
-          box-shadow: 0 0 10px rgba(255,255,255,0.8);
-        }
-
-        .side-promos-container {
-          display: flex;
-          flex-direction: column;
-          gap: 14px;
-          justify-content: space-between;
-        }
-        @media (max-width: 959px) {
-          .side-promos-container {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-          }
-        }
-        @media (max-width: 580px) {
-          .side-promos-container {
-            grid-template-columns: 1fr;
-          }
-        }
-        .side-promo-card {
-          border-radius: 20px;
-          padding: 18px 20px;
-          display: flex;
-          flex-direction: column;
-          justify-content: space-between;
-          transition: all 0.2s;
-          box-shadow: 0 4px 16px rgba(0,0,0,0.03);
-          flex: 1;
-        }
-        .side-promo-card:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 8px 22px rgba(0,0,0,0.06);
-        }
-
-        /* 5-PILLAR TRUST BAR */
-        .trust-props-bar {
-          background: #fff;
-          border-radius: 20px;
-          padding: 14px 18px;
-          border: 1px solid #e2e8f0;
-          box-shadow: 0 4px 20px rgba(0,0,0,0.02);
-          display: grid;
-          grid-template-columns: repeat(5, minmax(0, 1fr));
-          gap: 12px;
-        }
-        @media (max-width: 1024px) {
-          .trust-props-bar {
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-          }
-        }
-        @media (max-width: 680px) {
-          .trust-props-bar {
-            display: flex;
-            overflow-x: auto;
-            gap: 12px;
-            padding-bottom: 12px;
-            scrollbar-width: none;
-          }
-          .trust-prop-item {
-            min-width: 180px;
-            flex-shrink: 0;
-          }
-        }
-        .trust-prop-item {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          padding: 4px 6px;
-        }
-
-        /* SEARCH & DELIVERY HEADER */
-        .marketplace-search-box {
-          background: #fff;
-          border-radius: 24px;
-          padding: 18px 22px;
-          border: 1.5px solid #e2e8f0;
-          box-shadow: 0 1px 2px rgba(17,24,39,0.03);
-          display: flex;
-          flex-direction: column;
-          gap: 14px;
-        }
-
-        /* VISUAL CATEGORY TILES */
-        .category-tiles-container {
-          display: flex;
-          gap: 12px;
-          overflow-x: auto;
-          padding: 6px 4px 14px;
-          scrollbar-width: thin;
-          scrollbar-color: #cbd5e1 transparent;
-          -webkit-overflow-scrolling: touch;
-          user-select: none;
-          scroll-behavior: smooth;
-        }
-        .category-tiles-container::-webkit-scrollbar {
-          height: 6px;
-        }
-        .category-tiles-container::-webkit-scrollbar-track {
-          background: #f1f5f9;
-          border-radius: 4px;
-        }
-        .category-tiles-container::-webkit-scrollbar-thumb {
-          background: #cbd5e1;
-          border-radius: 4px;
-        }
-        .category-tiles-container::-webkit-scrollbar-thumb:hover {
-          background: #94a3b8;
-        }
-        .cat-scroll-arrow {
-          position: absolute;
-          top: 50%;
-          transform: translateY(-50%);
-          width: 38px;
-          height: 38px;
-          border-radius: 50%;
-          background: #fff;
-          border: 1.5px solid #e2e8f0;
-          box-shadow: 0 4px 14px rgba(0,0,0,0.12);
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          z-index: 10;
-          color: #0f172a;
-          font-size: 22px;
-          font-weight: 800;
-          transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .cat-scroll-arrow:hover {
-          background: #111827;
-          color: #fff;
-          border-color: #111827;
-        }
-        @media (max-width: 768px) {
-          .cat-scroll-arrow {
-            display: none !important;
-          }
-          .category-tiles-container::-webkit-scrollbar {
-            display: none;
-          }
-        }
-        .category-tile-btn {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          min-width: 96px;
-          padding: 12px 12px 10px;
-          background: #FFFFFF;
-          border: 1px solid #E5E7EB;
-          border-radius: 12px;
-          cursor: pointer;
-          transition: all 0.15s ease;
-          text-align: center;
-          flex-shrink: 0;
-          gap: 6px;
-        }
-        .category-tile-btn:hover {
-          border-color: #9CA3AF;
-          background: #F9FAFB;
-        }
-        .category-tile-btn.active {
-          background: #111827;
-          border-color: #111827;
-          color: #FFFFFF;
-        }
-
-        /* FLASH DEALS SECTION */
-        .flash-deals-banner {
-          background: #FFFFFF;
-          border-radius: 14px;
-          padding: 22px;
-          border: 1px solid #E5E7EB;
-          margin-bottom: 28px;
-          display: flex;
-          flex-direction: column;
-          gap: 18px;
-          scroll-margin-top: 100px;
-        }
-        .flash-clock-box {
-          background: #111827;
-          color: #FFFFFF;
-          font-weight: 700;
-          font-size: 13px;
-          padding: 4px 8px;
-          border-radius: 6px;
-          font-variant-numeric: tabular-nums;
-          display: inline-block;
-          min-width: 30px;
-          text-align: center;
-        }
-        .flash-items-slider {
-          display: grid;
-          grid-template-columns: repeat(4, minmax(0, 1fr));
-          gap: 14px;
-        }
-        @media (max-width: 900px) {
-          .flash-items-slider {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-          }
-        }
-        @media (max-width: 500px) {
-          .flash-items-slider {
-            display: flex;
-            overflow-x: auto;
-            gap: 12px;
-            padding-bottom: 6px;
-            scrollbar-width: none;
-          }
-          .flash-card-box {
-            min-width: 190px;
-            flex-shrink: 0;
-          }
-        }
+        .seller-btn-shop{padding:6px 13px;background:#fff;border:1px solid #D1D5DB;color:#374151;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .15s}
+        .seller-stats-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;flex-grow:1;max-width:520px}
+        .seller-stat-box{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;padding:8px 10px;background:#fff;border:1px solid #E5E7EB;border-radius:8px;gap:2px}
+        .seller-stat-label{font-size:10.5px;font-weight:500;color:#6B7280}
+        .seller-stat-val{font-size:13px;font-weight:700;color:#111827;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
       `}</style>
 
       <div className="root">
-        <nav className="nav">
-          <Link href="/shop" className="nav-logo">
-            <svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-              <rect x="4" y="9" width="24" height="19" rx="4.5" fill="#111827" />
-              <path d="M11 9V7.5a5 5 0 0 1 10 0V9" stroke="#111827" strokeWidth="2.2" strokeLinecap="round" />
-              <path d="M11.5 16.5c1.2 2.2 3 3.2 4.5 3.2s3.3-1 4.5-3.2" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" />
-              <circle cx="23" cy="13" r="2" fill="#10B981" />
-            </svg>
-            <span className="logo-text">Shopply</span>
-          </Link>
-          <div className="nav-right">
-            <Link href="/cart" className="cart-nav-icon">
-              <IconCart />
-              {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
-            </Link>
-            <Link href="/dashboard" className="login-btn" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
-              <span className="login-text-span">Dashboard</span>
-              <span className="login-icon-span" style={{ display: 'none', alignItems: 'center', justifyContent: 'center' }}>
-                <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                  <path d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" strokeLinecap="round" strokeLinejoin="round"/>
+        {/* STICKY E-COMMERCE HEADER WITH INTEGRATED SEARCH & DEPARTMENT TABS */}
+        <header className="store-header">
+          <div className="header-top-inner">
+            <div className="brand-cluster">
+              <Link href="/shop" className="nav-logo">
+                <svg width="26" height="26" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <rect x="4" y="9" width="24" height="19" rx="4.5" fill="#111827" />
+                  <path d="M11 9V7.5a5 5 0 0 1 10 0V9" stroke="#111827" strokeWidth="2.2" strokeLinecap="round" />
+                  <path d="M11.5 16.5c1.2 2.2 3 3.2 4.5 3.2s3.3-1 4.5-3.2" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" />
                 </svg>
-              </span>
-            </Link>
-          </div>
-        </nav>
+                <span className="logo-text">Shopply</span>
+              </Link>
 
-        <main className="main" id="shop-catalog">
-          {/* 1. HERO PROMOTIONAL CAMPAIGN CAROUSEL & DESKTOP SIDE BANNERS */}
-          <section className="ecommerce-hero-section">
-            <div className="hero-banner-grid">
-              {/* Main Banner Slider */}
-              <div 
-                className="main-carousel-card"
-                onMouseEnter={() => setIsBannerHovered(true)}
-                onMouseLeave={() => setIsBannerHovered(false)}
-                style={{
-                  background: BANNERS[currentBannerIdx].gradient,
-                  position: 'relative'
-                }}
+              <div className="header-divider" />
+
+              <button
+                type="button"
+                className="deliver-btn deliver-btn-desktop"
+                onClick={detectBuyerLocation}
+                disabled={detectingBuyerLoc}
+                title="Click to update your delivery location"
               >
-                {/* Subtle clean border highlight */}
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#374151" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                  <circle cx="12" cy="10" r="3" />
+                </svg>
+                <span style={{ minWidth: 0 }}>
+                  <span className="deliver-label">{detectingBuyerLoc ? "Locating..." : "Deliver to"}</span>
+                  <span className="deliver-val">{buyerLocation || "Philippines"}</span>
+                </span>
+              </button>
+            </div>
 
-                {/* Left Arrow */}
+            {/* Integrated Primary Search Bar (Desktop) */}
+            <form
+              className="header-search-form header-search-desktop"
+              onSubmit={(e) => {
+                e.preventDefault();
+                const el = document.getElementById("catalog-products");
+                if (el) el.scrollIntoView({ behavior: "smooth" });
+              }}
+            >
+              <svg width="16" height="16" fill="none" stroke="#6B7280" strokeWidth="2" viewBox="0 0 24 24" style={{ flexShrink: 0 }}>
+                <circle cx="11" cy="11" r="8" />
+                <path d="M21 21l-4.35-4.35" strokeLinecap="round" />
+              </svg>
+              <input
+                type="search"
+                className="header-search-input"
+                placeholder="Search products, categories, or sellers..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                aria-label="Search marketplace products"
+              />
+              {searchQuery && (
                 <button
                   type="button"
-                  aria-label="Previous Slide"
-                  className="carousel-arrow prev"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setCurrentBannerIdx(prev => (prev - 1 + BANNERS.length) % BANNERS.length);
-                  }}
+                  className="header-search-clear"
+                  onClick={() => setSearchQuery("")}
+                  aria-label="Clear search"
                 >
-                  ‹
+                  ✕
                 </button>
+              )}
+              <button type="submit" className="header-search-submit">
+                Search
+              </button>
+            </form>
 
-                {/* Right Arrow */}
-                <button
-                  type="button"
-                  aria-label="Next Slide"
-                  className="carousel-arrow next"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setCurrentBannerIdx(prev => (prev + 1) % BANNERS.length);
-                  }}
-                >
-                  ›
-                </button>
+            {/* Right Utility Controls */}
+            <div className="nav-right">
+              <button
+                type="button"
+                className="header-util-btn"
+                onClick={() => setIsChatOpen(true)}
+                title="Messages"
+              >
+                <IconChat />
+                <span className="util-label">Messages</span>
+                {totalUnreadChats > 0 && <span className="header-badge">{totalUnreadChats}</span>}
+              </button>
 
-                {/* Slide Content */}
-                <div style={{ position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', gap: 12, padding: isMobile ? '0 24px' : '0 36px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-                    <span style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: 6,
-                      background: BANNERS[currentBannerIdx].badgeBg,
-                      color: '#fff',
-                      fontSize: 11,
-                      fontWeight: 800,
-                      padding: '4px 12px',
-                      borderRadius: 20,
-                      letterSpacing: '0.4px',
-                      boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
-                    }}>
-                      {BANNERS[currentBannerIdx].badge}
-                    </span>
-                    <span style={{
-                      background: 'rgba(255,255,255,0.22)',
-                      backdropFilter: 'blur(6px)',
-                      color: '#fff',
-                      fontSize: 11,
-                      fontWeight: 700,
-                      padding: '4px 10px',
-                      borderRadius: 14,
-                      border: '1px solid rgba(255,255,255,0.3)'
-                    }}>
-                      {BANNERS[currentBannerIdx].tag}
-                    </span>
-                  </div>
+              <Link href="/cart" className="header-util-btn" title="Shopping Cart">
+                <IconCart />
+                <span className="util-label">Cart</span>
+                {cartCount > 0 && <span className="header-badge">{cartCount}</span>}
+              </Link>
 
-                  <h1 style={{
-                    fontSize: isMobile ? 22 : 32,
-                    fontWeight: 900,
-                    color: '#fff',
-                    lineHeight: 1.15,
-                    margin: 0,
-                    letterSpacing: '-0.5px',
-                    textShadow: '0 2px 10px rgba(0,0,0,0.2)'
-                  }}>
-                    {BANNERS[currentBannerIdx].title}
-                  </h1>
-
-                  <p style={{
-                    fontSize: isMobile ? 13 : 14,
-                    color: '#f8fafc',
-                    maxWidth: 580,
-                    margin: 0,
-                    lineHeight: 1.5,
-                    opacity: 0.95
-                  }}>
-                    {BANNERS[currentBannerIdx].subtitle}
-                  </p>
-
-                  {/* Vouchers & Badges Bar */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginTop: 4 }}>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const code = BANNERS[currentBannerIdx].voucherCode;
-                        claimVoucher(code, "Banner Special");
-                      }}
-                      style={{
-                        background: 'rgba(255,255,255,0.95)',
-                        border: 'none',
-                        color: '#0f172a',
-                        fontSize: 12,
-                        fontWeight: 800,
-                        padding: '6px 14px',
-                        borderRadius: 10,
-                        cursor: 'pointer',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: 6,
-                        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                        transition: 'all 0.2s'
-                      }}
-                    >
-                      <span>{(copiedVoucher === BANNERS[currentBannerIdx].voucherCode || claimedVoucher === BANNERS[currentBannerIdx].voucherCode) ? 'CLAIMED ✓' : BANNERS[currentBannerIdx].voucher}</span>
-                      <span style={{
-                        fontSize: 10,
-                        color: (copiedVoucher === BANNERS[currentBannerIdx].voucherCode || claimedVoucher === BANNERS[currentBannerIdx].voucherCode) ? '#065F46' : '#111827',
-                        background: (copiedVoucher === BANNERS[currentBannerIdx].voucherCode || claimedVoucher === BANNERS[currentBannerIdx].voucherCode) ? '#D1FAE5' : '#E5E7EB',
-                        padding: '2px 8px',
-                        borderRadius: 6,
-                        fontWeight: 700
-                      }}>
-                        {(copiedVoucher === BANNERS[currentBannerIdx].voucherCode || claimedVoucher === BANNERS[currentBannerIdx].voucherCode) ? 'ACTIVE' : 'CLAIM'}
-                      </span>
-                    </button>
-
-                    <div style={{
-                      background: 'rgba(255,255,255,0.12)',
-                      color: '#fff',
-                      fontSize: 12,
-                      fontWeight: 600,
-                      padding: '6px 12px',
-                      borderRadius: 8,
-                      border: '1px solid rgba(255,255,255,0.2)',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: 6
-                    }}>
-                      <span>{BANNERS[currentBannerIdx].shipping}</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Bottom Row: CTA & Dots */}
-                <div style={{ position: 'relative', zIndex: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12, marginTop: 18, paddingTop: 14, borderTop: '1px solid rgba(255,255,255,0.2)' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <a
-                      href={currentBannerIdx === 2 ? "#flash-deals-anchor" : "#catalog-products"}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        const targetId = currentBannerIdx === 2 ? "flash-deals-anchor" : "catalog-products";
-                        const el = document.getElementById(targetId);
-                        if (el) el.scrollIntoView({ behavior: 'smooth' });
-                      }}
-                      style={{
-                        padding: '10px 22px',
-                        borderRadius: 12,
-                        background: '#fff',
-                        color: '#0f172a',
-                        fontWeight: 800,
-                        fontSize: 13,
-                        textDecoration: 'none',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: 6,
-                        boxShadow: '0 4px 14px rgba(0,0,0,0.15)',
-                        transition: 'transform 0.2s',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      {BANNERS[currentBannerIdx].primaryBtn}
-                    </a>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const targetId = currentBannerIdx === 1 ? "catalog-products" : "flash-deals-anchor";
-                        const el = document.getElementById(targetId);
-                        if (el) el.scrollIntoView({ behavior: 'smooth' });
-                      }}
-                      style={{
-                        padding: '10px 18px',
-                        borderRadius: 12,
-                        background: 'rgba(255,255,255,0.15)',
-                        backdropFilter: 'blur(8px)',
-                        color: '#fff',
-                        fontWeight: 700,
-                        fontSize: 13,
-                        border: '1px solid rgba(255,255,255,0.35)',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s'
-                      }}
-                    >
-                      {BANNERS[currentBannerIdx].secondaryBtn}
-                    </button>
-                  </div>
-
-                  {/* Dot Indicators */}
-                  <div className="carousel-dots">
-                    {BANNERS.map((_, idx) => (
-                      <button
-                        key={idx}
-                        type="button"
-                        aria-label={`Go to slide ${idx + 1}`}
-                        className={`carousel-dot ${currentBannerIdx === idx ? 'active' : ''}`}
-                        onClick={() => setCurrentBannerIdx(idx)}
-                      />
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Side Promo Stack (Desktop) */}
-              <div className="side-promos-container">
-                {/* Promo Card 1: Dynamic Voucher from Firestore or Empty State */}
-                {activeVoucher ? (
-                  <div className="side-promo-card" style={{ background: '#FFFFFF', border: '1px solid #E5E7EB' }}>
-                    <div>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                        <span style={{ fontSize: 10.5, fontWeight: 700, background: '#F3F4F6', color: '#111827', padding: '3px 8px', borderRadius: 6, letterSpacing: '0.04em', textTransform: 'uppercase' }}>
-                          {activeVoucher.badge || "PROMO VOUCHER"}
-                        </span>
-                        <span style={{ fontSize: 12, fontWeight: 700, color: '#0D6847', fontVariantNumeric: 'tabular-nums' }}>
-                          {activeVoucher.discount_type === 'percent' ? `${activeVoucher.discount_value || activeVoucher.discount}% OFF` : `₱${activeVoucher.discount_value || 100} OFF`}
-                        </span>
-                      </div>
-                      <div style={{ fontSize: 15, fontWeight: 700, color: '#111827', lineHeight: 1.25 }}>
-                        {activeVoucher.title || "Store Voucher"}
-                      </div>
-                      <p style={{ fontSize: 12.5, color: '#6B7280', margin: '4px 0 0', lineHeight: 1.45 }}>
-                        {activeVoucher.description || "Apply at checkout for instant savings on eligible items."}
-                      </p>
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 12, paddingTop: 10, borderTop: '1px solid #F3F4F6' }}>
-                      <span style={{ fontSize: 11.5, fontWeight: 700, color: '#111827', background: '#F9FAFB', padding: '4px 8px', borderRadius: 6, border: '1px solid #E5E7EB', fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace' }}>
-                        {activeVoucher.code}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const disc = activeVoucher.discount_type === 'percent'
-                            ? `${activeVoucher.discount || activeVoucher.discount_value}% OFF`
-                            : `₱${activeVoucher.discount_value} OFF`;
-                          claimVoucher(activeVoucher.code, disc);
-                        }}
-                        style={{
-                          background: (copiedVoucher === activeVoucher.code || claimedVoucher === activeVoucher.code) ? '#0D6847' : '#111827',
-                          color: '#fff',
-                          border: 'none',
-                          borderRadius: 6,
-                          padding: '6px 12px',
-                          fontSize: 11.5,
-                          fontWeight: 600,
-                          cursor: 'pointer'
-                        }}
-                      >
-                        {(copiedVoucher === activeVoucher.code || claimedVoucher === activeVoucher.code) ? "Claimed ✓" : "Claim Code"}
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="side-promo-card" style={{ background: '#FFFFFF', border: '1px solid #E5E7EB' }}>
-                    <div>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                        <span style={{ fontSize: 10.5, fontWeight: 700, background: '#F3F4F6', color: '#374151', padding: '3px 8px', borderRadius: 6, letterSpacing: '0.04em' }}>
-                          VOUCHERS
-                        </span>
-                        <span style={{ fontSize: 11, fontWeight: 600, color: '#6B7280' }}>Updated Daily</span>
-                      </div>
-                      <div style={{ fontSize: 14.5, fontWeight: 700, color: '#111827', lineHeight: 1.25 }}>
-                        No Active Promo Vouchers
-                      </div>
-                      <p style={{ fontSize: 12, color: '#6B7280', margin: '4px 0 0', lineHeight: 1.45 }}>
-                        New store and platform discount codes appear here automatically when released.
-                      </p>
-                    </div>
-                  </div>
-                )}
-
-                {/* Promo Card 2: Shopply Express Guarantee */}
-                <div className="side-promo-card" style={{ background: '#F7F7F5', border: '1px solid #E5E7EB' }}>
-                  <div>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                      <span style={{ fontSize: 10.5, fontWeight: 700, background: '#ECFDF5', color: '#065F46', border: '1px solid #A7F3D0', padding: '2px 8px', borderRadius: 6, letterSpacing: '0.04em' }}>
-                        NATIONWIDE COURIER
-                      </span>
-                      <span style={{ fontSize: 12, fontWeight: 600, color: '#0D6847' }}>24–48h Dispatch</span>
-                    </div>
-                    <div style={{ fontSize: 15, fontWeight: 700, color: '#111827', lineHeight: 1.25 }}>
-                      Tracked Doorstep Delivery
-                    </div>
-                    <p style={{ fontSize: 12.5, color: '#4B5563', margin: '4px 0 0', lineHeight: 1.45 }}>
-                      Live parcel status updates and Cash on Delivery across the Philippines.
-                    </p>
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 12, paddingTop: 10, borderTop: '1px solid #E5E7EB' }}>
-                    <span style={{ fontSize: 11.5, fontWeight: 600, color: '#374151' }}>COD Supported</span>
-                    <Link
-                      href="/dashboard?tab=orders"
-                      style={{ background: '#FFFFFF', color: '#111827', border: '1px solid #D1D5DB', borderRadius: 6, padding: '5px 12px', fontSize: 11.5, fontWeight: 600, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 4 }}
-                    >
-                      <span>Track Orders →</span>
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* 2. FIVE-PILLAR MARKETPLACE VALUE PROPOSITIONS (TRUST BAR) */}
-          <section style={{ marginBottom: 24 }}>
-            <div className="trust-props-bar">
-              <div className="trust-prop-item">
-                <div style={{ width: 38, height: 38, borderRadius: 10, background: '#F3F4F6', color: '#111827', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="3" width="15" height="13" /><polygon points="16 8 20 8 23 11 23 16 16 16 16 8" /><circle cx="5.5" cy="18.5" r="2.5" /><circle cx="18.5" cy="18.5" r="2.5" /></svg>
-                </div>
-                <div style={{ minWidth: 0 }}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: '#111827' }}>Nationwide Shipping</div>
-                  <div style={{ fontSize: 11.5, color: '#6B7280', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Eligible shipping vouchers</div>
-                </div>
-              </div>
-
-              <div className="trust-prop-item">
-                <div style={{ width: 38, height: 38, borderRadius: 10, background: '#ECFDF5', color: '#0D6847', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /><polyline points="9 12 11 14 15 10" /></svg>
-                </div>
-                <div style={{ minWidth: 0 }}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: '#111827' }}>Buyer Protection</div>
-                  <div style={{ fontSize: 11.5, color: '#6B7280', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Verified merchant checkout</div>
-                </div>
-              </div>
-
-              <div className="trust-prop-item">
-                <div style={{ width: 38, height: 38, borderRadius: 10, background: '#F3F4F6', color: '#111827', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="6" width="20" height="12" rx="2" /><circle cx="12" cy="12" r="2" /><path d="M6 12h.01M18 12h.01" /></svg>
-                </div>
-                <div style={{ minWidth: 0 }}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: '#111827' }}>Cash on Delivery</div>
-                  <div style={{ fontSize: 11.5, color: '#6B7280', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Pay upon doorstep arrival</div>
-                </div>
-              </div>
-
-              <div className="trust-prop-item">
-                <div style={{ width: 38, height: 38, borderRadius: 10, background: '#F3F4F6', color: '#111827', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
-                </div>
-                <div style={{ minWidth: 0 }}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: '#111827' }}>24–48h Dispatch</div>
-                  <div style={{ fontSize: 11.5, color: '#6B7280', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Fast local fulfillment</div>
-                </div>
-              </div>
-
-              <div className="trust-prop-item">
-                <div style={{ width: 38, height: 38, borderRadius: 10, background: '#F3F4F6', color: '#111827', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polyline points="1 4 1 10 7 10" /><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" /></svg>
-                </div>
-                <div style={{ minWidth: 0 }}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: '#111827' }}>7-Day Returns</div>
-                  <div style={{ fontSize: 11.5, color: '#6B7280', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Straightforward return policy</div>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* 3. SEARCH, LOCATION PIN & TRENDING KEYWORDS */}
-          <section style={{ marginBottom: 28 }}>
-            <div className="marketplace-search-box">
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
-                {/* Delivery Location Chip */}
-                <div style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 8,
-                  background: '#f8fafc',
-                  border: '1.5px solid #e2e8f0',
-                  padding: '7px 14px',
-                  borderRadius: 20,
-                  fontSize: 13,
-                  color: '#334155'
-                }}>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontWeight: 600, color: '#4B5563' }}>
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#111827" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                    Deliver to:
-                  </span>
-                  <span style={{ fontWeight: 700, color: '#111827' }}>
-                    {buyerLocation || (detectingBuyerLoc ? "Detecting location..." : "Philippines")}
-                  </span>
-                  <button 
-                    type="button"
-                    onClick={detectBuyerLocation}
-                    disabled={detectingBuyerLoc}
-                    style={{
-                      background: '#FFFFFF',
-                      border: '1px solid #D1D5DB',
-                      color: '#111827',
-                      fontWeight: 600,
-                      fontSize: 11,
-                      borderRadius: 6,
-                      padding: '2px 8px',
-                      cursor: detectingBuyerLoc ? 'wait' : 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 3
-                    }}
-                  >
-                    {detectingBuyerLoc ? "..." : (buyerLocation ? "Refresh" : "Detect")}
-                  </button>
-                </div>
-
-                {/* Primary Marketplace Search Bar */}
-                <div style={{
-                  position: 'relative',
-                  flex: 1,
-                  minWidth: 280,
-                  height: 48,
-                  borderRadius: 24,
-                  background: '#f8fafc',
-                  border: '1.5px solid #e2e8f0',
-                  padding: '0 6px 0 16px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 10,
-                  transition: 'all 0.2s'
-                }}>
-                  <svg width="18" height="18" fill="none" stroke="#64748b" strokeWidth="2.5" viewBox="0 0 24 24" style={{ flexShrink: 0 }}>
-                    <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
-                  </svg>
-                  <input
-                    type="text"
-                    placeholder="Search electronics, footwear, apparel, gadgets, brands..."
-                    value={searchQuery}
-                    onChange={e => setSearchQuery(e.target.value)}
-                    style={{
-                      border: 'none',
-                      outline: 'none',
-                      background: 'transparent',
-                      width: '100%',
-                      fontSize: 14,
-                      color: '#0f172a',
-                      fontFamily: 'Inter, sans-serif'
+              <Link href="/dashboard" className="account-pill" title="Open Seller Hub & Account">
+                {currentUser?.avatar ? (
+                  <img
+                    src={getAvatarUrl(currentUser.avatar)}
+                    alt=""
+                    className="account-avatar"
+                    onError={(e) => {
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.style.display = "none";
                     }}
                   />
-                  {searchQuery && (
-                    <button
-                      type="button"
-                      onClick={() => setSearchQuery("")}
-                      style={{
-                        background: '#e2e8f0',
-                        border: 'none',
-                        width: 22,
-                        height: 22,
-                        borderRadius: '50%',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: '#64748b',
-                        fontSize: 11,
-                        cursor: 'pointer',
-                        flexShrink: 0
-                      }}
-                    >
-                      ✕
-                    </button>
-                  )}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const el = document.getElementById("catalog-products");
-                      if (el) el.scrollIntoView({ behavior: 'smooth' });
-                    }}
-                    style={{
-                      background: '#111827',
-                      color: '#fff',
-                      border: 'none',
-                      padding: '8px 20px',
-                      borderRadius: 18,
-                      fontWeight: 600,
-                      fontSize: 13,
-                      cursor: 'pointer',
-                      flexShrink: 0,
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: 6
-                    }}
-                  >
-                    <span>Search</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Popular Searches Row */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', paddingTop: 6 }}>
-                <span style={{ fontSize: 12, fontWeight: 600, color: '#6B7280' }}>
-                  Popular:
+                ) : (
+                  <span className="account-avatar">
+                    {(currentUser?.name || "A").charAt(0).toUpperCase()}
+                  </span>
+                )}
+                <span className="account-name-text">
+                  {currentUser?.name ? currentUser.name.split(" ")[0] : "Account"}
                 </span>
-                {TRENDING_KEYWORDS.map(tag => (
-                  <button
-                    key={tag}
-                    type="button"
-                    onClick={() => {
-                      setSearchQuery(tag);
-                      const el = document.getElementById("catalog-products");
-                      if (el) el.scrollIntoView({ behavior: 'smooth' });
-                    }}
-                    style={{
-                      padding: '4px 12px',
-                      borderRadius: 999,
-                      fontSize: 12,
-                      fontWeight: 500,
-                      background: searchQuery === tag ? '#111827' : '#F3F4F6',
-                      color: searchQuery === tag ? '#FFFFFF' : '#374151',
-                      border: searchQuery === tag ? '1px solid #111827' : '1px solid #E5E7EB',
-                      cursor: 'pointer',
-                      transition: 'all 0.15s'
-                    }}
-                  >
-                    {tag}
-                  </button>
-                ))}
-              </div>
+              </Link>
             </div>
-          </section>
+          </div>
 
-          {/* 4. CURATED VISUAL CATEGORY GRID */}
-          <section style={{ marginBottom: 28 }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-              <h2 style={{ fontFamily: "'Plus Jakarta Sans', 'Inter', sans-serif", fontSize: 18, fontWeight: 700, color: '#111827', margin: 0, letterSpacing: '-0.02em' }}>
-                Shop by Department
-              </h2>
-              {selectedCategory !== "All" && (
-                <button
-                  type="button"
-                  onClick={() => setSelectedCategory("All")}
-                  style={{ fontSize: 12.5, fontWeight: 600, color: '#111827', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
-                >
-                  View all departments →
+          {/* Mobile Search Sub-row */}
+          <form
+            className="mobile-search-row"
+            onSubmit={(e) => {
+              e.preventDefault();
+            }}
+          >
+            <div className="header-search-form" style={{ maxWidth: "none", width: "100%", height: 38 }}>
+              <svg width="15" height="15" fill="none" stroke="#6B7280" strokeWidth="2" viewBox="0 0 24 24" style={{ flexShrink: 0 }}>
+                <circle cx="11" cy="11" r="8" />
+                <path d="M21 21l-4.35-4.35" strokeLinecap="round" />
+              </svg>
+              <input
+                type="search"
+                className="header-search-input"
+                placeholder="Search products or sellers..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                aria-label="Search marketplace products"
+              />
+              {searchQuery && (
+                <button type="button" className="header-search-clear" onClick={() => setSearchQuery("")}>
+                  ✕
                 </button>
               )}
             </div>
+          </form>
 
-            <div style={{ position: 'relative', width: '100%' }}>
-              {/* PC Navigation Left Scroll Arrow */}
-              <button
-                type="button"
-                aria-label="Scroll Categories Left"
-                className="cat-scroll-arrow"
-                style={{ left: -14 }}
-                onClick={() => {
-                  if (categoryScrollRef.current) {
-                    categoryScrollRef.current.scrollBy({ left: -260, behavior: 'smooth' });
-                  }
-                }}
-              >
-                ‹
-              </button>
-
-              {/* PC Navigation Right Scroll Arrow */}
-              <button
-                type="button"
-                aria-label="Scroll Categories Right"
-                className="cat-scroll-arrow"
-                style={{ right: -14 }}
-                onClick={() => {
-                  if (categoryScrollRef.current) {
-                    categoryScrollRef.current.scrollBy({ left: 260, behavior: 'smooth' });
-                  }
-                }}
-              >
-                ›
-              </button>
-
+          {/* Department Sub-Navigation Strip */}
+          <div className="dept-bar">
+            <div className="dept-bar-inner">
               <div
                 ref={categoryScrollRef}
-                className="category-tiles-container"
+                className="dept-tabs"
                 onMouseDown={handleCategoryMouseDown}
                 onMouseMove={handleCategoryMouseMove}
                 onMouseUp={handleCategoryMouseUp}
                 onMouseLeave={handleCategoryMouseUp}
-                onWheel={(e) => {
-                  if (e.deltaY !== 0) {
-                    e.currentTarget.scrollLeft += e.deltaY;
-                  }
-                }}
               >
-                {CURATED_CATEGORIES.map(cat => {
-                  const isActive = selectedCategory === cat.id;
-                  const count = cat.id === "All" 
-                    ? items.length 
-                    : items.filter(i => matchesCategoryItem(i, cat.id)).length;
-
+                {departmentTabs.map((tab) => {
+                  const isActive = selectedCategory.toLowerCase() === tab.id.toLowerCase();
                   return (
                     <button
-                      key={cat.id}
+                      key={tab.id}
                       type="button"
-                      className={`category-tile-btn ${isActive ? 'active' : ''}`}
+                      className={`dept-tab ${isActive ? "active" : ""}`}
                       onClick={() => {
                         if (hasCategoryMovedRef.current) return;
-                        handleSelectCategory(cat.id);
+                        handleSelectCategory(tab.id);
                       }}
                     >
-                      <div style={{
-                        width: 38,
-                        height: 38,
-                        borderRadius: 10,
-                        background: isActive ? 'rgba(255,255,255,0.14)' : '#F3F4F6',
-                        color: isActive ? '#FFFFFF' : '#111827',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        transition: 'all 0.15s'
-                      }}>
-                        {renderCategorySvg(cat.id)}
-                      </div>
-                      <span style={{ fontSize: 12, fontWeight: 600, color: isActive ? '#FFFFFF' : '#111827', whiteSpace: 'nowrap' }}>
-                        {cat.label}
-                      </span>
-                      <span style={{
-                        fontSize: 10.5,
-                        fontWeight: 600,
-                        padding: '1px 7px',
-                        borderRadius: 999,
-                        background: isActive ? 'rgba(255,255,255,0.18)' : '#F3F4F6',
-                        color: isActive ? '#FFFFFF' : '#6B7280',
-                        fontVariantNumeric: 'tabular-nums'
-                      }}>
-                        {count}
-                      </span>
-                    </button>
-                  );
-                })}
-
-                {/* Dynamic Categories from Sellers that are not in curated list */}
-                {Array.from(new Set(items.map(i => i.category).filter(Boolean))).map(sellerCat => {
-                  const sCat = sellerCat as string;
-                  if (CURATED_CATEGORIES.some(c => c.id.toLowerCase() === sCat.toLowerCase() || c.label.toLowerCase() === sCat.toLowerCase())) {
-                    return null;
-                  }
-                  const isActive = selectedCategory.toLowerCase() === sCat.toLowerCase();
-                  const count = items.filter(i => matchesCategoryItem(i, sCat)).length;
-                  return (
-                    <button
-                      key={sCat}
-                      type="button"
-                      className={`category-tile-btn ${isActive ? 'active' : ''}`}
-                      onClick={() => {
-                        if (hasCategoryMovedRef.current) return;
-                        handleSelectCategory(sCat);
-                      }}
-                    >
-                      <div style={{
-                        width: 38,
-                        height: 38,
-                        borderRadius: 10,
-                        background: isActive ? 'rgba(255,255,255,0.14)' : '#F3F4F6',
-                        color: isActive ? '#FFFFFF' : '#111827',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                      }}>
-                        {renderCategorySvg(sCat)}
-                      </div>
-                      <span style={{ fontSize: 12, fontWeight: 700, color: isActive ? '#fff' : '#0f172a', whiteSpace: 'nowrap' }}>
-                        {sCat}
-                      </span>
-                      <span style={{
-                        fontSize: 10,
-                        fontWeight: 700,
-                        padding: '1px 6px',
-                        borderRadius: 8,
-                        background: isActive ? 'rgba(255,255,255,0.25)' : '#f1f5f9',
-                        color: isActive ? '#fff' : '#64748b'
-                      }}>
-                        {count}
-                      </span>
+                      <span>{tab.label}</span>
+                      <span className="dept-count">({tab.count})</span>
                     </button>
                   );
                 })}
               </div>
-            </div>
-          </section>
 
-          {/* 5. FLASH DEALS LIVE TICKER & SHOWCASE - 100% REAL & ADMIN CONTROLLED */}
+              <div className="dept-guarantees">
+                <span className="dept-guarantee-item">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0D6847" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+                  Buyer Protection
+                </span>
+                <span className="dept-guarantee-item">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#374151" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                  Cash on Delivery
+                </span>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <main className="main" id="shop-catalog">
+          {/* REAL STORE VOUCHERS STRIP — Rendered ONLY when real active vouchers exist in Firestore */}
+          {allCoupons.length > 0 && (
+            <section aria-label="Available Store Vouchers" className="voucher-strip">
+              {allCoupons.map((voucher) => {
+                const isClaimed = copiedVoucher === voucher.code || claimedVoucher === voucher.code;
+                const discountLabel = voucher.discount_type === "percent"
+                  ? `${voucher.discount_value || voucher.discount}% OFF`
+                  : `₱${voucher.discount_value || voucher.discount} OFF`;
+                return (
+                  <div key={voucher.code} className="voucher-ticket">
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 2 }}>
+                        <span style={{ fontSize: 13.5, fontWeight: 700, color: "#0D6847", fontVariantNumeric: "tabular-nums" }}>
+                          {discountLabel}
+                        </span>
+                        <span style={{ fontSize: 11, fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace", color: "#374151", background: "#F3F4F6", padding: "1px 6px", borderRadius: 4 }}>
+                          {voucher.code}
+                        </span>
+                      </div>
+                      <div style={{ fontSize: 11.5, color: "#6B7280", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                        {voucher.min_spend > 0 ? `Min. spend ₱${Number(voucher.min_spend).toFixed(0)}` : (voucher.title || "Valid on marketplace orders")}
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => claimVoucher(voucher.code, discountLabel)}
+                      style={{
+                        height: 30,
+                        padding: "0 12px",
+                        borderRadius: 6,
+                        border: isClaimed ? "1px solid #0D6847" : "1px solid #111827",
+                        background: isClaimed ? "#ECFDF5" : "#111827",
+                        color: isClaimed ? "#0D6847" : "#FFFFFF",
+                        fontSize: 11.5,
+                        fontWeight: 600,
+                        cursor: "pointer",
+                        flexShrink: 0
+                      }}
+                    >
+                      {isClaimed ? "Claimed" : "Claim"}
+                    </button>
+                  </div>
+                );
+              })}
+            </section>
+          )}
+
+          {/* REAL ADMIN-CONTROLLED FLASH DEALS — Hidden completely unless active with enrolled products */}
           {flashConfig.is_active && items.length > 0 && (() => {
-            const hasEnded = (flashCountdown.hours === 0 && flashCountdown.minutes === 0 && flashCountdown.seconds === 0) || (new Date(flashConfig.end_time).getTime() <= Date.now());
-            
-            // If the flash sale has ended or is inactive or has no items, automatically empty/hide section!
-            if (hasEnded || !flashConfig.is_active || (flashConfig.items || []).length === 0) {
+            if (hasFlashEnded || !flashConfig.is_active || (flashConfig.items || []).length === 0) {
               return null;
             }
 
-            // ONLY display products that the Admin explicitly enrolled in Flash Deals from the Admin Panel
             const enrolledDeals = (flashConfig.items || [])
               .map(deal => {
                 const product = items.find(p => String(p.id) === String(deal.item_id));
@@ -3240,80 +2334,56 @@ function MarketplaceContent() {
 
             return (
               <section id="flash-deals-anchor" className="flash-deals-banner">
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 14 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#DC2626', display: 'inline-block' }} />
-                      <h2 style={{ fontFamily: "'Plus Jakarta Sans', 'Inter', sans-serif", fontSize: 18, fontWeight: 800, color: '#111827', margin: 0, letterSpacing: '-0.02em' }}>
-                        Limited-Time Markdowns
-                      </h2>
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: '#475569', fontWeight: 700 }}>
-                      <span>{hasEnded ? "Status:" : "Ends in:"}</span>
-                      {hasEnded ? (
-                        <span style={{ background: '#fee2e2', color: '#dc2626', padding: '3px 10px', borderRadius: 6, fontWeight: 800, fontSize: 12 }}>
-                          ENDED
-                        </span>
-                      ) : (
-                        <>
-                          <span className="flash-clock-box">{String(flashCountdown.hours).padStart(2, '0')}</span>
-                          <span style={{ fontWeight: 800, color: '#dc2626' }}>:</span>
-                          <span className="flash-clock-box">{String(flashCountdown.minutes).padStart(2, '0')}</span>
-                          <span style={{ fontWeight: 800, color: '#dc2626' }}>:</span>
-                          <span className="flash-clock-box">{String(flashCountdown.seconds).padStart(2, '0')}</span>
-                        </>
-                      )}
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+                    <h2 style={{ fontFamily: "'Plus Jakarta Sans', 'Inter', sans-serif", fontSize: 16, fontWeight: 700, color: "#111827", margin: 0 }}>
+                      Limited-Time Deals
+                    </h2>
+                    <div style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 12.5, color: "#4B5563", fontWeight: 600 }}>
+                      <span>Ends in</span>
+                      <span className="flash-clock-box">{String(flashCountdown.hours).padStart(2, "0")}</span>
+                      <span>:</span>
+                      <span className="flash-clock-box">{String(flashCountdown.minutes).padStart(2, "0")}</span>
+                      <span>:</span>
+                      <span className="flash-clock-box">{String(flashCountdown.seconds).padStart(2, "0")}</span>
                     </div>
                   </div>
 
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                    {flashCoupon && (() => {
-                      const isClaimed = copiedVoucher === flashCoupon.code || claimedVoucher === flashCoupon.code;
-                      const discountText = flashCoupon.discount_type === 'percent' 
-                        ? `${flashCoupon.discount || flashCoupon.discount_value}% OFF` 
-                        : `₱${flashCoupon.discount_value} OFF`;
-
-                      return (
-                        <button
-                          type="button"
-                          onClick={() => claimVoucher(flashCoupon.code, discountText)}
-                          style={{
-                            fontSize: 12,
-                            fontWeight: 800,
-                            color: isClaimed ? '#15803d' : '#dc2626',
-                            background: isClaimed ? '#f0fdf4' : '#fff',
-                            border: isClaimed ? '1.5px solid #86efac' : '1.5px solid #fecaca',
-                            padding: '6px 14px',
-                            borderRadius: 20,
-                            cursor: 'pointer',
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: 6,
-                            boxShadow: '0 2px 6px rgba(0,0,0,0.06)',
-                            transition: 'all 0.2s ease'
-                          }}
-                          title="Click to claim voucher and auto-apply at checkout"
-                        >
-                          <span>{flashCoupon.code}</span>
-                          <span style={{ fontSize: 11, fontWeight: 700, color: isClaimed ? '#16a34a' : '#ef4444' }}>
-                            {isClaimed ? 'Claimed & Applied! ✓' : discountText}
-                          </span>
-                        </button>
-                      );
-                    })()}
-                    <span style={{ fontSize: 12, fontWeight: 700, color: '#ef4444', background: '#fee2e2', padding: '6px 14px', borderRadius: 20 }}>
-                      {flashCoupon ? (flashCoupon.badge || `FLASH OFFER ${flashCoupon.discount_type === 'percent' ? `${flashCoupon.discount_value}% OFF` : `₱${flashCoupon.discount_value} OFF`}`) : (flashConfig.badge_text || "Up to 50% OFF Limited Time")}
-                    </span>
-                  </div>
+                  {flashCoupon && (() => {
+                    const isClaimed = copiedVoucher === flashCoupon.code || claimedVoucher === flashCoupon.code;
+                    const discountText = flashCoupon.discount_type === "percent"
+                      ? `${flashCoupon.discount || flashCoupon.discount_value}% OFF`
+                      : `₱${flashCoupon.discount_value} OFF`;
+                    return (
+                      <button
+                        type="button"
+                        onClick={() => claimVoucher(flashCoupon.code, discountText)}
+                        style={{
+                          fontSize: 12,
+                          fontWeight: 600,
+                          color: isClaimed ? "#0D6847" : "#111827",
+                          background: isClaimed ? "#ECFDF5" : "#F9FAFB",
+                          border: isClaimed ? "1px solid #A7F3D0" : "1px solid #D1D5DB",
+                          padding: "5px 12px",
+                          borderRadius: 6,
+                          cursor: "pointer",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: 6
+                        }}
+                      >
+                        <span style={{ fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace", fontWeight: 700 }}>{flashCoupon.code}</span>
+                        <span>· {isClaimed ? "Claimed" : discountText}</span>
+                      </button>
+                    );
+                  })()}
                 </div>
 
-                {/* Flash Deals Slider Cards */}
                 <div className="flash-items-slider">
                   {enrolledDeals.map(({ product: fItem, deal }) => {
                     const originalPrice = parseFloat(fItem.price) || 0;
                     const flashPrice = Number(deal.flash_price);
-                    const discountPct = deal.discount_pct || (originalPrice > 0 ? Math.max(1, Math.round(((originalPrice - flashPrice) / originalPrice) * 100)) : 20);
-                    const claimedPct = Math.min(100, Math.max(0, Number(deal.claimed_pct !== undefined && deal.claimed_pct !== null ? deal.claimed_pct : 50)));
+                    const discountPct = deal.discount_pct || (originalPrice > 0 ? Math.max(1, Math.round(((originalPrice - flashPrice) / originalPrice) * 100)) : 15);
                     const stockRemaining = deal.stock !== undefined && deal.stock !== null ? Number(deal.stock) : calculateTotalStock(fItem);
 
                     return (
@@ -3322,113 +2392,43 @@ function MarketplaceContent() {
                         className="flash-card-box"
                         onClick={() => handleViewItem(fItem)}
                         style={{
-                          background: '#fff',
-                          borderRadius: 16,
-                          border: '1.5px solid #fecaca',
-                          padding: 12,
-                          cursor: 'pointer',
-                          display: 'flex',
-                          flexDirection: 'column',
-                          justifyContent: 'space-between',
-                          gap: 8,
-                          maxWidth: 240,
-                          width: '100%',
-                          transition: 'transform 0.2s ease'
+                          background: "#FFFFFF",
+                          borderRadius: 8,
+                          border: "1px solid #E5E7EB",
+                          padding: 10,
+                          cursor: "pointer",
+                          display: "flex",
+                          flexDirection: "column",
+                          justifyContent: "space-between",
+                          gap: 8
                         }}
                       >
-                        <div style={{ position: 'relative', width: '100%', aspectRatio: '1/1', borderRadius: 12, overflow: 'hidden', background: '#f8fafc' }}>
+                        <div style={{ position: "relative", width: "100%", aspectRatio: "1/1", borderRadius: 6, overflow: "hidden", background: "#F3F4F6" }}>
                           {fItem.image ? (
-                            <img
-                              src={getImageUrl(fItem.image)}
-                              alt={fItem.name}
-                              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                            />
-                          ) : (
-                            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#cbd5e1' }}>
-                              <svg width="32" height="32" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/></svg>
-                            </div>
-                          )}
-                          <span style={{
-                            position: 'absolute',
-                            top: 8,
-                            left: 8,
-                            background: 'linear-gradient(135deg, #ef4444, #dc2626)',
-                            color: '#fff',
-                            fontSize: 10,
-                            fontWeight: 900,
-                            padding: '2px 7px',
-                            borderRadius: 6
-                          }}>
+                            <img src={getImageUrl(fItem.image)} alt={fItem.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                          ) : null}
+                          <span style={{ position: "absolute", top: 8, left: 8, background: "#DC2626", color: "#FFFFFF", fontSize: 10.5, fontWeight: 700, padding: "2px 6px", borderRadius: 4 }}>
                             -{discountPct}%
                           </span>
                         </div>
-
                         <div>
-                          <h4 style={{ fontSize: 13, fontWeight: 700, color: '#0f172a', margin: '0 0 4px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          <div style={{ fontSize: 13, fontWeight: 600, color: "#111827", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                             {fItem.name}
-                          </h4>
-                          <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
-                            <span style={{ fontSize: 16, fontWeight: 900, color: '#dc2626' }}>
+                          </div>
+                          <div style={{ display: "flex", alignItems: "baseline", gap: 6, marginTop: 2 }}>
+                            <span style={{ fontSize: 15, fontWeight: 700, color: "#DC2626", fontVariantNumeric: "tabular-nums" }}>
                               ₱{flashPrice.toFixed(2)}
                             </span>
                             {originalPrice > flashPrice && (
-                              <span style={{ fontSize: 12, fontWeight: 600, color: '#94a3b8', textDecoration: 'line-through' }}>
+                              <span style={{ fontSize: 11.5, color: "#9CA3AF", textDecoration: "line-through", fontVariantNumeric: "tabular-nums" }}>
                                 ₱{originalPrice.toFixed(2)}
                               </span>
                             )}
                           </div>
-                        </div>
-
-                        {/* Stock Claimed Progress Bar */}
-                        <div>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, fontWeight: 700, color: '#ef4444', marginBottom: 4 }}>
-                            <span>{claimedPct}% claimed</span>
-                            <span style={{ color: '#64748b' }}>{stockRemaining > 0 ? `${stockRemaining} left` : 'Out'}</span>
-                          </div>
-                          <div style={{ height: 6, background: '#fee2e2', borderRadius: 4, overflow: 'hidden' }}>
-                            <div style={{ width: `${claimedPct}%`, height: '100%', background: 'linear-gradient(90deg, #ef4444, #f97316)', borderRadius: 4 }} />
+                          <div style={{ fontSize: 11, color: "#6B7280", marginTop: 3 }}>
+                            {stockRemaining > 0 ? `${stockRemaining} remaining at deal price` : "Deal stock sold out"}
                           </div>
                         </div>
-
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            const token = localStorage.getItem("token");
-                            if (!token) {
-                              setErrorMsg("Please log in to purchase Flash Deals.");
-                              setTimeout(() => setErrorMsg(null), 3500);
-                              return;
-                            }
-                            // If product has variations (multiple colors or footwear sizes), open detail modal so customer can pick
-                            if ((fItem.attributes?.colors && fItem.attributes.colors.length > 1) || (isFootwearCategory(fItem.category) && fItem.attributes?.sizes && fItem.attributes.sizes.length > 0)) {
-                              handleViewItem(fItem);
-                              return;
-                            }
-                            setBuyModal({
-                              item: fItem,
-                              variation: fItem.attributes?.colors?.[0] || "",
-                              price: String(flashPrice),
-                              variantIdx: 0
-                            });
-                          }}
-                          style={{
-                            background: 'linear-gradient(135deg, #ef4444, #dc2626)',
-                            color: '#fff',
-                            border: 'none',
-                            padding: '10px 14px',
-                            borderRadius: 10,
-                            fontWeight: 800,
-                            fontSize: 12,
-                            cursor: 'pointer',
-                            width: '100%',
-                            textAlign: 'center',
-                            boxShadow: '0 4px 12px rgba(220, 38, 38, 0.25)',
-                            transition: 'all 0.2s ease'
-                          }}
-                        >
-                          Buy Now (₱{flashPrice.toFixed(2)})
-                        </button>
                       </div>
                     );
                   })}
@@ -3437,87 +2437,72 @@ function MarketplaceContent() {
             );
           })()}
 
-          {/* 6. MAIN CATALOG HEADER WITH FILTER SORT CONTROLS */}
-          <div id="catalog-products" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 14, marginBottom: 20 }}>
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-                <h3 style={{ fontSize: 20, fontWeight: 800, color: '#0f172a', margin: 0 }}>
-                  {selectedCategory === "All" ? "All Marketplace Products" : `${selectedCategory} Collection`}
-                </h3>
-                {selectedCategory !== "All" && (
-                  <span style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 6,
-                    background: '#F3F4F6',
-                    border: '1px solid #E5E7EB',
-                    color: '#111827',
-                    padding: '3px 10px',
-                    borderRadius: 999,
-                    fontSize: 12,
-                    fontWeight: 600
-                  }}>
-                    {selectedCategory}
-                    <button
-                      type="button"
-                      onClick={() => setSelectedCategory("All")}
-                      style={{ background: 'none', border: 'none', color: '#4B5563', cursor: 'pointer', padding: 0, fontWeight: 700, fontSize: 12 }}
-                      title="Clear category filter"
-                    >
-                      ✕
-                    </button>
-                  </span>
-                )}
-              </div>
-              <p style={{ fontSize: 13, color: '#6B7280', margin: '4px 0 0' }}>
-                Showing <strong>{filteredItems.length}</strong> verified listings
-              </p>
+          {/* CATALOG TOOLBAR — Directly Above the Fold */}
+          <div id="catalog-products" className="catalog-toolbar">
+            <div className="catalog-heading-group">
+              <h1 className="catalog-title">
+                {selectedCategory === "All" ? "Marketplace Listings" : activeCategoryLabel}
+              </h1>
+              {!loading && (
+                <span className="catalog-count">
+                  {filteredItems.length} {filteredItems.length === 1 ? "item" : "items"}
+                </span>
+              )}
             </div>
 
-            {/* Sorting Controls */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-              <span style={{ fontSize: 12, fontWeight: 600, color: '#6B7280', marginRight: 2 }}>Sort:</span>
-              {[
-                { id: 'featured', label: 'Featured' },
-                { id: 'popular', label: 'Best Selling' },
-                { id: 'rating', label: 'Top Rated' },
-                { id: 'price-asc', label: 'Price: Low to High' },
-                { id: 'price-desc', label: 'Price: High to Low' }
-              ].map(s => (
-                <button
-                  key={s.id}
-                  type="button"
-                  onClick={() => setSortBy(s.id as any)}
-                  style={{
-                    padding: '6px 12px',
-                    borderRadius: 8,
-                    fontSize: 12,
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                    transition: 'all 0.15s',
-                    background: sortBy === s.id ? '#111827' : '#FFFFFF',
-                    color: sortBy === s.id ? '#FFFFFF' : '#374151',
-                    border: sortBy === s.id ? '1px solid #111827' : '1px solid #E5E7EB'
-                  }}
-                >
-                  {s.label}
-                </button>
-              ))}
+            <div className="sort-control">
+              <label htmlFor="shop-sort-select" className="sort-label">Sort by</label>
+              <select
+                id="shop-sort-select"
+                className="sort-select"
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as any)}
+              >
+                <option value="featured">Featured</option>
+                <option value="newest">Newest Arrivals</option>
+                <option value="popular">Most Sold</option>
+                <option value="rating">Highest Rated</option>
+                <option value="price-asc">Price: Low to High</option>
+                <option value="price-desc">Price: High to Low</option>
+              </select>
             </div>
           </div>
 
-          {searchQuery && (
-            <div style={{ fontSize: '14px', color: '#64748b', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '8px', animation: 'fadeIn 0.25s ease' }}>
-              <span>Found <strong>{filteredItems.length}</strong> items matching &ldquo;{searchQuery}&rdquo;</span>
-              <button 
-                onClick={() => setSearchQuery("")} 
-                style={{ background: 'transparent', border: 'none', color: '#111827', fontWeight: 600, cursor: 'pointer', fontSize: '13px', padding: 0 }}
-              >
-                Clear search
-              </button>
+          {/* Active Search / Category / Real Voucher Filter Chips */}
+          {(selectedCategory !== "All" || searchQuery.trim() !== "" || claimedVoucher) && (
+            <div className="active-filters-row">
+              {selectedCategory !== "All" && (
+                <span className="filter-chip">
+                  Department: <strong>{activeCategoryLabel}</strong>
+                  <button type="button" onClick={() => setSelectedCategory("All")} aria-label="Remove department filter">✕</button>
+                </span>
+              )}
+              {searchQuery.trim() !== "" && (
+                <span className="filter-chip">
+                  Search: <strong>&ldquo;{searchQuery.trim()}&rdquo;</strong>
+                  <button type="button" onClick={() => setSearchQuery("")} aria-label="Clear search query">✕</button>
+                </span>
+              )}
+              {claimedVoucher && (
+                <span className="filter-chip" style={{ borderColor: "#A7F3D0", background: "#ECFDF5", color: "#065F46" }}>
+                  Voucher active: <strong>{claimedVoucher}</strong>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      localStorage.removeItem("claimed_voucher");
+                      setClaimedVoucher(null);
+                    }}
+                    aria-label="Remove claimed voucher"
+                    style={{ color: "#065F46" }}
+                  >
+                    ✕
+                  </button>
+                </span>
+              )}
             </div>
           )}
 
+          {/* PRODUCT CATALOG GRID */}
           {loading ? (
             <div className="grid">
               {Array.from({ length: 8 }).map((_, i) => (
@@ -3527,293 +2512,352 @@ function MarketplaceContent() {
           ) : filteredItems.length === 0 ? (
             <div className="empty-state">
               <div className="empty-icon">
-                <svg width="48" height="48" fill="none" stroke="#94a3b8" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M6 2L3 7v13a2 2 0 002 2h14a2 2 0 002-2V7l-3-5H6z"/><line x1="3" y1="7" x2="21" y2="7"/><path d="M16 11a4 4 0 01-8 0"/></svg>
+                <svg width="42" height="42" fill="none" stroke="#9CA3AF" strokeWidth="1.5" viewBox="0 0 24 24">
+                  <path d="M6 2L3 7v13a2 2 0 002 2h14a2 2 0 002-2V7l-3-5H6z" />
+                  <line x1="3" y1="7" x2="21" y2="7" />
+                  <path d="M16 11a4 4 0 01-8 0" />
+                </svg>
               </div>
-              <div className="empty-text">No items found.</div>
-              <p className="subtitle" style={{marginTop: '8px'}}>Try changing the category or search query!</p>
+              <div className="empty-text">No matching listings found</div>
+              <p className="subtitle">
+                {searchQuery.trim() || selectedCategory !== "All"
+                  ? "Try clearing your search or switching back to All Items."
+                  : "New listings from sellers will appear here once published."}
+              </p>
+              {(searchQuery.trim() !== "" || selectedCategory !== "All") && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchQuery("");
+                    setSelectedCategory("All");
+                  }}
+                  style={{
+                    marginTop: 16,
+                    padding: "8px 16px",
+                    borderRadius: 7,
+                    border: "1px solid #D1D5DB",
+                    background: "#FFFFFF",
+                    color: "#111827",
+                    fontSize: 13,
+                    fontWeight: 600,
+                    cursor: "pointer"
+                  }}
+                >
+                  Reset filters
+                </button>
+              )}
             </div>
           ) : (
             <div className="grid">
               {filteredItems.map((item) => {
                 const activeDeal = getActiveFlashDeal(item.id);
+                const totalStock = calculateTotalStock(item);
+                const realReviewsCount = Number(item.reviews_count || 0);
+                const realAvgRating = Number(item.reviews_avg_rating || 0);
+                const realSoldCount = Number(item.sold_count || 0);
+                const photoCount = (item.attributes?.main_images?.length || (item.image ? 1 : 0)) + (item.attributes?.variant_image_paths?.filter(Boolean).length || 0);
+
+                const isCurrentSeller = currentUser && (
+                  String(item.user?.id) === String(currentUser.id) ||
+                  (item.user?.name && currentUser.name && item.user.name.toLowerCase() === currentUser.name.toLowerCase()) ||
+                  (item.user?.name && (currentUser as any).username && item.user.name.toLowerCase() === (currentUser as any).username.toLowerCase())
+                );
+                const sellerAvatar = item.user?.avatar || (isCurrentSeller ? currentUser.avatar : null);
+                const sellerName = item.user?.name || (isCurrentSeller ? currentUser.name : "Seller");
+                const sellerLocation = item.user?.location || null;
+
                 return (
-                <div key={item.id} className="item-card" onClick={() => handleViewItem(item)} style={{cursor:'pointer', position: 'relative'}}>
-                  <div style={{ position: 'relative', width: '100%', overflow: 'hidden' }}>
-                    {item.image ? (
-                      <img
-                        src={getImageUrl(item.image)}
-                        alt={item.name}
-                        className="item-card-img"
-                        loading="lazy"
-                        decoding="async"
-                        onError={(e) => {
-                          e.currentTarget.onerror = null;
-                          e.currentTarget.style.display = 'none';
-                          const card = e.currentTarget.closest('.item-card');
-                          const placeholder = card?.querySelector('.item-image-placeholder') as HTMLElement;
-                          if (placeholder) placeholder.style.display = 'flex';
-                        }}
-                      />
-                    ) : null}
-                    <div className="item-image-placeholder" style={{ display: item.image ? 'none' : 'flex' }}>
-                      <svg width="48" height="48" fill="none" stroke="#cbd5e1" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
-                    </div>
+                  <article
+                    key={item.id}
+                    className="item-card"
+                    onClick={() => handleViewItem(item)}
+                  >
+                    <div className="item-img-wrap">
+                      {item.image ? (
+                        <img
+                          src={getImageUrl(item.image)}
+                          alt={item.name}
+                          className="item-card-img"
+                          style={totalStock <= 0 ? { opacity: 0.82 } : undefined}
+                          loading="lazy"
+                          decoding="async"
+                          onError={(e) => {
+                            e.currentTarget.onerror = null;
+                            e.currentTarget.style.display = "none";
+                            const card = e.currentTarget.closest(".item-card");
+                            const placeholder = card?.querySelector(".item-image-placeholder") as HTMLElement;
+                            if (placeholder) placeholder.style.display = "flex";
+                          }}
+                        />
+                      ) : null}
+                      <div className="item-image-placeholder" style={{ display: item.image ? "none" : "flex" }}>
+                        <svg width="38" height="38" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                          <rect x="3" y="3" width="18" height="18" rx="2" />
+                          <circle cx="8.5" cy="8.5" r="1.5" />
+                          <polyline points="21 15 16 10 5 21" />
+                        </svg>
+                      </div>
 
-                    {/* Clean Retail Badges */}
-                    <span style={{
-                      position: 'absolute',
-                      top: 10,
-                      left: 10,
-                      background: 'rgba(255,255,255,0.94)',
-                      color: '#111827',
-                      border: '1px solid rgba(17,24,39,0.08)',
-                      fontSize: 10.5,
-                      fontWeight: 700,
-                      padding: '3px 8px',
-                      borderRadius: 6,
-                      zIndex: 2
-                    }}>
-                      COD Ready
-                    </span>
-
-                    {activeDeal && (
-                      <span style={{
-                        position: 'absolute',
-                        top: 10,
-                        right: 10,
-                        background: '#DC2626',
-                        color: '#fff',
-                        fontSize: 10.5,
-                        fontWeight: 700,
-                        padding: '3px 8px',
-                        borderRadius: 6,
-                        zIndex: 2
-                      }}>
-                        -{activeDeal.discount_pct || 40}%
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="item-content">
-                    <div className="item-meta-row" style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:6}}>
-                      <div style={{ flex: 1, minWidth: 0, marginRight: 6 }}>
-                        <span style={{ fontSize: 10.5, fontWeight: 600, color: '#4B5563', background: '#F3F4F6', padding: '2px 7px', borderRadius: 4, display: 'inline-block', marginBottom: 4 }}>
-                          {item.category || "General"}
+                      {totalStock <= 0 ? (
+                        <span style={{
+                          position: "absolute",
+                          top: 8,
+                          left: 8,
+                          background: "rgba(17, 24, 39, 0.82)",
+                          color: "#FFFFFF",
+                          fontSize: 10.5,
+                          fontWeight: 600,
+                          padding: "3px 8px",
+                          borderRadius: 5,
+                          zIndex: 2
+                        }}>
+                          Sold Out
                         </span>
-                        <h3 className="item-name" style={{ margin: 0 }}>{item.name}</h3>
-                      </div>
-                      <div style={{display:'flex',alignItems:'center',gap:4, flexShrink: 0}}>
-                        <StarRating rating={Math.round(Number(item.reviews_avg_rating || 0))} size={12} />
-                        <span style={{fontSize:11,color:'#94a3b8'}}>({Number(item.reviews_avg_rating || 0).toFixed(1)})</span>
-                      </div>
-                    </div>
-                    
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8, flexWrap: 'wrap' }}>
-                      <span style={{ fontSize: 10, background: '#f0fdf4', color: '#16a34a', padding: '2px 6px', borderRadius: 4, fontWeight: 700, border: '1px solid #bbf7d0' }}>
-                        COD
-                      </span>
-                      <span style={{ fontSize: 11, color: '#64748b' }}>
-                        • {item.sold_count ? `${item.sold_count} sold` : `${(item.reviews_count || 0) * 4 + 18} sold`}
-                      </span>
+                      ) : activeDeal ? (
+                        <span style={{
+                          position: "absolute",
+                          top: 8,
+                          left: 8,
+                          background: "#DC2626",
+                          color: "#FFFFFF",
+                          fontSize: 10.5,
+                          fontWeight: 700,
+                          padding: "3px 7px",
+                          borderRadius: 5,
+                          zIndex: 2
+                        }}>
+                          -{activeDeal.discount_pct || 20}%
+                        </span>
+                      ) : null}
+
+                      {photoCount > 1 && (
+                        <span style={{
+                          position: "absolute",
+                          bottom: 8,
+                          right: 8,
+                          background: "rgba(17, 24, 39, 0.62)",
+                          color: "#FFFFFF",
+                          fontSize: 10,
+                          fontWeight: 600,
+                          padding: "2px 6px",
+                          borderRadius: 4,
+                          fontVariantNumeric: "tabular-nums",
+                          zIndex: 2
+                        }}>
+                          1/{photoCount}
+                        </span>
+                      )}
                     </div>
 
-                    <p className="item-desc">{item.description || "No description provided."}</p>
-                    <div className="item-stock-row" style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom: isMobile ? 8 : 16}}>
-                      <div style={{fontSize: 13, color: '#64748b'}}>
-                        {calculateTotalStock(item) > 0 ? (
-                          <>Stock: <strong style={{color: '#0f172a'}}>{calculateTotalStock(item)} left</strong></>
+                    <div className="item-content">
+                      <span className="item-cat-text">{item.category || "General"}</span>
+                      <h2 className="item-name">{item.name}</h2>
+
+                      <div className="item-price-row">
+                        {(() => {
+                          const origPrice = parseFloat(item.price) || 0;
+                          if (activeDeal) {
+                            const fPrice = Number(activeDeal.flash_price);
+                            return (
+                              <>
+                                <span className="item-price" style={{ color: "#DC2626" }}>
+                                  ₱{fPrice.toFixed(2)}
+                                </span>
+                                {origPrice > fPrice && (
+                                  <span style={{ fontSize: 12, color: "#9CA3AF", textDecoration: "line-through", fontVariantNumeric: "tabular-nums" }}>
+                                    ₱{origPrice.toFixed(2)}
+                                  </span>
+                                )}
+                              </>
+                            );
+                          }
+                          return (
+                            <span className="item-price" style={totalStock <= 0 ? { color: "#6B7280" } : undefined}>
+                              {formatPriceDisplay(item)}
+                            </span>
+                          );
+                        })()}
+                      </div>
+
+                      {/* 100% True Ratings, Sales, and Inventory Row */}
+                      <div className="item-stats-line">
+                        {realReviewsCount > 0 && (
+                          <>
+                            <span style={{ display: "inline-flex", alignItems: "center", gap: 3, color: "#111827", fontWeight: 600 }}>
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="#F59E0B" aria-hidden="true">
+                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.27 5.82 22 7 14.14l-5-4.87 6.91-1.01L12 2z" />
+                              </svg>
+                              {realAvgRating.toFixed(1)}
+                              <span style={{ color: "#6B7280", fontWeight: 400 }}>({realReviewsCount})</span>
+                            </span>
+                            <span aria-hidden="true">·</span>
+                          </>
+                        )}
+                        <span>{realSoldCount} sold</span>
+                        <span aria-hidden="true">·</span>
+                        {totalStock <= 0 ? (
+                          <span style={{ color: "#DC2626", fontWeight: 600 }}>Out of stock</span>
+                        ) : totalStock <= 5 ? (
+                          <span style={{ color: "#B45309", fontWeight: 600 }}>Only {totalStock} left</span>
                         ) : (
-                          <strong style={{color: '#ef4444'}}>Out of Stock</strong>
+                          <span>{totalStock} in stock</span>
                         )}
                       </div>
-                      <span style={{fontSize:11,color:'#94a3b8'}}>{item.reviews_count || 0} Reviews</span>
-                    </div>
-                    <div className="item-footer" style={{display:'flex', flexDirection:'column', gap: isMobile ? 6 : 10}} onClick={e => e.stopPropagation()}>
-                      {(() => {
-                        const origPrice = parseFloat(item.price) || 0;
-                        if (activeDeal) {
-                          const fPrice = Number(activeDeal.flash_price);
-                          return (
-                            <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, alignSelf: 'flex-start' }}>
-                              <span className="item-price" style={{ color: '#dc2626', fontWeight: 900 }}>
-                                ₱{fPrice.toFixed(2)}
-                              </span>
-                              {origPrice > fPrice && (
-                                <span style={{ fontSize: 12, fontWeight: 600, color: '#94a3b8', textDecoration: 'line-through' }}>
-                                  ₱{origPrice.toFixed(2)}
-                                </span>
-                              )}
-                            </div>
-                          );
-                        }
-                        return <span className="item-price" style={{alignSelf:'flex-start'}}>{formatPriceDisplay(item)}</span>;
-                      })()}
-                      <div style={{display:'flex', gap:8, width:'100%'}}>
-                        {calculateTotalStock(item) > 0 ? (
+
+                      {/* Action Buttons */}
+                      <div className="card-actions-row" onClick={(e) => e.stopPropagation()}>
+                        {totalStock > 0 ? (
                           <>
-                            <button className="add-cart-btn" onClick={(e) => {
-                              if (isFootwearCategory(item.category) && item.attributes?.sizes && item.attributes.sizes.length > 0) {
-                                handleViewItem(item);
-                              } else {
-                                const dealPrice = activeDeal ? String(activeDeal.flash_price) : (item.attributes?.variant_prices?.[0] || item.price);
-                                handleAddToCart(item, item.attributes?.colors?.[0] || "", dealPrice);
-                              }
-                            }} disabled={addingToCart === item.id}>
-                              <IconCart /> {addingToCart === item.id ? '...' : 'Add to Cart'}
+                            <button
+                              type="button"
+                              className="add-cart-btn"
+                              onClick={() => {
+                                if (isFootwearCategory(item.category) && item.attributes?.sizes && item.attributes.sizes.length > 0) {
+                                  handleViewItem(item);
+                                } else {
+                                  const dealPrice = activeDeal ? String(activeDeal.flash_price) : (item.attributes?.variant_prices?.[0] || item.price);
+                                  handleAddToCart(item, item.attributes?.colors?.[0] || "", dealPrice);
+                                }
+                              }}
+                              disabled={addingToCart === item.id}
+                            >
+                              <IconCart />
+                              <span>{addingToCart === item.id ? "Adding..." : "Add to Cart"}</span>
                             </button>
-                            <button className="buy-btn" style={{
-                              background: activeDeal ? 'linear-gradient(135deg, #ef4444, #dc2626)' : undefined,
-                              boxShadow: activeDeal ? '0 4px 12px rgba(220, 38, 38, 0.25)' : undefined
-                            }} onClick={(e) => {
-                              if (isFootwearCategory(item.category) && item.attributes?.sizes && item.attributes.sizes.length > 0) {
-                                handleViewItem(item);
-                              } else {
-                                const dealPrice = activeDeal ? String(activeDeal.flash_price) : (item.attributes?.variant_prices?.[0] || item.price);
-                                setBuyModal({item, variation: item.attributes?.colors?.[0] || "", price: dealPrice, variantIdx: 0});
-                              }
-                            }}>
-                              {activeDeal ? 'Buy Deal' : 'Buy Now'}
+                            <button
+                              type="button"
+                              className="buy-btn"
+                              style={activeDeal ? { background: "#DC2626", borderColor: "#DC2626" } : undefined}
+                              onClick={() => {
+                                if (isFootwearCategory(item.category) && item.attributes?.sizes && item.attributes.sizes.length > 0) {
+                                  handleViewItem(item);
+                                } else {
+                                  const dealPrice = activeDeal ? String(activeDeal.flash_price) : (item.attributes?.variant_prices?.[0] || item.price);
+                                  setBuyModal({ item, variation: item.attributes?.colors?.[0] || "", price: dealPrice, variantIdx: 0 });
+                                }
+                              }}
+                            >
+                              {activeDeal ? "Buy Deal" : "Buy Now"}
                             </button>
                           </>
                         ) : (
-                          <button className="buy-btn" disabled style={{background: '#e2e8f0', color: '#94a3b8', boxShadow: 'none', cursor: 'not-allowed', flex: 1}}>
-                            <IconCart /> Out of Stock
+                          <button
+                            type="button"
+                            className="buy-btn"
+                            disabled
+                            style={{ background: "#F3F4F6", borderColor: "#E5E7EB", color: "#9CA3AF", cursor: "not-allowed" }}
+                          >
+                            Out of Stock
                           </button>
                         )}
                       </div>
-                    </div>
-                    <div className="item-seller" style={{marginTop:12, padding: '8px 12px', background: '#f8fafc', borderRadius: '10px', border: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', gap: '8px'}}>
-                      {(() => {
-                        const isCurrentSeller = currentUser && (
-                          String(item.user?.id) === String(currentUser.id) ||
-                          (item.user?.name && currentUser.name && item.user.name.toLowerCase() === currentUser.name.toLowerCase()) ||
-                          (item.user?.name && (currentUser as any).username && item.user.name.toLowerCase() === (currentUser as any).username.toLowerCase())
-                        );
-                        const sellerAvatar = item.user?.avatar || (isCurrentSeller ? currentUser.avatar : null);
-                        const sellerName = item.user?.name || (isCurrentSeller ? currentUser.name : "Seller");
 
-                        return sellerAvatar ? (
-                          <img 
-                            src={getAvatarUrl(sellerAvatar)} 
-                            alt="" 
-                            className="seller-avatar" 
-                            style={{objectFit: 'cover', width: '28px', height: '28px', flexShrink: 0, borderRadius: '50%', border: '1px solid #e2e8f0'}} 
-                            onError={(e) => {
-                              e.currentTarget.onerror = null;
-                              e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(sellerName)}&background=F3F4F6&color=111827&bold=true`;
-                            }}
-                          />
-                        ) : (
-                          <div className="seller-avatar" style={{width: '28px', height: '28px', flexShrink: 0, borderRadius: '50%', background: '#F3F4F6', color: '#111827', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 13}}>
-                            {sellerName.charAt(0).toUpperCase()}
-                          </div>
-                        );
-                      })()}
-                      <div style={{display: 'flex', flexDirection: 'column', gap: 1, minWidth: 0, flex: 1}}>
-                        <span style={{color: '#0f172a', fontSize: '13px', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'}}>
-                          {item.user?.name || "Seller"}
-                        </span>
-                        {item.user?.location ? (
-                          <a 
-                            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.user.location)}`}
+                      {/* Compact Seller Strip */}
+                      <div className="card-seller-row">
+                        <div className="card-seller-left">
+                          {sellerAvatar ? (
+                            <img
+                              src={getAvatarUrl(sellerAvatar)}
+                              alt=""
+                              style={{ width: 20, height: 20, borderRadius: "50%", objectFit: "cover", border: "1px solid #E5E7EB", flexShrink: 0 }}
+                              onError={(e) => {
+                                e.currentTarget.onerror = null;
+                                e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(sellerName)}&background=F3F4F6&color=111827&bold=true`;
+                              }}
+                            />
+                          ) : (
+                            <span style={{ width: 20, height: 20, borderRadius: "50%", background: "#F3F4F6", border: "1px solid #E5E7EB", color: "#111827", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 10.5, fontWeight: 700, flexShrink: 0 }}>
+                              {sellerName.charAt(0).toUpperCase()}
+                            </span>
+                          )}
+                          <span className="card-seller-name">{sellerName}</span>
+                        </div>
+
+                        {sellerLocation && (
+                          <a
+                            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(sellerLocation)}`}
                             target="_blank"
                             rel="noopener noreferrer"
+                            className="card-seller-loc"
                             onClick={(e) => e.stopPropagation()}
-                            style={{display: 'flex', alignItems: 'center', gap: 3, fontSize: '11px', fontWeight: 600, color: '#475569', textDecoration: 'none', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', transition: 'color .2s'}}
-                            onMouseEnter={(e) => (e.currentTarget.style.color = '#111827')}
-                            onMouseLeave={(e) => (e.currentTarget.style.color = '#475569')}
-                            title="View real seller location on Google Maps"
+                            title={`Seller location: ${sellerLocation}`}
                           >
-                            <svg width="11" height="11" viewBox="0 0 24 24" fill="#ef4444" style={{flexShrink: 0}}><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-                            <span style={{overflow: 'hidden', textOverflow: 'ellipsis'}}>{item.user.location}</span>
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ flexShrink: 0 }}>
+                              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                              <circle cx="12" cy="10" r="3" />
+                            </svg>
+                            <span style={{ overflow: "hidden", textOverflow: "ellipsis" }}>
+                              {sellerLocation.split(",")[0]}
+                            </span>
                           </a>
-                        ) : (
-                          <span style={{display: 'flex', alignItems: 'center', gap: 3, fontSize: '11px', color: '#94a3b8'}}>
-                            <svg width="11" height="11" viewBox="0 0 24 24" fill="#cbd5e1" style={{flexShrink: 0}}><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-                            <span style={{overflow: 'hidden', textOverflow: 'ellipsis'}}>Location not set</span>
-                          </span>
                         )}
                       </div>
                     </div>
-                  </div>
-                </div>
-              );
+                  </article>
+                );
               })}
             </div>
           )}
         </main>
 
-        {/* ——— OFFICIAL SHOPPLY MARKETPLACE FOOTER ——— */}
-        <footer style={{ background: '#fff', borderTop: '1px solid #e2e8f0', marginTop: 60, padding: '48px 24px 28px', color: '#475569' }}>
-          <div style={{ maxWidth: 1280, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 32, marginBottom: 40 }}>
-            {/* Column 1: Customer Service */}
+        {/* ——— STOREFRONT FOOTER ——— */}
+        <footer style={{ background: "#FFFFFF", borderTop: "1px solid #E5E7EB", marginTop: "auto", padding: "40px 24px 24px", color: "#4B5563" }}>
+          <div style={{ maxWidth: 1280, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 28, marginBottom: 32 }}>
             <div>
-              <h4 style={{ fontSize: 13, fontWeight: 800, color: '#0f172a', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: 14 }}>
+              <h4 style={{ fontSize: 12, fontWeight: 700, color: "#111827", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 12 }}>
                 Customer Care
               </h4>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8, fontSize: 13 }}>
-                <Link href="/guides" style={{ color: '#64748b', textDecoration: 'none' }}>Help Centre & FAQs</Link>
-                <Link href="/guides" style={{ color: '#64748b', textDecoration: 'none' }}>How to Buy on Shopply</Link>
-                <Link href="/dashboard" style={{ color: '#64748b', textDecoration: 'none' }}>Track SPX Delivery</Link>
-                <Link href="/terms" style={{ color: '#64748b', textDecoration: 'none' }}>7-Day Free Returns</Link>
-                <Link href="/contact" style={{ color: '#64748b', textDecoration: 'none' }}>Shopply Guarantee & COD</Link>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8, fontSize: 13 }}>
+                <Link href="/guides" style={{ color: "#4B5563", textDecoration: "none" }}>Help Center & Guides</Link>
+                <Link href="/dashboard?tab=orders" style={{ color: "#4B5563", textDecoration: "none" }}>Track Your Orders</Link>
+                <Link href="/terms" style={{ color: "#4B5563", textDecoration: "none" }}>Returns & Refunds</Link>
+                <Link href="/contact" style={{ color: "#4B5563", textDecoration: "none" }}>Contact Support</Link>
               </div>
             </div>
 
-            {/* Column 2: About Shopply */}
             <div>
-              <h4 style={{ fontSize: 13, fontWeight: 800, color: '#0f172a', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: 14 }}>
+              <h4 style={{ fontSize: 12, fontWeight: 700, color: "#111827", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 12 }}>
                 About Shopply
               </h4>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8, fontSize: 13 }}>
-                <Link href="/about" style={{ color: '#64748b', textDecoration: 'none' }}>About Shopply Philippines</Link>
-                <Link href="/careers" style={{ color: '#64748b', textDecoration: 'none' }}>Careers</Link>
-                <Link href="/privacy" style={{ color: '#64748b', textDecoration: 'none' }}>Privacy Policy</Link>
-                <Link href="/terms" style={{ color: '#64748b', textDecoration: 'none' }}>Terms of Service</Link>
-                <Link href="/cookies" style={{ color: '#64748b', textDecoration: 'none' }}>Cookie Policy</Link>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8, fontSize: 13 }}>
+                <Link href="/about" style={{ color: "#4B5563", textDecoration: "none" }}>About Us</Link>
+                <Link href="/careers" style={{ color: "#4B5563", textDecoration: "none" }}>Careers</Link>
+                <Link href="/privacy" style={{ color: "#4B5563", textDecoration: "none" }}>Privacy Policy</Link>
+                <Link href="/terms" style={{ color: "#4B5563", textDecoration: "none" }}>Terms of Service</Link>
+                <Link href="/cookies" style={{ color: "#4B5563", textDecoration: "none" }}>Cookie Policy</Link>
               </div>
             </div>
 
-            {/* Column 3: Logistics & Payment */}
             <div>
-              <h4 style={{ fontSize: 13, fontWeight: 800, color: '#0f172a', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: 14 }}>
-                Payment & Logistics
+              <h4 style={{ fontSize: 12, fontWeight: 700, color: "#111827", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 12 }}>
+                Payment & Delivery
               </h4>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 16 }}>
-                <span style={{ fontSize: 11, fontWeight: 700, padding: '4px 8px', borderRadius: 6, background: '#f1f5f9', color: '#334155' }}>Cash on Delivery</span>
-                <span style={{ fontSize: 11, fontWeight: 700, padding: '4px 8px', borderRadius: 6, background: '#f1f5f9', color: '#0284c7' }}>GCash</span>
-                <span style={{ fontSize: 11, fontWeight: 700, padding: '4px 8px', borderRadius: 6, background: '#f1f5f9', color: '#16a34a' }}>Maya</span>
-                <span style={{ fontSize: 11, fontWeight: 700, padding: '4px 8px', borderRadius: 6, background: '#f1f5f9', color: '#111827' }}>SPX Express</span>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 12 }}>
+                <span style={{ fontSize: 11.5, fontWeight: 600, padding: "4px 8px", borderRadius: 5, background: "#F3F4F6", color: "#111827" }}>Cash on Delivery</span>
+                <span style={{ fontSize: 11.5, fontWeight: 600, padding: "4px 8px", borderRadius: 5, background: "#F3F4F6", color: "#111827" }}>GCash</span>
+                <span style={{ fontSize: 11.5, fontWeight: 600, padding: "4px 8px", borderRadius: 5, background: "#F3F4F6", color: "#111827" }}>Maya</span>
               </div>
-              <p style={{ fontSize: 12, color: '#94a3b8', lineHeight: 1.5, margin: 0 }}>
-                100% Authentic Products • Secure Philippine Peso (₱) Checkout
+              <p style={{ fontSize: 12, color: "#6B7280", lineHeight: 1.5, margin: 0 }}>
+                Direct messaging with sellers and Philippine Peso (₱) checkout.
               </p>
             </div>
 
-            {/* Column 4: Official Security & SiteLock Trust Seal */}
             <div>
-              <h4 style={{ fontSize: 13, fontWeight: 800, color: '#0f172a', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: 14 }}>
-                Verified Security
+              <h4 style={{ fontSize: 12, fontWeight: 700, color: "#111827", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 12 }}>
+                Security
               </h4>
-              <div style={{ background: '#f8fafc', padding: 14, borderRadius: 14, border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: 10 }}>
-                {/* Official SiteLock Trust Seal */}
+              <div style={{ background: "#F9FAFB", padding: 12, borderRadius: 8, border: "1px solid #E5E7EB", display: "flex", flexDirection: "column", gap: 8 }}>
                 <SiteLockSeal size="md" showText={true} />
-                <div style={{ fontSize: 11, color: '#64748b', lineHeight: 1.4, borderTop: '1px solid #f1f5f9', paddingTop: 8 }}>
-                  <strong>100% Shopply Protected:</strong> Real-time malware scanning, encrypted transactions, and official BIR electronic invoicing.
+                <div style={{ fontSize: 11.5, color: "#6B7280", lineHeight: 1.45, borderTop: "1px solid #E5E7EB", paddingTop: 8 }}>
+                  Encrypted account sessions and verified seller order protection.
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Bottom Copyright Bar */}
-          <div style={{ maxWidth: 1280, margin: '0 auto', paddingTop: 20, borderTop: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12, fontSize: 12, color: '#94a3b8' }}>
-            <div>
-              © {new Date().getFullYear()} Shopply Inc. All Rights Reserved. • Philippines&apos; Premier E-Commerce Marketplace
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-              <span style={{ color: '#10b981', fontWeight: 600 }}>● All Systems Operational</span>
-              <span>Region: Philippines (PHP ₱)</span>
-            </div>
+          <div style={{ maxWidth: 1280, margin: "0 auto", paddingTop: 18, borderTop: "1px solid #F3F4F6", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12, fontSize: 12, color: "#6B7280" }}>
+            <div>© {new Date().getFullYear()} Shopply. All rights reserved.</div>
+            <div>Philippines (PHP ₱)</div>
           </div>
         </footer>
 
@@ -3980,10 +3024,10 @@ function MarketplaceContent() {
                                   setActiveImageIdx(idx);
                                   setSelectedVariant(null);
                                 }}
-                                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0f172a', color: '#fff', fontSize: 24 }}
+                                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#111827', color: '#fff' }}
                                 title="Play Video"
                               >
-                                📹
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="6 4 20 12 6 20 6 4" /></svg>
                               </div>
                             );
                           }
@@ -4058,8 +3102,10 @@ function MarketplaceContent() {
                         flexWrap: 'wrap',
                         gap: 10
                       }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                          <span style={{ fontSize: 22 }}>⚡</span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                          <span style={{ width: 32, height: 32, borderRadius: 8, background: '#FEE2E2', color: '#DC2626', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" /></svg>
+                          </span>
                           <div>
                             <div style={{ fontSize: 13, fontWeight: 900, color: '#dc2626', display: 'flex', alignItems: 'center', gap: 6 }}>
                               <span>FLASH SALE ACTIVE</span>
@@ -4336,31 +3382,28 @@ function MarketplaceContent() {
                         </div>
                       );
                     })()}
-                    <span className="seller-mall-badge">Verified Seller</span>
                   </div>
                   <div className="seller-info-col">
                     <h4 className="seller-title-name">
                       {viewItem.user.name}
                     </h4>
-                    <span className="seller-active-status">Active recently</span>
-                    {viewItem.user?.location ? (
-                      <a 
+                    <span className="seller-active-status">
+                      {viewItem.user.is_online ? "Online now" : calculateJoined(viewItem.user.created_at)}
+                    </span>
+                    {viewItem.user?.location && (
+                      <a
                         href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(viewItem.user.location)}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        style={{display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 12, fontWeight: 600, color: '#475569', textDecoration: 'none', marginBottom: 6, transition: 'color .2s'}}
-                        onMouseEnter={(e) => (e.currentTarget.style.color = '#111827')}
-                        onMouseLeave={(e) => (e.currentTarget.style.color = '#475569')}
-                        title="View real seller location on Google Maps"
+                        style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 12, fontWeight: 500, color: "#4B5563", textDecoration: "none", marginBottom: 6 }}
+                        title="View seller location on Google Maps"
                       >
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="#ef4444" style={{flexShrink: 0}}><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ flexShrink: 0 }}>
+                          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                          <circle cx="12" cy="10" r="3" />
+                        </svg>
                         {viewItem.user.location}
                       </a>
-                    ) : (
-                      <span style={{display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#94a3b8', marginBottom: 6}}>
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="#cbd5e1" style={{flexShrink: 0}}><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-                        Location not set by seller
-                      </span>
                     )}
                     <div className="seller-actions-row">
                       <button className="seller-btn-chat" onClick={() => {
@@ -4390,35 +3433,37 @@ function MarketplaceContent() {
 
                 <div className="seller-stats-grid">
                   <div className="seller-stat-box">
+                    <span className="seller-stat-label">Listings</span>
+                    <span className="seller-stat-val">
+                      {viewItem.user.items_count !== undefined ? viewItem.user.items_count : 1}
+                    </span>
+                  </div>
+                  <div className="seller-stat-box">
                     <span className="seller-stat-label">Ratings</span>
                     <span className="seller-stat-val">
                       {viewItem.user.reviews_count !== undefined ? viewItem.user.reviews_count : reviews.length}
                     </span>
                   </div>
                   <div className="seller-stat-box">
-                    <span className="seller-stat-label">Response Rate</span>
+                    <span className="seller-stat-label">Followers</span>
                     <span className="seller-stat-val">
-                      {viewItem.user.total_orders && viewItem.user.total_orders > 0 ? Math.round(((viewItem.user.accepted_orders || 0) / viewItem.user.total_orders) * 100) + "%" : "100%"}
+                      {viewItem.user.followers_count !== undefined ? viewItem.user.followers_count : 0}
+                    </span>
+                  </div>
+                  <div className="seller-stat-box">
+                    <span className="seller-stat-label">Orders Fulfilled</span>
+                    <span className="seller-stat-val">
+                      {viewItem.user.accepted_orders !== undefined ? viewItem.user.accepted_orders : 0}
                     </span>
                   </div>
                   <div className="seller-stat-box">
                     <span className="seller-stat-label">Joined</span>
-                    <span className="seller-stat-val dark">{calculateJoined(viewItem.user.created_at)}</span>
+                    <span className="seller-stat-val">{calculateJoined(viewItem.user.created_at)}</span>
                   </div>
                   <div className="seller-stat-box">
-                    <span className="seller-stat-label">Products</span>
-                    <span className="seller-stat-val">{viewItem.user.items_count !== undefined ? viewItem.user.items_count : 1}</span>
-                  </div>
-                  <div className="seller-stat-box">
-                    <span className="seller-stat-label">Response Time</span>
+                    <span className="seller-stat-label">Ships From</span>
                     <span className="seller-stat-val">
-                      {viewItem.user.total_orders && viewItem.user.total_orders > 5 ? "within minutes" : "within a few hours"}
-                    </span>
-                  </div>
-                  <div className="seller-stat-box">
-                    <span className="seller-stat-label">Followers</span>
-                    <span className="seller-stat-val dark">
-                      {viewItem.user.followers_count !== undefined ? viewItem.user.followers_count : 0}
+                      {viewItem.user.location ? viewItem.user.location.split(",")[0] : "Philippines"}
                     </span>
                   </div>
                 </div>
@@ -4598,8 +3643,8 @@ function MarketplaceContent() {
 
                 {filteredReviews.length === 0 ? (
                   <div style={{ textAlign: 'center', padding: '36px 20px', background: '#f8fafc', borderRadius: 16, border: '1px dashed #e2e8f0' }}>
-                    <div style={{ width: 44, height: 44, borderRadius: '50%', background: '#f1f5f9', color: '#94a3b8', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px', fontSize: 20 }}>
-                      💬
+                    <div style={{ width: 40, height: 40, borderRadius: '50%', background: '#F3F4F6', color: '#6B7280', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px' }}>
+                      <IconChat />
                     </div>
                     <p style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', margin: '0 0 4px' }}>
                       {reviewFilter === 'all' ? "No reviews yet for this product" : "No reviews match the selected filter"}
@@ -4640,70 +3685,54 @@ function MarketplaceContent() {
                 {(() => {
                   const similarItems = items
                     .filter(item => item.id !== viewItem.id && item.category === viewItem.category)
-                    .slice(0, 3);
-                  
-                  const displayItems = similarItems.length > 0 
-                    ? similarItems 
-                    : items.filter(item => item.id !== viewItem.id).slice(0, 3);
+                    .slice(0, 4);
+
+                  const displayItems = similarItems.length > 0
+                    ? similarItems
+                    : items.filter(item => item.id !== viewItem.id).slice(0, 4);
 
                   if (displayItems.length === 0) {
-                    return <p style={{ color: '#94a3b8', fontSize: '14px' }}>No similar products found.</p>;
+                    return <p style={{ color: '#6B7280', fontSize: '13.5px' }}>No other listings available yet.</p>;
                   }
 
                   return (
                     <div className="similar-products-grid">
                       {displayItems.map(item => (
-                        <div 
-                          key={item.id} 
+                        <div
+                          key={item.id}
                           onClick={() => handleViewItem(item)}
-                          style={{ 
-                            background: '#f8fafc', 
-                            borderRadius: '16px', 
-                            overflow: 'hidden', 
-                            border: '1px solid #e2e8f0', 
+                          style={{
+                            background: '#FFFFFF',
+                            borderRadius: '8px',
+                            overflow: 'hidden',
+                            border: '1px solid #E5E7EB',
                             cursor: 'pointer',
-                            transition: 'all 0.2s',
+                            transition: 'border-color 0.15s'
                           }}
-                          onMouseEnter={e => {
-                            e.currentTarget.style.transform = 'translateY(-4px)';
-                            e.currentTarget.style.boxShadow = '0 12px 24px rgba(0,0,0,0.05)';
-                            e.currentTarget.style.borderColor = '#cbd5e1';
-                          }}
-                          onMouseLeave={e => {
-                            e.currentTarget.style.transform = 'none';
-                            e.currentTarget.style.boxShadow = 'none';
-                            e.currentTarget.style.borderColor = '#e2e8f0';
-                          }}
+                          onMouseEnter={e => { e.currentTarget.style.borderColor = '#9CA3AF'; }}
+                          onMouseLeave={e => { e.currentTarget.style.borderColor = '#E5E7EB'; }}
                         >
-                          <div style={{ position: 'relative', width: '100%', aspectRatio: '1', overflow: 'hidden', background: '#e2e8f0' }}>
+                          <div style={{ position: 'relative', width: '100%', aspectRatio: '1', overflow: 'hidden', background: '#F3F4F6' }}>
                             {item.image ? (
-                              <img 
-                                src={getImageUrl(item.image)} 
-                                alt={item.name} 
+                              <img
+                                src={getImageUrl(item.image)}
+                                alt={item.name}
                                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                                onError={(e) => {
-                                  e.currentTarget.onerror = null;
-                                  e.currentTarget.src = "https://placehold.co/400x400/f8fafc/cbd5e1?text=No+Image";
-                                }}
                               />
                             ) : (
-                              <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8' }}>
-                                📷
+                              <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#9CA3AF' }}>
+                                <svg width="28" height="28" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
                               </div>
                             )}
                           </div>
-                          <div style={{ padding: '16px' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px' }}>
-                              <h5 style={{ fontSize: '14px', fontWeight: 700, color: '#0f172a', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 1, WebkitBoxOrient: 'vertical' }}>
-                                {item.name}
-                              </h5>
-                              <span style={{ fontSize: '15px', fontWeight: 800, color: '#10b981', whiteSpace: 'nowrap' }}>
-                                {formatPriceDisplay(item)}
-                              </span>
+                          <div style={{ padding: '12px' }}>
+                            <div style={{ fontSize: '11px', color: '#6B7280', marginBottom: 2 }}>{item.category || "General"}</div>
+                            <h5 style={{ fontSize: '13.5px', fontWeight: 600, color: '#111827', margin: '0 0 4px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                              {item.name}
+                            </h5>
+                            <div style={{ fontSize: '14.5px', fontWeight: 700, color: '#111827', fontVariantNumeric: 'tabular-nums' }}>
+                              {formatPriceDisplay(item)}
                             </div>
-                            <p style={{ fontSize: '12px', color: '#64748b', marginTop: '6px', overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', lineHeight: '1.4' }}>
-                              {item.description || "Explore this premium item's features and style."}
-                            </p>
                           </div>
                         </div>
                       ))}
@@ -4758,20 +3787,21 @@ function MarketplaceContent() {
                 let voucherDiscountEst = 0;
                 let voucherDesc = "";
 
-                if (claimedVoucher) {
-                  const vObj = allCoupons.find(c => c.code === claimedVoucher) || (flashCoupon?.code === claimedVoucher ? flashCoupon : null);
-                  if (vObj) {
-                    const minSpend = Number(vObj.min_spend || 0);
-                    if (minSpend <= 0 || currentPrice >= minSpend) {
-                      if (vObj.discount_type === 'percent') {
-                        voucherDiscountEst = (currentPrice * Number(vObj.discount_value || vObj.discount || 0)) / 100;
-                        voucherDesc = `${vObj.discount_value || vObj.discount}% OFF`;
-                      } else {
-                        voucherDiscountEst = Number(vObj.discount_value || vObj.discount || 0);
-                        voucherDesc = `₱${voucherDiscountEst} OFF`;
-                      }
-                      voucherDiscountEst = Math.min(voucherDiscountEst, currentPrice);
+                const matchedVoucherObj = claimedVoucher
+                  ? (allCoupons.find(c => c.code === claimedVoucher) || (flashCoupon?.code === claimedVoucher ? flashCoupon : null))
+                  : null;
+
+                if (matchedVoucherObj) {
+                  const minSpend = Number(matchedVoucherObj.min_spend || 0);
+                  if (minSpend <= 0 || currentPrice >= minSpend) {
+                    if (matchedVoucherObj.discount_type === 'percent') {
+                      voucherDiscountEst = (currentPrice * Number(matchedVoucherObj.discount_value || matchedVoucherObj.discount || 0)) / 100;
+                      voucherDesc = `${matchedVoucherObj.discount_value || matchedVoucherObj.discount}% OFF`;
+                    } else {
+                      voucherDiscountEst = Number(matchedVoucherObj.discount_value || matchedVoucherObj.discount || 0);
+                      voucherDesc = `₱${voucherDiscountEst} OFF`;
                     }
+                    voucherDiscountEst = Math.min(voucherDiscountEst, currentPrice);
                   }
                 }
 
@@ -4785,72 +3815,71 @@ function MarketplaceContent() {
                           display: 'inline-flex',
                           alignItems: 'center',
                           gap: 6,
-                          background: '#fee2e2',
-                          color: '#dc2626',
+                          background: '#FEE2E2',
+                          color: '#DC2626',
                           padding: '4px 10px',
-                          borderRadius: 8,
+                          borderRadius: 6,
                           fontSize: 12,
-                          fontWeight: 800
+                          fontWeight: 700
                         }}>
-                          <span>Markdown Applied (-{deal.discount_pct || 40}% OFF)</span>
+                          <span>Deal Price Applied (-{deal.discount_pct || 20}%)</span>
                         </div>
                       )}
-                      {claimedVoucher && (
+                      {matchedVoucherObj && voucherDiscountEst > 0 && (
                         <div style={{
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'space-between',
-                          background: '#f0fdf4',
-                          border: '1.5px dashed #86efac',
-                          borderRadius: 8,
-                          padding: '6px 12px'
+                          background: '#ECFDF5',
+                          border: '1px solid #A7F3D0',
+                          borderRadius: 6,
+                          padding: '6px 10px'
                         }}>
-                          <span style={{ fontSize: 12, fontWeight: 700, color: '#15803d' }}>
-                            Voucher: <b>{claimedVoucher}</b> {voucherDesc && `(${voucherDesc})`}
+                          <span style={{ fontSize: 12, fontWeight: 600, color: '#065F46' }}>
+                            Voucher <b>{claimedVoucher}</b> {voucherDesc && `(${voucherDesc})`}
                           </span>
-                          <span style={{ fontSize: 11, fontWeight: 800, color: '#16a34a', background: '#dcfce7', padding: '2px 8px', borderRadius: 12 }}>
-                            {voucherDiscountEst > 0 ? `-₱${voucherDiscountEst.toFixed(2)}` : 'Applied! ✓'}
+                          <span style={{ fontSize: 11.5, fontWeight: 700, color: '#065F46', fontVariantNumeric: 'tabular-nums' }}>
+                            -₱{voucherDiscountEst.toFixed(2)}
                           </span>
                         </div>
                       )}
                     </div>
-                    <p style={{fontSize:14,color:'#64748b',marginBottom:8}}>
-                      {buyModal.variation ? `Variation: ${buyModal.variation}` : 'Standard'}
-                    </p>
-                    <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'14px 0',borderTop:'1px solid #f1f5f9',borderBottom:'1px solid #f1f5f9',marginBottom:24}}>
-                      <span style={{fontSize:13,color:'#94a3b8'}}>Total to Pay</span>
+                    <div style={{ fontSize: 13, color: '#4B5563', marginBottom: 12, display: 'flex', flexDirection: 'column', gap: 4 }}>
+                      <span>Option: <strong style={{ color: '#111827' }}>{buyModal.variation || 'Standard'}</strong></span>
+                      <span>Payment: <strong style={{ color: '#111827' }}>Cash on Delivery</strong>{buyerLocation ? ` · ${buyerLocation}` : ''}</span>
+                    </div>
+                    <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'14px 0',borderTop:'1px solid #E5E7EB',borderBottom:'1px solid #E5E7EB',marginBottom:20}}>
+                      <span style={{fontSize:13,fontWeight:500,color:'#4B5563'}}>Order Total</span>
                       <div style={{ textAlign: 'right' }}>
                         {voucherDiscountEst > 0 && (
-                          <span style={{ fontSize: 13, textDecoration: 'line-through', color: '#94a3b8', marginRight: 8 }}>
+                          <span style={{ fontSize: 13, textDecoration: 'line-through', color: '#9CA3AF', marginRight: 8, fontVariantNumeric: 'tabular-nums' }}>
                             ₱{currentPrice.toFixed(2)}
                           </span>
                         )}
-                        <span style={{fontSize:24,fontWeight:800,color: voucherDiscountEst > 0 ? '#16a34a' : (deal ? '#dc2626' : '#10b981')}}>
+                        <span style={{fontSize:22,fontWeight:700,color: deal ? '#DC2626' : '#111827',fontVariantNumeric:'tabular-nums'}}>
                           ₱{finalPriceEst.toFixed(2)}
                         </span>
                       </div>
                     </div>
-                    <div style={{display:'flex',gap:12}}>
-                      <button onClick={() => setBuyModal(null)} style={{flex:1,padding:'12px',borderRadius:10,border:'1.5px solid #e2e8f0',background:'#fff',color:'#64748b',fontWeight:600,fontSize:14,cursor:'pointer',fontFamily:'Inter,sans-serif'}}>Cancel</button>
+                    <div style={{display:'flex',gap:10}}>
+                      <button onClick={() => setBuyModal(null)} style={{flex:1,padding:'11px',borderRadius:8,border:'1px solid #D1D5DB',background:'#FFFFFF',color:'#374151',fontWeight:600,fontSize:13.5,cursor:'pointer'}}>Cancel</button>
                       <button onClick={handleBuy} disabled={buying} style={{
-                        flex:2,
-                        padding:'12px',
-                        borderRadius:10,
+                        flex:1.8,
+                        padding:'11px',
+                        borderRadius:8,
                         border:'none',
-                        background: deal ? 'linear-gradient(135deg,#ef4444,#dc2626)' : '#111827',
-                        color:'#fff',
-                        fontWeight:700,
-                        fontSize:14,
+                        background: deal ? '#DC2626' : '#111827',
+                        color:'#FFFFFF',
+                        fontWeight:600,
+                        fontSize:13.5,
                         cursor:'pointer',
-                        fontFamily:'Inter,sans-serif',
-                        boxShadow: deal ? '0 4px 14px rgba(220,38,38,.3)' : '0 4px 14px rgba(124,58,237,.3)',
                         display:'inline-flex',
                         alignItems:'center',
                         justifyContent:'center',
                         gap:6,
                         opacity:buying ? 0.7 : 1
                       }}>
-                        <IconCart /> {buying ? "Processing..." : `Confirm (₱${finalPriceEst.toFixed(2)})`}
+                        {buying ? "Placing order..." : `Place Order · ₱${finalPriceEst.toFixed(2)}`}
                       </button>
                     </div>
                   </>
@@ -5248,8 +4277,8 @@ function MarketplaceContent() {
                                       return (
                                         <div style={{ padding: 12, display: 'flex', flexDirection: 'column', gap: 10, width: 220 }}>
                                           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                            <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#dcfce7', color: '#16a34a', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>
-                                              📍
+                                            <div style={{ width: 34, height: 34, borderRadius: '50%', background: '#ECFDF5', color: '#0D6847', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
                                             </div>
                                             <div style={{ display: 'flex', flexDirection: 'column' }}>
                                               <span style={{ fontSize: 12, fontWeight: 700, color: '#1e293b' }}>Shared Location</span>
@@ -5827,19 +4856,18 @@ function MarketplaceContent() {
             >
               <div
                 style={{
-                  width: 72,
-                  height: 72,
+                  width: 64,
+                  height: 64,
                   borderRadius: '50%',
-                  background: '#fee2e2',
-                  color: '#ef4444',
+                  background: '#FEE2E2',
+                  color: '#DC2626',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: 36,
-                  margin: '0 auto 20px'
+                  margin: '0 auto 18px'
                 }}
               >
-                🚫
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
               </div>
               <h2 style={{ fontSize: 22, fontWeight: 800, color: '#0f172a', margin: '0 0 10px' }}>
                 Account Suspended

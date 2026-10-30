@@ -258,3 +258,18 @@ test('auth pages enforce useGuestOnlyGuard before mounting credential inputs', (
     assert.match(src, /if \(checking/, `${authFile} must gate form rendering while checking session`);
   }
 });
+
+test('shop storefront uses 100% real catalog metrics with zero fake sold formulas or fake promo banners', () => {
+  const shopSrc = fs.readFileSync('app/shop/page.tsx', 'utf8');
+  assert.equal(shopSrc.includes('* 4 + 18'), false, 'Shop must never synthesize fake +18 sold counts');
+  assert.equal(shopSrc.includes('SHOPPLY70'), false, 'Shop must not contain fake SHOPPLY70 promo banner');
+  assert.equal(shopSrc.includes('MALLAUTHENTIC'), false, 'Shop must not contain fake MALLAUTHENTIC promo banner');
+  assert.equal(shopSrc.includes('FLASHDROP49'), false, 'Shop must not contain fake FLASHDROP49 coupon fallback');
+  assert.equal(shopSrc.includes('No Active Promo Vouchers'), false, 'Shop must not render empty voucher placeholder box');
+  assert.equal(shopSrc.includes('COD Ready'), false, 'Shop must not spam COD Ready stickers on every card');
+  assert.equal(shopSrc.includes('All Systems Operational'), false, 'Shop footer must not render SaaS status dots');
+
+  const itemsApiSrc = fs.readFileSync('app/api/shop/items/route.ts', 'utf8');
+  assert.match(itemsApiSrc, /collection\(db,\s*"orders"\)/, 'Items API must aggregate real orders');
+  assert.match(itemsApiSrc, /collection\(db,\s*"reviews"\)/, 'Items API must aggregate real reviews');
+});

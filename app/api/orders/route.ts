@@ -113,11 +113,30 @@ export async function POST(req: Request) {
         return NextResponse.json({ message: `Not enough stock available for ${itemData.name || itemData.title}.` }, { status: 422 });
       }
 
+      const itemUpdatePayload: Record<string, any> = {
+        sold_count: Number(itemData.sold_count || 0) + buyQty
+      };
       if (typeof itemData.stock === 'number') {
-        await updateDoc(itemDocRef, {
-          stock: Math.max(0, itemData.stock - buyQty)
-        });
+        itemUpdatePayload.stock = Math.max(0, itemData.stock - buyQty);
       }
+      if (variation && itemData.attributes && typeof itemData.attributes === 'object' && itemData.attributes.size_stocks && Array.isArray(itemData.attributes.sizes)) {
+        const matchedSize = itemData.attributes.sizes.find(
+          (s: string) => variation === s || variation.endsWith(", " + s)
+        );
+        if (matchedSize && typeof itemData.attributes.size_stocks[matchedSize] === 'number') {
+          if (itemData.attributes.size_stocks[matchedSize] < buyQty) {
+            return NextResponse.json({ message: `Not enough stock available for size ${matchedSize}.` }, { status: 422 });
+          }
+          itemUpdatePayload.attributes = {
+            ...itemData.attributes,
+            size_stocks: {
+              ...itemData.attributes.size_stocks,
+              [matchedSize]: Math.max(0, itemData.attributes.size_stocks[matchedSize] - buyQty)
+            }
+          };
+        }
+      }
+      await updateDoc(itemDocRef, itemUpdatePayload);
 
       // Check flash deals status & quota in Firestore
       let isFlashDealValid = false;
@@ -224,12 +243,29 @@ export async function POST(req: Request) {
               return NextResponse.json({ message: `Not enough stock available for ${item.name || item.title || 'Item'}.` }, { status: 422 });
             }
 
-            // Deduct stock
+            // Deduct stock and increment real sold_count
+            const cartQty = Math.max(1, Number(cartItem.quantity) || 1);
+            const cartItemUpdate: Record<string, any> = {
+              sold_count: Number(item.sold_count || 0) + cartQty
+            };
             if (typeof item.stock === 'number') {
-              await updateDoc(itemDocRef, {
-                stock: Math.max(0, item.stock - cartItem.quantity)
-              });
+              cartItemUpdate.stock = Math.max(0, item.stock - cartQty);
             }
+            if (cartItem.variation && item.attributes && typeof item.attributes === 'object' && item.attributes.size_stocks && Array.isArray(item.attributes.sizes)) {
+              const matchedSize = item.attributes.sizes.find(
+                (s: string) => cartItem.variation === s || String(cartItem.variation).endsWith(", " + s)
+              );
+              if (matchedSize && typeof item.attributes.size_stocks[matchedSize] === 'number') {
+                cartItemUpdate.attributes = {
+                  ...item.attributes,
+                  size_stocks: {
+                    ...item.attributes.size_stocks,
+                    [matchedSize]: Math.max(0, item.attributes.size_stocks[matchedSize] - cartQty)
+                  }
+                };
+              }
+            }
+            await updateDoc(itemDocRef, cartItemUpdate);
           }
         }
 

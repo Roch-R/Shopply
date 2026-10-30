@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/firebase";
-import { collection, query, where, getDocs } from "firebase/firestore";
+import { collection, getDocs } from "firebase/firestore";
+
+export const dynamic = "force-dynamic";
 
 export async function GET(
   req: Request,
@@ -8,21 +10,22 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const itemId = Number(id);
+    const targetIdStr = String(id);
 
     const reviewsRef = collection(db, "reviews");
-    const q = query(reviewsRef, where("item_id", "==", itemId));
-    const snap = await getDocs(q);
+    const snap = await getDocs(reviewsRef);
 
-    const reviews = snap.docs.map(doc => ({
-      ...doc.data(),
-      id: doc.id
-    }));
+    const reviews = snap.docs
+      .map(docSnap => ({
+        ...docSnap.data(),
+        id: docSnap.data().id ?? docSnap.id
+      }))
+      .filter((r: any) => String(r.item_id ?? "") === targetIdStr);
 
-    // Sort by created_at desc
+    // Sort newest first
     reviews.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
-    return NextResponse.json(reviews, { status: 200 });
+    return NextResponse.json({ reviews }, { status: 200 });
 
   } catch (err: any) {
     console.error("[items/[id]/reviews] GET error:", err);

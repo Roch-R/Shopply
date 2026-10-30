@@ -12,15 +12,20 @@ export function Skeleton({ className, style }: { className?: string; style?: Rea
 
 export function SkeletonShopCard() {
   return (
-    <div className="item-card animate-pulse" style={{ height: 380, display: 'flex', flexDirection: 'column' }}>
-      <div className="bg-slate-200" style={{ height: 220, width: '100%' }}></div>
-      <div className="item-content" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-        <div className="bg-slate-200 rounded" style={{ height: '24px', width: '70%' }}></div>
-        <div className="bg-slate-200 rounded" style={{ height: '16px', width: '100%' }}></div>
-        <div className="bg-slate-200 rounded" style={{ height: '16px', width: '85%' }}></div>
-        <div style={{ marginTop: 'auto', display: 'flex', gap: '8px' }}>
+    <div className="item-card animate-pulse" style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden', borderRadius: 10, border: '1px solid #E5E7EB', background: '#FFFFFF' }}>
+      <div className="bg-slate-200" style={{ width: '100%', aspectRatio: '1 / 1' }}></div>
+      <div style={{ padding: '14px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        <div className="bg-slate-200 rounded" style={{ height: '11px', width: '38%' }}></div>
+        <div className="bg-slate-200 rounded" style={{ height: '16px', width: '88%' }}></div>
+        <div className="bg-slate-200 rounded" style={{ height: '20px', width: '46%', marginTop: '2px' }}></div>
+        <div className="bg-slate-200 rounded" style={{ height: '12px', width: '62%' }}></div>
+        <div style={{ marginTop: '6px', display: 'flex', gap: '8px' }}>
           <div className="bg-slate-200 rounded" style={{ height: '36px', flex: 1 }}></div>
           <div className="bg-slate-200 rounded" style={{ height: '36px', flex: 1 }}></div>
+        </div>
+        <div style={{ marginTop: '8px', paddingTop: '10px', borderTop: '1px solid #F3F4F6', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div className="bg-slate-200 rounded-full" style={{ width: '22px', height: '22px', flexShrink: 0 }}></div>
+          <div className="bg-slate-200 rounded" style={{ height: '12px', width: '55%' }}></div>
         </div>
       </div>
     </div>

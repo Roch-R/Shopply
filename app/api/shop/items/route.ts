@@ -1,23 +1,23 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/firebase";
-import { collection, getDocs, doc, setDoc, addDoc } from "firebase/firestore";
+import { collection, getDocs, doc, setDoc } from "firebase/firestore";
 import { getAuthUser } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
-// Seed data to populate empty Firestore database
+// Initial catalog seed only used when Firestore `items` collection is completely empty
 const seededItems = [
   {
     id: 1,
     name: "AeroSwift Running Shoes",
-    description: "Experience maximum speed and comfort with breathable mesh and responsive foam cushioning.",
+    description: "Breathable engineered mesh upper with responsive everyday cushioning.",
     price: "120.00",
     stock: 50,
     image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&auto=format&fit=crop&q=80",
     category: "Footwear",
-    reviews_count: 5,
-    reviews_avg_rating: 4.8,
-    sold_count: 12,
+    reviews_count: 0,
+    reviews_avg_rating: 0,
+    sold_count: 0,
     attributes: {
       sizes: ["8", "9", "10", "11"],
       colors: ["Red", "Black", "Blue"],
@@ -27,9 +27,9 @@ const seededItems = [
       id: 999,
       name: "Aero Athletics",
       avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80",
-      items_count: 3,
-      reviews_count: 15,
-      followers_count: 120,
+      items_count: 1,
+      reviews_count: 0,
+      followers_count: 0,
       is_online: true,
       location: "Cebu City, Cebu"
     },
@@ -38,14 +38,14 @@ const seededItems = [
   {
     id: 2,
     name: "Apex Smart Watch",
-    description: "Track your fitness, notifications, and heart rate with a sleek 1.4-inch AMOLED display and 7-day battery life.",
+    description: "1.4-inch AMOLED display with workout tracking, notifications, and 7-day battery life.",
     price: "199.00",
     stock: 30,
     image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&auto=format&fit=crop&q=80",
     category: "Electronics",
-    reviews_count: 3,
-    reviews_avg_rating: 4.5,
-    sold_count: 8,
+    reviews_count: 0,
+    reviews_avg_rating: 0,
+    sold_count: 0,
     attributes: {
       colors: ["Midnight Black", "Silver", "Rose Gold"]
     },
@@ -54,8 +54,8 @@ const seededItems = [
       name: "Apex Tech",
       avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80",
       items_count: 1,
-      reviews_count: 8,
-      followers_count: 85,
+      reviews_count: 0,
+      followers_count: 0,
       is_online: false,
       location: "Manila, Metro Manila"
     },
@@ -64,14 +64,14 @@ const seededItems = [
   {
     id: 3,
     name: "Studio Pro ANC Headphones",
-    description: "Immerse yourself in premium sound quality with active noise cancellation and 40 hours of playback time.",
+    description: "Over-ear wireless headphones with active noise cancellation and 40-hour battery life.",
     price: "299.00",
     stock: 20,
     image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&auto=format&fit=crop&q=80",
-    category: "Audio",
-    reviews_count: 8,
-    reviews_avg_rating: 4.9,
-    sold_count: 15,
+    category: "Electronics",
+    reviews_count: 0,
+    reviews_avg_rating: 0,
+    sold_count: 0,
     attributes: {
       colors: ["Matte Black", "Sand White"]
     },
@@ -79,9 +79,9 @@ const seededItems = [
       id: 997,
       name: "Studio Sounds",
       avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop&q=80",
-      items_count: 2,
-      reviews_count: 24,
-      followers_count: 340,
+      items_count: 1,
+      reviews_count: 0,
+      followers_count: 0,
       is_online: true,
       location: "Davao City, Davao"
     },
@@ -93,10 +93,9 @@ export async function GET() {
   try {
     const itemsRef = collection(db, "items");
     const snap = await getDocs(itemsRef);
-    
+
     // If database is empty, seed initial data so the shop is not blank
     if (snap.empty) {
-      console.log("[shop/items] Seeding default products...");
       const publishedSeeded = seededItems.map(item => ({ ...item, is_published: true }));
       for (const item of publishedSeeded) {
         await setDoc(doc(db, "items", String(item.id)), item);
@@ -104,11 +103,16 @@ export async function GET() {
       return NextResponse.json({ items: publishedSeeded }, { status: 200 });
     }
 
-    // Pre-fetch all registered users to ensure seller avatars, names, and locations are always 100% current
-    let usersMap = new Map<string, any>();
-    try {
-      const usersSnap = await getDocs(collection(db, "users"));
-      usersSnap.docs.forEach((uDoc) => {
+    // Fetch users, orders, and reviews in parallel so all storefront counts are 100% real
+    const [usersResult, ordersResult, reviewsResult] = await Promise.allSettled([
+      getDocs(collection(db, "users")),
+      getDocs(collection(db, "orders")),
+      getDocs(collection(db, "reviews")),
+    ]);
+
+    const usersMap = new Map<string, any>();
+    if (usersResult.status === "fulfilled") {
+      usersResult.value.docs.forEach((uDoc) => {
         const uData = uDoc.data();
         const uId = String(uData.id ?? uDoc.id);
         usersMap.set(uId, uData);
@@ -117,54 +121,156 @@ export async function GET() {
         if (uData.name) usersMap.set(String(uData.name).toLowerCase(), uData);
         if (uData.email) usersMap.set(String(uData.email).toLowerCase(), uData);
       });
-    } catch (uErr) {
-      console.warn("[shop/items] Could not pre-fetch users map:", uErr);
     }
 
-    const items = snap.docs
-      .map((docSnap) => {
-        const item = docSnap.data();
-        if (item.is_published !== true) return null;
+    // Aggregate real sold units per item & order fulfillment stats per seller from Firestore `orders`
+    const itemSoldMap = new Map<string, number>();
+    const sellerOrdersMap = new Map<string, { total: number; fulfilled: number }>();
 
-        const itemUser = item.user || {};
-        const sellerId = String(itemUser.id || item.user_id || "");
-        const sellerUsername = String(itemUser.username || "").toLowerCase();
-        const sellerName = String(itemUser.name || "").toLowerCase();
+    if (ordersResult.status === "fulfilled") {
+      ordersResult.value.docs.forEach((oDoc) => {
+        const o = oDoc.data();
+        const status = String(o.status || "pending").toLowerCase();
+        const isCancelledOrRejected = status === "cancelled" || status === "rejected";
 
-        const liveUser = 
-          (sellerId ? usersMap.get(sellerId) : null) || 
-          (sellerUsername ? usersMap.get(sellerUsername) : null) || 
-          (sellerName ? usersMap.get(sellerName) : null);
-
-        const resolvedAvatar = liveUser?.avatar || itemUser.avatar || "";
-        const resolvedName = liveUser?.name || itemUser.name || "Seller";
-        const resolvedLocation = liveUser?.location || item.location || itemUser.location || null;
-
-        // If the item in Firestore has a missing or outdated avatar, sync it in the background
-        if (resolvedAvatar && itemUser.avatar !== resolvedAvatar) {
-          setDoc(doc(db, "items", docSnap.id), {
-            user: {
-              ...itemUser,
-              name: resolvedName,
-              avatar: resolvedAvatar,
-              location: resolvedLocation
-            }
-          }, { merge: true }).catch((e) => console.warn("Background item sync error:", e));
+        const sId = String(o.seller_id || o.seller?.id || "");
+        const sName = String(o.seller_name || o.seller?.name || "").toLowerCase();
+        for (const key of [sId, sName].filter(Boolean)) {
+          const prev = sellerOrdersMap.get(key) || { total: 0, fulfilled: 0 };
+          prev.total += 1;
+          if (!isCancelledOrRejected) prev.fulfilled += 1;
+          sellerOrdersMap.set(key, prev);
         }
 
-        return {
-          ...item,
-          location: resolvedLocation,
+        if (isCancelledOrRejected) return;
+
+        if (Array.isArray(o.items) && o.items.length > 0) {
+          for (const line of o.items) {
+            const lineItemId = String(line?.item_id ?? line?.item?.id ?? "");
+            if (!lineItemId) continue;
+            const qty = Math.max(1, Number(line?.quantity || 1));
+            itemSoldMap.set(lineItemId, (itemSoldMap.get(lineItemId) || 0) + qty);
+          }
+        } else {
+          const directItemId = String(o.item_id ?? o.item?.id ?? "");
+          if (directItemId) {
+            const qty = Math.max(1, Number(o.quantity || 1));
+            itemSoldMap.set(directItemId, (itemSoldMap.get(directItemId) || 0) + qty);
+          }
+        }
+      });
+    }
+
+    // Aggregate real review count & average rating per item from Firestore `reviews`
+    const itemReviewsMap = new Map<string, { count: number; sum: number }>();
+    if (reviewsResult.status === "fulfilled") {
+      reviewsResult.value.docs.forEach((rDoc) => {
+        const r = rDoc.data();
+        const rItemId = String(r.item_id ?? "");
+        const rating = Number(r.rating || 0);
+        if (!rItemId || rating <= 0) return;
+        const prev = itemReviewsMap.get(rItemId) || { count: 0, sum: 0 };
+        prev.count += 1;
+        prev.sum += rating;
+        itemReviewsMap.set(rItemId, prev);
+      });
+    }
+
+    // First pass over published items to compute real per-seller product & review totals
+    const sellerItemsCountMap = new Map<string, number>();
+    const sellerReviewsCountMap = new Map<string, number>();
+
+    const publishedDocs = snap.docs.filter((d) => d.data()?.is_published === true);
+    for (const docSnap of publishedDocs) {
+      const item = docSnap.data();
+      const itemUser = item.user || {};
+      const sellerId = String(itemUser.id || item.user_id || "");
+      const sellerUsername = String(itemUser.username || "").toLowerCase();
+      const sellerName = String(itemUser.name || "").toLowerCase();
+      const liveUser =
+        (sellerId ? usersMap.get(sellerId) : null) ||
+        (sellerUsername ? usersMap.get(sellerUsername) : null) ||
+        (sellerName ? usersMap.get(sellerName) : null);
+
+      const canonicalSellerKey = String(liveUser?.id || sellerId || sellerUsername || sellerName || "unknown");
+      sellerItemsCountMap.set(canonicalSellerKey, (sellerItemsCountMap.get(canonicalSellerKey) || 0) + 1);
+
+      const itemKey = String(item.id ?? docSnap.id);
+      const revStats = itemReviewsMap.get(itemKey);
+      if (revStats && revStats.count > 0) {
+        sellerReviewsCountMap.set(canonicalSellerKey, (sellerReviewsCountMap.get(canonicalSellerKey) || 0) + revStats.count);
+      }
+    }
+
+    const items = publishedDocs.map((docSnap) => {
+      const item = docSnap.data();
+      const itemKey = String(item.id ?? docSnap.id);
+      const itemUser = item.user || {};
+      const sellerId = String(itemUser.id || item.user_id || "");
+      const sellerUsername = String(itemUser.username || "").toLowerCase();
+      const sellerName = String(itemUser.name || "").toLowerCase();
+
+      const liveUser =
+        (sellerId ? usersMap.get(sellerId) : null) ||
+        (sellerUsername ? usersMap.get(sellerUsername) : null) ||
+        (sellerName ? usersMap.get(sellerName) : null);
+
+      const resolvedId = liveUser?.id ?? itemUser.id;
+      const resolvedAvatar = liveUser?.avatar || itemUser.avatar || "";
+      const resolvedName = liveUser?.name || itemUser.name || "Seller";
+      const resolvedLocation = liveUser?.location || item.location || itemUser.location || null;
+      const canonicalSellerKey = String(resolvedId || sellerId || sellerUsername || sellerName || "unknown");
+
+      const realSoldCount = itemSoldMap.get(itemKey) ?? 0;
+      const revStats = itemReviewsMap.get(itemKey);
+      const realReviewsCount = revStats ? revStats.count : 0;
+      const realAvgRating = revStats && revStats.count > 0
+        ? Number((revStats.sum / revStats.count).toFixed(1))
+        : 0;
+
+      const sellerOrderStats =
+        (resolvedId !== undefined ? sellerOrdersMap.get(String(resolvedId)) : undefined) ||
+        (resolvedName ? sellerOrdersMap.get(resolvedName.toLowerCase()) : undefined) ||
+        { total: 0, fulfilled: 0 };
+
+      const realFollowersCount = Array.isArray(liveUser?.follower_ids)
+        ? liveUser.follower_ids.length
+        : Number(liveUser?.followers_count ?? itemUser.followers_count ?? 0);
+
+      // Keep seller profile snapshot in sync in the background when changed
+      if (resolvedAvatar && itemUser.avatar !== resolvedAvatar) {
+        setDoc(doc(db, "items", docSnap.id), {
           user: {
             ...itemUser,
-            id: liveUser?.id || itemUser.id,
             name: resolvedName,
             avatar: resolvedAvatar,
             location: resolvedLocation
           }
-        };
-      })
-      .filter(Boolean);
+        }, { merge: true }).catch((e) => console.warn("Background item sync error:", e));
+      }
+
+      return {
+        ...item,
+        sold_count: realSoldCount,
+        reviews_count: realReviewsCount,
+        reviews_avg_rating: realAvgRating,
+        location: resolvedLocation,
+        user: {
+          ...itemUser,
+          id: resolvedId,
+          name: resolvedName,
+          avatar: resolvedAvatar,
+          location: resolvedLocation,
+          created_at: liveUser?.created_at || itemUser.created_at || item.created_at,
+          is_online: Boolean(liveUser?.is_online ?? itemUser.is_online ?? false),
+          items_count: sellerItemsCountMap.get(canonicalSellerKey) ?? 1,
+          reviews_count: sellerReviewsCountMap.get(canonicalSellerKey) ?? 0,
+          followers_count: realFollowersCount,
+          total_orders: sellerOrderStats.total,
+          accepted_orders: sellerOrderStats.fulfilled,
+        }
+      };
+    });
 
     return NextResponse.json({ items }, { status: 200 });
 

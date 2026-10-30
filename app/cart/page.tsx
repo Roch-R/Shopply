@@ -133,8 +133,25 @@ export default function CartPage() {
         const savedVoucher = typeof window !== "undefined" ? localStorage.getItem("claimed_voucher") : null;
         if (savedVoucher) {
           const clean = savedVoucher.trim().toUpperCase();
-          setVoucherInput(clean);
-          applyVoucherCode(clean);
+          let exists = list.some((c) => c.code === clean);
+          if (!exists) {
+            try {
+              const flashSnap = await getDoc(doc(db, "settings", "flash_deals"));
+              if (flashSnap.exists()) {
+                const fData = flashSnap.data();
+                const notExpired = !fData.end_time || new Date(fData.end_time).getTime() > Date.now();
+                if (fData.is_active !== false && notExpired && fData.coupon_code && fData.coupon_code.trim().toUpperCase() === clean) {
+                  exists = true;
+                }
+              }
+            } catch {}
+          }
+          if (exists) {
+            setVoucherInput(clean);
+            applyVoucherCode(clean);
+          } else {
+            localStorage.removeItem("claimed_voucher");
+          }
         }
       } catch (e) {
         console.error("Error loading coupons in cart:", e);
