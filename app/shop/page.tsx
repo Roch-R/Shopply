@@ -340,6 +340,24 @@ function MarketplaceContent() {
   const [claimedVoucher, setClaimedVoucher] = useState<string | null>(null);
   const [allCoupons, setAllCoupons] = useState<any[]>([]);
   const [couponsLoaded, setCouponsLoaded] = useState(false);
+  const [usedVouchers, setUsedVouchers] = useState<string[]>([]);
+
+  // Format voucher titles cleanly (remove AI emojis and redundant discount suffixes)
+  const getCleanVoucherInfo = (voucher: any) => {
+    let cleanTitle = String(voucher.title || "")
+      .replace(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, "")
+      .replace(/\s*-\s*(₱?\d+(\.\d+)?%?\s*OFF)/gi, "")
+      .trim();
+
+    if (!cleanTitle || cleanTitle.toLowerCase() === "voucher" || cleanTitle.toLowerCase().includes("linked voucher")) {
+      cleanTitle = "Marketplace Discount Voucher";
+    }
+
+    const minSpendNum = Number(voucher.min_spend || 0);
+    const minSpendText = minSpendNum > 0 ? `Min. spend ₱${minSpendNum.toLocaleString()}` : "No min. spend";
+    const terms = `${minSpendText} • 1 use per customer`;
+    return { title: cleanTitle, terms };
+  };
 
   // Load claimed voucher from localStorage on mount
   useEffect(() => {
@@ -355,6 +373,12 @@ function MarketplaceContent() {
   const claimVoucher = (code: string, discountDesc?: string) => {
     if (!code) return;
     const cleanCode = code.trim().toUpperCase();
+
+    if (usedVouchers.includes(cleanCode)) {
+      setErrorMsg(`You have already used voucher "${cleanCode}". Each voucher is limited to 1 use per customer.`);
+      setTimeout(() => setErrorMsg(null), 4000);
+      return;
+    }
 
     try {
       if (typeof navigator !== 'undefined' && navigator.clipboard && navigator.clipboard.writeText) {
@@ -495,9 +519,17 @@ function MarketplaceContent() {
     setActiveVoucher(genVoucher || null);
   }, [allCoupons, flashConfig.coupon_code, flashConfig.discount_type, flashConfig.discount_value, flashConfig.is_active]);
 
-  // Ensure claimedVoucher in localStorage corresponds to an active Firestore voucher
+  // Ensure claimedVoucher in localStorage corresponds to an active Firestore voucher and is not already used
   useEffect(() => {
-    if (!couponsLoaded || !claimedVoucher) return;
+    if (!claimedVoucher) return;
+    if (usedVouchers.includes(claimedVoucher)) {
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("claimed_voucher");
+      }
+      setClaimedVoucher(null);
+      return;
+    }
+    if (!couponsLoaded) return;
     const existsInCoupons = allCoupons.some(c => c.code === claimedVoucher);
     const existsInFlash = Boolean(flashCoupon && flashCoupon.code === claimedVoucher);
     if (!existsInCoupons && !existsInFlash) {
@@ -506,7 +538,7 @@ function MarketplaceContent() {
       }
       setClaimedVoucher(null);
     }
-  }, [couponsLoaded, claimedVoucher, allCoupons, flashCoupon]);
+  }, [couponsLoaded, claimedVoucher, allCoupons, flashCoupon, usedVouchers]);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [activeChatUser, setActiveChatUser] = useState<{ id: number; name: string; avatar?: string | null } | null>(null);
   const [isActiveUserOnline, setIsActiveUserOnline] = useState(false);
@@ -1026,6 +1058,18 @@ function MarketplaceContent() {
               }
             }
           }
+        })
+        .catch(() => {});
+
+      // Fetch user order history to determine single-use vouchers already redeemed
+      fetch(`${API}/orders`, { headers: { Authorization: `Bearer ${token}`, Accept: "application/json" } })
+        .then(r => r.json())
+        .then((data: any) => {
+          const orderList = Array.isArray(data.orders) ? data.orders : Array.isArray(data) ? data : [];
+          const used = orderList
+            .filter((o: any) => o.status !== "cancelled" && o.coupon_code)
+            .map((o: any) => String(o.coupon_code).trim().toUpperCase());
+          setUsedVouchers(Array.from(new Set(used)));
         })
         .catch(() => {});
     }
@@ -1612,6 +1656,12 @@ function MarketplaceContent() {
 
         setBuyModal(null);
         setViewItem(null);
+        if (savedCoupon) {
+          const usedClean = savedCoupon.trim().toUpperCase();
+          setUsedVouchers((prev) => Array.from(new Set([...prev, usedClean])));
+          setClaimedVoucher(null);
+          localStorage.removeItem('claimed_voucher');
+        }
         localStorage.setItem('last_order_time', Date.now().toString());
         localStorage.setItem('shopply_order_update', Date.now().toString());
         getApiCache().invalidate('/cart');
@@ -2744,42 +2794,62 @@ function MarketplaceContent() {
               {allCoupons.length > 0 && (
                 <section aria-label="Available Store Vouchers" className="voucher-strip">
                   {allCoupons.map((voucher) => {
-                    const isClaimed = copiedVoucher === voucher.code || claimedVoucher === voucher.code;
+                    const isUsed = usedVouchers.includes(voucher.code);
+                    const isClaimed = !isUsed && (copiedVoucher === voucher.code || claimedVoucher === voucher.code);
                     const discountLabel = voucher.discount_type === "percent"
                       ? `${voucher.discount_value || voucher.discount}% OFF`
                       : `₱${voucher.discount_value || voucher.discount} OFF`;
+                    const info = getCleanVoucherInfo(voucher);
+
                     return (
-                      <div key={voucher.code} className="voucher-ticket">
-                        <div style={{ minWidth: 0 }}>
-                          <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 2 }}>
-                            <span style={{ fontSize: 13.5, fontWeight: 700, color: "#0D6847", fontVariantNumeric: "tabular-nums" }}>
+                      <div
+                        key={voucher.code}
+                        className={`voucher-ticket ${isUsed ? "used" : ""}`}
+                        style={{
+                          borderLeft: isUsed ? "3px solid #D1D5DB" : "3px solid #111827",
+                          opacity: isUsed ? 0.75 : 1
+                        }}
+                      >
+                        <div style={{ minWidth: 0, flex: 1, paddingRight: 8 }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 3, flexWrap: "wrap" }}>
+                            <span style={{ fontSize: 13.5, fontWeight: 700, color: isUsed ? "#6B7280" : "#047857", fontVariantNumeric: "tabular-nums" }}>
                               {discountLabel}
                             </span>
-                            <span style={{ fontSize: 11, fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace", color: "#374151", background: "#F3F4F6", padding: "1px 6px", borderRadius: 4 }}>
+                            <span style={{ fontSize: 11, fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace", color: isUsed ? "#9CA3AF" : "#1F2937", background: "#F3F4F6", padding: "1px 6px", borderRadius: 4, fontWeight: 600 }}>
                               {voucher.code}
                             </span>
+                            <span style={{ fontSize: 9.5, fontWeight: 700, color: isUsed ? "#9CA3AF" : "#047857", background: isUsed ? "#E5E7EB" : "#ECFDF5", padding: "1px 5px", borderRadius: 3, textTransform: "uppercase", letterSpacing: 0.3 }}>
+                              {isUsed ? "Used" : "1 Use Only"}
+                            </span>
                           </div>
-                          <div style={{ fontSize: 11.5, color: "#6B7280", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                            {voucher.min_spend > 0 ? `Min. spend ₱${Number(voucher.min_spend).toFixed(0)}` : (voucher.title || "Valid on marketplace orders")}
+                          <div style={{ fontSize: 12, fontWeight: 600, color: isUsed ? "#9CA3AF" : "#111827", marginBottom: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                            {info.title}
+                          </div>
+                          <div style={{ fontSize: 11, color: isUsed ? "#9CA3AF" : "#6B7280", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                            {isUsed ? "Used on previous order • 1 use limit reached" : info.terms}
                           </div>
                         </div>
                         <button
                           type="button"
-                          onClick={() => claimVoucher(voucher.code, discountLabel)}
+                          disabled={isUsed}
+                          onClick={() => {
+                            if (!isUsed) claimVoucher(voucher.code, discountLabel);
+                          }}
                           style={{
-                            height: 30,
-                            padding: "0 12px",
+                            height: 32,
+                            padding: "0 14px",
                             borderRadius: 6,
-                            border: isClaimed ? "1px solid #0D6847" : "1px solid #111827",
-                            background: isClaimed ? "#ECFDF5" : "#111827",
-                            color: isClaimed ? "#0D6847" : "#FFFFFF",
-                            fontSize: 11.5,
+                            border: isUsed ? "1px solid #E5E7EB" : isClaimed ? "1px solid #111827" : "1px solid #111827",
+                            background: isUsed ? "#F3F4F6" : isClaimed ? "#111827" : "#FFFFFF",
+                            color: isUsed ? "#9CA3AF" : isClaimed ? "#FFFFFF" : "#111827",
+                            fontSize: 12,
                             fontWeight: 600,
-                            cursor: "pointer",
-                            flexShrink: 0
+                            cursor: isUsed ? "not-allowed" : "pointer",
+                            flexShrink: 0,
+                            transition: "all 0.15s ease"
                           }}
                         >
-                          {isClaimed ? "Claimed" : "Claim"}
+                          {isUsed ? "Used" : isClaimed ? "Claimed ✓" : "Claim"}
                         </button>
                       </div>
                     );
@@ -2822,30 +2892,34 @@ function MarketplaceContent() {
                       </div>
 
                       {flashCoupon && (() => {
-                        const isClaimed = copiedVoucher === flashCoupon.code || claimedVoucher === flashCoupon.code;
+                        const isUsed = usedVouchers.includes(flashCoupon.code);
+                        const isClaimed = !isUsed && (copiedVoucher === flashCoupon.code || claimedVoucher === flashCoupon.code);
                         const discountText = flashCoupon.discount_type === "percent"
                           ? `${flashCoupon.discount || flashCoupon.discount_value}% OFF`
                           : `₱${flashCoupon.discount_value} OFF`;
                         return (
                           <button
                             type="button"
-                            onClick={() => claimVoucher(flashCoupon.code, discountText)}
+                            disabled={isUsed}
+                            onClick={() => {
+                              if (!isUsed) claimVoucher(flashCoupon.code, discountText);
+                            }}
                             style={{
                               fontSize: 12,
                               fontWeight: 600,
-                              color: isClaimed ? "#0D6847" : "#111827",
-                              background: isClaimed ? "#ECFDF5" : "#F9FAFB",
-                              border: isClaimed ? "1px solid #A7F3D0" : "1px solid #D1D5DB",
+                              color: isUsed ? "#9CA3AF" : isClaimed ? "#FFFFFF" : "#111827",
+                              background: isUsed ? "#F3F4F6" : isClaimed ? "#111827" : "#F9FAFB",
+                              border: isUsed ? "1px solid #E5E7EB" : "1px solid #D1D5DB",
                               padding: "5px 12px",
                               borderRadius: 6,
-                              cursor: "pointer",
+                              cursor: isUsed ? "not-allowed" : "pointer",
                               display: "inline-flex",
                               alignItems: "center",
                               gap: 6
                             }}
                           >
                             <span style={{ fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace", fontWeight: 700 }}>{flashCoupon.code}</span>
-                            <span>· {isClaimed ? "Claimed" : discountText}</span>
+                            <span>· {isUsed ? "Used" : isClaimed ? "Claimed ✓" : discountText}</span>
                           </button>
                         );
                       })()}

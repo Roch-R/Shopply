@@ -60,6 +60,7 @@ export default function CartPage() {
   >([]);
   const [validatingVoucher, setValidatingVoucher] = useState(false);
   const [voucherError, setVoucherError] = useState<string | null>(null);
+  const [usedVouchers, setUsedVouchers] = useState<string[]>([]);
 
   const API = "/api";
   const STORAGE_URL = "/storage";
@@ -130,27 +131,54 @@ export default function CartPage() {
         if (cancelled) return;
         setAvailableCoupons(list);
 
+        // Load user's past orders to find already used single-use vouchers
+        const token = localStorage.getItem("token");
+        let pastUsedVouchers: string[] = [];
+        if (token) {
+          try {
+            const ordersRes = await fetch(`${API}/orders`, {
+              headers: { Authorization: `Bearer ${token}`, Accept: "application/json" }
+            });
+            if (ordersRes.ok) {
+              const ordersData = await ordersRes.json();
+              const orderList = Array.isArray(ordersData.orders) ? ordersData.orders : Array.isArray(ordersData) ? ordersData : [];
+              pastUsedVouchers = orderList
+                .filter((o: any) => o.status !== "cancelled" && o.coupon_code)
+                .map((o: any) => String(o.coupon_code).trim().toUpperCase());
+              if (!cancelled) {
+                setUsedVouchers(Array.from(new Set(pastUsedVouchers)));
+              }
+            }
+          } catch (e) {
+            console.warn("Could not load user order voucher history in cart:", e);
+          }
+        }
+
         const savedVoucher = typeof window !== "undefined" ? localStorage.getItem("claimed_voucher") : null;
         if (savedVoucher) {
           const clean = savedVoucher.trim().toUpperCase();
-          let exists = list.some((c) => c.code === clean);
-          if (!exists) {
-            try {
-              const flashSnap = await getDoc(doc(db, "settings", "flash_deals"));
-              if (flashSnap.exists()) {
-                const fData = flashSnap.data();
-                const notExpired = !fData.end_time || new Date(fData.end_time).getTime() > Date.now();
-                if (fData.is_active !== false && notExpired && fData.coupon_code && fData.coupon_code.trim().toUpperCase() === clean) {
-                  exists = true;
-                }
-              }
-            } catch {}
-          }
-          if (exists) {
-            setVoucherInput(clean);
-            applyVoucherCode(clean);
-          } else {
+          if (pastUsedVouchers.includes(clean)) {
             localStorage.removeItem("claimed_voucher");
+          } else {
+            let exists = list.some((c) => c.code === clean);
+            if (!exists) {
+              try {
+                const flashSnap = await getDoc(doc(db, "settings", "flash_deals"));
+                if (flashSnap.exists()) {
+                  const fData = flashSnap.data();
+                  const notExpired = !fData.end_time || new Date(fData.end_time).getTime() > Date.now();
+                  if (fData.is_active !== false && notExpired && fData.coupon_code && fData.coupon_code.trim().toUpperCase() === clean) {
+                    exists = true;
+                  }
+                }
+              } catch {}
+            }
+            if (exists) {
+              setVoucherInput(clean);
+              applyVoucherCode(clean, pastUsedVouchers);
+            } else {
+              localStorage.removeItem("claimed_voucher");
+            }
           }
         }
       } catch (e) {
@@ -284,10 +312,18 @@ export default function CartPage() {
     .filter((i) => selectedItems.includes(i.id))
     .reduce((sum, item) => sum + parseFloat(item.price || item.item.price) * item.quantity, 0);
 
-  const applyVoucherCode = async (codeToApply?: string) => {
+  const applyVoucherCode = async (codeToApply?: string, knownUsed?: string[]) => {
     const code = (codeToApply || voucherInput).trim().toUpperCase();
     if (!code) {
       setVoucherError("Please enter a voucher code.");
+      return;
+    }
+
+    const checkUsed = knownUsed || usedVouchers;
+    if (checkUsed.includes(code)) {
+      setVoucherError(`You have already used voucher "${code}". Each voucher can only be used once per account.`);
+      showToast("Voucher already used", "error");
+      setValidatingVoucher(false);
       return;
     }
 
@@ -425,6 +461,9 @@ export default function CartPage() {
       if (res.ok) {
         setCartItems((items) => items.filter((i) => !selectedItems.includes(i.id)));
         setSelectedItems([]);
+        if (appliedVoucher) {
+          setUsedVouchers((prev) => Array.from(new Set([...prev, appliedVoucher.code])));
+        }
         setAppliedVoucher(null);
         if (typeof window !== "undefined") {
           localStorage.removeItem("claimed_voucher");
@@ -1358,43 +1397,50 @@ export default function CartPage() {
                   }}
                 >
                   <span style={{ fontSize: 12, fontWeight: 600, color: "#4B5563" }}>Available vouchers:</span>
-                  {availableCoupons.map((c) => (
-                    <button
-                      key={c.code}
-                      type="button"
-                      onClick={() => {
-                        setVoucherInput(c.code);
-                        applyVoucherCode(c.code);
-                      }}
-                      style={{
-                        background: voucherInput === c.code ? "#F3F4F6" : "#F9FAFB",
-                        border: voucherInput === c.code ? "1.5px solid #111827" : "1px solid #E5E7EB",
-                        color: "#111827",
-                        borderRadius: 8,
-                        padding: "5px 10px",
-                        fontSize: 12,
-                        fontWeight: 700,
-                        cursor: "pointer",
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: 6,
-                      }}
-                    >
-                      <span style={{ fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace" }}>{c.code}</span>
-                      <span
+                  {availableCoupons.map((c) => {
+                    const isUsed = usedVouchers.includes(c.code);
+                    return (
+                      <button
+                        key={c.code}
+                        type="button"
+                        disabled={isUsed}
+                        onClick={() => {
+                          if (!isUsed) {
+                            setVoucherInput(c.code);
+                            applyVoucherCode(c.code);
+                          }
+                        }}
                         style={{
-                          fontSize: 11,
-                          color: "#065F46",
-                          background: "#ECFDF5",
-                          padding: "1px 6px",
-                          borderRadius: 4,
-                          fontWeight: 700,
+                          background: isUsed ? "#F3F4F6" : voucherInput === c.code ? "#F3F4F6" : "#F9FAFB",
+                          border: isUsed ? "1px solid #E5E7EB" : voucherInput === c.code ? "1.5px solid #111827" : "1px solid #E5E7EB",
+                          color: isUsed ? "#9CA3AF" : "#111827",
+                          borderRadius: 8,
+                          padding: "5px 10px",
+                          fontSize: 12,
+                          fontWeight: 600,
+                          cursor: isUsed ? "not-allowed" : "pointer",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: 6,
+                          opacity: isUsed ? 0.75 : 1,
                         }}
                       >
-                        {c.discount_type === "percent" ? `${c.discount_value}% OFF` : `₱${c.discount_value} OFF`}
-                      </span>
-                    </button>
-                  ))}
+                        <span style={{ fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace" }}>{c.code}</span>
+                        <span
+                          style={{
+                            fontSize: 11,
+                            color: isUsed ? "#9CA3AF" : "#065F46",
+                            background: isUsed ? "#E5E7EB" : "#ECFDF5",
+                            padding: "1px 6px",
+                            borderRadius: 4,
+                            fontWeight: 700,
+                          }}
+                        >
+                          {isUsed ? "Used" : c.discount_type === "percent" ? `${c.discount_value}% OFF` : `₱${c.discount_value} OFF`}
+                        </span>
+                      </button>
+                    );
+                  })}
                 </div>
               )}
 

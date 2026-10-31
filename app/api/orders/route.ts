@@ -314,6 +314,25 @@ export async function POST(req: Request) {
         }
 
         if (couponData && couponData.is_active !== false) {
+          // ENFORCE STRICT SINGLE-USE PER CUSTOMER ACCOUNT
+          const userOrdersSnap = await getDocs(
+            query(
+              collection(db, "orders"),
+              where("user_id", "==", user.id)
+            )
+          );
+          const alreadyUsed = userOrdersSnap.docs.some(docSnap => {
+            const o = docSnap.data();
+            const prevCoupon = (o.coupon_code || "").trim().toUpperCase();
+            return prevCoupon === cleanCoupon && o.status !== "cancelled";
+          });
+
+          if (alreadyUsed) {
+            return NextResponse.json({
+              message: `You have already used voucher "${cleanCoupon}". Each voucher is limited to one use per account.`
+            }, { status: 422 });
+          }
+
           const minSpend = Number(couponData.min_spend || 0);
           if (minSpend <= 0 || totalAmount >= minSpend) {
             const dType = couponData.discount_type || (couponData.discount_value ? "fixed" : "percent");

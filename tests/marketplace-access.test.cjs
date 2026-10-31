@@ -326,3 +326,19 @@ test('dashboard and shop use authentic neutral e-commerce notification toasts an
   assert.equal(shopSrc.includes("background: '#10b981', color: '#fff', border: 'none', fontSize: 11, fontWeight: 600, padding: '6px 0', borderRadius: 8, cursor: 'pointer'"), false, 'Shop chat Meetup Map must not use old green button');
 });
 
+test('vouchers enforce strict single-use per account and display clean non-AI retail terms', () => {
+  const ordersApiSrc = fs.readFileSync('app/api/orders/route.ts', 'utf8');
+  assert.match(ordersApiSrc, /alreadyUsed\s*=\s*userOrdersSnap\.docs\.some/, 'Order API must query past orders for already used voucher');
+  assert.match(ordersApiSrc, /Each voucher is limited to one use per account/, 'Order API must reject reused voucher with 422');
+
+  const cartSrc = fs.readFileSync('app/cart/page.tsx', 'utf8');
+  assert.match(cartSrc, /Each voucher can only be used once per account/, 'Cart must block and warn when applying an already used voucher');
+  assert.match(cartSrc, /isUsed \? "Used" :/, 'Cart available vouchers must indicate Used state');
+
+  const shopSrc = fs.readFileSync('app/shop/page.tsx', 'utf8');
+  assert.match(shopSrc, /getCleanVoucherInfo/, 'Shop storefront must clean AI emojis and repetitive titles');
+  assert.match(shopSrc, /1 Use Only/, 'Shop vouchers must indicate 1 Use Only policy');
+  assert.match(shopSrc, /Used on previous order • 1 use limit reached/, 'Shop storefront must mark previously redeemed vouchers as Used');
+});
+
+
