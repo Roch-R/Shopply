@@ -363,5 +363,22 @@ test('dashboard sidebar uses authentic e-commerce structure and dedicated sign o
   assert.equal(dashSrc.includes('className="sidebar-role-pill"'), true, 'Sidebar must display authentic Shopply merchant badge');
 });
 
+test('dashboard add product listing form uses authentic retail fields (no mock template presets or fake autofill buttons)', () => {
+  const dashSrc = fs.readFileSync('app/dashboard/page.tsx', 'utf8');
+
+  // Must not have fake quick templates or mock product presets
+  assert.equal(dashSrc.includes('Quick Templates:'), false, 'Add product form must not display fake Quick Templates');
+  assert.equal(dashSrc.includes('24-pc Drill Tool Kit'), false, 'Add product form must not contain hardcoded drill tool kit preset');
+  assert.equal(dashSrc.includes('Autofill Details'), false, 'Add product form must not contain mock Autofill Details button');
+  assert.equal(dashSrc.includes('Suggest Title from Photo'), false, 'Add product form must not contain experimental AI suggest title button');
+  assert.equal(dashSrc.includes('fill standard details in 1 second'), false, 'Specifications must not contain AI marketing copy');
+
+  // Must have clean authentic retail inputs
+  assert.match(dashSrc, /Publish Product Listing/, 'Form must include Publish Product Listing primary action');
+  assert.match(dashSrc, /Basic Information/, 'Form must structure title under Basic Information');
+  assert.match(dashSrc, /Stock Quantity \*/, 'Form must structure Pricing & Stock cleanly');
+});
+
+
 
 

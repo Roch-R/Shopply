@@ -7441,10 +7441,18 @@ export default function DashboardPage() {
             {/* ——— ADD ITEM TAB ——— */}
             {activeTab === "add-item" && (
               <div className="add-form">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-                  <h3 style={{ marginBottom: 0 }}>{editingItem ? "Edit Product" : "Add New Product"}</h3>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+                  <div>
+                    <h3 style={{ marginBottom: 4, fontSize: 22, fontWeight: 800, color: '#0f172a' }}>
+                      {editingItem ? "Edit Product Listing" : "Add New Product"}
+                    </h3>
+                    <p style={{ margin: 0, fontSize: 13, color: '#64748b' }}>
+                      Fill in the product details, pricing, inventory, and photos to list in the marketplace.
+                    </p>
+                  </div>
                   {editingItem && (
                     <button
+                      type="button"
                       onClick={() => {
                         setEditingItem(null);
                         setNewItemName("");
@@ -7462,359 +7470,153 @@ export default function DashboardPage() {
                         setDescImagesState([]);
                         setActiveTab("my-items");
                       }}
-                      style={{ background: 'none', border: 'none', color: '#64748b', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
+                      style={{ background: '#f1f5f9', border: '1px solid #cbd5e1', color: '#475569', padding: '6px 14px', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
                     >
                       Cancel Edit
                     </button>
                   )}
                 </div>
+
                 <form onSubmit={editingItem ? handleUpdateItem : handleAddItem}>
-                  <div className="form-group">
-                    <label className="form-label" style={{ marginBottom: 16 }}>Product Category</label>
-                    <div className="category-grid">
+                  {/* CATEGORY SELECTOR */}
+                  <div className="form-group" style={{ marginBottom: 24 }}>
+                    <label className="form-label" style={{ marginBottom: 12, fontWeight: 700, fontSize: 13, color: '#0f172a' }}>
+                      Product Category *
+                    </label>
+                    <div className="category-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: 10 }}>
                       {[
-                        { val: "General", label: "Gadgets", icon: <IconBox /> },
-                        { val: "Electronics", label: "Tech", icon: <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" ry="2" /><line x1="8" y1="21" x2="16" y2="21" /><line x1="12" y1="17" x2="12" y2="21" /></svg> },
-                        { val: "Clothes", label: "Apparel", icon: <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M20.38 3.46L16 2a4 4 0 01-8 0L3.62 3.46a2 2 0 00-1.62 1.96V10a2 2 0 002 2h2v8a2 2 0 002 2h8a2 2 0 002-2v-8h2a2 2 0 002-2V5.42a2 2 0 00-1.62-1.96z" /></svg> },
-                        { val: "Shoes", label: "Footwear", icon: <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M3 21h18v-7h-4.24l-1.35-2.7a2 2 0 00-1.79-1.3H9a2 2 0 00-2 2V21z" /><path d="M21 14l-4.24-7.42A2 2 0 0015.01 5.5H9a2 2 0 00-2 2V14" /></svg> },
-                        { val: "Beauty", label: "Beauty", icon: <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 21a9 9 0 100-18 9 9 0 000 18z" /><path d="M12 7v10" /><path d="M8 12h8" /></svg> },
-                        { val: "Home", label: "Living", icon: <IconStore /> },
-                        { val: "Accessories", label: "Jewelry", icon: <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7" /><polyline points="12 9 12 12 13.5 13.5" /><circle cx="12" cy="12" r="2" /></svg> }
-                      ].map(cat => (
-                        <div
-                          key={cat.val}
-                          className="category-btn"
-                          onClick={() => {
-                            setNewItemCategory(cat.val);
-                            setSelectedSizes([]);
-                          }}
-                          style={{
-                            padding: '14px 6px',
-                            borderRadius: 14,
-                            border: `2px solid ${newItemCategory === cat.val ? '#111827' : '#f1f5f9'}`,
-                            background: newItemCategory === cat.val ? '#F9FAFB' : '#fff',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                            gap: 8,
-                            cursor: 'pointer',
-                            transition: 'all .2s',
-                            textAlign: 'center',
-                            position: 'relative'
-                          }}
-                        >
-                          <div className="category-icon-wrap" style={{
-                            width: 36, height: 36, borderRadius: '50%',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            background: newItemCategory === cat.val ? '#111827' : '#f8fafc',
-                            color: newItemCategory === cat.val ? '#fff' : '#64748b',
-                            transition: 'all .2s'
-                          }}>
-                            {cat.icon}
-                          </div>
-                          <span className="category-btn-label" style={{
-                            fontSize: 12, fontWeight: 700,
-                            color: newItemCategory === cat.val ? '#111827' : '#64748b',
-                            whiteSpace: 'normal',
-                            wordBreak: 'break-word',
-                            lineHeight: 1.2,
-                            textAlign: 'center'
-                          }}>{cat.label}</span>
-                          {newItemCategory === cat.val && (
-                            <div className="category-check-icon" style={{ position: 'absolute', top: 8, right: 8, color: '#111827' }}>
-                              <IconCheck />
-                            </div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="form-section-divider" style={{ borderTop: '1px solid #f1f5f9', margin: '32px 0 24px', paddingTop: 32 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 10 }}>
-                      <h4 style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <div style={{ width: 4, height: 16, background: '#111827', borderRadius: 4 }}></div>
-                        Essential Details
-                      </h4>
-                      <button
-                        type="button"
-                        onClick={async () => {
-                          const availableImg = newColorPreview || (colorVariants[0]?.preview) || (mainImagesState[0]?.preview);
-                          const availableFile = newColorFile || (colorVariants[0]?.file) || (mainImagesState[0]?.file);
-                          const availableColor = newColorName || (colorVariants[0]?.color) || "";
-                          const availablePrice = newColorPrice || (colorVariants[0]?.price) || "";
-
-                          if (availableImg || availableFile) {
-                            showToast("Analyzing uploaded photo...", "success");
-                            setIsAiScanningImage(true);
-                            const res = await detectItemFromImageSource(availableImg, availableFile, availableColor, newItemCategory);
-                            setIsAiScanningImage(false);
-                            applyAiDetectedItem(res.title, res.category, res.suggestedPrice, availablePrice, res.description);
-                          } else if (newItemName.trim()) {
-                            const detected = detectProductDetailsFromAI(newItemName);
-                            if (detected) {
-                              setNewItemCategory(detected.category);
-                              setNewItemPrice(detected.suggestedPrice);
-                              if (!newItemDesc) {
-                                setNewItemDesc(generateAiProductDescription(newItemName, detected.category, specs));
-                              }
-                              showToast(`Suggested category: ${detected.categoryLabel} · Est. ₱${detected.suggestedPrice}`, "success");
-                            } else {
-                              showToast("Please enter a product name first or upload a photo.", "error");
-                            }
-                          } else {
-                            const res = await detectItemFromImageSource(null, null, null, newItemCategory);
-                            applyAiDetectedItem(res.title, res.category, res.suggestedPrice, undefined, res.description);
-                            showToast("Autofilled template details from selected category.", "success");
-                          }
-                        }}
-                        style={{
-                          padding: '6px 14px',
-                          borderRadius: 8,
-                          border: '1px solid #e2e8f0',
-                          background: '#F9FAFB',
-                          color: '#111827',
-                          fontSize: 12,
-                          fontWeight: 800,
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 6,
-                          transition: 'all .2s',
-                          boxShadow: 'none'
-                        }}
-                        onMouseOver={e => { e.currentTarget.style.background = '#111827'; e.currentTarget.style.color = '#fff'; }}
-                        onMouseOut={e => { e.currentTarget.style.background = '#F9FAFB'; e.currentTarget.style.color = '#111827'; }}
-                        title="Autofill product details from uploaded photo or category"
-                      >
-                        <span>{isAiScanningImage ? "Analyzing Photo..." : "Autofill Details"}</span>
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="form-row">
-                    <div className="form-group">
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6, flexWrap: 'wrap', gap: 6 }}>
-                        <label className="form-label" style={{ margin: 0 }}>Product Name *</label>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                          {isAiScanningImage && (
-                            <span style={{ fontSize: 11, color: '#0D6847', fontWeight: 600 }}>
-                              Analyzing photo...
-                            </span>
-                          )}
-                          <button
-                            type="button"
-                            onClick={async () => {
-                              const availableImg = newColorPreview || (colorVariants[0]?.preview) || (mainImagesState[0]?.preview);
-                              const availableFile = newColorFile || (colorVariants[0]?.file) || (mainImagesState[0]?.file);
-                              const availableColor = newColorName || (colorVariants[0]?.color) || "";
-                              const availablePrice = newColorPrice || (colorVariants[0]?.price) || "";
-
-                              if (availableImg || availableFile) {
-                                setIsAiScanningImage(true);
-                                const res = await detectItemFromImageSource(availableImg, availableFile, availableColor, newItemCategory);
-                                setIsAiScanningImage(false);
-                                applyAiDetectedItem(res.title, res.category, res.suggestedPrice, availablePrice, res.description);
-                              } else {
-                                const res = await detectItemFromImageSource(null, null, null, newItemCategory);
-                                applyAiDetectedItem(res.title, res.category, res.suggestedPrice, undefined, res.description);
-                                showToast("Suggested title filled from category.", "success");
-                              }
+                        { val: "General", label: "General Merchandise", icon: <IconBox /> },
+                        { val: "Electronics", label: "Electronics & Tech", icon: <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" ry="2" /><line x1="8" y1="21" x2="16" y2="21" /><line x1="12" y1="17" x2="12" y2="21" /></svg> },
+                        { val: "Clothes", label: "Apparel & Clothing", icon: <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M20.38 3.46L16 2a4 4 0 01-8 0L3.62 3.46a2 2 0 00-1.62 1.96V10a2 2 0 002 2h2v8a2 2 0 002 2h8a2 2 0 002-2v-8h2a2 2 0 002-2V5.42a2 2 0 00-1.62-1.96z" /></svg> },
+                        { val: "Shoes", label: "Footwear & Shoes", icon: <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M3 21h18v-7h-4.24l-1.35-2.7a2 2 0 00-1.79-1.3H9a2 2 0 00-2 2V21z" /><path d="M21 14l-4.24-7.42A2 2 0 0015.01 5.5H9a2 2 0 00-2 2V14" /></svg> },
+                        { val: "Beauty", label: "Beauty & Care", icon: <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 21a9 9 0 100-18 9 9 0 000 18z" /><path d="M12 7v10" /><path d="M8 12h8" /></svg> },
+                        { val: "Home", label: "Home & Living", icon: <IconStore /> },
+                        { val: "Accessories", label: "Jewelry & Accessories", icon: <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7" /><polyline points="12 9 12 12 13.5 13.5" /><circle cx="12" cy="12" r="2" /></svg> }
+                      ].map(cat => {
+                        const isSelected = newItemCategory === cat.val;
+                        return (
+                          <div
+                            key={cat.val}
+                            className={`category-btn ${isSelected ? "selected" : ""}`}
+                            onClick={() => {
+                              setNewItemCategory(cat.val);
+                              setSelectedSizes([]);
                             }}
                             style={{
-                              padding: '3px 10px',
-                              borderRadius: 8,
-                              border: '1px solid #111827',
-                              background: '#F9FAFB',
-                              color: '#111827',
-                              fontSize: 11,
-                              fontWeight: 700,
+                              padding: '12px 10px',
+                              borderRadius: 10,
+                              border: isSelected ? '2px solid #0F172A' : '1px solid #E2E8F0',
+                              background: isSelected ? '#0F172A' : '#FFFFFF',
+                              color: isSelected ? '#FFFFFF' : '#334155',
+                              display: 'flex',
+                              flexDirection: 'column',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              gap: 8,
                               cursor: 'pointer',
+                              transition: 'all .15s ease',
+                              textAlign: 'center',
+                              boxShadow: isSelected ? '0 2px 4px rgba(15, 23, 42, 0.12)' : 'none'
+                            }}
+                          >
+                            <div style={{
+                              width: 32,
+                              height: 32,
+                              borderRadius: '50%',
                               display: 'flex',
                               alignItems: 'center',
-                              gap: 4,
-                              transition: 'all .2s'
-                            }}
-                            onMouseOver={e => { e.currentTarget.style.background = '#111827'; e.currentTarget.style.color = '#fff'; }}
-                            onMouseOut={e => { e.currentTarget.style.background = '#F9FAFB'; e.currentTarget.style.color = '#111827'; }}
-                            title="Suggest product title from uploaded photo"
-                          >
-                            <span>Suggest Title from Photo</span>
-                          </button>
-                        </div>
-                      </div>
-                      <input
-                        type="text"
-                        className="form-input"
-                        placeholder="e.g. Nike Air Jordan 1, iPhone 15, Oversized Vintage T-Shirt..."
-                        value={newItemName}
-                        onChange={e => setNewItemName(e.target.value)}
-                        required
-                      />
-
-                      {/* PHOTO DETECTED AI ACTION BANNER */}
-                      {(() => {
-                        const availableImg = newColorPreview || (colorVariants[0]?.preview) || (mainImagesState[0]?.preview);
-                        const availableFile = newColorFile || (colorVariants[0]?.file) || (mainImagesState[0]?.file);
-                        const availableColor = newColorName || (colorVariants[0]?.color) || "";
-                        const availablePrice = newColorPrice || (colorVariants[0]?.price) || "";
-
-                        if (!availableImg && !availableFile) return null;
-
-                        return (
-                          <div style={{
-                            marginTop: 8,
-                            padding: '9px 14px',
-                            background: '#F9FAFB',
-                            borderRadius: 10,
-                            border: '1px solid #e2e8f0',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'space-between',
-                            flexWrap: 'wrap',
-                            gap: 8,
-                            fontSize: 12,
-                            boxShadow: 'none'
-                          }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#111827' }}>
-                              <div>
-                                <span style={{ fontWeight: 700 }}>Photo uploaded</span>
-                                <span style={{ fontSize: 11, color: '#4B5563', marginLeft: 6 }}>
-                                  Extract product name and category from this image:
-                                </span>
-                              </div>
+                              justifyContent: 'center',
+                              background: isSelected ? 'rgba(255, 255, 255, 0.15)' : '#F1F5F9',
+                              color: isSelected ? '#FFFFFF' : '#64748B'
+                            }}>
+                              {cat.icon}
                             </div>
-                            <button
-                              type="button"
-                              onClick={async () => {
-                                setIsAiScanningImage(true);
-                                const res = await detectItemFromImageSource(availableImg, availableFile, availableColor, newItemCategory);
-                                setIsAiScanningImage(false);
-                                applyAiDetectedItem(res.title, res.category, res.suggestedPrice, availablePrice, res.description);
-                              }}
-                              style={{
-                                background: '#111827',
-                                color: '#ffffff',
-                                border: '1px solid #e2e8f0',
-                                borderRadius: 8,
-                                padding: '6px 14px',
-                                fontSize: 12,
-                                fontWeight: 800,
-                                cursor: 'pointer',
-                                boxShadow: 'none',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: 4
-                              }}
-                            >
-                              <span>Fill Product Name →</span>
-                            </button>
-                          </div>
-                        );
-                      })()}
-
-                      {/* QUICK TEMPLATE PRESET CHIPS */}
-                      <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 5, flexWrap: 'wrap' }}>
-                        <span style={{ fontSize: 11, color: '#6B7280', fontWeight: 600 }}>Quick Templates:</span>
-                        {[
-                          { label: "24-pc Drill Tool Kit", title: "24-Piece Household Tool Kit with 8V Cordless Drill & Storage Bag", cat: "General", price: "1299.00" },
-                          { label: "Cordless Drill", title: "Cordless Lithium-Ion Impact Power Drill Set with Battery & Charger", cat: "General", price: "1499.00" },
-                          { label: "149-pc Pro Tool Kit", title: "149-Piece Professional Household Multi-Tool Kit with Heavy-Duty Case", cat: "General", price: "1899.00" },
-                          { label: "Socket Wrench", title: "46-Piece Metric Socket Wrench & Ratchet Mechanics Tool Kit", cat: "General", price: "799.00" },
-                          { label: "Bond Paper", title: "Advance Hard Copy Multi-Purpose Bond Paper (Substance 20 / 70 GSM)", cat: "Home", price: "180.00" },
-                          { label: "Headphones", title: "Wireless Over-Ear Noise-Cancelling Headphones", cat: "General", price: "1899.00" },
-                          { label: "Sneakers", title: "Lightweight Cushion Running Sneakers", cat: "Shoes", price: "2499.00" },
-                          { label: "Smartphone", title: "Flagship 5G Ultra-HD Smartphone", cat: "Electronics", price: "18990.00" },
-                          { label: "Cotton T-Shirt", title: "Vintage Oversized Streetwear Cotton T-Shirt", cat: "Clothes", price: "499.00" },
-                          { label: "Chronograph Watch", title: "Waterproof Chronograph Sports Watch", cat: "Accessories", price: "1499.00" },
-                          { label: "Matte Lipstick", title: "Hydrating Velvet Matte Lipstick", cat: "Beauty", price: "380.00" },
-                          { label: "Table Lamp", title: "Modern Ambient Warm Table Lamp", cat: "Home", price: "699.00" }
-                        ].map(preset => (
-                          <button
-                            key={preset.label}
-                            type="button"
-                            onClick={() => {
-                              const colorPrefix = newColorName ? `${newColorName} ` : (colorVariants[0]?.color ? `${colorVariants[0].color} ` : "");
-                              const finalTitle = colorPrefix ? `${colorPrefix}${preset.title}` : preset.title;
-                              applyAiDetectedItem(finalTitle, preset.cat, preset.price, newColorPrice || colorVariants[0]?.price);
-                            }}
-                            style={{
-                              padding: '3px 8px',
-                              borderRadius: 8,
-                              border: '1px solid #e2e8f0',
-                              background: '#f8fafc',
-                              color: '#475569',
-                              fontSize: 11,
+                            <span style={{
+                              fontSize: 11.5,
                               fontWeight: 600,
-                              cursor: 'pointer',
-                              transition: 'all .15s'
-                            }}
-                            onMouseOver={e => { e.currentTarget.style.borderColor = '#111827'; e.currentTarget.style.color = '#111827'; e.currentTarget.style.background = '#F9FAFB'; }}
-                            onMouseOut={e => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.color = '#475569'; e.currentTarget.style.background = '#f8fafc'; }}
-                          >
-                            {preset.label}
-                          </button>
-                        ))}
-                      </div>
-
-                      {/* LIVE SMART AI DETECTION BANNER */}
-                      {(() => {
-                        const detected = detectProductDetailsFromAI(newItemName);
-                        if (!detected) return null;
-                        const isCatDifferent = newItemCategory !== detected.category;
-                        return (
-                          <div style={{
-                            marginTop: 8,
-                            padding: '8px 12px',
-                            background: '#F9FAFB',
-                            borderRadius: 12,
-                            border: '1px solid #E5E7EB',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'space-between',
-                            flexWrap: 'wrap',
-                            gap: 8,
-                            fontSize: 11
-                          }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#111827' }}>
-                              <span>Suggested match: <strong>{detected.categoryLabel}</strong> {isCatDifferent ? `(Current: ${newItemCategory})` : "✓"} · Est. <strong>₱{detected.suggestedPrice}</strong></span>
-                            </div>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setNewItemCategory(detected.category);
-                                setNewItemPrice(detected.suggestedPrice);
-                                if (!newItemDesc) {
-                                  setNewItemDesc(generateAiProductDescription(newItemName, detected.category, specs));
-                                }
-                                showToast(`Applied ${detected.categoryLabel} & ₱${detected.suggestedPrice}.`, "success");
-                              }}
-                              style={{
-                                background: '#111827',
-                                color: '#fff',
-                                border: 'none',
-                                borderRadius: 6,
-                                padding: '3px 10px',
-                                fontSize: 11,
-                                fontWeight: 700,
-                                cursor: 'pointer',
-                                transition: 'all .2s'
-                              }}
-                            >
-                              Apply to Details →
-                            </button>
+                              lineHeight: 1.25,
+                              color: isSelected ? '#FFFFFF' : '#334155'
+                            }}>
+                              {cat.label}
+                            </span>
                           </div>
                         );
-                      })()}
-                    </div>
-                    <div className="form-group">
-                      <label className="form-label">Price (₱) *</label>
-                      <input type="number" step="0.01" className="form-input" placeholder="0.00" value={newItemPrice} onChange={e => setNewItemPrice(e.target.value)} required />
+                      })}
                     </div>
                   </div>
 
-                  <div className="form-group" style={{ marginBottom: 18 }}>
-                    <label className="form-label">Product / Store Location</label>
+                  {/* ——— BASIC INFORMATION ——— */}
+                  <div className="form-section-divider" style={{ borderTop: '1px solid #f1f5f9', margin: '28px 0 20px', paddingTop: 24 }}>
+                    <h4 style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', margin: 0, display: 'flex', alignItems: 'center', gap: 8, marginBottom: 18 }}>
+                      <span style={{ width: 4, height: 16, background: '#111827', borderRadius: 4 }} />
+                      Basic Information
+                    </h4>
+                  </div>
+
+                  {/* Product Name (Full Width) */}
+                  <div className="form-group" style={{ marginBottom: 20 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                      <label className="form-label" style={{ margin: 0, fontWeight: 600, fontSize: 13 }}>Product Name *</label>
+                      <span style={{ fontSize: 11, color: '#94a3b8' }}>{newItemName.length}/120</span>
+                    </div>
+                    <input
+                      type="text"
+                      className="form-input"
+                      placeholder="e.g. Wireless Noise-Cancelling Headphones, 100% Cotton Oversized Shirt..."
+                      value={newItemName}
+                      maxLength={120}
+                      onChange={e => setNewItemName(e.target.value)}
+                      required
+                      style={{ fontSize: 14, padding: '12px 14px', borderRadius: 8, border: '1px solid #cbd5e1', width: '100%' }}
+                    />
+                    <p style={{ fontSize: 11, color: '#94a3b8', marginTop: 4 }}>
+                      Include brand, model, and key specifications to help buyers find your listing.
+                    </p>
+                  </div>
+
+                  {/* Pricing & Stock (2-Column Grid) */}
+                  <div className="form-row" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 20 }}>
+                    <div className="form-group" style={{ marginBottom: 0 }}>
+                      <label className="form-label" style={{ marginBottom: 6, fontWeight: 600, fontSize: 13 }}>Price (₱) *</label>
+                      <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                        <span style={{ position: 'absolute', left: 12, color: '#64748b', fontWeight: 700, fontSize: 14 }}>₱</span>
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="1"
+                          className="form-input"
+                          placeholder="0.00"
+                          value={newItemPrice}
+                          onChange={e => setNewItemPrice(e.target.value)}
+                          required
+                          style={{ paddingLeft: 28, fontSize: 14, height: 44, borderRadius: 8, border: '1px solid #cbd5e1', width: '100%' }}
+                        />
+                      </div>
+                      <p style={{ fontSize: 11, color: '#94a3b8', marginTop: 4 }}>Standard selling price in Philippine Pesos.</p>
+                    </div>
+
+                    <div className="form-group" style={{ marginBottom: 0 }}>
+                      <label className="form-label" style={{ marginBottom: 6, fontWeight: 600, fontSize: 13 }}>Stock Quantity *</label>
+                      <input
+                        type="number"
+                        min="1"
+                        className="form-input"
+                        placeholder="1"
+                        value={newItemStock}
+                        readOnly={selectedSizes.length > 0}
+                        onChange={e => setNewItemStock(e.target.value)}
+                        required
+                        style={{ fontSize: 14, height: 44, borderRadius: 8, border: '1px solid #cbd5e1', width: '100%' }}
+                      />
+                      <p style={{ fontSize: 11, color: '#94a3b8', marginTop: 4 }}>
+                        {selectedSizes.length > 0 ? "Calculated automatically from size stocks below." : "Available inventory ready for dispatch."}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Dispatch / Store Location */}
+                  <div className="form-group" style={{ marginBottom: 24 }}>
+                    <label className="form-label" style={{ marginBottom: 6, fontWeight: 600, fontSize: 13 }}>Dispatch / Store Location</label>
                     <div className="location-input-group" style={{ display: 'flex', gap: 8 }}>
                       <input 
                         type="text" 
@@ -7822,7 +7624,7 @@ export default function DashboardPage() {
                         placeholder="e.g. Toledo City, Cebu" 
                         value={newItemLocation} 
                         onChange={e => setNewItemLocation(e.target.value)} 
-                        style={{ flex: 1 }}
+                        style={{ flex: 1, height: 44, borderRadius: 8, border: '1px solid #cbd5e1', fontSize: 14 }}
                       />
                       <button
                         type="button"
@@ -7874,18 +7676,19 @@ export default function DashboardPage() {
                           );
                         }}
                         style={{
-                          padding: '8px 16px',
+                          padding: '0 16px',
+                          height: 44,
                           borderRadius: 8,
-                          border: '1px solid #e2e8f0',
+                          border: '1px solid #cbd5e1',
                           background: '#F9FAFB',
                           color: '#111827',
                           boxShadow: 'none',
                           fontSize: 12,
-                          fontWeight: 800,
+                          fontWeight: 700,
                           cursor: detectingItemLoc ? 'wait' : 'pointer',
                           display: 'flex',
                           alignItems: 'center',
-                          gap: 5,
+                          gap: 6,
                           whiteSpace: 'nowrap',
                           transition: 'all .15s'
                         }}
@@ -7906,10 +7709,11 @@ export default function DashboardPage() {
                     <p style={{ fontSize: 11, color: '#94a3b8', marginTop: 4 }}>This real location will be displayed on the card in the marketplace.</p>
                   </div>
 
+                  {/* ——— FOOTWEAR SIZES (IF APPLICABLE) ——— */}
                   {isFootwearCategory(newItemCategory) && (
-                    <div className="form-group">
+                    <div className="form-group" style={{ marginBottom: 24 }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-                        <label className="form-label" style={{ marginBottom: 0 }}>Available Shoe Sizes</label>
+                        <label className="form-label" style={{ marginBottom: 0, fontWeight: 600, fontSize: 13 }}>Available Shoe Sizes</label>
                         <div style={{ display: 'flex', background: '#f1f5f9', padding: 3, borderRadius: 8, gap: 2 }}>
                           {['PH', 'US', 'EU'].map(sys => (
                             <button
@@ -8051,78 +7855,26 @@ export default function DashboardPage() {
                     </div>
                   )}
 
-                  <div className="form-section-divider" style={{ borderTop: '1px solid #f1f5f9', margin: '32px 0 24px', paddingTop: 32 }}>
-                    <h4 style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <div style={{ width: 4, height: 16, background: '#111827', borderRadius: 4 }}></div>
-                      Inventory & Variations
+                  {/* ——— SPECIFICATIONS & ATTRIBUTES ——— */}
+                  <div className="form-section-divider" style={{ borderTop: '1px solid #f1f5f9', margin: '32px 0 20px', paddingTop: 24 }}>
+                    <h4 style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', margin: 0, display: 'flex', alignItems: 'center', gap: 8, marginBottom: 18 }}>
+                      <span style={{ width: 4, height: 16, background: '#111827', borderRadius: 4 }} />
+                      Product Specifications
                     </h4>
                   </div>
 
-                  <div className="form-row">
-                    <div className="form-group">
-                      <label className="form-label">Stock Quantity *</label>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 4, background: '#f8fafc', padding: 4, borderRadius: 12, border: '1.5px solid #e2e8f0', width: 'fit-content', opacity: selectedSizes.length > 0 ? 0.7 : 1 }}>
-                        <button
-                          type="button"
-                          disabled={selectedSizes.length > 0}
-                          onClick={() => setNewItemStock(prev => Math.max(1, parseInt(prev || "0") - 1).toString())}
-                          style={{ width: 36, height: 36, borderRadius: 8, border: 'none', background: '#fff', color: '#64748b', cursor: selectedSizes.length > 0 ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.05)', transition: 'all .2s' }}
-                        >
-                          <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12" /></svg>
-                        </button>
-                        <input
-                          type="number"
-                          className="form-input"
-                          style={{ width: 80, border: 'none', background: 'transparent', textAlign: 'center', fontSize: 16, fontWeight: 700, color: '#0f172a', padding: 0 }}
-                          value={newItemStock}
-                          readOnly={selectedSizes.length > 0}
-                          onChange={e => setNewItemStock(e.target.value)}
-                        />
-                        <button
-                          type="button"
-                          disabled={selectedSizes.length > 0}
-                          onClick={() => setNewItemStock(prev => (parseInt(prev || "0") + 1).toString())}
-                          style={{ width: 36, height: 36, borderRadius: 8, border: 'none', background: '#111827', color: '#fff', cursor: selectedSizes.length > 0 ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 10px rgba(17, 24, 39, 0.14)', transition: 'all .2s' }}
-                        >
-                          <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="form-section-divider" style={{ borderTop: '1px solid #f1f5f9', margin: '32px 0 24px', paddingTop: 32 }}>
-                    <h4 style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <div style={{ width: 4, height: 16, background: '#111827', borderRadius: 4 }}></div>
-                      Specifications & Variants
-                    </h4>
-                  </div>
-
-                  <div className="form-group" style={{ marginTop: 24 }}>
+                  <div className="form-group" style={{ marginBottom: 24 }}>
                     {(() => {
                       const currentCategoryPresets = CATEGORY_SPEC_PRESETS[newItemCategory] || CATEGORY_SPEC_PRESETS["General"];
                       const currentActivePreset = currentCategoryPresets.presets.find(p => p.key.toLowerCase() === newSpecKey.trim().toLowerCase());
 
-                      const handleAutofillSpecs = () => {
-                        const tpl = currentCategoryPresets.template;
-                        setSpecs(prev => {
-                          const existingKeys = new Set(prev.map(s => s.key.toLowerCase()));
-                          const toAdd = tpl.filter(t => !existingKeys.has(t.key.toLowerCase()));
-                          if (toAdd.length === 0) {
-                            showToast("Standard specifications are already added!", "success");
-                            return prev;
-                          }
-                          showToast(`Added ${toAdd.length} standard specifications for ${currentCategoryPresets.label}!`, "success");
-                          return [...prev, ...toAdd];
-                        });
-                      };
-
                       const handleAddSpec = () => {
                         if (!newSpecKey.trim()) {
-                          showToast("Please select or enter a property (e.g. Material, Brand).", "error");
+                          showToast("Please select or enter an attribute (e.g. Material, Brand).", "error");
                           return;
                         }
                         if (!newSpecValue.trim()) {
-                          showToast("Please enter a value for this property.", "error");
+                          showToast("Please enter a value for this attribute.", "error");
                           return;
                         }
                         setSpecs(prev => [...prev, { key: newSpecKey.trim(), value: newSpecValue.trim() }]);
@@ -8134,60 +7886,23 @@ export default function DashboardPage() {
                       return (
                         <div style={{
                           background: '#f8fafc',
-                          padding: 24,
-                          borderRadius: 20,
-                          border: '1.5px solid #e2e8f0',
+                          padding: 20,
+                          borderRadius: 12,
+                          border: '1px solid #e2e8f0',
                           display: 'flex',
                           flexDirection: 'column',
-                          gap: 16
+                          gap: 14
                         }}>
-                          {/* SECTION HEADER & AUTOFILL BUTTON */}
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 12 }}>
-                            <div>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                <label className="form-label" style={{ fontSize: 14, fontWeight: 800, color: '#0f172a', marginBottom: 0 }}>
-                                  Product Specifications
-                                </label>
-                                <span style={{ fontSize: 11, background: '#f1f5f9', color: '#64748b', padding: '2px 8px', borderRadius: 6, fontWeight: 700 }}>
-                                  Category: {currentCategoryPresets.label}
-                                </span>
-                              </div>
-                              <p style={{ fontSize: 12, color: '#64748b', marginTop: 4, marginBottom: 0 }}>
-                                Buyers look for specs like Brand, Material, Warranty, or Origin before buying.
-                              </p>
-                            </div>
-
-                            <button
-                              type="button"
-                              onClick={handleAutofillSpecs}
-                              style={{
-                                padding: '8px 16px',
-                                borderRadius: 8,
-                                border: '1px solid #e2e8f0',
-                                background: '#F9FAFB',
-                                color: '#111827',
-                                fontSize: 12,
-                                fontWeight: 800,
-                                cursor: 'pointer',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: 6,
-                                transition: 'all .2s',
-                                boxShadow: 'none'
-                              }}
-                              onMouseOver={e => { e.currentTarget.style.background = '#111827'; e.currentTarget.style.color = '#fff'; }}
-                              onMouseOut={e => { e.currentTarget.style.background = '#F9FAFB'; e.currentTarget.style.color = '#111827'; }}
-                              title="Automatically add standard specifications recommended for this category"
-                            >
-                              <span>Autofill {currentCategoryPresets.label} Specs</span>
-                            </button>
+                          <div>
+                            <span style={{ fontSize: 12, color: '#64748b' }}>
+                              Add specifications such as Brand, Material, Warranty, or Dimensions to provide clear information to shoppers.
+                            </span>
                           </div>
 
-                          {/* SMART QUICK-ADD CHIPS FOR CURRENT CATEGORY */}
-                          <div style={{ background: '#fff', padding: '12px 16px', borderRadius: 14, border: '1px solid #e2e8f0' }}>
-                            <div style={{ fontSize: 11, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
-                              <span>Quick-Add Recommended Specs:</span>
-                              <span style={{ fontSize: 10, color: '#94a3b8', textTransform: 'none' }}>(Click to fill)</span>
+                          {/* RECOMMENDED ATTRIBUTES */}
+                          <div style={{ background: '#fff', padding: '10px 14px', borderRadius: 8, border: '1px solid #e2e8f0' }}>
+                            <div style={{ fontSize: 11, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 6 }}>
+                              Recommended Attributes:
                             </div>
                             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                               {currentCategoryPresets.presets.map((preset) => {
@@ -8204,30 +7919,18 @@ export default function DashboardPage() {
                                       }
                                     }}
                                     style={{
-                                      padding: '5px 12px',
-                                      borderRadius: 8,
+                                      padding: '4px 10px',
+                                      borderRadius: 6,
                                       border: isSelected ? '1.5px solid #111827' : '1px solid #e2e8f0',
                                       background: isSelected ? '#F9FAFB' : (alreadyAdded ? '#f1f5f9' : '#fff'),
                                       color: isSelected ? '#111827' : (alreadyAdded ? '#94a3b8' : '#334155'),
-                                      fontSize: 12,
+                                      fontSize: 11.5,
                                       fontWeight: 600,
                                       cursor: 'pointer',
                                       display: 'flex',
                                       alignItems: 'center',
                                       gap: 4,
-                                      transition: 'all .2s'
-                                    }}
-                                    onMouseOver={e => {
-                                      if (!isSelected) {
-                                        e.currentTarget.style.borderColor = '#cbd5e1';
-                                        e.currentTarget.style.background = '#f8fafc';
-                                      }
-                                    }}
-                                    onMouseOut={e => {
-                                      if (!isSelected) {
-                                        e.currentTarget.style.borderColor = '#e2e8f0';
-                                        e.currentTarget.style.background = alreadyAdded ? '#f1f5f9' : '#fff';
-                                      }
+                                      transition: 'all .15s'
                                     }}
                                   >
                                     <span>{alreadyAdded ? '✓' : '+'}</span>
@@ -8238,118 +7941,55 @@ export default function DashboardPage() {
                             </div>
                           </div>
 
-                          {/* INPUT ROW (PROPERTY + VALUE + ADD BUTTON) */}
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                            <div className="spec-input-grid" style={{
-                              display: 'grid',
-                              gridTemplateColumns: '1fr 1fr auto',
-                              gap: 10,
-                              width: '100%',
-                              alignItems: 'center'
-                            }}>
-                              <div style={{ position: 'relative' }}>
-                                <input
-                                  type="text"
-                                  className="form-input"
-                                  placeholder={currentActivePreset?.placeholder || "Property Name (e.g. Material, Brand)"}
-                                  value={newSpecKey}
-                                  onChange={e => setNewSpecKey(e.target.value)}
-                                  onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), handleAddSpec())}
-                                  style={{
-                                    borderRadius: 14,
-                                    background: '#fff',
-                                    border: '1.5px solid #cbd5e1',
-                                    padding: '10px 16px',
-                                    fontSize: 13,
-                                    height: 46,
-                                    width: '100%'
-                                  }}
-                                />
-                              </div>
-
-                              <div style={{ position: 'relative' }}>
-                                <input
-                                  type="text"
-                                  className="form-input"
-                                  placeholder="Specification Value (e.g. 100% Cotton, 1 Year)"
-                                  value={newSpecValue}
-                                  onChange={e => setNewSpecValue(e.target.value)}
-                                  onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), handleAddSpec())}
-                                  style={{
-                                    borderRadius: 14,
-                                    background: '#fff',
-                                    border: '1.5px solid #cbd5e1',
-                                    padding: '10px 16px',
-                                    fontSize: 13,
-                                    height: 46,
-                                    width: '100%'
-                                  }}
-                                />
-                              </div>
-
-                              <button
-                                type="button"
-                                onClick={handleAddSpec}
-                                style={{
-                                  padding: '0 24px',
-                                  height: 46,
-                                  borderRadius: 8,
-                                  border: '1px solid #e2e8f0',
-                                  background: '#111827',
-                                  color: '#fff',
-                                  fontWeight: 800,
-                                  fontSize: 13,
-                                  cursor: 'pointer',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  gap: 6,
-                                  boxShadow: 'none',
-                                  transition: 'all .2s',
-                                  whiteSpace: 'nowrap'
-                                }}
-                                onMouseOver={e => { e.currentTarget.style.background = '#1F2937'; }}
-                                onMouseOut={e => { e.currentTarget.style.background = '#111827'; }}
-                              >
-                                <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
-                                Add Spec
-                              </button>
-                            </div>
-
-                            {/* COMMON VALUE SUGGESTIONS IF PROPERTY IS KNOWN */}
-                            {currentActivePreset && currentActivePreset.options.length > 0 && (
-                              <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', padding: '4px 6px' }}>
-                                <span style={{ fontSize: 11, color: '#64748b', fontWeight: 600 }}>Suggested values:</span>
-                                {currentActivePreset.options.map(opt => (
-                                  <button
-                                    key={opt}
-                                    type="button"
-                                    onClick={() => setNewSpecValue(opt)}
-                                    style={{
-                                      background: newSpecValue === opt ? '#111827' : '#f1f5f9',
-                                      color: newSpecValue === opt ? '#fff' : '#475569',
-                                      border: 'none',
-                                      padding: '2px 8px',
-                                      borderRadius: 6,
-                                      fontSize: 11,
-                                      fontWeight: 600,
-                                      cursor: 'pointer',
-                                      transition: 'all .15s'
-                                    }}
-                                  >
-                                    {opt}
-                                  </button>
-                                ))}
-                              </div>
-                            )}
+                          {/* INPUT ROW */}
+                          <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
+                            <input
+                              type="text"
+                              className="form-input"
+                              placeholder={currentActivePreset?.placeholder || "Attribute Name (e.g. Material, Brand)"}
+                              value={newSpecKey}
+                              onChange={e => setNewSpecKey(e.target.value)}
+                              onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), handleAddSpec())}
+                              style={{ flex: 1, minWidth: 160, height: 42, borderRadius: 8, border: '1px solid #cbd5e1', fontSize: 13, padding: '0 12px' }}
+                            />
+                            <input
+                              type="text"
+                              className="form-input"
+                              placeholder="Value (e.g. 100% Cotton, 1 Year)"
+                              value={newSpecValue}
+                              onChange={e => setNewSpecValue(e.target.value)}
+                              onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), handleAddSpec())}
+                              style={{ flex: 1, minWidth: 160, height: 42, borderRadius: 8, border: '1px solid #cbd5e1', fontSize: 13, padding: '0 12px' }}
+                            />
+                            <button
+                              type="button"
+                              onClick={handleAddSpec}
+                              style={{
+                                padding: '0 18px',
+                                height: 42,
+                                borderRadius: 8,
+                                border: 'none',
+                                background: '#111827',
+                                color: '#fff',
+                                fontWeight: 700,
+                                fontSize: 12.5,
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 6,
+                                whiteSpace: 'nowrap'
+                              }}
+                            >
+                              + Add Spec
+                            </button>
                           </div>
 
-                          {/* ADDED SPECIFICATIONS TABLE / LIST */}
+                          {/* ADDED SPECIFICATIONS TABLE */}
                           {specs.length > 0 ? (
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 4 }}>
-                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 4px' }}>
-                                <span style={{ fontSize: 12, fontWeight: 700, color: '#334155', display: 'flex', alignItems: 'center', gap: 6 }}>
-                                  <span>Added Specifications ({specs.length})</span>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 4 }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <span style={{ fontSize: 12, fontWeight: 700, color: '#334155' }}>
+                                  Added Specifications ({specs.length})
                                 </span>
                                 <button
                                   type="button"
@@ -8360,13 +8000,7 @@ export default function DashboardPage() {
                                 </button>
                               </div>
 
-                              <div style={{
-                                background: '#fff',
-                                borderRadius: 10,
-                                border: '1px solid #e2e8f0',
-                                overflow: 'hidden',
-                                boxShadow: 'none'
-                              }}>
+                              <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e2e8f0', overflow: 'hidden' }}>
                                 {specs.map((s, idx) => (
                                   <div
                                     key={idx}
@@ -8374,18 +8008,15 @@ export default function DashboardPage() {
                                       display: 'flex',
                                       justifyContent: 'space-between',
                                       alignItems: 'center',
-                                      padding: '10px 16px',
+                                      padding: '8px 14px',
                                       borderBottom: idx === specs.length - 1 ? 'none' : '1px solid #f1f5f9',
-                                      background: editingSpecIdx === idx ? '#F9FAFB' : '#fff',
-                                      transition: 'all .2s'
+                                      background: editingSpecIdx === idx ? '#F9FAFB' : '#fff'
                                     }}
                                   >
-                                    <div style={{ display: 'flex', gap: 12, fontSize: 13, alignItems: 'center', minWidth: 0, flex: 1 }}>
-                                      <span style={{ display: 'inline-block', width: 6, height: 6, borderRadius: '50%', background: '#111827', flexShrink: 0 }}></span>
-                                      <span style={{ fontWeight: 700, color: '#334155', minWidth: 120, flexShrink: 0 }}>{s.key}:</span>
-
+                                    <div style={{ display: 'flex', gap: 10, fontSize: 13, alignItems: 'center', minWidth: 0, flex: 1 }}>
+                                      <span style={{ fontWeight: 700, color: '#334155', minWidth: 100 }}>{s.key}:</span>
                                       {editingSpecIdx === idx ? (
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1 }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flex: 1 }}>
                                           <input
                                             type="text"
                                             value={editingSpecVal}
@@ -8401,15 +8032,7 @@ export default function DashboardPage() {
                                               }
                                             }}
                                             autoFocus
-                                            style={{
-                                              padding: '4px 10px',
-                                              borderRadius: 8,
-                                              border: '1.5px solid #111827',
-                                              fontSize: 13,
-                                              width: '100%',
-                                              maxWidth: 240,
-                                              outline: 'none'
-                                            }}
+                                            style={{ padding: '4px 8px', borderRadius: 6, border: '1px solid #111827', fontSize: 12, flex: 1, maxWidth: 200 }}
                                           />
                                           <button
                                             type="button"
@@ -8417,19 +8040,11 @@ export default function DashboardPage() {
                                               if (editingSpecVal.trim()) {
                                                 setSpecs(prev => prev.map((item, i) => i === idx ? { ...item, value: editingSpecVal.trim() } : item));
                                                 setEditingSpecIdx(null);
-                                                showToast("Updated specification value!", "success");
                                               }
                                             }}
-                                            style={{ background: '#111827', color: '#fff', border: 'none', padding: '4px 10px', borderRadius: 6, fontSize: 11, fontWeight: 700, cursor: 'pointer' }}
+                                            style={{ background: '#111827', color: '#fff', border: 'none', padding: '4px 8px', borderRadius: 4, fontSize: 11, cursor: 'pointer' }}
                                           >
                                             Save
-                                          </button>
-                                          <button
-                                            type="button"
-                                            onClick={() => setEditingSpecIdx(null)}
-                                            style={{ background: '#f1f5f9', color: '#64748b', border: 'none', padding: '4px 8px', borderRadius: 6, fontSize: 11, cursor: 'pointer' }}
-                                          >
-                                            Cancel
                                           </button>
                                         </div>
                                       ) : (
@@ -8438,57 +8053,27 @@ export default function DashboardPage() {
                                             setEditingSpecIdx(idx);
                                             setEditingSpecVal(s.value);
                                           }}
-                                          title="Click to edit value"
-                                          style={{ color: '#0f172a', fontWeight: 500, cursor: 'pointer', padding: '2px 6px', borderRadius: 6 }}
-                                          onMouseOver={e => e.currentTarget.style.background = '#f1f5f9'}
-                                          onMouseOut={e => e.currentTarget.style.background = 'transparent'}
+                                          style={{ color: '#0f172a', cursor: 'pointer' }}
+                                          title="Click to edit"
                                         >
-                                          {s.value} <span style={{ fontSize: 10, color: '#94a3b8', marginLeft: 4 }}>✎</span>
+                                          {s.value} <span style={{ fontSize: 10, color: '#94a3b8' }}>✎</span>
                                         </span>
                                       )}
                                     </div>
-
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginLeft: 12 }}>
-                                      <button
-                                        type="button"
-                                        onClick={() => setSpecs(prev => prev.filter((_, i) => i !== idx))}
-                                        style={{
-                                          border: 'none',
-                                          background: 'rgba(239,68,68,0.08)',
-                                          color: '#ef4444',
-                                          padding: '5px 12px',
-                                          borderRadius: 8,
-                                          cursor: 'pointer',
-                                          fontSize: 11,
-                                          fontWeight: 700,
-                                          transition: 'all 0.2s'
-                                        }}
-                                        onMouseOver={e => { e.currentTarget.style.background = '#ef4444'; e.currentTarget.style.color = '#fff'; }}
-                                        onMouseOut={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.08)'; e.currentTarget.style.color = '#ef4444'; }}
-                                      >
-                                        Remove
-                                      </button>
-                                    </div>
+                                    <button
+                                      type="button"
+                                      onClick={() => setSpecs(prev => prev.filter((_, i) => i !== idx))}
+                                      style={{ border: 'none', background: 'none', color: '#ef4444', fontSize: 12, cursor: 'pointer', padding: '2px 6px' }}
+                                    >
+                                      Remove
+                                    </button>
                                   </div>
                                 ))}
                               </div>
-
-                              <div style={{ fontSize: 11, color: '#16a34a', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4, padding: '0 4px' }}>
-                                <span>✓</span>
-                                <span>These {specs.length} specifications will automatically be formatted into the buyer Details table on your product listing.</span>
-                              </div>
                             </div>
                           ) : (
-                            <div style={{
-                              background: '#fff',
-                              borderRadius: 14,
-                              border: '1px dashed #cbd5e1',
-                              padding: '16px',
-                              textAlign: 'center',
-                              color: '#64748b',
-                              fontSize: 12
-                            }}>
-                              💡 No specifications added yet. Click any quick-add chip above or tap <strong>"Autofill {currentCategoryPresets.label} Specs"</strong> to fill standard details in 1 second.
+                            <div style={{ background: '#fff', borderRadius: 8, border: '1px dashed #cbd5e1', padding: '12px 16px', textAlign: 'center', color: '#64748b', fontSize: 12 }}>
+                              No specifications added yet. Use the recommended attributes above or enter custom properties.
                             </div>
                           )}
                         </div>
@@ -8496,114 +8081,60 @@ export default function DashboardPage() {
                     })()}
                   </div>
 
-                  <div className="form-group" style={{ marginTop: 24 }}>
-                    <label className="form-label">Color Variants with Photos</label>
+                  {/* ——— COLOR VARIANTS ——— */}
+                  <div className="form-group" style={{ marginBottom: 24 }}>
+                    <label className="form-label" style={{ fontWeight: 600, fontSize: 13, marginBottom: 8 }}>Color Variants with Photos</label>
                     <div className="variant-box-container" style={{
                       background: '#f8fafc',
-                      padding: 24,
-                      borderRadius: 20,
-                      border: editingVariantIdx !== null ? '2px solid #111827' : '1.5px solid #e2e8f0',
-                      marginBottom: 28,
+                      padding: 20,
+                      borderRadius: 12,
+                      border: '1px solid #e2e8f0',
                       display: 'flex',
                       flexDirection: 'column',
-                      gap: 20,
-                      transition: 'all .2s'
+                      gap: 16
                     }}>
-                      {editingVariantIdx !== null && (
-                        <div style={{
-                          background: '#F9FAFB',
-                          padding: '12px 18px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'space-between',
-                          flexWrap: 'wrap',
-                          gap: 12,
-                          border: '1px solid #e2e8f0',
-                          borderRadius: 10,
-                          boxShadow: 'none'
-                        }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                            <span style={{ fontSize: 18 }}>✏️</span>
-                            <div>
-                              <span style={{ fontSize: 13, fontWeight: 800, color: '#111827' }}>
-                                Re-editing Variant #{editingVariantIdx + 1}: &ldquo;{colorVariants[editingVariantIdx]?.color}&rdquo;
-                              </span>
-                              <span style={{ fontSize: 11, color: '#111827', display: 'block', marginTop: 1 }}>
-                                Adjust the color name, price, or photo below, then click &ldquo;Save Changes to Variant&rdquo;.
-                              </span>
-                            </div>
-                          </div>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setEditingVariantIdx(null);
-                              setNewColorName("");
-                              setNewColorPrice("");
-                              setNewColorFile(null);
-                              setNewColorPreview(null);
-                              setDetectedColorSuggestion(null);
-                            }}
-                            style={{
-                              padding: '6px 14px',
-                              background: '#fff',
-                              border: '1px solid #c4b5fd',
-                              borderRadius: 8,
-                              color: '#111827',
-                              fontSize: 12,
-                              fontWeight: 700,
-                              cursor: 'pointer',
-                              transition: 'all .2s'
-                            }}
-                          >
-                            Cancel Edit
-                          </button>
-                        </div>
-                      )}
-
-                      <div className="variant-form-grid">
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                          <label className="form-label" style={{ fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 0 }}>Variant Color Name</label>
-                          <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                      <div className="variant-form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 14 }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                          <label className="form-label" style={{ fontSize: 12, fontWeight: 600, color: '#475569', marginBottom: 0 }}>Color Name</label>
+                          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                             <button
                               type="button"
                               onClick={() => setShowCustomPicker(!showCustomPicker)}
                               style={{
-                                width: 48,
-                                height: 48,
+                                width: 42,
+                                height: 42,
                                 borderRadius: 8,
                                 border: '1px solid #e2e8f0',
                                 background: getColorPreviewHex(newColorName),
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
-                                boxShadow: 'none',
                                 cursor: 'pointer',
-                                flexShrink: 0,
-                                transition: 'all .2s'
+                                flexShrink: 0
                               }}
-                              title="Click to open Custom Color Picker"
+                              title="Click to open Color Swatches"
                             >
-                              <svg width="20" height="20" fill="none" stroke={getIconColor(newColorName)} strokeWidth="2.2" viewBox="0 0 24 24"><path d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.586-6.586a2 2 0 10-2.828-2.828z" /><path d="M19 11l-4-4" /><path d="M5 19h4" /></svg>
+                              <svg width="18" height="18" fill="none" stroke={getIconColor(newColorName)} strokeWidth="2.2" viewBox="0 0 24 24"><path d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.586-6.586a2 2 0 10-2.828-2.828z" /><path d="M19 11l-4-4" /><path d="M5 19h4" /></svg>
                             </button>
                             <input
                               type="text"
                               className="form-input"
-                              placeholder="Click dropper to pick & scan color..."
+                              placeholder="e.g. Midnight Black"
                               value={newColorName}
                               onChange={e => {
                                 const val = e.target.value;
                                 if (/[0-9]/.test(val)) {
-                                  showToast("Numbers are strictly not allowed for color names. Please enter a valid color name.", "error");
+                                  showToast("Numbers are strictly not allowed for color names.", "error");
                                 }
                                 setNewColorName(val.replace(/[0-9]/g, ''));
                               }}
-                              style={{ background: '#fff', height: 48, flex: 1 }}
+                              style={{ background: '#fff', height: 42, flex: 1, fontSize: 13, borderRadius: 8, border: '1px solid #cbd5e1' }}
                             />
                           </div>
-                          <p style={{ fontSize: 11, color: '#94a3b8', marginTop: 4 }}>Click the color dropper icon to open the custom swatch matrix & spectrum scanner.</p>
                         </div>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                          <label className="form-label" style={{ fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 0 }}>Variant Price (₱)</label>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                          <label className="form-label" style={{ fontSize: 12, fontWeight: 600, color: '#475569', marginBottom: 0 }}>Variant Price (₱)</label>
                           <input
                             type="number"
                             step="0.01"
@@ -8611,187 +8142,36 @@ export default function DashboardPage() {
                             placeholder="0.00 (optional)"
                             value={newColorPrice}
                             onChange={e => setNewColorPrice(e.target.value)}
-                            style={{ background: '#fff', height: 48 }}
+                            style={{ background: '#fff', height: 42, fontSize: 13, borderRadius: 8, border: '1px solid #cbd5e1' }}
                           />
-                          <p style={{ fontSize: 11, color: '#94a3b8', marginTop: 4 }}>Price for this specific variant.</p>
                         </div>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <label className="form-label" style={{ fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 0 }}>Variant Photo</label>
-                            {newColorPreview && (
-                              <button
-                                type="button"
-                                onClick={() => setVariantZoomPhoto(newColorPreview)}
-                                style={{ background: 'none', border: 'none', color: '#111827', fontSize: 11, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, padding: 0 }}
-                              >
-                                Zoom Photo
-                              </button>
-                            )}
-                          </div>
 
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                          <label className="form-label" style={{ fontSize: 12, fontWeight: 600, color: '#475569', marginBottom: 0 }}>Variant Photo</label>
                           {newColorPreview ? (
-                            <div
-                              style={{
-                                minHeight: 48,
-                                border: '1px solid #e2e8f0',
-                                borderRadius: 8,
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'space-between',
-                                padding: '5px 10px 5px 6px',
-                                background: '#F9FAFB',
-                                boxShadow: 'none',
-                                transition: 'all .2s'
-                              }}
-                            >
-                              <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0, flex: 1 }}>
-                                <div
-                                  onClick={() => setVariantZoomPhoto(newColorPreview)}
-                                  style={{
-                                    position: 'relative',
-                                    width: 38,
-                                    height: 38,
-                                    borderRadius: 10,
-                                    overflow: 'hidden',
-                                    flexShrink: 0,
-                                    cursor: 'zoom-in',
-                                    border: '1px solid #e2e8f0',
-                                    boxShadow: 'none'
-                                  }}
-                                  title="Click to view full photo"
-                                >
-                                  <img
-                                    src={newColorPreview}
-                                    alt="Variant preview"
-                                    style={{
-                                      width: '100%',
-                                      height: '100%',
-                                      objectFit: 'cover'
-                                    }}
-                                  />
-                                </div>
-                                <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0, overflow: 'hidden' }}>
-                                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                                    <span style={{ fontSize: 12, fontWeight: 700, color: '#0f172a', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>
-                                      {newColorFile?.name || "Photo Attached"}
-                                    </span>
-                                    <span style={{ fontSize: 10, fontWeight: 700, background: '#dcfce7', color: '#15803d', padding: '1px 6px', borderRadius: 6, flexShrink: 0 }}>
-                                      ✓ Ready
-                                    </span>
-                                  </div>
-                                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 2 }}>
-                                    <button
-                                      type="button"
-                                      onClick={() => document.getElementById('variant-img-input')?.click()}
-                                      style={{ background: 'none', border: 'none', color: '#111827', fontSize: 11, fontWeight: 600, cursor: 'pointer', padding: 0, textDecoration: 'underline' }}
-                                    >
-                                      Replace photo
-                                    </button>
-                                  </div>
-                                </div>
-                              </div>
-
+                            <div style={{ height: 42, border: '1px solid #e2e8f0', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 8px', background: '#fff' }}>
+                              <img src={newColorPreview} alt="Variant" style={{ width: 28, height: 28, borderRadius: 6, objectFit: 'cover' }} />
+                              <span style={{ fontSize: 11, fontWeight: 600, color: '#059669' }}>Photo ready</span>
                               <button
                                 type="button"
                                 onClick={() => {
                                   setNewColorFile(null);
                                   setNewColorPreview(null);
-                                  setDetectedColorSuggestion(null);
                                 }}
-                                style={{
-                                  width: 30,
-                                  height: 30,
-                                  borderRadius: 8,
-                                  border: 'none',
-                                  background: '#fee2e2',
-                                  color: '#ef4444',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  cursor: 'pointer',
-                                  flexShrink: 0,
-                                  transition: 'all .2s',
-                                  marginLeft: 8
-                                }}
-                                onMouseOver={e => { e.currentTarget.style.background = '#ef4444'; e.currentTarget.style.color = '#fff'; }}
-                                onMouseOut={e => { e.currentTarget.style.background = '#fee2e2'; e.currentTarget.style.color = '#ef4444'; }}
-                                title="Remove photo"
+                                style={{ border: 'none', background: 'none', color: '#ef4444', fontSize: 14, cursor: 'pointer' }}
                               >
-                                <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                                  <path d="M18 6L6 18M6 6l12 12" />
-                                </svg>
+                                &times;
                               </button>
                             </div>
                           ) : (
                             <div
                               onClick={() => document.getElementById('variant-img-input')?.click()}
-                              onDragOver={(e) => { e.preventDefault(); setIsDraggingVariantPhoto(true); }}
-                              onDragLeave={() => setIsDraggingVariantPhoto(false)}
-                              onDrop={async (e) => {
-                                e.preventDefault();
-                                setIsDraggingVariantPhoto(false);
-                                const file = e.dataTransfer.files?.[0];
-                                if (file) await processVariantFile(file);
-                              }}
-                              style={{
-                                height: 48,
-                                border: `2px dashed ${isDraggingVariantPhoto ? '#111827' : '#cbd5e1'}`,
-                                borderRadius: 14,
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                cursor: 'pointer',
-                                background: isDraggingVariantPhoto ? '#F9FAFB' : '#fff',
-                                gap: 8,
-                                color: isDraggingVariantPhoto ? '#111827' : '#64748b',
-                                transition: 'all .2s'
-                              }}
-                              onMouseOver={e => { e.currentTarget.style.borderColor = '#111827'; e.currentTarget.style.background = '#F9FAFB'; e.currentTarget.style.color = '#111827'; }}
-                              onMouseOut={e => { if (!isDraggingVariantPhoto) { e.currentTarget.style.borderColor = '#cbd5e1'; e.currentTarget.style.background = '#fff'; e.currentTarget.style.color = '#64748b'; } }}
+                              style={{ height: 42, border: '1.5px dashed #cbd5e1', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, cursor: 'pointer', background: '#fff', color: '#64748b', fontSize: 12, fontWeight: 600 }}
                             >
                               <IconCamera />
-                              <span style={{ fontSize: 12, fontWeight: 600 }}>
-                                {isDraggingVariantPhoto ? "Drop photo here!" : "Upload or Drop Photo"}
-                              </span>
+                              <span>Upload Photo</span>
                             </div>
                           )}
-
-                          {detectedColorSuggestion && newColorName.toLowerCase() !== detectedColorSuggestion.toLowerCase() && (
-                            <div style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'space-between',
-                              background: '#F9FAFB',
-                              border: '1px solid #E5E7EB',
-                              padding: '6px 12px',
-                              borderRadius: 10,
-                              fontSize: 11,
-                              marginTop: 2
-                            }}>
-                              <span style={{ color: '#111827', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}>
-                                <span>Detected color from photo: <strong>{detectedColorSuggestion}</strong></span>
-                              </span>
-                              <button
-                                type="button"
-                                onClick={() => setNewColorName(detectedColorSuggestion)}
-                                style={{
-                                  background: '#111827',
-                                  color: '#fff',
-                                  border: 'none',
-                                  padding: '3px 10px',
-                                  borderRadius: 6,
-                                  fontWeight: 700,
-                                  cursor: 'pointer',
-                                  fontSize: 11,
-                                  transition: 'all .2s'
-                                }}
-                              >
-                                Apply Color →
-                              </button>
-                            </div>
-                          )}
-
-                          <p style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>Required photo for this color. Drag & drop or click to upload.</p>
                           <input
                             id="variant-img-input"
                             type="file"
@@ -8803,713 +8183,315 @@ export default function DashboardPage() {
                       </div>
 
                       {showCustomPicker && (
-                        <div className="custom-picker-container" style={{
-                          background: '#fff',
-                          borderRadius: 12,
-                          padding: 24,
-                          border: '1px solid #e2e8f0',
-                          boxShadow: 'none',
-                          display: 'flex',
-                          flexDirection: 'column',
-                          gap: 24,
-                          animation: 'slideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
-                        }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #f1f5f9', paddingBottom: 16 }}>
-                            <div>
-                              <span style={{ fontSize: 16, fontWeight: 700, color: '#0f172a', display: 'block' }}>Shopply Color Picker & Scanner</span>
-                              <span style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>Select a curated Shopply swatch or use the spectrum scanner for custom shades.</span>
-                            </div>
-                            <button type="button" onClick={() => setShowCustomPicker(false)} style={{ border: 'none', background: '#f1f5f9', color: '#64748b', width: 32, height: 32, borderRadius: '50%', cursor: 'pointer', fontSize: 18, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all .2s' }}>&times;</button>
+                        <div style={{ background: '#fff', borderRadius: 8, padding: 14, border: '1px solid #e2e8f0' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                            <span style={{ fontSize: 12, fontWeight: 700, color: '#0f172a' }}>Standard Color Swatches</span>
+                            <button type="button" onClick={() => setShowCustomPicker(false)} style={{ border: 'none', background: 'none', color: '#64748b', cursor: 'pointer', fontSize: 16 }}>&times;</button>
                           </div>
-
-                          <div className="color-palette-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(32px, 1fr))', gap: 8 }}>
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(28px, 1fr))', gap: 6 }}>
                             {COLOR_PALETTE.map(col => (
                               <button
                                 key={col.name}
                                 type="button"
-                                title={`${col.name} (#${col.r.toString(16).padStart(2,'0')}${col.g.toString(16).padStart(2,'0')}${col.b.toString(16).padStart(2,'0')})`}
+                                title={col.name}
                                 onClick={() => {
                                   setNewColorName(col.name);
                                   setShowCustomPicker(false);
-                                  showToast(`Selected: ${col.name}`, "success");
                                 }}
                                 style={{
                                   aspectRatio: '1/1',
-                                  borderRadius: 8,
-                                  border: newColorName.toLowerCase() === col.name.toLowerCase() ? '3px solid #0f172a' : '1px solid rgba(0,0,0,0.08)',
+                                  borderRadius: 6,
+                                  border: newColorName.toLowerCase() === col.name.toLowerCase() ? '2px solid #0f172a' : '1px solid rgba(0,0,0,0.1)',
                                   background: `rgb(${col.r}, ${col.g}, ${col.b})`,
-                                  cursor: 'pointer',
-                                  transform: newColorName.toLowerCase() === col.name.toLowerCase() ? 'scale(1.12)' : 'scale(1)',
-                                  boxShadow: 'none',
-                                  transition: 'all .2s cubic-bezier(0.16, 1, 0.3, 1)',
-                                  position: 'relative',
-                                  zIndex: newColorName.toLowerCase() === col.name.toLowerCase() ? 10 : 1
+                                  cursor: 'pointer'
                                 }}
                               />
                             ))}
                           </div>
-
-                          <div style={{ display: 'flex', gap: 16, alignItems: 'center', background: '#f8fafc', padding: 16, borderRadius: 16, border: '1px solid #f1f5f9' }}>
-                            <div style={{ position: 'relative', width: 54, height: 54, flexShrink: 0 }}>
-                              <input
-                                type="color"
-                                title="Open native spectrum picker"
-                                onChange={e => {
-                                  const hex = e.target.value;
-                                  const matchedName = hexToColorName(hex);
-                                  setNewColorName(matchedName);
-                                  showToast(`Scanned & matched: ${matchedName}`, "success");
-                                }}
-                                style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', opacity: 0, cursor: 'pointer', zIndex: 10 }}
-                              />
-                              <div style={{ width: '100%', height: '100%', borderRadius: 10, background: 'linear-gradient(135deg, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 800, fontSize: 11, textShadow: 'none', border: '1px solid #e2e8f0', boxShadow: 'none' }}>
-                                Spectrum
-                              </div>
-                            </div>
-                            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4 }}>
-                              <span style={{ fontSize: 14, fontWeight: 700, color: '#0f172a' }}>Shopply Spectrum Scanner</span>
-                              <span style={{ fontSize: 12, color: '#64748b' }}>Click the spectrum box to pick any custom shade. Shopply automatically matches the closest standard retail color name for your listing.</span>
-                            </div>
-                          </div>
                         </div>
                       )}
-                      {editingVariantIdx !== null ? (
-                        <div style={{ display: 'flex', gap: 10 }}>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              if (!newColorName.trim()) {
-                                showToast("Please enter a valid color name.", "error");
-                                return;
-                              }
-                              if (/[0-9]/.test(newColorName)) {
-                                showToast("Numbers are strictly not allowed in the color name. Please enter a valid color name.", "error");
-                                return;
-                              }
-                              setColorVariants(prev => prev.map((v, i) => i === editingVariantIdx ? {
-                                ...v,
-                                color: newColorName.trim(),
-                                price: newColorPrice.trim() || newItemPrice || "0",
-                                file: newColorFile !== null ? newColorFile : v.file,
-                                preview: newColorPreview || v.preview
-                              } : v));
-                              setEditingVariantIdx(null);
-                              setNewColorName("");
-                              setNewColorPrice("");
-                              setNewColorFile(null);
-                              setNewColorPreview(null);
-                              setDetectedColorSuggestion(null);
-                              showToast("Variant updated successfully!", "success");
-                            }}
-                            style={{
-                              height: 46,
-                              flex: 1,
-                              borderRadius: 8,
-                              border: '1px solid #e2e8f0',
-                              background: '#10b981',
-                              color: '#fff',
-                              fontWeight: 800,
-                              fontSize: 14,
-                              cursor: 'pointer',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              gap: 8,
-                              boxShadow: 'none',
-                              transition: 'all .2s'
-                            }}
-                            onMouseOver={e => { e.currentTarget.style.background = '#059669'; }}
-                            onMouseOut={e => { e.currentTarget.style.background = '#10b981'; }}
-                          >
-                            <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12" /></svg>
-                            Save Changes to Variant
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setEditingVariantIdx(null);
-                              setNewColorName("");
-                              setNewColorPrice("");
-                              setNewColorFile(null);
-                              setNewColorPreview(null);
-                              setDetectedColorSuggestion(null);
-                            }}
-                            style={{
-                              height: 46,
-                              padding: '0 20px',
-                              borderRadius: 14,
-                              border: '1.5px solid #cbd5e1',
-                              background: '#fff',
-                              color: '#64748b',
-                              fontWeight: 700,
-                              fontSize: 13,
-                              cursor: 'pointer',
-                              transition: 'all .2s'
-                            }}
-                            onMouseOver={e => { e.currentTarget.style.borderColor = '#94a3b8'; e.currentTarget.style.color = '#0f172a'; }}
-                            onMouseOut={e => { e.currentTarget.style.borderColor = '#cbd5e1'; e.currentTarget.style.color = '#64748b'; }}
-                          >
-                            Cancel
-                          </button>
-                        </div>
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (!newColorName.trim()) {
-                              showToast("Please enter a valid color name.", "error");
-                              return;
-                            }
-                            if (/[0-9]/.test(newColorName)) {
-                              showToast("Numbers are strictly not allowed in the color name. Please enter a valid color name.", "error");
-                              return;
-                            }
-                            if (!newColorFile && !editingItem) {
-                              showToast("Please upload a photo for this color variant.", "error");
-                              return;
-                            }
-                            const addedColor = newColorName.trim();
-                            const addedPrice = newColorPrice.trim() || newItemPrice || "0";
-                            const addedPreview = newColorPreview;
-                            const addedFile = newColorFile;
 
-                            setColorVariants(prev => [...prev, { color: addedColor, price: addedPrice, file: addedFile, preview: addedPreview }]);
-                            
-                            // If Product Name is blank or generic placeholder, AI automatically detects the item from this uploaded variant photo!
-                            if ((!newItemName.trim() || /Lifestyle Product|Gadget Product|Quality Product|Quality Lifestyle|Minimalist Home Living/i.test(newItemName)) && (addedPreview || addedFile)) {
-                              detectItemFromImageSource(addedPreview, addedFile, addedColor, newItemCategory).then(res => {
-                                applyAiDetectedItem(res.title, res.category, res.suggestedPrice, addedPrice, res.description);
-                              });
-                            } else if ((!newItemPrice || newItemPrice === "0" || newItemPrice === "0.00") && addedPrice && parseFloat(addedPrice) > 0) {
-                              setNewItemPrice(addedPrice);
-                            }
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (!newColorName.trim()) {
+                            showToast("Please enter a valid color name.", "error");
+                            return;
+                          }
+                          if (/[0-9]/.test(newColorName)) {
+                            showToast("Numbers are strictly not allowed in the color name.", "error");
+                            return;
+                          }
+                          if (!newColorFile && !editingItem) {
+                            showToast("Please upload a photo for this color variant.", "error");
+                            return;
+                          }
+                          const addedColor = newColorName.trim();
+                          const addedPrice = newColorPrice.trim() || newItemPrice || "0";
+                          const addedPreview = newColorPreview;
+                          const addedFile = newColorFile;
 
-                            setNewColorName("");
-                            setNewColorPrice("");
-                            setNewColorFile(null);
-                            setNewColorPreview(null);
-                            setDetectedColorSuggestion(null);
-                            showToast("Color variant added successfully!", "success");
-                          }}
-                          style={{
-                            height: 46,
-                            width: '100%',
-                            borderRadius: 8,
-                            border: '1px solid #e2e8f0',
-                            background: '#111827',
-                            color: '#fff',
-                            fontWeight: 800,
-                            fontSize: 14,
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            gap: 8,
-                            boxShadow: 'none',
-                            transition: 'all .2s'
-                          }}
-                          onMouseOver={e => { e.currentTarget.style.background = '#1F2937'; }}
-                          onMouseOut={e => { e.currentTarget.style.background = '#111827'; }}
-                        >
-                          <IconPlus />
-                          Add This Variant
-                        </button>
-                      )}
-                    </div>
-                    {colorVariants.length > 0 && (
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <span style={{ fontSize: 12, fontWeight: 700, color: '#475569' }}>Configured Color Variants ({colorVariants.length})</span>
-                          <span style={{ fontSize: 11, color: '#94a3b8' }}>Click Re-edit to change price, color, or photo</span>
-                        </div>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 12 }}>
-                          {colorVariants.map((v, idx) => {
-                            const isBeingEdited = editingVariantIdx === idx;
-                            return (
-                              <div
-                                key={idx}
-                                style={{
-                                  background: '#fff',
-                                  borderRadius: 10,
-                                  border: '1px solid #e2e8f0',
-                                  overflow: 'hidden',
-                                  position: 'relative',
-                                  boxShadow: 'none',
-                                  transition: 'all .2s'
-                                }}
-                              >
-                                <div
-                                  onClick={() => v.preview && setVariantZoomPhoto(v.preview)}
-                                  style={{ position: 'relative', width: '100%', height: 100, cursor: v.preview ? 'zoom-in' : 'default', background: '#f8fafc', overflow: 'hidden' }}
-                                  title="Click to view full photo"
-                                >
-                                  <img src={v.preview || ''} alt={v.color} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                  <div style={{ position: 'absolute', bottom: 4, right: 4, background: 'rgba(15,23,42,0.65)', color: '#fff', padding: '2px 6px', borderRadius: 6, fontSize: 10, backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', gap: 3 }}>
-                                    <span>Zoom</span>
-                                  </div>
-                                </div>
+                          setColorVariants(prev => [...prev, { color: addedColor, price: addedPrice, file: addedFile, preview: addedPreview }]);
+                          if ((!newItemPrice || newItemPrice === "0" || newItemPrice === "0.00") && addedPrice && parseFloat(addedPrice) > 0) {
+                            setNewItemPrice(addedPrice);
+                          }
 
-                                <div style={{ padding: '10px 12px', background: '#fff' }}>
-                                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-                                    <span style={{ width: 10, height: 10, borderRadius: '50%', background: getColorPreviewHex(v.color), border: '1px solid rgba(0,0,0,0.15)', flexShrink: 0 }}></span>
-                                    <span style={{ fontSize: 13, fontWeight: 700, color: '#0f172a', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>{v.color}</span>
-                                  </div>
-                                  <div style={{ fontSize: 12, color: '#10b981', fontWeight: 700 }}>₱{parseFloat(v.price || newItemPrice || "0").toFixed(2)}</div>
+                          setNewColorName("");
+                          setNewColorPrice("");
+                          setNewColorFile(null);
+                          setNewColorPreview(null);
+                          showToast("Color variant added successfully!", "success");
+                        }}
+                        style={{
+                          height: 40,
+                          width: '100%',
+                          borderRadius: 8,
+                          border: 'none',
+                          background: '#111827',
+                          color: '#fff',
+                          fontWeight: 700,
+                          fontSize: 13,
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: 6
+                        }}
+                      >
+                        <IconPlus /> Add This Color Variant
+                      </button>
 
-                                  <button
-                                    type="button"
-                                    onClick={() => {
-                                      setEditingVariantIdx(idx);
-                                      setNewColorName(v.color);
-                                      setNewColorPrice(v.price || "");
-                                      setNewColorPreview(v.preview || null);
-                                      setNewColorFile(v.file || null);
-                                      const el = document.querySelector('.variant-box-container');
-                                      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                                      showToast(`Loaded ${v.color} into editor to re-edit`, "success");
-                                    }}
-                                    style={{
-                                      marginTop: 8,
-                                      width: '100%',
-                                      padding: '5px 0',
-                                      borderRadius: 8,
-                                      border: isBeingEdited ? '1px solid #111827' : '1px solid #e2e8f0',
-                                      background: isBeingEdited ? '#F9FAFB' : '#f8fafc',
-                                      color: isBeingEdited ? '#111827' : '#475569',
-                                      fontSize: 11,
-                                      fontWeight: 700,
-                                      cursor: 'pointer',
-                                      display: 'flex',
-                                      alignItems: 'center',
-                                      justifyContent: 'center',
-                                      gap: 4,
-                                      transition: 'all .2s'
-                                    }}
-                                    onMouseOver={e => { if (!isBeingEdited) { e.currentTarget.style.background = '#f1f5f9'; e.currentTarget.style.borderColor = '#cbd5e1'; } }}
-                                    onMouseOut={e => { if (!isBeingEdited) { e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.borderColor = '#e2e8f0'; } }}
-                                  >
-                                    <span>{isBeingEdited ? "Editing Now" : "Edit"}</span>
-                                  </button>
-                                </div>
-
-                                {/* EDIT PENCIL BUTTON (TOP RIGHT) */}
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    setEditingVariantIdx(idx);
-                                    setNewColorName(v.color);
-                                    setNewColorPrice(v.price || "");
-                                    setNewColorPreview(v.preview || null);
-                                    setNewColorFile(v.file || null);
-                                    const el = document.querySelector('.variant-box-container');
-                                    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                                    showToast(`Loaded ${v.color} into editor to re-edit`, "success");
-                                  }}
-                                  style={{
-                                    position: 'absolute',
-                                    top: 6,
-                                    right: 36,
-                                    width: 26,
-                                    height: 26,
-                                    borderRadius: '50%',
-                                    background: isBeingEdited ? '#111827' : 'rgba(255,255,255,0.95)',
-                                    color: isBeingEdited ? '#fff' : '#475569',
-                                    border: '1px solid #e2e8f0',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    cursor: 'pointer',
-                                    boxShadow: 'none',
-                                    transition: 'all .2s'
-                                  }}
-                                  onMouseOver={e => { if (!isBeingEdited) { e.currentTarget.style.background = '#111827'; e.currentTarget.style.color = '#fff'; } }}
-                                  onMouseOut={e => { if (!isBeingEdited) { e.currentTarget.style.background = 'rgba(255,255,255,0.95)'; e.currentTarget.style.color = '#475569'; } }}
-                                  title="Re-edit this variant"
-                                >
-                                  <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 113 3L12 15l-4 1 1-4 9.5-9.5z" /></svg>
-                                </button>
-
-                                {/* DELETE TRASH BUTTON (TOP RIGHT) */}
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    if (editingVariantIdx === idx) {
-                                      setEditingVariantIdx(null);
-                                      setNewColorName("");
-                                      setNewColorPrice("");
-                                      setNewColorFile(null);
-                                      setNewColorPreview(null);
-                                    }
-                                    setColorVariants(prev => prev.filter((_, i) => i !== idx));
-                                  }}
-                                  style={{ position: 'absolute', top: 6, right: 6, width: 26, height: 26, borderRadius: '50%', background: '#ef4444', color: '#fff', border: '1px solid #dc2626', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: 'none', transition: 'all .2s' }}
-                                  onMouseOver={e => { e.currentTarget.style.transform = 'scale(1.1)'; e.currentTarget.style.background = '#dc2626'; }}
-                                  onMouseOut={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.background = 'rgba(239,68,68,0.92)'; }}
-                                  title="Delete this variant"
-                                >
-                                  <IconTrash />
-                                </button>
+                      {colorVariants.length > 0 && (
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: 10, marginTop: 4 }}>
+                          {colorVariants.map((v, idx) => (
+                            <div key={idx} style={{ background: '#fff', borderRadius: 8, border: '1px solid #e2e8f0', overflow: 'hidden', position: 'relative' }}>
+                              <div style={{ height: 80, background: '#f8fafc', overflow: 'hidden' }}>
+                                <img src={v.preview || ''} alt={v.color} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                               </div>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="form-section-divider" style={{ borderTop: '1px solid #f1f5f9', margin: '40px 0 24px', paddingTop: 32 }}>
-                    <h4 style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <div style={{ width: 4, height: 16, background: '#111827', borderRadius: 4 }}></div>
-                      Product Showcase
-                    </h4>
-
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 24, alignItems: 'start' }}>
-                      <div className="form-group" style={{ marginBottom: 0 }}>
-                        <label className="form-label" style={{ marginBottom: 12, display: 'block' }}>Main Product Images (Multiple)</label>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(80px, 96px))', gap: 12 }}>
-                          {mainImagesState.map((imgObj, idx) => (
-                            <div key={idx} style={{ position: 'relative', borderRadius: 12, overflow: 'hidden', border: '1px solid #e2e8f0', aspectRatio: '1', background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                              <img src={imgObj.preview} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                              <div style={{ padding: '8px 10px' }}>
+                                <div style={{ fontSize: 12, fontWeight: 700, color: '#0f172a' }}>{v.color}</div>
+                                <div style={{ fontSize: 11, color: '#059669', fontWeight: 600 }}>₱{parseFloat(v.price || newItemPrice || "0").toFixed(2)}</div>
+                              </div>
                               <button
                                 type="button"
-                                onClick={() => {
-                                  setMainImagesState(prev => prev.filter((_, i) => i !== idx));
-                                }}
-                                style={{ position: 'absolute', top: 4, right: 4, background: 'rgba(239,68,68,0.9)', color: '#fff', border: 'none', borderRadius: '50%', width: 22, height: 22, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                                onClick={() => setColorVariants(prev => prev.filter((_, i) => i !== idx))}
+                                style={{ position: 'absolute', top: 4, right: 4, width: 22, height: 22, borderRadius: '50%', background: '#ef4444', color: '#fff', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
                               >
-                                <IconTrash />
+                                &times;
                               </button>
                             </div>
                           ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* ——— PRODUCT SHOWCASE MEDIA ——— */}
+                  <div className="form-section-divider" style={{ borderTop: '1px solid #f1f5f9', margin: '32px 0 20px', paddingTop: 24 }}>
+                    <h4 style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', margin: 0, display: 'flex', alignItems: 'center', gap: 8, marginBottom: 18 }}>
+                      <span style={{ width: 4, height: 16, background: '#111827', borderRadius: 4 }} />
+                      Product Showcase Media
+                    </h4>
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20, marginBottom: 24 }}>
+                    {/* Main Images */}
+                    <div className="form-group" style={{ marginBottom: 0 }}>
+                      <label className="form-label" style={{ marginBottom: 10, fontWeight: 600, fontSize: 13, display: 'block' }}>Main Product Images (Multiple)</label>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(80px, 96px))', gap: 10 }}>
+                        {mainImagesState.map((imgObj, idx) => (
+                          <div key={idx} style={{ position: 'relative', borderRadius: 8, overflow: 'hidden', border: '1px solid #e2e8f0', aspectRatio: '1', background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <img src={imgObj.preview} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            <button
+                              type="button"
+                              onClick={() => setMainImagesState(prev => prev.filter((_, i) => i !== idx))}
+                              style={{ position: 'absolute', top: 4, right: 4, background: 'rgba(239,68,68,0.9)', color: '#fff', border: 'none', borderRadius: '50%', width: 20, height: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                            >
+                              &times;
+                            </button>
+                          </div>
+                        ))}
+                        <div
+                          onClick={() => fileInputRef.current?.click()}
+                          style={{
+                            aspectRatio: '1',
+                            minHeight: 80,
+                            border: '1.5px dashed #cbd5e1',
+                            borderRadius: 8,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            cursor: 'pointer',
+                            background: '#f8fafc',
+                            color: '#64748b'
+                          }}
+                        >
+                          <IconPlus />
+                          <span style={{ fontSize: 11, marginTop: 4, fontWeight: 600 }}>Add Image</span>
+                        </div>
+                      </div>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        multiple
+                        accept="image/jpeg,image/png,image/gif,image/webp"
+                        onChange={handleImageChange}
+                        style={{ display: 'none' }}
+                      />
+                    </div>
+
+                    {/* Video Upload */}
+                    <div className="form-group" style={{ marginBottom: 0 }}>
+                      <label className="form-label" style={{ marginBottom: 10, fontWeight: 600, fontSize: 13, display: 'block' }}>Showcase Video (Optional)</label>
+                      <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+                        {newVideoPreview ? (
+                          <div style={{ position: 'relative', width: 140, height: 80, borderRadius: 8, overflow: 'hidden', border: '1px solid #e2e8f0', background: '#000' }}>
+                            <video src={newVideoPreview} controls style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setNewVideoFile(null);
+                                setNewVideoPreview(null);
+                                setExistingVideoPath(null);
+                              }}
+                              style={{ position: 'absolute', top: 4, right: 4, background: 'rgba(239,68,68,0.9)', color: '#fff', border: 'none', borderRadius: '50%', width: 20, height: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 10 }}
+                            >
+                              &times;
+                            </button>
+                          </div>
+                        ) : (
                           <div
-                            onClick={() => fileInputRef.current?.click()}
+                            onClick={() => document.getElementById('showcase-video-input')?.click()}
                             style={{
-                              aspectRatio: '1',
-                              minHeight: 96,
-                              border: '2px dashed #cbd5e1',
-                              borderRadius: 12,
+                              width: 140,
+                              height: 80,
+                              border: '1.5px dashed #cbd5e1',
+                              borderRadius: 8,
                               display: 'flex',
                               flexDirection: 'column',
                               alignItems: 'center',
                               justifyContent: 'center',
                               cursor: 'pointer',
                               background: '#f8fafc',
-                              color: '#64748b',
-                              transition: 'all .2s'
+                              color: '#64748b'
                             }}
-                            onMouseOver={e => { e.currentTarget.style.borderColor = '#111827'; e.currentTarget.style.background = '#F9FAFB'; e.currentTarget.style.color = '#111827'; }}
-                            onMouseOut={e => { e.currentTarget.style.borderColor = '#cbd5e1'; e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.color = '#64748b'; }}
                           >
-                            <IconPlus />
-                            <span style={{ fontSize: 11, marginTop: 4, fontWeight: 700 }}>Add Image</span>
+                            <span style={{ fontSize: 11, fontWeight: 600 }}>Upload Video</span>
+                            <span style={{ fontSize: 9, color: '#94a3b8' }}>Max 50MB</span>
                           </div>
-                        </div>
+                        )}
                         <input
-                          ref={fileInputRef}
+                          id="showcase-video-input"
                           type="file"
-                          multiple
-                          accept="image/jpeg,image/png,image/gif,image/webp"
-                          onChange={handleImageChange}
+                          accept="video/mp4,video/quicktime,video/webm"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              if (file.size > 209715200) {
+                                showToast("Video size exceeds the 200MB limit.", "error");
+                                return;
+                              }
+                              setNewVideoFile(file);
+                              setNewVideoPreview(URL.createObjectURL(file));
+                            }
+                          }}
                           style={{ display: 'none' }}
                         />
                       </div>
-
-                      <div className="form-group" style={{ marginBottom: 0 }}>
-                        <label className="form-label" style={{ marginBottom: 12, display: 'block' }}>Product Showcase Video (Optional)</label>
-                        <div style={{ display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
-                          {newVideoPreview ? (
-                            <div style={{ position: 'relative', width: 160, height: 96, borderRadius: 12, overflow: 'hidden', border: '1px solid #e2e8f0', background: '#000' }}>
-                              <video src={newVideoPreview} controls style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setNewVideoFile(null);
-                                  setNewVideoPreview(null);
-                                  setExistingVideoPath(null);
-                                }}
-                                style={{ position: 'absolute', top: 4, right: 4, background: 'rgba(239,68,68,0.9)', color: '#fff', border: 'none', borderRadius: '50%', width: 20, height: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 10 }}
-                              >
-                                <IconTrash />
-                              </button>
-                            </div>
-                          ) : (
-                            <div
-                              onClick={() => document.getElementById('showcase-video-input')?.click()}
-                              style={{
-                                width: 140,
-                                height: 96,
-                                border: '2px dashed #cbd5e1',
-                                borderRadius: 12,
-                                display: 'flex',
-                                flexDirection: 'column',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                cursor: 'pointer',
-                                background: '#f8fafc',
-                                color: '#64748b',
-                                transition: 'all .2s'
-                              }}
-                              onMouseOver={e => { e.currentTarget.style.borderColor = '#111827'; e.currentTarget.style.background = '#F9FAFB'; e.currentTarget.style.color = '#111827'; }}
-                              onMouseOut={e => { e.currentTarget.style.borderColor = '#cbd5e1'; e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.color = '#64748b'; }}
-                            >
-                              <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ marginBottom: 4 }}>
-                                <path d="M23 7l-7 5 7 5V7z" />
-                                <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
-                              </svg>
-                              <span style={{ fontSize: 11, fontWeight: 700 }}>Upload Video</span>
-                              <span style={{ fontSize: 8, color: '#94a3b8', marginTop: 1 }}>Max 50MB</span>
-                            </div>
-                          )}
-                          <input
-                            id="showcase-video-input"
-                            type="file"
-                            accept="video/mp4,video/quicktime,video/webm"
-                            onChange={(e) => {
-                              const file = e.target.files?.[0];
-                              if (file) {
-                                if (file.size > 209715200) {
-                                  showToast("Video size exceeds the 200MB limit.", "error");
-                                  return;
-                                }
-                                setNewVideoFile(file);
-                                setNewVideoPreview(URL.createObjectURL(file));
-                              }
-                            }}
-                            style={{ display: 'none' }}
-                          />
-                        </div>
-                        {videoUploadProgress !== null && (
-                          <div style={{ marginTop: 12, width: '100%', maxWidth: 360, background: '#F9FAFB', border: '1.5px solid #E5E7EB', borderRadius: 12, padding: '12px 16px' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 12, fontWeight: 700, color: '#111827', marginBottom: 6 }}>
-                              <span>{videoUploadStatus || "Uploading video..."}</span>
-                              <span style={{ fontSize: 13, background: '#111827', color: '#fff', padding: '2px 8px', borderRadius: 10 }}>{videoUploadProgress}%</span>
-                            </div>
-                            <div style={{ height: 10, background: '#E5E7EB', borderRadius: 6, overflow: 'hidden', position: 'relative' }}>
-                              <div style={{
-                                height: '100%',
-                                width: `${videoUploadProgress}%`,
-                                background: '#0D6847',
-                                borderRadius: 6,
-                                transition: 'width 0.2s ease-out',
-                                boxShadow: 'none'
-                              }} />
-                            </div>
-                          </div>
-                        )}
-                      </div>
                     </div>
                   </div>
 
-                  <div className="form-group" style={{ position: 'relative' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8, flexWrap: 'wrap', gap: 8 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <label className="form-label" style={{ margin: 0 }}>Description</label>
-                        <span style={{ fontSize: 11, color: '#94a3b8', fontWeight: 600, background: '#f1f5f9', padding: '2px 8px', borderRadius: 10 }}>
-                          {newItemDesc.length} chars
-                        </span>
-                      </div>
-
-                      {/* Description Template Helpers */}
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (!newItemName.trim()) {
-                              showToast("Please enter a product name first.", "error");
-                              return;
-                            }
-                            const generated = generateAiProductDescription(newItemName, newItemCategory, specs);
-                            setNewItemDesc(generated);
-                            showToast("Inserted structured product description template.", "success");
-                          }}
-                          style={{
-                            padding: '5px 11px',
-                            borderRadius: 8,
-                            background: '#F9FAFB',
-                            color: '#111827',
-                            fontSize: 11,
-                            fontWeight: 600,
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 5,
-                            transition: 'all .2s',
-                            border: '1px solid #E5E7EB',
-                            boxShadow: 'none'
-                          }}
-                          onMouseOver={e => { e.currentTarget.style.background = '#111827'; e.currentTarget.style.color = '#fff'; }}
-                          onMouseOut={e => { e.currentTarget.style.background = '#F9FAFB'; e.currentTarget.style.color = '#111827'; }}
-                          title="Insert a structured retail description with specifications"
-                        >
-                          <span>Insert Template</span>
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (!newItemDesc.trim() && !newItemName.trim()) {
-                              showToast("Please enter a product name or write some details first.", "error");
-                              return;
-                            }
-                            const summary = generateAiProductSummary(newItemDesc, newItemName);
-                            if (newItemDesc.trim() && !newItemDesc.includes("KEY HIGHLIGHTS") && !newItemDesc.includes("QUICK SUMMARY")) {
-                              setNewItemDesc(`${summary}\n\n---\n\n${newItemDesc}`);
-                            } else {
-                              setNewItemDesc(summary);
-                            }
-                            showToast("Added key highlights bullet points.", "success");
-                          }}
-                          style={{
-                            padding: '5px 11px',
-                            borderRadius: 8,
-                            background: '#ECFDF5',
-                            color: '#065F46',
-                            fontSize: 11,
-                            fontWeight: 600,
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 5,
-                            transition: 'all .2s',
-                            border: '1px solid #A7F3D0',
-                            boxShadow: 'none'
-                          }}
-                          onMouseOver={e => { e.currentTarget.style.background = '#0D6847'; e.currentTarget.style.color = '#fff'; }}
-                          onMouseOut={e => { e.currentTarget.style.background = '#ECFDF5'; e.currentTarget.style.color = '#065F46'; }}
-                          title="Add key highlights bullet list at the top of description"
-                        >
-                          <span>Add Highlights</span>
-                        </button>
-
-                        {newItemDesc && (
-                          <button
-                            type="button"
-                            onClick={() => setNewItemDesc("")}
-                            style={{
-                              padding: '5px 8px',
-                              borderRadius: 8,
-                              border: '1px solid #e2e8f0',
-                              background: '#fff',
-                              color: '#94a3b8',
-                              fontSize: 11,
-                              fontWeight: 600,
-                              cursor: 'pointer',
-                              transition: 'all .15s'
-                            }}
-                            onMouseOver={e => { e.currentTarget.style.color = '#ef4444'; e.currentTarget.style.borderColor = '#fca5a5'; }}
-                            onMouseOut={e => { e.currentTarget.style.color = '#94a3b8'; e.currentTarget.style.borderColor = '#e2e8f0'; }}
-                            title="Clear description text"
-                          >
-                            Clear
-                          </button>
-                        )}
-                      </div>
+                  {/* ——— DETAILED DESCRIPTION ——— */}
+                  <div className="form-group" style={{ marginBottom: 28 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                      <label className="form-label" style={{ margin: 0, fontWeight: 600, fontSize: 13 }}>Product Description</label>
+                      <span style={{ fontSize: 11, color: '#94a3b8' }}>{newItemDesc.length} characters</span>
                     </div>
-                    <div style={{ position: 'relative' }}>
-                      <textarea
-                        className="form-textarea product-desc-textarea"
-                        placeholder="Describe your item (e.g. material, fit, condition, tags)..."
-                        value={newItemDesc}
-                        onChange={e => setNewItemDesc(e.target.value)}
-                        style={{
-                          width: '100%',
-                          minHeight: 160,
-                          padding: '16px',
-                          borderRadius: 16,
-                          border: '1.5px solid #e2e8f0',
-                          background: '#f8fafc',
-                          fontFamily: 'inherit',
-                          fontSize: 14,
-                          color: '#0f172a',
-                          transition: 'all 0.2s ease',
-                          resize: 'vertical',
-                          outline: 'none',
-                          boxShadow: 'none'
-                        }}
-                        onFocus={e => {
-                          e.currentTarget.style.borderColor = '#111827';
-                          e.currentTarget.style.background = '#fff';
-                          e.currentTarget.style.boxShadow = '0 0 0 4px rgba(17, 24, 39, 0.08)';
-                        }}
-                        onBlur={e => {
-                          e.currentTarget.style.borderColor = '#e2e8f0';
-                          e.currentTarget.style.background = '#f8fafc';
-                          e.currentTarget.style.boxShadow = 'none';
-                        }}
-                      />
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 8, color: '#64748b', fontSize: 11, fontWeight: 500 }}>
-                      <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" /></svg>
-                      <span>Write about condition, material, and measurements for faster sales.</span>
-                    </div>
-                  </div>
-
-                  <div className="form-group">
-                    <label className="form-label">Description Images (Unlimited)</label>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: 12, marginBottom: 16 }}>
-                      {descImagesState.map((imgObj, idx) => (
-                        <div key={idx} style={{ position: 'relative', borderRadius: 12, overflow: 'hidden', border: '1px solid #e2e8f0', aspectRatio: '1.5', background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          <img src={imgObj.preview} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setDescImagesState(prev => prev.filter((_, i) => i !== idx));
-                            }}
-                            style={{ position: 'absolute', top: 4, right: 4, background: 'rgba(239,68,68,0.9)', color: '#fff', border: 'none', borderRadius: '50%', width: 22, height: 22, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
-                          >
-                            <IconTrash />
-                          </button>
-                        </div>
-                      ))}
-                      <div
-                        onClick={() => document.getElementById('desc-images-input')?.click()}
-                        style={{
-                          aspectRatio: '1.5',
-                          border: '2px dashed #e2e8f0',
-                          borderRadius: 12,
-                          display: 'flex',
-                          flexDirection: 'column',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          cursor: 'pointer',
-                          background: '#f8fafc',
-                          color: '#94a3b8',
-                          transition: 'all .2s'
-                        }}
-                      >
-                        <IconPlus />
-                        <span style={{ fontSize: 11, marginTop: 4, fontWeight: 600 }}>Add Image</span>
-                      </div>
-                    </div>
-                    <input
-                      id="desc-images-input"
-                      type="file"
-                      multiple
-                      accept="image/jpeg,image/png,image/gif,image/webp"
-                      onChange={async (e) => {
-                        const files = Array.from(e.target.files || []);
-                        if (files.length > 0) {
-                          for (const file of files) {
-                            const compressedFile = await compressImage(file, 800);
-                            const reader = new FileReader();
-                            reader.onloadend = () => {
-                              setDescImagesState(prev => [...prev, { file: compressedFile, preview: reader.result as string, path: null }]);
-                            };
-                            reader.readAsDataURL(compressedFile);
-                          }
-                        }
+                    <textarea
+                      className="form-textarea product-desc-textarea"
+                      placeholder="Provide full product details: materials, dimensions, features, package inclusions, and care instructions..."
+                      value={newItemDesc}
+                      onChange={e => setNewItemDesc(e.target.value)}
+                      style={{
+                        width: '100%',
+                        minHeight: 140,
+                        padding: '14px',
+                        borderRadius: 8,
+                        border: '1px solid #cbd5e1',
+                        background: '#ffffff',
+                        fontFamily: 'inherit',
+                        fontSize: 13.5,
+                        color: '#0f172a',
+                        resize: 'vertical',
+                        outline: 'none',
+                        boxSizing: 'border-box'
                       }}
-                      style={{ display: 'none' }}
                     />
                   </div>
 
-                  <button type="submit" className="submit-btn" disabled={isSubmitting} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-                    {isSubmitting ? (
-                      videoUploadProgress !== null ? `Uploading Video (${videoUploadProgress}%)...` : (editingItem ? "Updating..." : "Adding...")
-                    ) : (
-                      <>{editingItem ? <IconCheck /> : <IconPlus />} {editingItem ? "Update Item" : "Add Item"}</>
-                    )}
-                  </button>
+                  {/* SUBMIT ACTION BUTTONS */}
+                  <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginTop: 32 }}>
+                    <button
+                      type="submit"
+                      className="submit-btn"
+                      disabled={isSubmitting}
+                      style={{
+                        flex: 1,
+                        height: 48,
+                        borderRadius: 8,
+                        background: '#0F172A',
+                        color: '#FFFFFF',
+                        fontSize: 14,
+                        fontWeight: 700,
+                        border: 'none',
+                        cursor: isSubmitting ? 'not-allowed' : 'pointer',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: 8,
+                        transition: 'all 0.15s ease'
+                      }}
+                    >
+                      {isSubmitting ? (
+                        videoUploadProgress !== null ? `Uploading Video (${videoUploadProgress}%)...` : (editingItem ? "Saving Changes..." : "Publishing Listing...")
+                      ) : (
+                        <>{editingItem ? <IconCheck /> : <IconPlus />} {editingItem ? "Save Product Changes" : "Publish Product Listing"}</>
+                      )}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (newItemName || newItemPrice || newItemDesc) {
+                          if (!confirm("Are you sure you want to discard your changes?")) return;
+                        }
+                        setEditingItem(null);
+                        setNewItemName("");
+                        setNewItemDesc("");
+                        setNewItemPrice("");
+                        setNewItemStock("1");
+                        setNewItemCategory("General");
+                        setSelectedSizes([]);
+                        setMainImagesState([]);
+                        setSpecs([]);
+                        setColorVariants([]);
+                        setActiveTab("my-items");
+                      }}
+                      style={{
+                        height: 48,
+                        padding: '0 24px',
+                        borderRadius: 8,
+                        border: '1px solid #cbd5e1',
+                        background: '#FFFFFF',
+                        color: '#475569',
+                        fontSize: 14,
+                        fontWeight: 600,
+                        cursor: 'pointer'
+                      }}
+                    >
+                      Cancel
+                    </button>
+                  </div>
                 </form>
               </div>
             )}
