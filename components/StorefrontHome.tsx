@@ -254,6 +254,14 @@ function normalizeCategory(raw?: string): string {
 
 export default function StorefrontHome({ onLoginClick }: StorefrontHomeProps) {
   const [liveItems, setLiveItems] = useState<StoreItem[]>([]);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    try {
+      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+      if (token) setIsLoggedIn(true);
+    } catch {}
+  }, []);
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [previewItem, setPreviewItem] = useState<StoreItem | null>(null);
@@ -1079,13 +1087,23 @@ export default function StorefrontHome({ onLoginClick }: StorefrontHomeProps) {
                   Shop electronics, footwear, apparel, and home goods with transparent peso pricing, direct seller chat, and nationwide Cash on Delivery.
                 </p>
                 <div className="sf-hero-ctas">
-                  <Link href="/shop" className="sf-btn-primary">
-                    <span>Explore Marketplace</span>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <line x1="5" y1="12" x2="19" y2="12" />
-                      <polyline points="12 5 19 12 12 19" />
-                    </svg>
-                  </Link>
+                  {isLoggedIn ? (
+                    <Link href="/shop" className="sf-btn-primary">
+                      <span>Go to Marketplace</span>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <line x1="5" y1="12" x2="19" y2="12" />
+                        <polyline points="12 5 19 12 12 19" />
+                      </svg>
+                    </Link>
+                  ) : (
+                    <Link href="/login" onClick={triggerLogin} className="sf-btn-primary">
+                      <span>Sign in to start shopping</span>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <line x1="5" y1="12" x2="19" y2="12" />
+                        <polyline points="12 5 19 12 12 19" />
+                      </svg>
+                    </Link>
+                  )}
                   <Link href="/register" className="sf-btn-secondary">
                     Open a seller account
                   </Link>
@@ -1186,8 +1204,8 @@ export default function StorefrontHome({ onLoginClick }: StorefrontHomeProps) {
                 <h2>Shop by department</h2>
                 <p>Browse curated categories from independent stores and brand partners</p>
               </div>
-              <Link href="/shop" className="sf-link-inline">
-                <span>Explore full marketplace</span>
+              <Link href={isLoggedIn ? "/shop" : "/login"} onClick={isLoggedIn ? undefined : triggerLogin} className="sf-link-inline">
+                <span>{isLoggedIn ? "Explore full marketplace" : "Sign in for full marketplace"}</span>
                 <span aria-hidden="true">→</span>
               </Link>
             </div>
@@ -1395,8 +1413,8 @@ export default function StorefrontHome({ onLoginClick }: StorefrontHomeProps) {
                     </div>
                   </div>
                 </div>
-                <Link href="/shop" className="sf-btn-primary">
-                  Explore full marketplace
+                <Link href={isLoggedIn ? "/shop" : "/login"} onClick={isLoggedIn ? undefined : triggerLogin} className="sf-btn-primary">
+                  {isLoggedIn ? "Explore full marketplace" : "Sign in to browse all stores"}
                 </Link>
               </div>
 

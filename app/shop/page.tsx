@@ -151,11 +151,14 @@ export default function ShopPage() {
 
   useEffect(() => {
     const controller = new AbortController();
-    const token = localStorage.getItem("token");
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
     if (!token) {
-      // Unauthenticated visitor: allow browsing the marketplace cleanly
-      setAccess("allowed");
+      // STRICT SECURITY: Unauthenticated visitors are strictly blocked from the marketplace
+      router.replace("/login");
+      if (typeof window !== "undefined" && window.location?.replace) {
+        window.location.replace("/login");
+      }
       return;
     }
 
@@ -167,29 +170,39 @@ export default function ShopPage() {
     })
       .then(async response => {
         if (controller.signal.aborted) return;
-        if (response.status === 401 || response.status === 403) {
-          // Token expired: clear dead token and let them continue browsing as guest
+        if (response.status === 401 || response.status === 403 || !response.ok) {
+          // Session expired or invalid: strictly block and send to login
           localStorage.removeItem("token");
           localStorage.removeItem("user");
           localStorage.removeItem("shopply_user");
           getApiCache().invalidateAll();
-          setAccess("allowed");
-          return;
-        }
-        if (!response.ok) {
-          // Network or server glitch: still allow browsing
-          setAccess("allowed");
+          router.replace("/login");
+          if (typeof window !== "undefined" && window.location?.replace) {
+            window.location.replace("/login");
+          }
           return;
         }
         const data = await response.json();
         if (controller.signal.aborted) return;
-        if (data.user?.id) {
-          localStorage.setItem("user", JSON.stringify(data.user));
+        if (!data.user?.id) {
+          localStorage.removeItem("token");
+          router.replace("/login");
+          if (typeof window !== "undefined" && window.location?.replace) {
+            window.location.replace("/login");
+          }
+          return;
         }
+        localStorage.setItem("user", JSON.stringify(data.user));
         setAccess("allowed");
       })
       .catch(() => {
-        if (!controller.signal.aborted) setAccess("allowed");
+        if (!controller.signal.aborted) {
+          localStorage.removeItem("token");
+          router.replace("/login");
+          if (typeof window !== "undefined" && window.location?.replace) {
+            window.location.replace("/login");
+          }
+        }
       });
 
     return () => {

@@ -62,13 +62,13 @@ function loadProxyModule(sessionMod) {
   return context.exports;
 }
 
-test('marketplace opens directly for all visitors and authenticates active user sessions', async () => {
+test('unauthenticated visitors are strictly blocked from the marketplace and redirected to /login', async () => {
   const shopSource = compile('app/shop/page.tsx');
   
-  for (const [scenario, token, status, expectedRequests] of [
-    ['guest visitor without token', null, 200, 0],
-    ['active logged-in member', 'valid-token', 200, 1],
-    ['member with expired token', 'expired-token', 401, 1],
+  for (const [scenario, token, status, expectedRequests, shouldAllow, expectedRedirect] of [
+    ['guest visitor without token', null, 200, 0, false, '/login'],
+    ['member with expired token', 'expired-token', 401, 1, false, '/login'],
+    ['active logged-in member', 'valid-token', 200, 1, true, null],
   ]) {
     const local = storage();
     if (token) local.setItem('token', token);
@@ -78,7 +78,7 @@ test('marketplace opens directly for all visitors and authenticates active user 
     const jsx = (type, props) => ({ type, props });
     const context = {
       exports: {}, AbortController, localStorage: local,
-      window: { addEventListener() {}, removeEventListener() {} },
+      window: { addEventListener() {}, removeEventListener() {}, location: { replace: url => redirects.push(url) } },
       fetch: async () => {
         requests++;
         return { status, ok: status === 200, json: async () => ({ user: { id: 1 } }) };
@@ -100,25 +100,29 @@ test('marketplace opens directly for all visitors and authenticates active user 
       },
     };
     vm.runInNewContext(shopSource, context);
-    context.exports.default(); // Initial render registers hooks
+    context.exports.default();
     const cleanup = effect?.();
     await new Promise(resolve => setImmediate(resolve));
     cursor = 0;
     const view = context.exports.default();
-    assert.equal(view.type.name, 'MarketplaceContent', `${scenario} must be allowed to view marketplace`);
+    if (shouldAllow) {
+      assert.equal(view.type.name, 'MarketplaceContent', `${scenario} must be allowed into marketplace`);
+    } else {
+      assert.notEqual(view.type.name, 'MarketplaceContent', `${scenario} must be blocked from marketplace`);
+      assert.equal(redirects.includes(expectedRedirect), true, `${scenario} must be redirected to ${expectedRedirect}`);
+    }
     assert.equal(requests, expectedRequests, `${scenario} expected ${expectedRequests} API calls`);
-    assert.deepEqual(redirects, [], `${scenario} must not be redirected away`);
     cleanup?.();
   }
 });
 
-test('public header and storefront correctly link Shop to /shop without broken hash anchors', () => {
+test('public header and storefront route unauthenticated visitors to login', () => {
   const publicChrome = fs.readFileSync('components/PublicChrome.tsx', 'utf8');
-  assert.equal(publicChrome.includes('{ label: "Shop", href: "/shop" }'), true, 'PublicHeader must link Shop to /shop');
+  assert.equal(publicChrome.includes('{ label: "Shop", href: isLoggedIn ? "/shop" : "/login" }'), true, 'PublicHeader must gate Shop link behind login');
   assert.equal(publicChrome.includes('href="/#catalog"'), false, 'PublicHeader must not link to /#catalog');
 
   const storefrontHome = fs.readFileSync('components/StorefrontHome.tsx', 'utf8');
-  assert.equal(storefrontHome.includes('href="/shop" className="sf-btn-primary"'), true, 'Storefront hero must link to /shop');
+  assert.equal(storefrontHome.includes('Sign in to start shopping'), true, 'Storefront hero must invite guests to sign in');
 });
 
 test('unauthenticated visitors cannot enter /dashboard without logging in', () => {
