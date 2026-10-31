@@ -295,3 +295,13 @@ test('dashboard my-account view supports deep-link tab routing and authentic e-c
   assert.match(dashSrc, /My Shop/, 'Dashboard account must include My Shop section');
   assert.match(dashSrc, /acct-avatar-col/, 'Dashboard account must include standard avatar upload column');
 });
+
+test('dashboard messages use a marketplace-style chat layout (search, unread filter, quick replies, plain bubbles)', () => {
+  const dashSrc = fs.readFileSync('app/dashboard/page.tsx', 'utf8');
+  assert.equal(dashSrc.includes('className="chat-search"'), true, 'Chat list must have a search box');
+  assert.equal(dashSrc.includes('className="chat-filter-tabs"'), true, 'Chat list must have All/Unread tabs');
+  assert.equal(dashSrc.includes('className="chat-quick-replies"'), true, 'Chat must offer quick replies');
+  assert.equal(dashSrc.includes('CHAT STYLING (FLAT BRUTALISM)'), false, 'Old brutalist chat styling must be gone');
+  assert.equal(dashSrc.includes("background: '#d8b4fe'"), false, 'Typing bubble must not use the purple fill');
+  assert.equal(dashSrc.includes('Select a conversation from the left sidebar'), false, 'Empty state must use plain retail wording');
+});

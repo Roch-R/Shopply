@@ -1132,6 +1132,8 @@ export default function DashboardPage() {
   const [chatConversations, setChatConversations] = useState<any[]>([]);
   const [loadingChatConversations, setLoadingChatConversations] = useState(true);
   const [newChatMessage, setNewChatMessage] = useState("");
+  const [chatSearch, setChatSearch] = useState("");
+  const [chatFilter, setChatFilter] = useState<"all" | "unread">("all");
   const [sendingMessage, setSendingMessage] = useState(false);
   const [loadingChatMessages, setLoadingChatMessages] = useState(false);
   const [isOtherUserTyping, setIsOtherUserTyping] = useState(false);
@@ -4195,26 +4197,55 @@ export default function DashboardPage() {
           .no-print { display: none !important; }
         }
 
-        /* --- CHAT STYLING (FLAT BRUTALISM) --- */
+        /* --- CHAT (marketplace messaging) --- */
         .chat-card-container {
           width: 100%;
           height: 600px;
           background: #ffffff;
-          border-radius: 16px;
-          box-shadow: none;
-          border: 1px solid #e2e8f0;
+          border-radius: 8px;
+          border: 1px solid #E5E7EB;
           display: flex;
           overflow: hidden;
-          font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+          font-family: 'Inter', 'Plus Jakarta Sans', sans-serif;
         }
         .chat-left-pane {
-          width: 280px;
-          border-right: 1px solid #e2e8f0;
-          background: #f8fafc;
+          width: 300px;
+          border-right: 1px solid #E5E7EB;
+          background: #ffffff;
           display: flex;
           flex-direction: column;
           flex-shrink: 0;
         }
+        .chat-list-head { padding: 14px 14px 0; border-bottom: 1px solid #E5E7EB; }
+        .chat-list-title { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+        .chat-list-title h3 { font-size: 16px; font-weight: 600; color: #111827; margin: 0; }
+        .chat-list-count {
+          background: #DC2626; color: #fff; font-size: 11px; font-weight: 600;
+          min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px;
+          display: inline-flex; align-items: center; justify-content: center;
+        }
+        .chat-search { position: relative; }
+        .chat-search svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #9CA3AF; pointer-events: none; }
+        .chat-search input {
+          width: 100%; height: 34px; padding: 0 10px 0 31px;
+          border: 1px solid #E5E7EB; border-radius: 6px; background: #F9FAFB;
+          font-size: 13px; color: #111827; outline: none; font-family: inherit;
+        }
+        .chat-search input:focus { border-color: #9CA3AF; background: #ffffff; }
+        .chat-filter-tabs { display: flex; gap: 18px; margin-top: 8px; }
+        .chat-filter-tabs button {
+          background: none; border: none; padding: 8px 0; font-size: 13px; font-weight: 500;
+          color: #6B7280; cursor: pointer; border-bottom: 2px solid transparent; font-family: inherit;
+        }
+        .chat-filter-tabs button.active { color: #111827; font-weight: 600; border-bottom-color: #111827; }
+        .chat-list-body { flex: 1; overflow-y: auto; }
+        .chat-list-item {
+          display: flex; align-items: center; gap: 10px; padding: 12px 14px;
+          cursor: pointer; border-bottom: 1px solid #F3F4F6;
+        }
+        .chat-list-item:hover { background: #F9FAFB; }
+        .chat-list-item.active { background: #F3F4F6; }
+        .chat-list-empty { text-align: center; padding: 40px 18px; color: #9CA3AF; font-size: 13px; line-height: 1.5; }
         .chat-right-pane {
           flex: 1;
           display: flex;
@@ -4227,63 +4258,57 @@ export default function DashboardPage() {
         .chat-messages-area {
           flex: 1;
           overflow-y: auto;
-          padding: 24px;
+          padding: 18px 20px;
           display: flex;
           flex-direction: column;
-          gap: 16px;
-          background: #ffffff;
+          gap: 6px;
+          background: #F3F4F6;
         }
-        .chat-message-row { display: flex; align-items: flex-end; gap: 8px; max-width: 75%; }
+        .chat-message-row { display: flex; align-items: flex-end; gap: 8px; max-width: 72%; }
         .chat-message-row.me { align-self: flex-end; }
         .chat-message-row.them { align-self: flex-start; }
         .chat-message-bubble {
-          padding: 12px 18px;
+          padding: 9px 13px;
           font-size: 14px;
-          line-height: 1.5;
+          line-height: 1.45;
           word-break: break-word;
           white-space: pre-wrap;
-          font-weight: 600;
+          font-weight: 400;
+          border-radius: 10px;
         }
-        .chat-message-bubble.me {
-          background: #111827;
-          color: #ffffff;
-          border: 1px solid #111827;
-          box-shadow: none;
-          border-radius: 12px 12px 2px 12px;
+        .chat-message-bubble.me { background: #D9F0E3; color: #111827; border: none; }
+        .chat-message-bubble.them { background: #ffffff; color: #111827; border: none; box-shadow: 0 1px 1px rgba(17, 24, 39, 0.05); }
+        .chat-quick-replies { display: flex; gap: 8px; padding: 10px 14px 0; overflow-x: auto; }
+        .chat-quick-replies button {
+          flex-shrink: 0; background: #ffffff; border: 1px solid #D1D5DB; color: #374151;
+          font-size: 12px; padding: 5px 11px; border-radius: 14px; cursor: pointer; font-family: inherit;
         }
-        .chat-message-bubble.them {
-          background: #ffffff;
-          color: #111827;
-          border: 1px solid #e2e8f0;
-          box-shadow: none;
-          border-radius: 12px 12px 12px 2px;
-        }
+        .chat-quick-replies button:hover { border-color: #111827; color: #111827; }
         .chat-input-form {
-          padding: 16px 24px;
+          padding: 10px 14px 12px;
           display: flex;
-          gap: 12px;
+          gap: 6px;
           align-items: center;
-          border-top: 1px solid #e2e8f0;
           background: #ffffff;
         }
+        .chat-input-form label:hover, .chat-input-form button:not([type="submit"]):hover { background: #F3F4F6 !important; }
         .chat-input-textarea {
           flex: 1;
-          padding: 12px 18px;
+          padding: 9px 12px;
           border-radius: 8px;
-          border: 1px solid #cbd5e1;
-          background: #ffffff;
+          border: 1px solid #E5E7EB;
+          background: #F9FAFB;
           font-size: 14px;
-          font-weight: 700;
+          font-weight: 400;
           outline: none;
           color: #111827;
-          font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+          font-family: inherit;
           resize: none;
-          min-height: 44px;
+          min-height: 40px;
           max-height: 120px;
           line-height: 1.4;
-          box-shadow: none;
         }
-        .chat-input-textarea:focus { border-color: #111827; }
+        .chat-input-textarea:focus { border-color: #9CA3AF; background: #ffffff; }
 
         /* --- SETTINGS & PERFORMANCE BASE STYLES --- */
         .settings-stats-grid {
@@ -5998,138 +6023,143 @@ export default function DashboardPage() {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 }}>
                   <div>
                     <h2 style={{ fontSize: 20, color: '#0f172a' }}>Messages</h2>
-                    <p style={{ color: '#64748b', fontSize: 14 }}>Chat with buyers and customers about your products.</p>
+                    <p style={{ color: '#64748b', fontSize: 14 }}>Chat with buyers and sellers about products and orders.</p>
                   </div>
                 </div>
 
                 <div className="chat-card-container">
                   {/* LEFT PANE: CONVERSATIONS */}
-                  <div className={`chat-left-pane ${activeChatUser ? 'mobile-hidden' : ''}`}>
-                    <div style={{padding: '20px 20px 16px', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
-                      <h3 style={{fontSize: 18, fontWeight: 800, color: '#0f172a', margin: 0}}>Chats</h3>
-                      <span style={{fontSize: 12, fontWeight: 600, color: '#64748b', background: '#e2e8f0', padding: '4px 10px', borderRadius: 12}}>
-                        {chatConversations.length}
-                      </span>
-                    </div>
-                    <div style={{flex: 1, overflowY: 'auto', padding: 12}}>
-                      {loadingChatConversations ? (
-                        <>
-                          <SkeletonChatListItem />
-                          <SkeletonChatListItem />
-                          <SkeletonChatListItem />
-                          <SkeletonChatListItem />
-                        </>
-                      ) : chatConversations.length === 0 ? (
-                        <div style={{textAlign: 'center', padding: '40px 10px', color: '#94a3b8', fontSize: 13}}>
-                          No conversations yet. Messages from buyers will appear here!
-                        </div>
-                      ) : (
-                        chatConversations.map(conv => (
-                          <div
-                            key={conv.user.id}
-                            onClick={() => {
-                              setChatMessages([]);
-                              setLoadingChatMessages(true);
-                              setActiveChatUser(conv.user);
-                              setIsActiveUserOnline(!!conv.user.is_online);
-                              setTimeout(() => chatInputRef.current?.focus(), 50);
-                            }}
-                            style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: 12,
-                              padding: 12,
-                              borderRadius: 14,
-                              cursor: 'pointer',
-                              background: activeChatUser?.id === conv.user.id ? '#fff' : 'transparent',
-                              boxShadow: activeChatUser?.id === conv.user.id ? '0 4px 12px rgba(0,0,0,0.05)' : 'none',
-                              border: activeChatUser?.id === conv.user.id ? '1px solid #e2e8f0' : '1px solid transparent',
-                              marginBottom: 8,
-                              transition: 'all 0.2s'
-                            }}
-                          >
-                            <div style={{ position: 'relative', flexShrink: 0 }}>
-                              {conv.user.avatar ? (
-                                <img 
-                                  src={getAvatarUrl(conv.user.avatar)} 
-                                  alt="" 
-                                  onError={(e) => {
-                                    e.currentTarget.onerror = null;
-                                    e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(conv.user?.name || "User")}&background=F3F4F6&color=111827&bold=true`;
-                                  }}
-                                  style={{width: 44, height: 44, borderRadius: '50%', objectFit: 'cover'}} 
-                                />
-                              ) : (
-                                <div style={{width: 44, height: 44, borderRadius: '50%', background: '#e2e8f0', color: '#64748b', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 16}}>
-                                  {conv.user.name.charAt(0).toUpperCase()}
-                                </div>
-                              )}
-                              <span style={{
-                                position: 'absolute',
-                                bottom: 2,
-                                right: 2,
-                                width: 10,
-                                height: 10,
-                                borderRadius: '50%',
-                                background: conv.user.is_online ? '#10b981' : '#cbd5e1',
-                                border: '1px solid #e2e8f0',
-                                boxShadow: 'none'
-                              }} />
-                            </div>
-                            <div style={{flex: 1, minWidth: 0}}>
-                              <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4, minWidth: 0, gap: 12}}>
-                                <div style={{display: 'flex', alignItems: 'center', gap: 6, minWidth: 0, flex: 1}}>
-                                  <h4 style={{
-                                    fontSize: 14, 
-                                    fontWeight: 700, 
-                                    color: '#0f172a', 
-                                    margin: 0, 
-                                    whiteSpace: 'nowrap', 
-                                    overflow: 'hidden', 
-                                    textOverflow: 'ellipsis',
-                                    flex: '0 1 auto'
-                                  }}>
-                                    {conv.user.name}
-                                  </h4>
-                                  <span style={{
-                                    fontSize: 10,
-                                    fontWeight: 500,
-                                    color: conv.user.is_online ? '#10b981' : '#94a3b8',
-                                    background: conv.user.is_online ? 'rgba(16,185,129,0.1)' : 'rgba(148,163,184,0.1)',
-                                    padding: '1px 6px',
-                                    borderRadius: 8,
-                                    flexShrink: 0
-                                  }}>
-                                    {conv.user.is_online ? "Active" : "Offline"}
-                                  </span>
-                                </div>
-                                {conv.last_message && (
-                                  <span style={{fontSize: 11, color: '#94a3b8', flexShrink: 0, marginLeft: 8}}>
-                                    {formatLastMessageTime(conv.last_message.created_at)}
-                                  </span>
-                                )}
-                              </div>
-                              <p style={{fontSize: 13, color: conv.unread_count > 0 ? '#0f172a' : '#64748b', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontWeight: conv.unread_count > 0 ? 600 : 400}}>
-                                {conv.last_message ? conv.last_message.message : 'No messages'}
-                              </p>
-                            </div>
-                            {conv.unread_count > 0 && (
-                              <div style={{width: 20, height: 20, borderRadius: '50%', background: '#ef4444', color: '#fff', fontSize: 11, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-                                {conv.unread_count}
-                              </div>
-                            )}
+                  {(() => {
+                    const totalUnread = chatConversations.reduce((sum, c) => sum + (c.unread_count || 0), 0);
+                    const q = chatSearch.trim().toLowerCase();
+                    const visibleConversations = chatConversations.filter(c =>
+                      (chatFilter === 'all' || c.unread_count > 0) &&
+                      (!q || (c.user.name || '').toLowerCase().includes(q))
+                    );
+                    return (
+                      <div className={'chat-left-pane' + (activeChatUser ? ' mobile-hidden' : '')}>
+                        <div className="chat-list-head">
+                          <div className="chat-list-title">
+                            <h3>Chat</h3>
+                            {totalUnread > 0 && <span className="chat-list-count">{totalUnread}</span>}
                           </div>
-                        ))
-                      )}
-                    </div>
-                  </div>
+                          <div className="chat-search">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                              <circle cx="11" cy="11" r="8" />
+                              <path d="M21 21l-4.35-4.35" />
+                            </svg>
+                            <input
+                              type="search"
+                              placeholder="Search by name"
+                              value={chatSearch}
+                              onChange={e => setChatSearch(e.target.value)}
+                            />
+                          </div>
+                          <div className="chat-filter-tabs">
+                            <button type="button" className={chatFilter === 'all' ? 'active' : ''} onClick={() => setChatFilter('all')}>All</button>
+                            <button type="button" className={chatFilter === 'unread' ? 'active' : ''} onClick={() => setChatFilter('unread')}>
+                              {totalUnread > 0 ? 'Unread (' + totalUnread + ')' : 'Unread'}
+                            </button>
+                          </div>
+                        </div>
+                        <div className="chat-list-body">
+                          {loadingChatConversations ? (
+                            <>
+                              <SkeletonChatListItem />
+                              <SkeletonChatListItem />
+                              <SkeletonChatListItem />
+                              <SkeletonChatListItem />
+                            </>
+                          ) : visibleConversations.length === 0 ? (
+                            <div className="chat-list-empty">
+                              {chatConversations.length === 0
+                                ? 'No conversations yet. Messages from buyers and sellers will appear here.'
+                                : 'No chats match your search.'}
+                            </div>
+                          ) : (
+                            visibleConversations.map(conv => {
+                              const lastText = conv.last_message?.message || '';
+                              const preview = !conv.last_message
+                                ? 'No messages yet'
+                                : lastText.startsWith('[LOCATION]')
+                                  ? '[Location]'
+                                  : lastText || '[Photo]';
+                              return (
+                                <div
+                                  key={conv.user.id}
+                                  className={'chat-list-item' + (activeChatUser?.id === conv.user.id ? ' active' : '')}
+                                  onClick={() => {
+                                    setChatMessages([]);
+                                    setLoadingChatMessages(true);
+                                    setActiveChatUser(conv.user);
+                                    setIsActiveUserOnline(!!conv.user.is_online);
+                                    setTimeout(() => chatInputRef.current?.focus(), 50);
+                                  }}
+                                >
+                                  <div style={{ position: 'relative', flexShrink: 0 }}>
+                                    {conv.user.avatar ? (
+                                      <img
+                                        src={getAvatarUrl(conv.user.avatar)}
+                                        alt=""
+                                        onError={(e) => {
+                                          e.currentTarget.onerror = null;
+                                          e.currentTarget.src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(conv.user?.name || 'User') + '&background=F3F4F6&color=111827&bold=true';
+                                        }}
+                                        style={{ width: 42, height: 42, borderRadius: '50%', objectFit: 'cover', display: 'block' }}
+                                      />
+                                    ) : (
+                                      <div style={{ width: 42, height: 42, borderRadius: '50%', background: '#E5E7EB', color: '#6B7280', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 600, fontSize: 16 }}>
+                                        {conv.user.name.charAt(0).toUpperCase()}
+                                      </div>
+                                    )}
+                                    <span style={{
+                                      position: 'absolute',
+                                      bottom: 0,
+                                      right: 0,
+                                      width: 11,
+                                      height: 11,
+                                      borderRadius: '50%',
+                                      background: conv.user.is_online ? '#16A34A' : '#D1D5DB',
+                                      border: '2px solid #fff'
+                                    }} />
+                                  </div>
+                                  <div style={{ flex: 1, minWidth: 0 }}>
+                                    <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 8, marginBottom: 3 }}>
+                                      <span style={{ fontSize: 14, fontWeight: conv.unread_count > 0 ? 600 : 500, color: '#111827', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                        {conv.user.name}
+                                      </span>
+                                      {conv.last_message && (
+                                        <span style={{ fontSize: 11, color: '#9CA3AF', flexShrink: 0 }}>
+                                          {formatLastMessageTime(conv.last_message.created_at)}
+                                        </span>
+                                      )}
+                                    </div>
+                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+                                      <span style={{ fontSize: 13, color: conv.unread_count > 0 ? '#111827' : '#6B7280', fontWeight: conv.unread_count > 0 ? 500 : 400, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                        {preview}
+                                      </span>
+                                      {conv.unread_count > 0 && (
+                                        <span style={{ background: '#DC2626', color: '#fff', fontSize: 11, fontWeight: 600, minWidth: 18, height: 18, padding: '0 5px', borderRadius: 9, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                          {conv.unread_count}
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                              );
+                            })
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })()}
 
                   {/* RIGHT PANE: ACTIVE CHAT */}
                   <div className={`chat-right-pane ${!activeChatUser ? 'mobile-hidden' : ''}`}>
                     {activeChatUser ? (
                       <>
                         {/* CHAT HEADER */}
-                        <div style={{padding: '16px 24px', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
+                        <div style={{padding: '12px 20px', borderBottom: '1px solid #E5E7EB', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
                           <div style={{display: 'flex', alignItems: 'center', gap: 12}}>
                             {/* Back Button (Mobile only) */}
                             <button
@@ -6166,12 +6196,12 @@ export default function DashboardPage() {
                               </div>
                             )}
                             <div>
-                              <h4 style={{fontSize: 16, fontWeight: 700, color: '#0f172a', margin: '0 0 2px'}}>
+                              <h4 style={{fontSize: 15, fontWeight: 600, color: '#111827', margin: '0 0 2px'}}>
                                 {activeChatUser.name}
                               </h4>
                               {isActiveUserOnline ? (
                                 <span style={{fontSize: 12, color: '#10b981', display: 'flex', alignItems: 'center', gap: 4, fontWeight: 500}}>
-                                  <span style={{width: 6, height: 6, borderRadius: '50%', background: '#10b981'}}></span> Active now
+                                  <span style={{width: 6, height: 6, borderRadius: '50%', background: '#10b981'}}></span> Online
                                 </span>
                               ) : (
                                 <span style={{fontSize: 12, color: '#94a3b8', display: 'flex', alignItems: 'center', gap: 4, fontWeight: 500}}>
@@ -6183,22 +6213,7 @@ export default function DashboardPage() {
                           <div style={{display: 'flex', alignItems: 'center', gap: 12}}>
                             <button
                               onClick={handleStartVideoCall}
-                              style={{
-                                background: '#111827',
-                                border: 'none',
-                                width: 36,
-                                height: 36,
-                                borderRadius: '50%',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                color: '#fff',
-                                cursor: 'pointer',
-                                transition: 'all 0.2s',
-                                boxShadow: 'none'
-                              }}
-                              onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.08)'}
-                              onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+                              style={{ background: '#fff', border: '1px solid #E5E7EB', width: 36, height: 36, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#374151', cursor: 'pointer' }}
                               title="Start Video Call"
                             >
                               <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
@@ -6208,22 +6223,7 @@ export default function DashboardPage() {
                             </button>
                             <button
                               onClick={() => setIsMeetupMapOpen(true)}
-                              style={{
-                                background: '#10b981',
-                                border: 'none',
-                                width: 36,
-                                height: 36,
-                                borderRadius: '50%',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                color: '#ffffff',
-                                cursor: 'pointer',
-                                transition: 'all 0.2s',
-                                boxShadow: 'none'
-                              }}
-                              onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.08)'}
-                              onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+                              style={{ background: '#fff', border: '1px solid #E5E7EB', width: 36, height: 36, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#374151', cursor: 'pointer' }}
                               title="Meet-up Map Tracker"
                             >
                               <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
@@ -6257,28 +6257,17 @@ export default function DashboardPage() {
                               const prevMsg = index > 0 ? chatMessages[index - 1] : null;
                               const showDivider = !prevMsg || 
                                 new Date(msg.created_at).toDateString() !== new Date(prevMsg.created_at).toDateString();
+                              const nextMsg = index < chatMessages.length - 1 ? chatMessages[index + 1] : null;
+                              const showAvatar = !nextMsg ||
+                                nextMsg.sender_id !== msg.sender_id ||
+                                new Date(nextMsg.created_at).toDateString() !== new Date(msg.created_at).toDateString() ||
+                                (new Date(nextMsg.created_at).getTime() - new Date(msg.created_at).getTime()) > 5 * 60 * 1000;
 
                               return (
                                 <div key={msg.id} style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
                                   {showDivider && (
-                                    <div style={{
-                                      display: 'flex',
-                                      justifyContent: 'center',
-                                      margin: '16px 0 8px',
-                                      width: '100%'
-                                    }}>
-                                      <span style={{
-                                        background: '#f8fafc',
-                                        border: '1px solid #e2e8f0',
-                                        color: '#111827',
-                                        fontSize: '11px',
-                                        fontWeight: 800,
-                                        padding: '4px 14px',
-                                        borderRadius: '6px',
-                                        textTransform: 'uppercase',
-                                        letterSpacing: '0.5px',
-                                        boxShadow: 'none'
-                                      }}>
+                                    <div style={{ display: 'flex', justifyContent: 'center', margin: '14px 0 8px', width: '100%' }}>
+                                      <span style={{ background: '#E5E7EB', color: '#6B7280', fontSize: 11, fontWeight: 500, padding: '3px 10px', borderRadius: 10 }}>
                                         {formatDividerDate(msg.created_at)}
                                       </span>
                                     </div>
@@ -6286,10 +6275,10 @@ export default function DashboardPage() {
                                   <div
                                     className={`chat-message-row ${isMe ? 'me' : 'them'}`}
                                     style={{
-                                      marginBottom: 4
+                                      marginBottom: 0
                                     }}
                                   >
-                                    {!isMe && (
+                                    {!isMe && (!showAvatar ? (<div style={{ width: 28, flexShrink: 0 }} />) : (
                                       activeChatUser.avatar ? (
                                         <img 
                                           src={getAvatarUrl(activeChatUser.avatar)} 
@@ -6305,9 +6294,9 @@ export default function DashboardPage() {
                                           {activeChatUser.name.charAt(0).toUpperCase()}
                                         </div>
                                       )
-                                    )}
+                                    ))}
                                     <div style={{display: 'flex', flexDirection: 'column', alignItems: isMe ? 'flex-end' : 'flex-start'}}>
-                                      <div className={`chat-message-bubble ${isMe ? 'me' : 'them'}`} style={msg.message?.startsWith("[LOCATION]") ? { background: '#f8fafc', border: '1px solid #cbd5e1', color: '#0f172a', padding: 0, overflow: 'hidden' } : {}}>
+                                      <div className={`chat-message-bubble ${isMe ? 'me' : 'them'}`} style={msg.message?.startsWith("[LOCATION]") ? { background: '#fff', border: '1px solid #E5E7EB', color: '#111827', padding: 0, overflow: 'hidden' } : {}}>
                                         {((msg.images && msg.images.length > 0) || (msg.optimistic_previews && msg.optimistic_previews.length > 0)) ? (
                                            <div style={{
                                              display: 'grid',
@@ -6362,7 +6351,7 @@ export default function DashboardPage() {
                                                     href={`https://www.google.com/maps?q=${lat},${lng}`}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    style={{ flex: 1, textAlign: 'center', background: '#3b82f6', color: '#fff', fontSize: 11, fontWeight: 600, padding: '6px 0', borderRadius: 8, textDecoration: 'none' }}
+                                                    style={{ flex: 1, textAlign: 'center', background: '#fff', color: '#111827', border: '1px solid #D1D5DB', fontSize: 12, fontWeight: 500, padding: '6px 0', borderRadius: 6, textDecoration: 'none' }}
                                                   >
                                                     Google Maps
                                                   </a>
@@ -6371,7 +6360,7 @@ export default function DashboardPage() {
                                                     onClick={() => {
                                                       setIsMeetupMapOpen(true);
                                                     }}
-                                                    style={{ flex: 1, background: '#10b981', color: '#fff', border: 'none', fontSize: 11, fontWeight: 600, padding: '6px 0', borderRadius: 8, cursor: 'pointer' }}
+                                                    style={{ flex: 1, background: '#111827', color: '#fff', border: 'none', fontSize: 12, fontWeight: 500, padding: '6px 0', borderRadius: 6, cursor: 'pointer' }}
                                                   >
                                                     Meetup Map
                                                   </button>
@@ -6383,9 +6372,11 @@ export default function DashboardPage() {
                                           )
                                         )}
                                       </div>
-                                      <span style={{fontSize: 10, color: '#94a3b8', margin: '4px 4px 0'}}>
-                                        {new Date(msg.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
-                                      </span>
+                                      {showAvatar && (
+                                        <span style={{ fontSize: 11, color: '#9CA3AF', margin: '3px 2px 0' }}>
+                                          {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                        </span>
+                                      )}
                                     </div>
                                   </div>
                                 </div>
@@ -6409,10 +6400,10 @@ export default function DashboardPage() {
                                   {activeChatUser.name.charAt(0).toUpperCase()}
                                 </div>
                               )}
-                              <div className="chat-message-bubble them" style={{ background: '#d8b4fe', display: 'flex', alignItems: 'center', gap: 6, border: '1px solid #E5E7EB', boxShadow: 'none' }}>
-                                <span style={{ width: 8, height: 8, background: '#475569', borderRadius: '50%', animation: 'typingBounce 1.4s infinite ease-in-out both', animationDelay: '-0.32s' }}></span>
-                                <span style={{ width: 8, height: 8, background: '#475569', borderRadius: '50%', animation: 'typingBounce 1.4s infinite ease-in-out both', animationDelay: '-0.16s' }}></span>
-                                <span style={{ width: 8, height: 8, background: '#475569', borderRadius: '50%', animation: 'typingBounce 1.4s infinite ease-in-out both' }}></span>
+                              <div className="chat-message-bubble them" style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '12px 14px' }}>
+                                <span style={{ width: 6, height: 6, background: '#9CA3AF', borderRadius: '50%', animation: 'typingBounce 1.4s infinite ease-in-out both', animationDelay: '-0.32s' }}></span>
+                                <span style={{ width: 6, height: 6, background: '#9CA3AF', borderRadius: '50%', animation: 'typingBounce 1.4s infinite ease-in-out both', animationDelay: '-0.16s' }}></span>
+                                <span style={{ width: 6, height: 6, background: '#9CA3AF', borderRadius: '50%', animation: 'typingBounce 1.4s infinite ease-in-out both' }}></span>
                               </div>
                             </div>
                           )}
@@ -6420,7 +6411,7 @@ export default function DashboardPage() {
                         </div>
 
                         {/* CHAT INPUT AREA */}
-                        <div style={{ borderTop: '1px solid #e2e8f0', background: '#f8fafc', display: 'flex', flexDirection: 'column' }}>
+                        <div style={{ borderTop: '1px solid #E5E7EB', background: '#ffffff', display: 'flex', flexDirection: 'column' }}>
                           {chatImagePreviews.length > 0 && (
                             <div style={{ padding: '12px 24px 0', display: 'flex', gap: 8, overflowX: 'auto', alignItems: 'center' }}>
                               {chatImagePreviews.map((preview, idx) => (
@@ -6460,6 +6451,22 @@ export default function DashboardPage() {
                                   style={{ display: 'none' }}
                                 />
                               </label>
+                            </div>
+                          )}
+                          {!newChatMessage.trim() && chatImagePreviews.length === 0 && (
+                            <div className="chat-quick-replies">
+                              {["Is this still available?", "Can you ship today?", "Thank you!", "Okay, noted."].map(txt => (
+                                <button
+                                  key={txt}
+                                  type="button"
+                                  onClick={() => {
+                                    setNewChatMessage(txt);
+                                    chatInputRef.current?.focus();
+                                  }}
+                                >
+                                  {txt}
+                                </button>
+                              ))}
                             </div>
                           )}
                           <form onSubmit={handleSendMessage} className="chat-input-form" style={{ position: 'relative' }}>
@@ -6549,7 +6556,7 @@ export default function DashboardPage() {
                               </div>
                             )}
 
-                            <label style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', width: 44, height: 44, borderRadius: '50%', background: '#e2e8f0', color: '#64748b', transition: 'all 0.2s', flexShrink: 0 }} title="Upload Images">
+                            <label style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', width: 36, height: 36, borderRadius: 8, background: 'transparent', color: '#6B7280', transition: 'background 0.15s', flexShrink: 0 }} title="Upload Images">
                               <input
                                 type="file"
                                 accept="image/*"
@@ -6582,11 +6589,11 @@ export default function DashboardPage() {
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
-                                width: 44,
-                                height: 44,
-                                borderRadius: '50%',
-                                background: isEmojiPickerOpen ? '#E5E7EB' : '#e2e8f0',
-                                color: isEmojiPickerOpen ? '#1F2937' : '#64748b',
+                                width: 36,
+                                height: 36,
+                                borderRadius: 8,
+                                background: isEmojiPickerOpen ? '#F3F4F6' : 'transparent',
+                                color: isEmojiPickerOpen ? '#111827' : '#6B7280',
                                 border: 'none',
                                 cursor: 'pointer',
                                 transition: 'all 0.2s',
@@ -6608,11 +6615,11 @@ export default function DashboardPage() {
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
-                                width: 44,
-                                height: 44,
-                                borderRadius: '50%',
-                                background: sharingLocation ? '#d1fae5' : '#e2e8f0',
-                                color: sharingLocation ? '#059669' : '#64748b',
+                                width: 36,
+                                height: 36,
+                                borderRadius: 8,
+                                background: sharingLocation ? '#ECFDF5' : 'transparent',
+                                color: sharingLocation ? '#059669' : '#6B7280',
                                 border: 'none',
                                 cursor: sharingLocation ? 'not-allowed' : 'pointer',
                                 transition: 'all 0.2s',
@@ -6641,7 +6648,7 @@ export default function DashboardPage() {
                             </button>
                             <textarea
                               ref={chatInputRef}
-                              placeholder={`Message ${activeChatUser.name}...`}
+                              placeholder="Type a message..."
                               value={newChatMessage}
                               onChange={e => {
                                 setNewChatMessage(e.target.value);
@@ -6670,36 +6677,33 @@ export default function DashboardPage() {
                               type="submit"
                               disabled={!newChatMessage.trim() && chatImageFiles.length === 0}
                               style={{
-                                background: '#111827',
-                                color: '#fff',
-                                border: '1px solid #e2e8f0',
-                                width: 46,
-                                height: 46,
-                                borderRadius: 10,
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
+                                background: (!newChatMessage.trim() && chatImageFiles.length === 0) ? '#E5E7EB' : '#111827',
+                                color: (!newChatMessage.trim() && chatImageFiles.length === 0) ? '#9CA3AF' : '#FFFFFF',
+                                border: 'none',
+                                height: 40,
+                                padding: '0 20px',
+                                borderRadius: 8,
+                                fontSize: 14,
+                                fontWeight: 600,
+                                fontFamily: 'inherit',
                                 cursor: (!newChatMessage.trim() && chatImageFiles.length === 0) ? 'not-allowed' : 'pointer',
-                                opacity: (!newChatMessage.trim() && chatImageFiles.length === 0) ? 0.6 : 1,
-                                boxShadow: 'none',
-                                transition: 'all 0.2s',
                                 flexShrink: 0
                               }}
                             >
-                              <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+                              Send
                             </button>
                           </form>
                         </div>
                       </>
                     ) : (
-                      <div style={{margin: 'auto', textAlign: 'center', color: '#94a3b8', padding: 24}}>
-                        <div style={{width: 64, height: 64, borderRadius: '50%', background: '#f1f5f9', color: '#cbd5e1', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px'}}>
+                      <div style={{ margin: 'auto', textAlign: 'center', color: '#9CA3AF', padding: 24 }}>
+                        <div style={{ width: 56, height: 56, borderRadius: '50%', background: '#F3F4F6', color: '#9CA3AF', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px' }}>
                           <IconChat />
                         </div>
-                        <h3 style={{fontSize: 18, fontWeight: 700, color: '#0f172a', margin: '0 0 8px'}}>Your Messages</h3>
-                        <p style={{fontSize: 14, maxWidth: 260, margin: 0, lineHeight: 1.5}}>
-                          Select a conversation from the left sidebar to start chatting.
-                        </p>
+                        <div style={{ fontSize: 15, fontWeight: 600, color: '#111827', marginBottom: 4 }}>Select a chat to start messaging</div>
+                        <div style={{ fontSize: 13, maxWidth: 260, margin: '0 auto', lineHeight: 1.5 }}>
+                          Choose a conversation from the list to reply to buyers and sellers.
+                        </div>
                       </div>
                     )}
                   </div>
