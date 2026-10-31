@@ -341,4 +341,27 @@ test('vouchers enforce strict single-use per account and display clean non-AI re
   assert.match(shopSrc, /Used on previous order • 1 use limit reached/, 'Shop storefront must mark previously redeemed vouchers as Used');
 });
 
+test('dashboard sidebar uses authentic e-commerce structure and dedicated sign out footer (no generic AI template terms)', () => {
+  const dashSrc = fs.readFileSync('app/dashboard/page.tsx', 'utf8');
+
+  // Must not have generic AI template section headers
+  assert.equal(dashSrc.includes('title: "Main Menu"'), false, 'Sidebar must not use generic "Main Menu" header');
+  assert.equal(dashSrc.includes('title: "Seller Hub"'), false, 'Sidebar must use "Seller Centre" instead of generic "Seller Hub"');
+  assert.equal(dashSrc.includes('title: "Application"'), false, 'Sidebar must not use generic AI template "Application" header');
+
+  // Must use authentic e-commerce navigation section headers
+  assert.equal(dashSrc.includes('title: "Shopping & Orders"'), true, 'Sidebar must group buyer navigation under "Shopping & Orders"');
+  assert.equal(dashSrc.includes('title: "Seller Centre"'), true, 'Sidebar must group merchant navigation under "Seller Centre"');
+  assert.equal(dashSrc.includes('title: "Messages & Support"'), true, 'Sidebar must group communication under "Messages & Support"');
+
+  // Must not have ugly tree tick pseudo-elements
+  assert.equal(dashSrc.includes('.sidebar-sub-item::before'), false, 'Sidebar submenu must not use ugly tree tick dashes');
+
+  // Must have dedicated session footer for Sign Out
+  assert.equal(dashSrc.includes('className="sidebar-footer"'), true, 'Sidebar must have a dedicated session footer');
+  assert.equal(dashSrc.includes('className="sidebar-logout-btn"'), true, 'Sidebar must have a cleanly styled Sign Out button');
+  assert.equal(dashSrc.includes('className="sidebar-role-pill"'), true, 'Sidebar must display authentic Shopply merchant badge');
+});
+
+
 

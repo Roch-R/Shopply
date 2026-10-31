@@ -3294,18 +3294,13 @@ export default function DashboardPage() {
   const sidebarItemsList: { id: SidebarTab; icon: React.ReactNode; label: string }[] = [
     { id: "profile", icon: <IconUser />, label: "Your Profile" },
     { id: "orders", icon: <IconOrders />, label: "Your Orders" },
-    { id: "notifications", icon: <IconBell />, label: "Notifications" },
-    { id: "messages", icon: <IconChat />, label: "Messages" },
+    { id: "shop", icon: <IconShop />, label: "Public Store" },
     { id: "store-orders", icon: <IconStore />, label: "Store Orders" },
-    { id: "my-items", icon: <IconBox />, label: "My Items" },
-    { id: "add-item", icon: <IconPlus />, label: "Add New Item" },
+    { id: "my-items", icon: <IconBox />, label: "My Products" },
+    { id: "add-item", icon: <IconPlus />, label: "Add New Product" },
+    { id: "messages", icon: <IconChat />, label: "Messages" },
+    { id: "notifications", icon: <IconBell />, label: "Notifications" },
     { id: "settings", icon: <IconSettings />, label: "Settings" },
-    { id: "shop", icon: <IconShop />, label: "Public Shop" },
-    { id: "logout", icon: (
-      <svg width="18" height="18" fill="none" stroke="#ef4444" strokeWidth="2.2" viewBox="0 0 24 24">
-        <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" strokeLinecap="round" strokeLinejoin="round"/>
-      </svg>
-    ), label: "Logout" },
   ];
 
   return (
@@ -3441,17 +3436,15 @@ export default function DashboardPage() {
           min-height: 100vh;
         }
 
-        /* --- FLAT NEO-BRUTALIST SIDEBAR (FLUSH, NO RADIUS, NO SHADOW, BOLD OUTLINE) --- */
+        /* --- AUTHENTIC RETAIL SIDEBAR --- */
         .sidebar {
           background: #ffffff;
-          border-radius: 0px !important;
-          padding: 20px 14px 24px 14px;
+          padding: 16px 12px 14px 12px;
           box-shadow: none !important;
           border: none !important;
-          border-right: 1px solid #e2e8f0 !important;
+          border-right: 1px solid #E5E7EB !important;
           display: flex;
           flex-direction: column;
-          gap: 4px;
           position: fixed;
           top: 70px;
           left: 0;
@@ -3460,51 +3453,155 @@ export default function DashboardPage() {
           z-index: 40;
           height: calc(100vh - 70px);
           max-height: calc(100vh - 70px);
-          overflow-y: auto;
-          overflow-x: hidden;
+          overflow: hidden;
+          box-sizing: border-box;
         }
         .content {
           margin-left: 260px;
           padding: 24px 28px 40px 28px;
         }
 
-        .sidebar-section { display: flex; flex-direction: column; gap: 3px; width: 100%; }
-        .sidebar-menu-scrollable {
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-          gap: 4px;
-          overflow-y: auto;
-          overflow-x: hidden;
-          width: 100%;
-        }
-        .sidebar-menu-scrollable::-webkit-scrollbar { width: 5px; }
-        .sidebar-menu-scrollable::-webkit-scrollbar-thumb {
-          background: #cbd5e1;
-          border-radius: 0px;
-        }
-        .sidebar-menu-scrollable::-webkit-scrollbar-track { background: transparent; }
-
+        /* Profile card at top of sidebar */
         .sidebar-profile-header {
           display: flex;
           align-items: center;
           gap: 12px;
-          padding: 10px 10px 14px;
-          margin-bottom: 12px;
-          border-bottom: 1px solid #f1f5f9;
+          padding: 6px 8px 14px 8px;
+          margin-bottom: 8px;
+          border-bottom: 1px solid #F1F5F9;
           position: relative;
+          flex-shrink: 0;
+        }
+        .sidebar-avatar-wrapper {
+          width: 42px;
+          height: 42px;
+          border-radius: 50%;
+          border: 2px solid #E2E8F0;
+          background: #F1F5F9;
+          color: #0F172A;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: 700;
+          font-size: 15px;
+          flex-shrink: 0;
+          overflow: hidden;
+        }
+        .sidebar-avatar-img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          border-radius: 50%;
+        }
+        .sidebar-profile-info {
+          min-width: 0;
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+        }
+        .sidebar-user-name {
+          font-size: 13.5px;
+          font-weight: 700;
+          color: #0F172A;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          line-height: 1.3;
+        }
+        .sidebar-role-pill {
+          display: inline-flex;
+          align-items: center;
+          gap: 5px;
+          font-size: 10.5px;
+          font-weight: 600;
+          color: #047857;
+          background: #ECFDF5;
+          border: 1px solid #A7F3D0;
+          padding: 1px 7px;
+          border-radius: 9999px;
+          width: fit-content;
+          letter-spacing: 0.02em;
+        }
+        .sidebar-role-dot {
+          width: 5px;
+          height: 5px;
+          border-radius: 50%;
+          background: #10B981;
+          flex-shrink: 0;
+        }
+        .sidebar-close-btn {
+          display: none;
+          background: #F1F5F9;
+          border: 1px solid #E2E8F0;
+          border-radius: 6px;
+          width: 28px;
+          height: 28px;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          font-size: 13px;
+          font-weight: 700;
+          color: #475569;
+          flex-shrink: 0;
+          transition: all 0.15s ease;
+        }
+        .sidebar-close-btn:hover {
+          background: #E2E8F0;
+          color: #0F172A;
+        }
+
+        /* Scrollable navigation groups */
+        .sidebar-menu-scrollable {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          overflow-y: auto;
+          overflow-x: hidden;
+          width: 100%;
+          padding-right: 2px;
+        }
+        .sidebar-menu-scrollable::-webkit-scrollbar { width: 4px; }
+        .sidebar-menu-scrollable::-webkit-scrollbar-thumb {
+          background: #E2E8F0;
+          border-radius: 4px;
+        }
+        .sidebar-menu-scrollable::-webkit-scrollbar-track { background: transparent; }
+
+        .sidebar-section {
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+          width: 100%;
+        }
+        .sidebar-section-title {
+          font-size: 11px;
+          font-weight: 700;
+          color: #64748B;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+          padding: 4px 10px;
+          margin-bottom: 2px;
+        }
+
+        /* Navigation items */
+        .sidebar-item-container {
+          width: 100%;
+          display: flex;
+          flex-direction: column;
         }
         .sidebar-item {
           display: flex;
           align-items: center;
-          gap: 12px;
-          padding: 9px 12px;
-          border-radius: 8px !important;
+          gap: 11px;
+          padding: 8.5px 12px;
+          border-radius: 8px;
           font-size: 13.5px;
-          font-weight: 600;
-          color: #374151;
+          font-weight: 500;
+          color: #475569;
           cursor: pointer;
-          background: #ffffff;
+          background: transparent;
           border: 1px solid transparent;
           transition: all 0.15s ease;
           text-align: left;
@@ -3512,99 +3609,155 @@ export default function DashboardPage() {
           box-sizing: border-box;
         }
         .sidebar-item:hover {
-          background: #F3F4F6;
-          color: #111827;
-          border-color: transparent;
-          border-radius: 8px !important;
-          box-shadow: none !important;
+          background: #F1F5F9;
+          color: #0F172A;
         }
-        .sidebar-item:active {
-          box-shadow: none !important;
+        .sidebar-item:hover .sidebar-icon {
+          color: #0F172A;
         }
         .sidebar-item.active {
-          background: #111827 !important;
-          color: #ffffff !important;
-          border: 1px solid #111827 !important;
-          border-radius: 8px !important;
-          box-shadow: none !important;
+          background: #0F172A !important;
+          color: #FFFFFF !important;
+          border-color: #0F172A !important;
           font-weight: 600;
+          box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+        }
+        .sidebar-item.active .sidebar-icon {
+          color: #FFFFFF !important;
         }
         .sidebar-icon {
           display: flex;
           align-items: center;
           justify-content: center;
           font-size: 18px;
+          color: #64748B;
+          flex-shrink: 0;
+          transition: color 0.15s ease;
         }
-        .sidebar-item.active .sidebar-icon { color: #ffffff !important; }
+        .sidebar-item-label {
+          flex: 1;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
         .sidebar-badge {
-          background: #ef4444;
-          color: #ffffff;
+          background: #0F172A;
+          color: #FFFFFF;
           font-size: 11px;
-          font-weight: 900;
-          padding: 2px 7px;
-          border-radius: 6px;
-          border: 1px solid #fecaca;
-          box-shadow: none;
+          font-weight: 700;
+          padding: 1px 7px;
+          border-radius: 9999px;
+          line-height: 1.4;
+          min-width: 18px;
+          text-align: center;
+          flex-shrink: 0;
         }
         .sidebar-item.active .sidebar-badge {
-          background: #ffffff;
-          color: #111827;
-          border-color: #E5E7EB;
+          background: #FFFFFF;
+          color: #0F172A;
         }
 
+        /* Order Submenu */
         .sidebar-sub-menu {
           display: flex;
           flex-direction: column;
-          gap: 3px;
-          padding-left: 18px;
-          margin-top: 3px;
+          gap: 2px;
+          padding: 4px 0 4px 16px;
           position: relative;
           overflow: hidden;
           max-height: 0;
-          transition: all 0.25s ease;
+          transition: max-height 0.25s ease, margin 0.25s ease;
         }
-        .sidebar-sub-menu.expanded { max-height: 500px; margin: 5px 0; }
-        .sidebar-sub-menu::before {
-          content: '';
-          position: absolute;
-          left: 18px; top: 0; bottom: 8px;
-          width: 1.5px;
-          background: #e2e8f0;
+        .sidebar-sub-menu.expanded {
+          max-height: 260px;
+          margin: 3px 0 6px 0;
         }
         .sidebar-sub-item {
-          position: relative;
           display: flex;
           align-items: center;
-          padding: 8px 14px 8px 26px;
+          gap: 10px;
+          padding: 6.5px 12px;
           font-size: 12.5px;
-          font-weight: 700;
-          color: #111827;
-          border-radius: 8px !important;
-          border: 1px solid transparent;
-          background: none;
+          font-weight: 500;
+          color: #64748B;
+          border-radius: 6px;
+          border: none;
+          background: transparent;
           cursor: pointer;
-          transition: all 0.15s;
+          transition: all 0.15s ease;
           text-align: left;
           width: 100%;
-        }
-        .sidebar-sub-item::before {
-          content: '';
-          position: absolute;
-          left: 18px; top: 50%;
-          width: 8px; height: 1.5px;
-          background: #cbd5e1;
+          box-sizing: border-box;
         }
         .sidebar-sub-item:hover {
-          color: #111827;
-          background: #F3F4F6;
-          border-color: transparent;
-          box-shadow: none;
+          color: #0F172A;
+          background: #F1F5F9;
         }
         .sidebar-sub-item.active {
-          color: #ffffff;
-          background: #111827;
-          border: 1px solid #111827;
-          box-shadow: none;
+          color: #0F172A;
+          background: #E2E8F0;
+          font-weight: 600;
+        }
+        .sidebar-sub-bullet {
+          width: 5px;
+          height: 5px;
+          border-radius: 50%;
+          background: #CBD5E1;
+          flex-shrink: 0;
+          transition: all 0.15s ease;
+        }
+        .sidebar-sub-item:hover .sidebar-sub-bullet {
+          background: #94A3B8;
+        }
+        .sidebar-sub-item.active .sidebar-sub-bullet {
+          background: #0F172A;
+          transform: scale(1.2);
+        }
+
+        /* Sidebar Footer (Dedicated Sign Out Session) */
+        .sidebar-footer {
+          margin-top: auto;
+          padding-top: 10px;
+          border-top: 1px solid #F1F5F9;
+          flex-shrink: 0;
+          width: 100%;
+        }
+        .sidebar-logout-btn {
+          display: flex;
+          align-items: center;
+          gap: 11px;
+          width: 100%;
+          padding: 9px 12px;
+          border-radius: 8px;
+          font-size: 13.5px;
+          font-weight: 500;
+          color: #64748B;
+          background: transparent;
+          border: 1px solid transparent;
+          cursor: pointer;
+          transition: all 0.15s ease;
+          text-align: left;
+          box-sizing: border-box;
+        }
+        .sidebar-logout-btn:hover {
+          background: #FEF2F2;
+          color: #DC2626;
+          border-color: #FEE2E2;
+        }
+        .sidebar-logout-btn:hover .sidebar-logout-icon {
+          color: #DC2626;
+        }
+        .sidebar-logout-icon {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 18px;
+          color: #94A3B8;
+          flex-shrink: 0;
+          transition: color 0.15s ease;
+        }
+        .sidebar-logout-text {
+          font-size: 13.5px;
           font-weight: 600;
         }
 
@@ -5014,47 +5167,34 @@ export default function DashboardPage() {
 
           {/* SIDEBAR */}
           <aside className={`sidebar no-print ${isMobileMenuOpen ? 'mobile-open' : ''}`}>
-
-
             {/* PROFILE HEADER IN SIDEBAR */}
             <div className="sidebar-profile-header">
-              <div style={{ width: 40, height: 40, borderRadius: 8, border: '1px solid #E5E7EB', boxShadow: 'none', background: '#F3F4F6', color: '#111827', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 15, flexShrink: 0, overflow: 'hidden' }}>
+              <div className="sidebar-avatar-wrapper">
                 {user?.avatar && !avatarLoadFailed ? (
                   <img
                     src={getAvatarUrl(user.avatar)}
                     alt=""
                     onError={() => setAvatarLoadFailed(true)}
-                    style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 0 }}
+                    className="sidebar-avatar-img"
                   />
                 ) : (
-                  user?.name ? user.name.charAt(0).toUpperCase() : 'U'
+                  <span>{user?.name ? user.name.charAt(0).toUpperCase() : 'U'}</span>
                 )}
               </div>
-              <div style={{ minWidth: 0, flex: 1 }}>
-                  <div style={{ fontSize: 13, fontWeight: 800, color: '#111827', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user?.name || 'User'}</div>
-                  <div style={{ fontSize: 11, color: '#475569', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user?.email || user?.username || 'Shopply Member'}</div>
+              <div className="sidebar-profile-info">
+                <div className="sidebar-user-name" title={user?.name || 'User'}>
+                  {user?.name || 'User'}
+                </div>
+                <div className="sidebar-role-pill">
+                  <span className="sidebar-role-dot" />
+                  <span>Shopply Merchant</span>
+                </div>
               </div>
               <button
                 type="button"
                 className="sidebar-close-btn"
                 onClick={() => setIsMobileMenuOpen(false)}
                 title="Close Menu"
-                style={{
-                  display: 'none',
-                  background: '#F9FAFB',
-                  border: '1px solid #e2e8f0',
-                  borderRadius: 6,
-                  width: 30,
-                  height: 30,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer',
-                  fontSize: 14,
-                  fontWeight: 900,
-                  color: '#111827',
-                  flexShrink: 0,
-                  boxShadow: 'none'
-                }}
               >
                 ✕
               </button>
@@ -5064,28 +5204,29 @@ export default function DashboardPage() {
             <div className="sidebar-menu-scrollable">
               {[
                 {
-                  title: "Main Menu",
+                  title: "Shopping & Orders",
                   items: ["profile", "orders", "shop"]
                 },
                 {
-                  title: "Seller Hub",
+                  title: "Seller Centre",
                   items: ["store-orders", "my-items", "add-item"]
                 },
                 {
-                  title: "Application",
-                  items: ["notifications", "messages", "settings", "logout"]
+                  title: "Messages & Support",
+                  items: ["messages", "notifications", "settings"]
                 }
               ].map((section, idx) => {
                 const visibleItems = sidebarItemsList.filter(item => section.items.includes(item.id));
                 if (visibleItems.length === 0) return null;
                 return (
-                  <div key={idx} className="sidebar-section" style={{ marginBottom: 12 }}>
-                    <div style={{ fontSize: 9, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.8px', padding: '4px 14px 4px', marginBottom: 4 }}>
-                        {section.title}
-                      </div>
+                  <div key={idx} className="sidebar-section">
+                    <div className="sidebar-section-title">
+                      {section.title}
+                    </div>
                     {visibleItems.map(si => (
                       <div key={si.id} className="sidebar-item-container">
                         <button
+                          type="button"
                           className={`sidebar-item ${activeTab === si.id ? "active" : ""}`}
                           onClick={() => {
                             if (si.id !== 'orders') {
@@ -5094,8 +5235,6 @@ export default function DashboardPage() {
                             if (si.id === "shop") {
                               handleGoToShop();
                               router.push("/shop");
-                            } else if (si.id === "logout") {
-                              handleLogout();
                             } else if (si.id === 'orders') {
                               if (activeTab !== 'orders') {
                                 setActiveTab('orders');
@@ -5107,10 +5246,9 @@ export default function DashboardPage() {
                               setActiveTab(si.id);
                             }
                           }}
-                          style={si.id === 'logout' ? { color: '#ef4444' } : undefined}
                         >
                           <span className="sidebar-icon">{si.icon}</span>
-                          <span style={{ flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', color: si.id === 'logout' ? '#ef4444' : undefined, fontWeight: si.id === 'logout' ? 600 : undefined }}>{si.label}</span>
+                          <span className="sidebar-item-label">{si.label}</span>
                           {si.id === 'notifications' && pendingSellerOrdersCount > 0 && (
                             <span className="sidebar-badge">{pendingSellerOrdersCount}</span>
                           )}
@@ -5118,8 +5256,22 @@ export default function DashboardPage() {
                             <span className="sidebar-badge">{chatConversations.reduce((acc, c) => acc + (c.unread_count || 0), 0)}</span>
                           )}
                           {si.id === 'orders' && (
-                            <svg width="10" height="10" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24" style={{ transform: ordersExpanded ? 'rotate(0deg)' : 'rotate(-90deg)', transition: 'transform .3s ease', opacity: 0.8 }}>
-                              <path d="M6 9l6 6 6-6" />
+                            <svg
+                              width="14"
+                              height="14"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2.2"
+                              viewBox="0 0 24 24"
+                              style={{
+                                transform: ordersExpanded ? 'rotate(90deg)' : 'rotate(0deg)',
+                                transition: 'transform 0.2s ease',
+                                color: activeTab === 'orders' ? '#FFFFFF' : '#94A3B8',
+                                marginLeft: 'auto',
+                                flexShrink: 0
+                              }}
+                            >
+                              <path d="M9 18l6-6-6-6" strokeLinecap="round" strokeLinejoin="round" />
                             </svg>
                           )}
                         </button>
@@ -5127,29 +5279,54 @@ export default function DashboardPage() {
                         {/* Expanded Submenu */}
                         {si.id === "orders" && (
                           <div className={`sidebar-sub-menu ${ordersExpanded ? 'expanded' : ''}`}>
-                            {["all", "processing", "shipped", "delivered", "returns"].map(tab => (
+                            {[
+                              { id: "all", label: "All Orders" },
+                              { id: "processing", label: "To Ship" },
+                              { id: "shipped", label: "To Receive" },
+                              { id: "delivered", label: "Completed" },
+                              { id: "returns", label: "Cancelled / Returns" },
+                            ].map(tab => (
                               <button
-                                key={tab}
-                                className={`sidebar-sub-item ${activeTab === 'orders' && orderTab === tab ? "active" : ""}`}
-                                onClick={() => {
+                                key={tab.id}
+                                type="button"
+                                className={`sidebar-sub-item ${activeTab === 'orders' && orderTab === tab.id ? "active" : ""}`}
+                                onClick={(e) => {
+                                  e.stopPropagation();
                                   setIsMobileMenuOpen(false);
                                   setActiveTab('orders');
-                                  setOrderTab(tab);
+                                  setOrderTab(tab.id);
+                                  setOrdersPage(1);
                                 }}
                               >
-                                {tab === "all" ? "All orders" : tab.charAt(0).toUpperCase() + tab.slice(1).replace("-", " ")}
+                                <span className="sidebar-sub-bullet" />
+                                <span>{tab.label}</span>
                               </button>
                             ))}
                           </div>
                         )}
-
-
-
                       </div>
                     ))}
                   </div>
                 );
               })}
+            </div>
+
+            {/* DEDICATED SESSION FOOTER */}
+            <div className="sidebar-footer">
+              <button
+                type="button"
+                className="sidebar-logout-btn"
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  handleLogout();
+                }}
+                title="Sign out of your account"
+              >
+                <span className="sidebar-logout-icon">
+                  <IconLogout />
+                </span>
+                <span className="sidebar-logout-text">Sign Out</span>
+              </button>
             </div>
           </aside>
 
