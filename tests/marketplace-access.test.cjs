@@ -305,3 +305,24 @@ test('dashboard messages use a marketplace-style chat layout (search, unread fil
   assert.equal(dashSrc.includes("background: '#d8b4fe'"), false, 'Typing bubble must not use the purple fill');
   assert.equal(dashSrc.includes('Select a conversation from the left sidebar'), false, 'Empty state must use plain retail wording');
 });
+
+test('dashboard and shop use authentic neutral e-commerce notification toasts and cohesive chat colors (no giant red/green slabs)', () => {
+  const dashSrc = fs.readFileSync('app/dashboard/page.tsx', 'utf8');
+  const shopSrc = fs.readFileSync('app/shop/page.tsx', 'utf8');
+
+  // Dashboard toast uses top-right card notification with clean white surface, subtle elevation, and dismiss button
+  assert.equal(dashSrc.includes('className="dashboard-toast"'), true, 'Dashboard toast must use dashboard-toast class');
+  assert.equal(dashSrc.includes("top: '24px'"), true, 'Dashboard toast must sit at top-right to avoid blocking chat inputs');
+  assert.equal(dashSrc.includes("background: toast.type === 'success' ? '#10b981' : '#ef4444'"), false, 'Old solid red/green toast background must be eliminated');
+
+  // Outgoing messages use clean Shopply brand identity (sleek dark slate #111827), not WhatsApp green #D9F0E3
+  assert.equal(dashSrc.includes('.chat-message-bubble.me { background: #D9F0E3;'), false, 'Outgoing bubble must not use pale WhatsApp green');
+  assert.equal(dashSrc.includes('.chat-message-bubble.me { background: #111827;'), true, 'Outgoing bubble must use Shopply sleek primary color');
+
+  // Unread badge uses sleek dark badge, not neon red #DC2626
+  assert.equal(dashSrc.includes("background: '#DC2626'"), false, 'Unread badge must not use neon red');
+
+  // Shop chat drawer location card buttons use neutral e-commerce styling, not bright green #10b981
+  assert.equal(shopSrc.includes("background: '#10b981', color: '#fff', border: 'none', fontSize: 11, fontWeight: 600, padding: '6px 0', borderRadius: 8, cursor: 'pointer'"), false, 'Shop chat Meetup Map must not use old green button');
+});
+

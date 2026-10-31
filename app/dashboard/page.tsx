@@ -1229,7 +1229,7 @@ export default function DashboardPage() {
         peer.on('error', (err: any) => {
           console.error('[PeerJS] Error:', err);
           if (err.type === 'peer-unavailable') {
-            showToast("The user is offline or not available for calls.", "error");
+            showToast(`${activeChatUser?.name || "The user"} is offline or not available for calls.`, "error");
             handleEndVideoCall();
           }
         });
@@ -4197,6 +4197,19 @@ export default function DashboardPage() {
           .no-print { display: none !important; }
         }
 
+        @keyframes toastSlideInTop {
+          from { opacity: 0; transform: translateY(-8px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @media (max-width: 640px) {
+          .dashboard-toast {
+            top: 16px !important;
+            right: 16px !important;
+            left: 16px !important;
+            max-width: none !important;
+          }
+        }
+
         /* --- CHAT (marketplace messaging) --- */
         .chat-card-container {
           width: 100%;
@@ -4276,7 +4289,8 @@ export default function DashboardPage() {
           font-weight: 400;
           border-radius: 10px;
         }
-        .chat-message-bubble.me { background: #D9F0E3; color: #111827; border: none; }
+        .chat-message-bubble.me { background: #111827; color: #ffffff; border: none; }
+        .chat-message-bubble.me a { color: #ffffff; text-decoration: underline; }
         .chat-message-bubble.them { background: #ffffff; color: #111827; border: none; box-shadow: 0 1px 1px rgba(17, 24, 39, 0.05); }
         .chat-quick-replies { display: flex; gap: 8px; padding: 10px 14px 0; overflow-x: auto; }
         .chat-quick-replies button {
@@ -6139,7 +6153,7 @@ export default function DashboardPage() {
                                         {preview}
                                       </span>
                                       {conv.unread_count > 0 && (
-                                        <span style={{ background: '#DC2626', color: '#fff', fontSize: 11, fontWeight: 600, minWidth: 18, height: 18, padding: '0 5px', borderRadius: 9, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                        <span style={{ background: '#111827', color: '#fff', fontSize: 11, fontWeight: 600, minWidth: 18, height: 18, padding: '0 6px', borderRadius: 9, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                                           {conv.unread_count}
                                         </span>
                                       )}
@@ -6338,7 +6352,7 @@ export default function DashboardPage() {
                                             return (
                                               <div style={{ padding: 12, display: 'flex', flexDirection: 'column', gap: 10, width: 220 }}>
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                                  <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#ECFDF5', color: '#059669', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                  <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#F3F4F6', color: '#111827', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                                     <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24"><path d="M12 2a8 8 0 00-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 00-8-8z"/><circle cx="12" cy="10" r="3"/></svg>
                                                   </div>
                                                   <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -10838,36 +10852,77 @@ export default function DashboardPage() {
         {/* TOAST NOTIFICATION */}
         {toast && typeof window !== 'undefined' && createPortal(
           <div
+            className="dashboard-toast"
+            role="status"
+            aria-live="polite"
             style={{
               position: 'fixed',
-              bottom: '24px',
+              top: '24px',
               right: '24px',
-              height: 'auto',
-              maxHeight: '70px',
-              width: 'auto',
-              maxWidth: '380px',
-              padding: '12px 18px',
-              borderRadius: '12px',
-              background: toast.type === 'success' ? '#10b981' : '#ef4444',
-              color: '#ffffff',
-              fontWeight: 600,
-              fontSize: '14px',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '10px',
               zIndex: 999999,
-              border: '1px solid #e2e8f0',
-              boxShadow: 'none',
+              maxWidth: '420px',
+              minWidth: '280px',
+              background: '#FFFFFF',
+              color: '#111827',
+              borderRadius: '10px',
+              border: '1px solid #E5E7EB',
+              boxShadow: '0 10px 25px -5px rgba(17, 24, 39, 0.12), 0 8px 10px -6px rgba(17, 24, 39, 0.04)',
+              padding: '12px 14px',
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: '12px',
               pointerEvents: 'auto',
               boxSizing: 'border-box',
-              lineHeight: 1.4,
-              overflow: 'hidden',
-              whiteSpace: 'nowrap',
-              textOverflow: 'ellipsis'
+              animation: 'toastSlideInTop 0.22s cubic-bezier(0.16, 1, 0.3, 1)'
             }}
           >
-            {toast.type === 'success' ? <IconCheck /> : <IconWarning />}
-            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{toast.message}</span>
+            <div
+              style={{
+                width: 24,
+                height: 24,
+                borderRadius: '50%',
+                background: toast.type === 'success' ? '#F0FDF4' : '#FEF2F2',
+                color: toast.type === 'success' ? '#16A34A' : '#DC2626',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+                marginTop: 1
+              }}
+            >
+              {toast.type === 'success' ? (
+                <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                  <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              ) : (
+                <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="10" />
+                  <path d="M12 8v4M12 16h.01" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              )}
+            </div>
+            <div style={{ flex: 1, minWidth: 0, fontSize: '13px', lineHeight: 1.45, color: '#1F2937', fontWeight: 500, wordBreak: 'break-word', whiteSpace: 'normal' }}>
+              {toast.message}
+            </div>
+            <button
+              type="button"
+              onClick={() => setToast(null)}
+              style={{
+                background: 'none',
+                border: 'none',
+                padding: '2px 4px',
+                color: '#9CA3AF',
+                cursor: 'pointer',
+                fontSize: '14px',
+                lineHeight: 1,
+                borderRadius: '4px',
+                flexShrink: 0,
+                marginTop: 1
+              }}
+              aria-label="Close notification"
+            >
+              ✕
+            </button>
           </div>,
           document.body
         )}

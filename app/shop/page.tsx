@@ -4694,14 +4694,14 @@ function MarketplaceContent() {
                               {conv.user.name}
                             </h4>
                             <span style={{
-                              fontSize: 10,
+                              fontSize: 11,
                               fontWeight: 500,
-                              color: conv.user.is_online ? '#10b981' : '#94a3b8',
-                              background: conv.user.is_online ? 'rgba(16,185,129,0.1)' : 'rgba(148,163,184,0.1)',
-                              padding: '1px 6px',
-                              borderRadius: 8,
-                              flexShrink: 0
+                              color: '#6B7280',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: 4
                             }}>
+                              <span style={{ width: 5, height: 5, borderRadius: '50%', background: conv.user.is_online ? '#10B981' : '#CBD5E1' }}></span>
                               {conv.user.is_online ? "Active" : "Offline"}
                             </span>
                           </div>
@@ -4716,7 +4716,7 @@ function MarketplaceContent() {
                         </p>
                       </div>
                       {conv.unread_count > 0 && (
-                        <div style={{width: 20, height: 20, borderRadius: '50%', background: '#ef4444', color: '#fff', fontSize: 11, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+                        <div style={{width: 20, height: 20, borderRadius: '50%', background: '#111827', color: '#fff', fontSize: 11, fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
                           {conv.unread_count}
                         </div>
                       )}
@@ -4780,15 +4780,10 @@ function MarketplaceContent() {
                         <h4 style={{fontSize: isMobile ? 14 : 16, fontWeight: 700, color: '#0f172a', margin: '0 0 2px'}}>
                           {activeChatUser.name}
                         </h4>
-                        {isActiveUserOnline ? (
-                          <span style={{fontSize: isMobile ? 11 : 12, color: '#10b981', display: 'flex', alignItems: 'center', gap: 4, fontWeight: 500}}>
-                            <span style={{width: 5, height: 5, borderRadius: '50%', background: '#10b981'}}></span> Active now
-                          </span>
-                        ) : (
-                          <span style={{fontSize: isMobile ? 11 : 12, color: '#94a3b8', display: 'flex', alignItems: 'center', gap: 4, fontWeight: 500}}>
-                            <span style={{width: 5, height: 5, borderRadius: '50%', background: '#94a3b8'}}></span> Offline
-                          </span>
-                        )}
+                        <span style={{fontSize: isMobile ? 11 : 12, color: '#6B7280', display: 'flex', alignItems: 'center', gap: 5, fontWeight: 500}}>
+                          <span style={{width: 6, height: 6, borderRadius: '50%', background: isActiveUserOnline ? '#10B981' : '#9CA3AF'}}></span>
+                          {isActiveUserOnline ? "Active now" : "Offline"}
+                        </span>
                       </div>
                     </div>
                     <button
@@ -4934,7 +4929,7 @@ function MarketplaceContent() {
                                       return (
                                         <div style={{ padding: 12, display: 'flex', flexDirection: 'column', gap: 10, width: 220 }}>
                                           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                            <div style={{ width: 34, height: 34, borderRadius: '50%', background: '#ECFDF5', color: '#0D6847', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                            <div style={{ width: 34, height: 34, borderRadius: '50%', background: '#F3F4F6', color: '#111827', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                                               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
                                             </div>
                                             <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -4947,7 +4942,7 @@ function MarketplaceContent() {
                                               href={`https://www.google.com/maps?q=${lat},${lng}`}
                                               target="_blank"
                                               rel="noopener noreferrer"
-                                              style={{ flex: 1, textAlign: 'center', background: '#3b82f6', color: '#fff', fontSize: 11, fontWeight: 600, padding: '6px 0', borderRadius: 8, textDecoration: 'none' }}
+                                              style={{ flex: 1, textAlign: 'center', background: '#FFFFFF', color: '#111827', border: '1px solid #D1D5DB', fontSize: 11, fontWeight: 600, padding: '6px 0', borderRadius: 8, textDecoration: 'none' }}
                                             >
                                               Google Maps
                                             </a>
@@ -4956,7 +4951,7 @@ function MarketplaceContent() {
                                               onClick={() => {
                                                 setIsMeetupMapOpen(true);
                                               }}
-                                              style={{ flex: 1, background: '#10b981', color: '#fff', border: 'none', fontSize: 11, fontWeight: 600, padding: '6px 0', borderRadius: 8, cursor: 'pointer' }}
+                                              style={{ flex: 1, background: '#111827', color: '#fff', border: '1px solid #111827', fontSize: 11, fontWeight: 600, padding: '6px 0', borderRadius: 8, cursor: 'pointer' }}
                                             >
                                               Meetup Map
                                             </button>
