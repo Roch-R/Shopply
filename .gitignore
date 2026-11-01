@@ -44,3 +44,10 @@ next-env.d.ts
 ShopplyAdminCSharp/
 scratch/
 *.traineddata
+
+# Local Arduino dependencies and compiler caches
+/arduino-toolchain/
+/arduino-build-check/
+/arduino/libraries/
+/arduino/compile-check.yaml
+/arduino/esp32-compile.yaml

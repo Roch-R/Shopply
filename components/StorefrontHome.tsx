@@ -255,6 +255,11 @@ function normalizeCategory(raw?: string): string {
 export default function StorefrontHome({ onLoginClick }: StorefrontHomeProps) {
   const [liveItems, setLiveItems] = useState<StoreItem[]>([]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string>("All");
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [previewItem, setPreviewItem] = useState<StoreItem | null>(null);
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const [showScrollTop, setShowScrollTop] = useState(false);
 
   useEffect(() => {
     try {
@@ -262,9 +267,55 @@ export default function StorefrontHome({ onLoginClick }: StorefrontHomeProps) {
       if (token) setIsLoggedIn(true);
     } catch {}
   }, []);
-  const [selectedCategory, setSelectedCategory] = useState<string>("All");
-  const [searchQuery, setSearchQuery] = useState<string>("");
-  const [previewItem, setPreviewItem] = useState<StoreItem | null>(null);
+
+  useEffect(() => {
+    let rafId: number | null = null;
+    const onScroll = () => {
+      if (rafId !== null) return;
+      rafId = window.requestAnimationFrame(() => {
+        const scrollTop = window.scrollY || document.documentElement.scrollTop;
+        const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+        const progress = scrollHeight > 0 ? (scrollTop / scrollHeight) * 100 : 0;
+        setScrollProgress(Math.min(100, Math.max(0, progress)));
+        setShowScrollTop(scrollTop > 380);
+        rafId = null;
+      });
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (rafId !== null) window.cancelAnimationFrame(rafId);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !("IntersectionObserver" in window)) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("sf-revealed");
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      {
+        threshold: 0.1,
+        rootMargin: "0px 0px -30px 0px",
+      }
+    );
+
+    const elements = document.querySelectorAll(".sf-scroll-reveal:not(.sf-revealed)");
+    elements.forEach((el) => observer.observe(el));
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [liveItems, selectedCategory]);
 
   useEffect(() => {
     let active = true;
@@ -341,6 +392,10 @@ export default function StorefrontHome({ onLoginClick }: StorefrontHomeProps) {
 
   return (
     <div className="sf-root">
+      {/* Scroll Progress Bar */}
+      <div className="sf-scroll-progress-track" aria-hidden="true">
+        <div className="sf-scroll-progress-bar" style={{ width: `${scrollProgress}%` }} />
+      </div>
       <style suppressHydrationWarning>{`
         .sf-root {
           min-height: 100vh;
@@ -1066,6 +1121,351 @@ export default function StorefrontHome({ onLoginClick }: StorefrontHomeProps) {
             max-height: 240px;
           }
         }
+
+        /* Top Scroll Progress Bar */
+        .sf-scroll-progress-track {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 3px;
+          background: rgba(229, 231, 235, 0.4);
+          z-index: 9999;
+          pointer-events: none;
+        }
+        .sf-scroll-progress-bar {
+          height: 100%;
+          background: linear-gradient(90deg, #111827 0%, #059669 50%, #10B981 100%);
+          box-shadow: 0 0 10px rgba(5, 150, 105, 0.55);
+          transition: width 0.08s ease-out;
+        }
+
+        /* Floating Back to Top Button */
+        .sf-back-to-top {
+          position: fixed;
+          bottom: 28px;
+          right: 28px;
+          width: 44px;
+          height: 44px;
+          border-radius: 50%;
+          background: #111827;
+          color: #FFFFFF;
+          border: 1px solid rgba(255, 255, 255, 0.15);
+          box-shadow: 0 8px 24px rgba(17, 24, 39, 0.22);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          z-index: 150;
+          opacity: 0;
+          transform: translateY(16px) scale(0.9);
+          pointer-events: none;
+          transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .sf-back-to-top.visible {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+          pointer-events: auto;
+        }
+        .sf-back-to-top:hover {
+          background: #059669;
+          transform: translateY(-3px) scale(1.06);
+          box-shadow: 0 12px 28px rgba(5, 150, 105, 0.38);
+        }
+        .sf-back-to-top:active {
+          transform: translateY(0) scale(0.96);
+        }
+
+        /* Scroll Cue */
+        .sf-scroll-cue {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          margin-top: 24px;
+          font-size: 13px;
+          font-weight: 600;
+          color: #6B7280;
+          text-decoration: none;
+          padding: 6px 14px;
+          border-radius: 20px;
+          background: rgba(255, 255, 255, 0.7);
+          border: 1px solid #E5E7EB;
+          transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+        }
+        .sf-scroll-cue:hover {
+          color: #111827;
+          border-color: #9CA3AF;
+          background: #FFFFFF;
+          transform: translateY(1px);
+        }
+        .sf-scroll-cue-arrow {
+          animation: sfBounce 2s infinite ease-in-out;
+        }
+        @keyframes sfBounce {
+          0%, 100% {
+            transform: translateY(0);
+          }
+          50% {
+            transform: translateY(4px);
+          }
+        }
+
+        /* Hero Sequential Entrance */
+        @keyframes sfHeroFadeUp {
+          0% {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          100% {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        @keyframes sfHeroFadeInRight {
+          0% {
+            opacity: 0;
+            transform: translateX(30px) scale(0.98);
+          }
+          100% {
+            opacity: 1;
+            transform: translateX(0) scale(1);
+          }
+        }
+        .sf-hero-anim-1 {
+          animation: sfHeroFadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) backwards 0.05s;
+        }
+        .sf-hero-anim-2 {
+          animation: sfHeroFadeUp 0.65s cubic-bezier(0.16, 1, 0.3, 1) backwards 0.15s;
+        }
+        .sf-hero-anim-3 {
+          animation: sfHeroFadeUp 0.65s cubic-bezier(0.16, 1, 0.3, 1) backwards 0.25s;
+        }
+        .sf-hero-anim-4 {
+          animation: sfHeroFadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) backwards 0.35s;
+        }
+        .sf-hero-anim-5 {
+          animation: sfHeroFadeUp 0.75s cubic-bezier(0.16, 1, 0.3, 1) backwards 0.45s;
+        }
+        .sf-hero-anim-6 {
+          animation: sfHeroFadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) backwards 0.55s;
+        }
+        .sf-hero-anim-mosaic {
+          animation: sfHeroFadeInRight 0.85s cubic-bezier(0.16, 1, 0.3, 1) backwards 0.25s;
+        }
+
+        /* Organic Showcase Levitation */
+        @keyframes sfFloatMain {
+          0% {
+            transform: translateY(0);
+          }
+          100% {
+            transform: translateY(-8px);
+          }
+        }
+        @keyframes sfFloatSub1 {
+          0% {
+            transform: translateY(0);
+          }
+          100% {
+            transform: translateY(-6px);
+          }
+        }
+        @keyframes sfFloatSub2 {
+          0% {
+            transform: translateY(0);
+          }
+          100% {
+            transform: translateY(-7px);
+          }
+        }
+        .sf-float-main {
+          animation: sfFloatMain 6s ease-in-out infinite alternate;
+          will-change: transform;
+        }
+        .sf-float-sub-1 {
+          animation: sfFloatSub1 4.8s ease-in-out infinite alternate;
+          will-change: transform;
+        }
+        .sf-float-sub-2 {
+          animation: sfFloatSub2 5.4s ease-in-out infinite alternate;
+          will-change: transform;
+        }
+
+        .sf-showcase-main,
+        .sf-showcase-sub {
+          transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease;
+        }
+        .sf-showcase-main:hover {
+          animation-play-state: paused;
+          transform: translateY(-8px) scale(1.015) !important;
+          box-shadow: 0 20px 40px -10px rgba(17, 24, 39, 0.16);
+          border-color: #9CA3AF;
+        }
+        .sf-showcase-sub:hover {
+          animation-play-state: paused;
+          transform: translateY(-6px) scale(1.02) !important;
+          box-shadow: 0 16px 32px -8px rgba(17, 24, 39, 0.14);
+          border-color: #9CA3AF;
+        }
+
+        /* General Scroll-Reveal Base Classes */
+        .sf-scroll-reveal {
+          opacity: 0;
+          will-change: transform, opacity;
+        }
+
+        .sf-reveal-fade-up {
+          transform: translateY(28px);
+          transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .sf-reveal-fade-up.sf-revealed {
+          opacity: 1;
+          transform: translateY(0);
+        }
+
+        .sf-reveal-card {
+          transform: translateY(32px);
+          transition: opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1), transform 0.55s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease, border-color 0.25s ease;
+          transition-delay: calc(var(--stagger, 0) * 65ms);
+        }
+        .sf-reveal-card.sf-revealed {
+          opacity: 1;
+          transform: translateY(0);
+        }
+
+        .sf-reveal-slide-left {
+          transform: translateX(-40px);
+          transition: opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1), transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .sf-reveal-slide-left.sf-revealed {
+          opacity: 1;
+          transform: translateX(0);
+        }
+
+        .sf-reveal-slide-right {
+          transform: translateX(40px);
+          transition: opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1) 0.1s, transform 0.65s cubic-bezier(0.16, 1, 0.3, 1) 0.1s;
+        }
+        .sf-reveal-slide-right.sf-revealed {
+          opacity: 1;
+          transform: translateX(0);
+        }
+
+        .sf-reveal-banner {
+          transform: scale(0.96) translateY(24px);
+          transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .sf-reveal-banner.sf-revealed {
+          opacity: 1;
+          transform: scale(1) translateY(0);
+        }
+
+        /* Enhanced Department Card Interactions */
+        .sf-dept-card {
+          transition: border-color 0.25s ease, transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease, background-color 0.2s ease;
+        }
+        .sf-dept-card:hover {
+          border-color: #111827;
+          transform: translateY(-5px);
+          box-shadow: 0 10px 24px rgba(17, 24, 39, 0.08);
+        }
+        .sf-dept-card:hover .sf-dept-icon {
+          background: #111827;
+          color: #FFFFFF;
+          transform: scale(1.08) rotate(3deg);
+        }
+        .sf-dept-icon {
+          transition: background-color 0.25s ease, color 0.25s ease, transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* Enhanced Product Card Hover */
+        .sf-card {
+          transition: border-color 0.25s ease, transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
+        }
+        .sf-card:hover {
+          border-color: #9CA3AF;
+          transform: translateY(-5px);
+          box-shadow: 0 14px 28px rgba(17, 24, 39, 0.09);
+        }
+        .sf-card-media img {
+          transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .sf-card:hover .sf-card-media img {
+          transform: scale(1.06);
+        }
+
+        /* Step Number Micro-Interaction */
+        .sf-step {
+          transition: transform 0.2s ease;
+        }
+        .sf-step:hover {
+          transform: translateX(4px);
+        }
+        .sf-step:hover .sf-step-num {
+          background: #059669;
+          transform: scale(1.1);
+        }
+        .sf-step-num {
+          transition: background-color 0.2s ease, transform 0.2s ease;
+        }
+
+        /* CTA Banner Ambient Shimmer */
+        .sf-cta-banner {
+          position: relative;
+          overflow: hidden;
+        }
+        .sf-cta-banner::before {
+          content: "";
+          position: absolute;
+          top: -50%;
+          left: -50%;
+          width: 200%;
+          height: 200%;
+          background: radial-gradient(circle at center, rgba(16, 185, 129, 0.12) 0%, transparent 60%);
+          pointer-events: none;
+        }
+        .sf-btn-white {
+          transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .sf-btn-white:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+        }
+        .sf-btn-ghost-light {
+          transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+        }
+        .sf-btn-ghost-light:hover {
+          transform: translateY(-2px);
+        }
+
+        /* Reduced Motion Fallback */
+        @media (prefers-reduced-motion: reduce) {
+          .sf-scroll-reveal,
+          .sf-reveal-fade-up,
+          .sf-reveal-slide-left,
+          .sf-reveal-slide-right,
+          .sf-reveal-card,
+          .sf-reveal-banner,
+          .sf-hero-anim-1,
+          .sf-hero-anim-2,
+          .sf-hero-anim-3,
+          .sf-hero-anim-4,
+          .sf-hero-anim-5,
+          .sf-hero-anim-6,
+          .sf-hero-anim-mosaic {
+            opacity: 1 !important;
+            transform: none !important;
+            transition: none !important;
+            animation: none !important;
+          }
+          .sf-float-main,
+          .sf-float-sub-1,
+          .sf-float-sub-2,
+          .sf-scroll-cue-arrow {
+            animation: none !important;
+          }
+        }
+
       `}</style>
 
       <PublicHeader onLoginClick={onLoginClick} activePath="/" />
@@ -1076,17 +1476,17 @@ export default function StorefrontHome({ onLoginClick }: StorefrontHomeProps) {
           <div className="sf-container">
             <div className="sf-hero-grid">
               <div>
-                <div className="sf-eyebrow">
+                <div className="sf-eyebrow sf-hero-anim-1">
                   <span className="sf-eyebrow-dot" />
                   <span>Philippine Marketplace · Verified Local Stores</span>
                 </div>
-                <h1 className="sf-hero-title">
+                <h1 className="sf-hero-title sf-hero-anim-2">
                   Everyday essentials from trusted sellers across the Philippines.
                 </h1>
-                <p className="sf-hero-sub">
+                <p className="sf-hero-sub sf-hero-anim-3">
                   Shop electronics, footwear, apparel, and home goods with transparent peso pricing, direct seller chat, and nationwide Cash on Delivery.
                 </p>
-                <div className="sf-hero-ctas">
+                <div className="sf-hero-ctas sf-hero-anim-4">
                   {isLoggedIn ? (
                     <Link href="/shop" className="sf-btn-primary">
                       <span>Go to Marketplace</span>
@@ -1109,7 +1509,7 @@ export default function StorefrontHome({ onLoginClick }: StorefrontHomeProps) {
                   </Link>
                 </div>
 
-                <div className="sf-trust-row">
+                <div className="sf-trust-row sf-hero-anim-5">
                   <div className="sf-trust-item">
                     <strong>Protected Checkout</strong>
                     <span>Order tracking &amp; receipt confirmation on every purchase</span>
@@ -1123,12 +1523,21 @@ export default function StorefrontHome({ onLoginClick }: StorefrontHomeProps) {
                     <span>Cash on Delivery, GCash, Maya &amp; local bank transfer</span>
                   </div>
                 </div>
+
+                <div className="sf-hero-anim-6">
+                  <a href="#departments" className="sf-scroll-cue" aria-label="Explore departments">
+                    <span>Explore marketplace</span>
+                    <svg className="sf-scroll-cue-arrow" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="6 9 12 15 18 9" />
+                    </svg>
+                  </a>
+                </div>
               </div>
 
               {/* Editorial Product Mosaic */}
-              <div className="sf-showcase">
+              <div className="sf-showcase sf-hero-anim-mosaic">
                 <div
-                  className="sf-showcase-main"
+                  className="sf-showcase-main sf-float-main"
                   onClick={() => setPreviewItem(catalogItems[0] || CURATED_SHOWCASE_ITEMS[0])}
                   role="button"
                   tabIndex={0}
@@ -1150,7 +1559,7 @@ export default function StorefrontHome({ onLoginClick }: StorefrontHomeProps) {
 
                 <div className="sf-showcase-stack">
                   <div
-                    className="sf-showcase-sub"
+                    className="sf-showcase-sub sf-float-sub-1"
                     onClick={() => setPreviewItem(catalogItems[1] || CURATED_SHOWCASE_ITEMS[1])}
                     role="button"
                     tabIndex={0}
@@ -1171,7 +1580,7 @@ export default function StorefrontHome({ onLoginClick }: StorefrontHomeProps) {
                   </div>
 
                   <div
-                    className="sf-showcase-sub"
+                    className="sf-showcase-sub sf-float-sub-2"
                     onClick={() => setPreviewItem(catalogItems[2] || CURATED_SHOWCASE_ITEMS[2])}
                     role="button"
                     tabIndex={0}
@@ -1199,7 +1608,7 @@ export default function StorefrontHome({ onLoginClick }: StorefrontHomeProps) {
         {/* Shop by Department */}
         <section className="sf-section" id="departments">
           <div className="sf-container">
-            <div className="sf-section-head">
+            <div className="sf-section-head sf-scroll-reveal sf-reveal-fade-up">
               <div>
                 <h2>Shop by department</h2>
                 <p>Browse curated categories from independent stores and brand partners</p>
@@ -1211,11 +1620,12 @@ export default function StorefrontHome({ onLoginClick }: StorefrontHomeProps) {
             </div>
 
             <div className="sf-dept-grid">
-              {DEPARTMENTS.map((dept) => (
+              {DEPARTMENTS.map((dept, index) => (
                 <button
                   key={dept.id}
                   type="button"
-                  className="sf-dept-card"
+                  className="sf-dept-card sf-scroll-reveal sf-reveal-card"
+                  style={{ "--stagger": index } as React.CSSProperties}
                   onClick={() => selectDepartment(dept.id)}
                 >
                   <div className="sf-dept-icon">{dept.icon}</div>
@@ -1232,14 +1642,14 @@ export default function StorefrontHome({ onLoginClick }: StorefrontHomeProps) {
         {/* Featured Marketplace Arrivals */}
         <section className="sf-section-alt" id="catalog">
           <div className="sf-container">
-            <div className="sf-section-head">
+            <div className="sf-section-head sf-scroll-reveal sf-reveal-fade-up">
               <div>
                 <h2>Featured marketplace arrivals</h2>
                 <p>Real listings from verified sellers — sign in to add items to your cart or chat with sellers</p>
               </div>
             </div>
 
-            <div className="sf-toolbar">
+            <div className="sf-toolbar sf-scroll-reveal sf-reveal-fade-up">
               <div className="sf-tabs" role="tablist" aria-label="Filter products by category">
                 {["All", "Electronics", "Footwear", "Fashion", "Home & Living", "Beauty", "Accessories"].map(
                   (tab) => (
@@ -1311,7 +1721,7 @@ export default function StorefrontHome({ onLoginClick }: StorefrontHomeProps) {
               </div>
             ) : (
               <div className="sf-product-grid">
-                {filteredItems.slice(0, 8).map((item) => {
+                {filteredItems.slice(0, 8).map((item, index) => {
                   const sellerCity = item.user?.location || item.location || "Metro Manila";
                   const sellerName = item.user?.name || "Verified Store";
                   const rating = Number(item.reviews_avg_rating || 4.8).toFixed(1);
@@ -1320,7 +1730,8 @@ export default function StorefrontHome({ onLoginClick }: StorefrontHomeProps) {
                   return (
                     <article
                       key={String(item.id)}
-                      className="sf-card"
+                      className="sf-card sf-scroll-reveal sf-reveal-card"
+                      style={{ "--stagger": index % 8 } as React.CSSProperties}
                       onClick={() => setPreviewItem(item)}
                     >
                       <div className="sf-card-media">
@@ -1379,7 +1790,7 @@ export default function StorefrontHome({ onLoginClick }: StorefrontHomeProps) {
         {/* How Shopply Works */}
         <section className="sf-section" id="how-it-works">
           <div className="sf-container">
-            <div className="sf-section-head">
+            <div className="sf-section-head sf-scroll-reveal sf-reveal-fade-up">
               <div>
                 <h2>Straightforward buying and selling</h2>
                 <p>One account gives you access to both the customer marketplace and seller tools</p>
@@ -1387,7 +1798,7 @@ export default function StorefrontHome({ onLoginClick }: StorefrontHomeProps) {
             </div>
 
             <div className="sf-how-grid">
-              <div className="sf-how-panel">
+              <div className="sf-how-panel sf-scroll-reveal sf-reveal-slide-left">
                 <span className="sf-how-tag">For Shoppers</span>
                 <h3>Shop confidently from local stores</h3>
                 <div className="sf-step-list">
@@ -1418,7 +1829,7 @@ export default function StorefrontHome({ onLoginClick }: StorefrontHomeProps) {
                 </Link>
               </div>
 
-              <div className="sf-how-panel">
+              <div className="sf-how-panel sf-scroll-reveal sf-reveal-slide-right">
                 <span className="sf-how-tag">For Independent Sellers</span>
                 <h3>Run your store without monthly fees</h3>
                 <div className="sf-step-list">
@@ -1455,7 +1866,7 @@ export default function StorefrontHome({ onLoginClick }: StorefrontHomeProps) {
         {/* Bottom CTA */}
         <section style={{ paddingBottom: "72px" }}>
           <div className="sf-container">
-            <div className="sf-cta-banner">
+            <div className="sf-cta-banner sf-scroll-reveal sf-reveal-banner">
               <div>
                 <h2>Start shopping or selling on Shopply today</h2>
                 <p>
@@ -1579,6 +1990,18 @@ export default function StorefrontHome({ onLoginClick }: StorefrontHomeProps) {
           </div>
         </div>
       )}
+
+      {/* Floating Back to Top */}
+      <button
+        type="button"
+        className={`sf-back-to-top${showScrollTop ? " visible" : ""}`}
+        onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+        aria-label="Back to top"
+      >
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="18 15 12 9 6 15" />
+        </svg>
+      </button>
 
       <PublicFooter onLoginClick={onLoginClick} />
       <CookieBanner />
