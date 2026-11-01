@@ -4,7 +4,6 @@ import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { PublicHeader, PublicFooter } from "@/components/PublicChrome";
 import CookieBanner from "@/components/CookieBanner";
-import Storefront3DCanvas from "@/components/Storefront3DCanvas";
 
 interface StoreItem {
   id: number | string;
@@ -261,21 +260,6 @@ export default function StorefrontHome({ onLoginClick }: StorefrontHomeProps) {
   const [previewItem, setPreviewItem] = useState<StoreItem | null>(null);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [showScrollTop, setShowScrollTop] = useState(false);
-  const [heroTilt, setHeroTilt] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
-  const [heroIsHovered, setHeroIsHovered] = useState(false);
-
-  const handleHeroMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width - 0.5;
-    const y = (e.clientY - rect.top) / rect.height - 0.5;
-    setHeroTilt({ x: x * 14, y: -y * 14 });
-    setHeroIsHovered(true);
-  };
-
-  const handleHeroMouseLeave = () => {
-    setHeroTilt({ x: 0, y: 0 });
-    setHeroIsHovered(false);
-  };
 
   useEffect(() => {
     try {
@@ -581,17 +565,6 @@ export default function StorefrontHome({ onLoginClick }: StorefrontHomeProps) {
         .sf-showcase-main:hover .sf-showcase-img,
         .sf-showcase-sub:hover .sf-showcase-img {
           transform: scale(1.03);
-        }
-        .sf-3d-perspective-stage {
-          transform-style: preserve-3d;
-          transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-          will-change: transform;
-        }
-        .sf-3d-perspective-stage .sf-showcase-caption {
-          transform: translateZ(28px);
-        }
-        .sf-3d-perspective-stage .sf-showcase-price {
-          transform: translateZ(42px);
         }
         .sf-showcase-caption {
           position: absolute;
@@ -1562,16 +1535,7 @@ export default function StorefrontHome({ onLoginClick }: StorefrontHomeProps) {
               </div>
 
               {/* Editorial Product Mosaic */}
-              <div
-                className="sf-showcase sf-hero-anim-mosaic sf-3d-perspective-stage"
-                onMouseMove={handleHeroMouseMove}
-                onMouseLeave={handleHeroMouseLeave}
-                style={{
-                  transform: heroIsHovered
-                    ? `perspective(1000px) rotateX(${heroTilt.y.toFixed(2)}deg) rotateY(${heroTilt.x.toFixed(2)}deg) scale3d(1.02, 1.02, 1.02)`
-                    : "perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)",
-                }}
-              >
+              <div className="sf-showcase sf-hero-anim-mosaic">
                 <div
                   className="sf-showcase-main sf-float-main"
                   onClick={() => setPreviewItem(catalogItems[0] || CURATED_SHOWCASE_ITEMS[0])}
@@ -1674,9 +1638,6 @@ export default function StorefrontHome({ onLoginClick }: StorefrontHomeProps) {
             </div>
           </div>
         </section>
-
-        {/* Interactive 3D Scrolling Studio Canvas */}
-        <Storefront3DCanvas />
 
         {/* Featured Marketplace Arrivals */}
         <section className="sf-section-alt" id="catalog">
