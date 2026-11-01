@@ -107,6 +107,7 @@ export function PublicHeader({ onLoginClick, activePath = "" }: PublicHeaderProp
   const navItems = [
     { label: "Shop", href: isLoggedIn ? "/shop" : "/login" },
     { label: "Departments", href: isLoggedIn ? "/shop" : "/login" },
+    { label: "3D Studio", href: "/experience" },
     { label: "Features", href: "/features" },
     { label: "About", href: "/about" },
     { label: "Guides", href: "/guides" },
