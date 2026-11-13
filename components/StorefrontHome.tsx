@@ -4,6 +4,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { PublicHeader, PublicFooter } from "@/components/PublicChrome";
 import CookieBanner from "@/components/CookieBanner";
+import DeliveryJourney from "@/components/delivery-journey/DeliveryJourney";
 
 interface StoreItem {
   id: number | string;
@@ -1604,6 +1605,9 @@ export default function StorefrontHome({ onLoginClick }: StorefrontHomeProps) {
             </div>
           </div>
         </section>
+
+        {/* Scroll-driven 3D delivery journey */}
+        <DeliveryJourney isLoggedIn={isLoggedIn} onLoginClick={onLoginClick} />
 
         {/* Shop by Department */}
         <section className="sf-section" id="departments">

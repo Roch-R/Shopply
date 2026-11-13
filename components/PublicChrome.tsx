@@ -321,7 +321,7 @@ export function PublicHeader({ onLoginClick, activePath = "" }: PublicHeaderProp
           <nav className="sp-nav" aria-label="Primary">
             {navItems.map((item) => (
               <Link
-                key={item.href}
+                key={item.label}
                 href={item.href}
                 className={`sp-nav-link nav-link${activePath === item.href ? " active" : ""}`}
               >
@@ -378,7 +378,7 @@ export function PublicHeader({ onLoginClick, activePath = "" }: PublicHeaderProp
           <div className="sp-mobile-links">
             {navItems.map((item) => (
               <Link
-                key={item.href}
+                key={item.label}
                 href={item.href}
                 onClick={() => setMobileOpen(false)}
               >
