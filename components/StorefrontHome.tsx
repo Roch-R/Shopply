@@ -5,6 +5,8 @@ import Link from "next/link";
 import { PublicHeader, PublicFooter } from "@/components/PublicChrome";
 import CookieBanner from "@/components/CookieBanner";
 import DeliveryJourney from "@/components/delivery-journey/DeliveryJourney";
+import HomeHero, { type HeroProduct } from "@/components/home/HomeHero";
+import DepartmentBento from "@/components/home/DepartmentBento";
 
 interface StoreItem {
   id: number | string;
@@ -224,6 +226,40 @@ const DEPARTMENTS = [
   },
 ];
 
+const HERO_PRODUCTS: [HeroProduct, HeroProduct, HeroProduct] = [
+  {
+    label: "Featured Audio",
+    name: "Studio Pro ANC Headphones",
+    price: "₱2,490",
+    image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=900&auto=format&fit=crop&q=85",
+    alt: "Studio Pro Wireless ANC Headphones",
+  },
+  {
+    label: "Footwear",
+    name: "AeroSwift Runner",
+    price: "₱1,850",
+    image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&auto=format&fit=crop&q=80",
+    alt: "AeroSwift Road Running Shoes",
+  },
+  {
+    label: "Accessories",
+    name: "Meridian Watch",
+    price: "₱1,690",
+    image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&auto=format&fit=crop&q=80",
+    alt: "Minimalist Everyday Watch",
+  },
+];
+
+/** Cover photo for each department tile (same photos the catalogue already uses). */
+const DEPARTMENT_IMAGES: Record<string, string> = {
+  Electronics: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=1000&auto=format&fit=crop&q=80",
+  Footwear: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=1200&auto=format&fit=crop&q=80",
+  Fashion: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800&auto=format&fit=crop&q=80",
+  "Home & Living": "https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?w=900&auto=format&fit=crop&q=80",
+  Beauty: "https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=1000&auto=format&fit=crop&q=80",
+  Accessories: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=1000&auto=format&fit=crop&q=80",
+};
+
 function formatPeso(val: string | number | undefined | null): string {
   const num = Number(val || 0);
   return `₱${num.toLocaleString("en-PH", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -375,6 +411,22 @@ export default function StorefrontHome({ onLoginClick }: StorefrontHomeProps) {
       return matchesCat && matchesQuery;
     });
   }, [catalogItems, selectedCategory, searchQuery]);
+
+  const bentoDepartments = useMemo(
+    () =>
+      DEPARTMENTS.map((dept) => ({
+        ...dept,
+        image: DEPARTMENT_IMAGES[dept.id],
+        count: catalogItems.filter((item) => normalizeCategory(item.category).toLowerCase() === dept.id.toLowerCase()).length,
+      })),
+    [catalogItems]
+  );
+
+  const searchCatalog = (query: string) => {
+    setSelectedCategory("All");
+    setSearchQuery(query);
+    document.getElementById("catalog")?.scrollIntoView({ behavior: "smooth" });
+  };
 
   const triggerLogin = (e?: React.MouseEvent) => {
     if (onLoginClick) {
@@ -1467,181 +1519,91 @@ export default function StorefrontHome({ onLoginClick }: StorefrontHomeProps) {
           }
         }
 
+        /* 2026 refresh: bolder section headings and call-to-action */
+        .sf-section-head h2 {
+          font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+          font-size: clamp(28px, 3.2vw, 42px);
+          font-weight: 800;
+          letter-spacing: -0.035em;
+          line-height: 1.08;
+        }
+        .sf-section-head p {
+          font-size: 16px;
+        }
+        .sf-cta-banner {
+          background:
+            radial-gradient(60% 120% at 12% 0%, rgba(16, 185, 129, 0.38), transparent 62%),
+            radial-gradient(50% 110% at 92% 100%, rgba(59, 130, 246, 0.3), transparent 60%),
+            radial-gradient(40% 90% at 70% 0%, rgba(245, 158, 11, 0.2), transparent 60%),
+            #0A0E1A;
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: 28px;
+          box-shadow: 0 40px 80px -40px rgba(10, 14, 26, 0.7);
+        }
+        .sf-cta-banner::after {
+          content: "";
+          position: absolute;
+          inset: 0;
+          pointer-events: none;
+          background-image:
+            linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+          background-size: 48px 48px;
+          -webkit-mask-image: radial-gradient(70% 90% at 50% 50%, #000 10%, transparent 80%);
+          mask-image: radial-gradient(70% 90% at 50% 50%, #000 10%, transparent 80%);
+        }
+        .sf-cta-banner > * {
+          position: relative;
+          z-index: 1;
+        }
+        .sf-cta-banner h2 {
+          font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+          font-size: clamp(26px, 3vw, 40px);
+          font-weight: 800;
+          letter-spacing: -0.03em;
+          line-height: 1.1;
+        }
+        .sf-how-panel {
+          border-radius: 24px;
+          transition: opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1), transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease, border-color 0.3s ease;
+        }
+        .sf-how-panel:hover {
+          transform: translateY(-4px);
+          border-color: #111827;
+          box-shadow: 0 30px 50px -30px rgba(17, 24, 39, 0.35);
+        }
+        .sf-card {
+          border-radius: 18px;
+        }
+
       `}</style>
 
       <PublicHeader onLoginClick={onLoginClick} activePath="/" />
 
       <main>
         {/* Hero Section */}
-        <section className="sf-hero">
-          <div className="sf-container">
-            <div className="sf-hero-grid">
-              <div>
-                <div className="sf-eyebrow sf-hero-anim-1">
-                  <span className="sf-eyebrow-dot" />
-                  <span>Philippine Marketplace · Verified Local Stores</span>
-                </div>
-                <h1 className="sf-hero-title sf-hero-anim-2">
-                  Everyday essentials from trusted sellers across the Philippines.
-                </h1>
-                <p className="sf-hero-sub sf-hero-anim-3">
-                  Shop electronics, footwear, apparel, and home goods with transparent peso pricing, direct seller chat, and nationwide Cash on Delivery.
-                </p>
-                <div className="sf-hero-ctas sf-hero-anim-4">
-                  {isLoggedIn ? (
-                    <Link href="/shop" className="sf-btn-primary">
-                      <span>Go to Marketplace</span>
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <line x1="5" y1="12" x2="19" y2="12" />
-                        <polyline points="12 5 19 12 12 19" />
-                      </svg>
-                    </Link>
-                  ) : (
-                    <Link href="/login" onClick={triggerLogin} className="sf-btn-primary">
-                      <span>Sign in to start shopping</span>
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <line x1="5" y1="12" x2="19" y2="12" />
-                        <polyline points="12 5 19 12 12 19" />
-                      </svg>
-                    </Link>
-                  )}
-                  <Link href="/register" className="sf-btn-secondary">
-                    Open a seller account
-                  </Link>
-                </div>
-
-                <div className="sf-trust-row sf-hero-anim-5">
-                  <div className="sf-trust-item">
-                    <strong>Protected Checkout</strong>
-                    <span>Order tracking &amp; receipt confirmation on every purchase</span>
-                  </div>
-                  <div className="sf-trust-item">
-                    <strong>Direct Seller Chat</strong>
-                    <span>Message store owners directly for sizing &amp; stock photos</span>
-                  </div>
-                  <div className="sf-trust-item">
-                    <strong>Flexible Payment</strong>
-                    <span>Cash on Delivery, GCash, Maya &amp; local bank transfer</span>
-                  </div>
-                </div>
-
-                <div className="sf-hero-anim-6">
-                  <a href="#departments" className="sf-scroll-cue" aria-label="Explore departments">
-                    <span>Explore marketplace</span>
-                    <svg className="sf-scroll-cue-arrow" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <polyline points="6 9 12 15 18 9" />
-                    </svg>
-                  </a>
-                </div>
-              </div>
-
-              {/* Editorial Product Mosaic */}
-              <div className="sf-showcase sf-hero-anim-mosaic">
-                <div
-                  className="sf-showcase-main sf-float-main"
-                  onClick={() => setPreviewItem(catalogItems[0] || CURATED_SHOWCASE_ITEMS[0])}
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={(e) => e.key === "Enter" && setPreviewItem(catalogItems[0] || CURATED_SHOWCASE_ITEMS[0])}
-                >
-                  <img
-                    className="sf-showcase-img"
-                    src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=900&auto=format&fit=crop&q=85"
-                    alt="Studio Pro Wireless ANC Headphones"
-                  />
-                  <div className="sf-showcase-caption">
-                    <div>
-                      <small>Featured Audio</small>
-                      <strong>Studio Pro ANC Headphones</strong>
-                    </div>
-                    <span className="sf-showcase-price">₱2,490</span>
-                  </div>
-                </div>
-
-                <div className="sf-showcase-stack">
-                  <div
-                    className="sf-showcase-sub sf-float-sub-1"
-                    onClick={() => setPreviewItem(catalogItems[1] || CURATED_SHOWCASE_ITEMS[1])}
-                    role="button"
-                    tabIndex={0}
-                    onKeyDown={(e) => e.key === "Enter" && setPreviewItem(catalogItems[1] || CURATED_SHOWCASE_ITEMS[1])}
-                  >
-                    <img
-                      className="sf-showcase-img"
-                      src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&auto=format&fit=crop&q=80"
-                      alt="AeroSwift Road Running Shoes"
-                    />
-                    <div className="sf-showcase-caption">
-                      <div>
-                        <small>Footwear</small>
-                        <strong>AeroSwift Runner</strong>
-                      </div>
-                      <span className="sf-showcase-price">₱1,850</span>
-                    </div>
-                  </div>
-
-                  <div
-                    className="sf-showcase-sub sf-float-sub-2"
-                    onClick={() => setPreviewItem(catalogItems[2] || CURATED_SHOWCASE_ITEMS[2])}
-                    role="button"
-                    tabIndex={0}
-                    onKeyDown={(e) => e.key === "Enter" && setPreviewItem(catalogItems[2] || CURATED_SHOWCASE_ITEMS[2])}
-                  >
-                    <img
-                      className="sf-showcase-img"
-                      src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&auto=format&fit=crop&q=80"
-                      alt="Minimalist Everyday Watch"
-                    />
-                    <div className="sf-showcase-caption">
-                      <div>
-                        <small>Accessories</small>
-                        <strong>Meridian Watch</strong>
-                      </div>
-                      <span className="sf-showcase-price">₱1,690</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
+        <HomeHero
+          isLoggedIn={isLoggedIn}
+          onLoginClick={onLoginClick}
+          products={HERO_PRODUCTS}
+          onSearch={searchCatalog}
+          onPreview={(index) => setPreviewItem(catalogItems[index] || CURATED_SHOWCASE_ITEMS[index])}
+        />
 
         {/* Scroll-driven 3D delivery journey */}
         <DeliveryJourney isLoggedIn={isLoggedIn} onLoginClick={onLoginClick} />
 
         {/* Shop by Department */}
-        <section className="sf-section" id="departments">
-          <div className="sf-container">
-            <div className="sf-section-head sf-scroll-reveal sf-reveal-fade-up">
-              <div>
-                <h2>Shop by department</h2>
-                <p>Browse curated categories from independent stores and brand partners</p>
-              </div>
-              <Link href={isLoggedIn ? "/shop" : "/login"} onClick={isLoggedIn ? undefined : triggerLogin} className="sf-link-inline">
-                <span>{isLoggedIn ? "Explore full marketplace" : "Sign in for full marketplace"}</span>
-                <span aria-hidden="true">→</span>
-              </Link>
-            </div>
-
-            <div className="sf-dept-grid">
-              {DEPARTMENTS.map((dept, index) => (
-                <button
-                  key={dept.id}
-                  type="button"
-                  className="sf-dept-card sf-scroll-reveal sf-reveal-card"
-                  style={{ "--stagger": index } as React.CSSProperties}
-                  onClick={() => selectDepartment(dept.id)}
-                >
-                  <div className="sf-dept-icon">{dept.icon}</div>
-                  <div>
-                    <h3>{dept.title}</h3>
-                    <p>{dept.subtitle}</p>
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
-        </section>
+        <DepartmentBento
+          departments={bentoDepartments}
+          onSelect={selectDepartment}
+          action={
+            <Link href={isLoggedIn ? "/shop" : "/login"} onClick={isLoggedIn ? undefined : triggerLogin} className="sf-link-inline">
+              <span>{isLoggedIn ? "Explore full marketplace" : "Sign in for full marketplace"}</span>
+              <span aria-hidden="true">→</span>
+            </Link>
+          }
+        />
 
         {/* Featured Marketplace Arrivals */}
         <section className="sf-section-alt" id="catalog">
